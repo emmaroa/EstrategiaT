@@ -310,36 +310,73 @@
       limpiarFormulario();
     }
 
-    function guardarPeticion() {
-      const nuevaPeticion = {
-        fecha: document.getElementById("fecha").value,
-        unidad: document.getElementById("unidad").value.trim(),
-        peticion: document.getElementById("peticion").value.trim(),
-        solicitante: document.getElementById("solicitante").value.trim(),
-        area: document.getElementById("area").value,
-        proveedor: document.getElementById("proveedor").value.trim(),
-        estatus: document.getElementById("estatus").value,
-        observaciones: document.getElementById("observaciones").value.trim()
-      };
+    fuasync function guardarPeticion() {
 
-      if (!nuevaPeticion.unidad || !nuevaPeticion.peticion || !nuevaPeticion.solicitante || !nuevaPeticion.area) {
-        alert("Completa unidad, petición, solicitante y área.");
-        return;
-      }
+  const nuevaPeticion = {
+    fecha: document.getElementById("fecha").value,
+    unidad: document.getElementById("unidad").value.trim(),
+    peticion: document.getElementById("peticion").value.trim(),
+    solicitante: document.getElementById("solicitante").value.trim(),
+    area: document.getElementById("area").value,
+    proveedor: document.getElementById("proveedor").value.trim(),
+    estatus: document.getElementById("estatus").value,
+    observaciones: document.getElementById("observaciones").value.trim()
+  };
+
+  if (
+    !nuevaPeticion.unidad ||
+    !nuevaPeticion.peticion ||
+    !nuevaPeticion.solicitante ||
+    !nuevaPeticion.area
+  ) {
+    alert("Completa unidad, petición, solicitante y área.");
+    return;
+  }
+
+  try {
+
+    const respuesta = await fetch("https://script.google.com/macros/s/AKfycby5Lw6iDMXk56abAjI0QjsnrOVEpt4nI9DlMtpMEnEY7TFDuXLYMbm94sO_UJR_X7HY6g/exec", {
+      method: "POST",
+      body: JSON.stringify(nuevaPeticion)
+    });
+
+    const resultado = await respuesta.json();
+
+    if (resultado.success) {
 
       peticiones.unshift(nuevaPeticion);
 
-      localStorage.setItem("peticiones", JSON.stringify(peticiones));
+      localStorage.setItem(
+        "peticiones",
+        JSON.stringify(peticiones)
+      );
 
-      registrarAuditoria(
-  "Peticiones",
-  "Creó nueva petición",
-  "Unidad " + nuevaPeticion.unidad + " - " + nuevaPeticion.peticion
-);
+      if (typeof registrarAuditoria === "function") {
+        registrarAuditoria(
+          "Peticiones",
+          "Creó nueva petición",
+          "Unidad " + nuevaPeticion.unidad
+        );
+      }
 
       cargarPeticiones();
       cerrarModal();
+
+      alert("Petición guardada correctamente.");
+
+    } else {
+
+      alert("No se pudo guardar.");
+
     }
+
+  } catch (error) {
+
+    console.error(error);
+    alert("Error al conectar con Google Sheets.");
+
+  }
+}
 
     function limpiarFormulario() {
       document.getElementById("unidad").value = "";
