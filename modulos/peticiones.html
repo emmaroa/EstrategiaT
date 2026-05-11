@@ -1,0 +1,446 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ESTRATEGIAT | Peticiones</title>
+  <link rel="stylesheet" href="../style.css">
+</head>
+<body class="dashboard-body">
+
+  <aside class="sidebar">
+    <div class="sidebar-logo">
+      <div class="mini-logo">E</div>
+      <div>
+        <h3>ESTRATEGIAT</h3>
+        <small>Peticiones</small>
+      </div>
+    </div>
+
+    <nav>
+      <a href="../dashboard.html" class="nav-item">Dashboard</a>
+      <a href="parque-vehicular.html" class="nav-item">Parque Vehicular</a>
+      <a href="peticiones.html" class="nav-item active">Peticiones</a>
+      <a href="requisiciones.html" class="nav-item">Requisiciones</a>
+      <a href="vales.html" class="nav-item">Vales</a>
+    </nav>
+
+    <button class="logout" onclick="cerrarSesion()">Cerrar sesión</button>
+  </aside>
+
+  <main class="main-content">
+
+    <header class="topbar">
+      <div>
+        <h1>Peticiones a Almacén</h1>
+        <p>Control y seguimiento de solicitudes de refacciones, servicios y materiales.</p>
+      </div>
+
+      <button class="btn-small" onclick="abrirModal()">+ Nueva petición</button>
+    </header>
+
+    <section class="kpi-grid">
+      <div class="kpi-card">
+        <span>Total peticiones</span>
+        <h2 id="kpiTotal">0</h2>
+        <p>Registradas en sistema</p>
+      </div>
+
+      <div class="kpi-card">
+        <span>Pendientes</span>
+        <h2 id="kpiPendientes">0</h2>
+        <p>Sin atender</p>
+      </div>
+
+      <div class="kpi-card">
+        <span>En proceso</span>
+        <h2 id="kpiProceso">0</h2>
+        <p>En seguimiento</p>
+      </div>
+
+      <div class="kpi-card">
+        <span>Solventadas</span>
+        <h2 id="kpiSolventadas">0</h2>
+        <p>Finalizadas</p>
+      </div>
+    </section>
+
+    <section class="panel">
+
+      <div class="panel-header">
+        <div>
+          <h2>Listado de peticiones</h2>
+          <p>Busca por unidad, petición, solicitante, área o proveedor.</p>
+        </div>
+      </div>
+
+      <div class="filters">
+        <input type="text" id="buscarPeticion" placeholder="Buscar petición...">
+
+        <select id="filtroEstatus">
+          <option value="">Todos los estatus</option>
+          <option value="Pendiente">Pendiente</option>
+          <option value="En proceso">En proceso</option>
+          <option value="Entregado">Entregado</option>
+          <option value="Solventado">Solventado</option>
+          <option value="Cancelado">Cancelado</option>
+        </select>
+
+        <select id="filtroArea">
+          <option value="">Todas las áreas</option>
+          <option value="Talleres">Talleres</option>
+          <option value="Infraestructura">Infraestructura</option>
+          <option value="Servicios Públicos">Servicios Públicos</option>
+          <option value="Parques y Jardines">Parques y Jardines</option>
+        </select>
+      </div>
+
+      <div class="table-container">
+        <table>
+          <thead>
+            <tr>
+              <th>Fecha</th>
+              <th>Unidad</th>
+              <th>Petición</th>
+              <th>Solicitante</th>
+              <th>Área</th>
+              <th>Proveedor</th>
+              <th>Estatus</th>
+              <th>Acciones</th>
+            </tr>
+          </thead>
+
+          <tbody id="tablaPeticiones"></tbody>
+        </table>
+      </div>
+
+    </section>
+
+  </main>
+
+  <!-- MODAL NUEVA PETICIÓN -->
+
+  <div class="modal" id="modalPeticion">
+    <div class="modal-card">
+
+      <div class="modal-header">
+        <div>
+          <h2>Nueva petición</h2>
+          <p>Captura los datos de la solicitud.</p>
+        </div>
+
+        <button class="close-btn" onclick="cerrarModal()">×</button>
+      </div>
+
+      <div class="form-grid">
+
+        <div class="input-group">
+          <label>Unidad</label>
+          <input type="text" id="unidad" placeholder="Ej. 2761">
+        </div>
+
+        <div class="input-group">
+          <label>Quién solicita</label>
+          <input type="text" id="solicitante" placeholder="Nombre del solicitante">
+        </div>
+
+        <div class="input-group">
+          <label>Área</label>
+          <select id="area">
+            <option value="">Selecciona área</option>
+            <option value="Talleres">Talleres</option>
+            <option value="Infraestructura">Infraestructura</option>
+            <option value="Servicios Públicos">Servicios Públicos</option>
+            <option value="Parques y Jardines">Parques y Jardines</option>
+          </select>
+        </div>
+
+        <div class="input-group">
+          <label>Proveedor asignado</label>
+          <input type="text" id="proveedor" placeholder="Proveedor">
+        </div>
+
+        <div class="input-group">
+          <label>Estatus</label>
+          <select id="estatus">
+            <option value="Pendiente">Pendiente</option>
+            <option value="En proceso">En proceso</option>
+            <option value="Entregado">Entregado</option>
+            <option value="Solventado">Solventado</option>
+            <option value="Cancelado">Cancelado</option>
+          </select>
+        </div>
+
+        <div class="input-group">
+          <label>Fecha</label>
+          <input type="date" id="fecha">
+        </div>
+
+        <div class="input-group full">
+          <label>Petición</label>
+          <textarea id="peticion" placeholder="Describe la refacción, servicio o material solicitado"></textarea>
+        </div>
+
+        <div class="input-group full">
+          <label>Observaciones</label>
+          <textarea id="observaciones" placeholder="Notas adicionales"></textarea>
+        </div>
+
+      </div>
+
+      <div class="modal-actions">
+        <button class="btn-secondary" onclick="cerrarModal()">Cancelar</button>
+        <button class="btn-small" onclick="guardarPeticion()">Guardar petición</button>
+      </div>
+
+    </div>
+  </div>
+
+  <script src="../login.js"></script>
+
+  <script>
+    let peticiones = JSON.parse(localStorage.getItem("peticiones")) || [
+      {
+        fecha: "2026-05-11",
+        unidad: "2761",
+        peticion: "Balatas delanteras y cambio de aceite",
+        solicitante: "Víctor Zarate",
+        area: "Talleres",
+        proveedor: "Refaccionaria del Norte",
+        estatus: "Pendiente",
+        observaciones: "Urgente para salida operativa"
+      },
+      {
+        fecha: "2026-05-10",
+        unidad: "3022",
+        peticion: "Manguera hidráulica para retroexcavadora",
+        solicitante: "Karl Lohr",
+        area: "Infraestructura",
+        proveedor: "Hidráulicos Hermosillo",
+        estatus: "En proceso",
+        observaciones: "Se dejó muestra"
+      },
+      {
+        fecha: "2026-05-09",
+        unidad: "1189",
+        peticion: "Llanta trasera para moto",
+        solicitante: "Jair Encinas",
+        area: "Servicios Públicos",
+        proveedor: "Moto Refacciones",
+        estatus: "Solventado",
+        observaciones: "Entregado en almacén"
+      }
+    ];
+
+    const tablaPeticiones = document.getElementById("tablaPeticiones");
+    const buscarPeticion = document.getElementById("buscarPeticion");
+    const filtroEstatus = document.getElementById("filtroEstatus");
+    const filtroArea = document.getElementById("filtroArea");
+
+    function cargarPeticiones() {
+      const texto = buscarPeticion.value.toLowerCase();
+      const estatus = filtroEstatus.value;
+      const area = filtroArea.value;
+
+      tablaPeticiones.innerHTML = "";
+
+      const filtradas = peticiones.filter(p => {
+        const coincideTexto =
+          p.unidad.toLowerCase().includes(texto) ||
+          p.peticion.toLowerCase().includes(texto) ||
+          p.solicitante.toLowerCase().includes(texto) ||
+          p.area.toLowerCase().includes(texto) ||
+          p.proveedor.toLowerCase().includes(texto);
+
+        const coincideEstatus = estatus === "" || p.estatus === estatus;
+        const coincideArea = area === "" || p.area === area;
+
+        return coincideTexto && coincideEstatus && coincideArea;
+      });
+
+      filtradas.forEach((p, index) => {
+        const fila = document.createElement("tr");
+
+        fila.innerHTML = `
+          <td>${formatearFecha(p.fecha)}</td>
+          <td><strong>${p.unidad}</strong></td>
+          <td>${p.peticion}</td>
+          <td>${p.solicitante}</td>
+          <td>${p.area}</td>
+          <td>${p.proveedor || "Sin asignar"}</td>
+          <td>
+            <span class="badge ${obtenerClaseEstatusPeticion(p.estatus)}">
+              ${p.estatus}
+            </span>
+          </td>
+          <td>
+<button class="action-btn" onclick="verPeticion(${index})">Ver</button>
+<button class="action-btn edit" onclick="cambiarEstatus(${index})">Estatus</button>
+<button class="action-btn orange" onclick="generarRequisicion(${index})">Generar req.</button>          </td>
+        `;
+
+        tablaPeticiones.appendChild(fila);
+      });
+
+      actualizarKPIs();
+    }
+
+    function actualizarKPIs() {
+      document.getElementById("kpiTotal").textContent = peticiones.length;
+
+      document.getElementById("kpiPendientes").textContent =
+        peticiones.filter(p => p.estatus === "Pendiente").length;
+
+      document.getElementById("kpiProceso").textContent =
+        peticiones.filter(p => p.estatus === "En proceso").length;
+
+      document.getElementById("kpiSolventadas").textContent =
+        peticiones.filter(p => p.estatus === "Solventado").length;
+    }
+
+    function abrirModal() {
+      document.getElementById("modalPeticion").classList.add("show");
+
+      const hoy = new Date().toISOString().split("T")[0];
+      document.getElementById("fecha").value = hoy;
+    }
+
+    function cerrarModal() {
+      document.getElementById("modalPeticion").classList.remove("show");
+      limpiarFormulario();
+    }
+
+    function guardarPeticion() {
+      const nuevaPeticion = {
+        fecha: document.getElementById("fecha").value,
+        unidad: document.getElementById("unidad").value.trim(),
+        peticion: document.getElementById("peticion").value.trim(),
+        solicitante: document.getElementById("solicitante").value.trim(),
+        area: document.getElementById("area").value,
+        proveedor: document.getElementById("proveedor").value.trim(),
+        estatus: document.getElementById("estatus").value,
+        observaciones: document.getElementById("observaciones").value.trim()
+      };
+
+      if (!nuevaPeticion.unidad || !nuevaPeticion.peticion || !nuevaPeticion.solicitante || !nuevaPeticion.area) {
+        alert("Completa unidad, petición, solicitante y área.");
+        return;
+      }
+
+      peticiones.unshift(nuevaPeticion);
+
+      localStorage.setItem("peticiones", JSON.stringify(peticiones));
+
+      registrarAuditoria(
+  "Peticiones",
+  "Creó nueva petición",
+  "Unidad " + nuevaPeticion.unidad + " - " + nuevaPeticion.peticion
+);
+
+      cargarPeticiones();
+      cerrarModal();
+    }
+
+    function limpiarFormulario() {
+      document.getElementById("unidad").value = "";
+      document.getElementById("peticion").value = "";
+      document.getElementById("solicitante").value = "";
+      document.getElementById("area").value = "";
+      document.getElementById("proveedor").value = "";
+      document.getElementById("estatus").value = "Pendiente";
+      document.getElementById("observaciones").value = "";
+    }
+
+    function cambiarEstatus(index) {
+      const estatusActual = peticiones[index].estatus;
+
+      const nuevoEstatus = prompt(
+        "Nuevo estatus: Pendiente, En proceso, Entregado, Solventado o Cancelado",
+        estatusActual
+      );
+
+      if (!nuevoEstatus) return;
+
+      const estatusValidos = ["Pendiente", "En proceso", "Entregado", "Solventado", "Cancelado"];
+
+      if (!estatusValidos.includes(nuevoEstatus)) {
+        alert("Estatus no válido.");
+        return;
+      }
+
+      peticiones[index].estatus = nuevoEstatus;
+
+      localStorage.setItem("peticiones", JSON.stringify(peticiones));
+
+
+      if (typeof registrarAuditoria === "function") {
+  registrarAuditoria(
+    "Peticiones",
+    "Creó nueva petición",
+    "Unidad " + nuevaPeticion.unidad + " - " + nuevaPeticion.peticion
+  );
+}
+
+      cargarPeticiones();
+    }
+
+    function verPeticion(index) {
+      const p = peticiones[index];
+
+      alert(
+        "Unidad: " + p.unidad +
+        "\nPetición: " + p.peticion +
+        "\nSolicitante: " + p.solicitante +
+        "\nÁrea: " + p.area +
+        "\nProveedor: " + (p.proveedor || "Sin asignar") +
+        "\nEstatus: " + p.estatus +
+        "\nObservaciones: " + (p.observaciones || "Sin observaciones")
+      );
+    }
+
+    function obtenerClaseEstatusPeticion(estatus) {
+      if (estatus === "Pendiente") return "amber";
+      if (estatus === "En proceso") return "blue";
+      if (estatus === "Entregado") return "green";
+      if (estatus === "Solventado") return "green";
+      if (estatus === "Cancelado") return "red";
+      return "gray";
+    }
+
+    function formatearFecha(fecha) {
+      if (!fecha) return "";
+
+      const partes = fecha.split("-");
+      return partes[2] + "/" + partes[1] + "/" + partes[0];
+    }
+
+    buscarPeticion.addEventListener("input", cargarPeticiones);
+    filtroEstatus.addEventListener("change", cargarPeticiones);
+    filtroArea.addEventListener("change", cargarPeticiones);
+
+    cargarPeticiones();
+
+    function cerrarSesion() {
+      localStorage.removeItem("usuarioActivo");
+      window.location.href = "../index.html";
+    }
+
+    function generarRequisicion(index) {
+  const p = peticiones[index];
+
+  const datos = {
+    unidad: p.unidad,
+    concepto: p.peticion,
+    dependencia: p.area,
+    proveedor: p.proveedor,
+    observaciones: "Generada desde petición de " + p.solicitante
+  };
+
+  localStorage.setItem("datosParaRequisicion", JSON.stringify(datos));
+
+  window.location.href = "requisiciones.html";
+}
+  </script>
+
+</body>
+</html>

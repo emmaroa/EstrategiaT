@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ESTRATEGIAT | Dashboard</title>
+
+  <link rel="stylesheet" href="style.css">
+</head>
+<body class="dashboard-body">
+
+  <aside class="sidebar">
+    <div class="sidebar-logo">
+      <div class="mini-logo">E</div>
+      <div>
+        <h3>ESTRATEGIAT</h3>
+        <small>Panel operativo</small>
+      </div>
+    </div>
+
+    <nav id="menuModulos"></nav>
+
+    <button class="logout" id="btnLogout">Cerrar sesión</button>
+  </aside>
+
+  <main class="main-content">
+
+    <header class="topbar">
+      <div>
+        <h1>Dashboard</h1>
+        <p id="bienvenida">Bienvenida al sistema</p>
+      </div>
+
+      <div class="user-badge" id="rolUsuario"></div>
+    </header>
+
+    <section class="kpi-grid">
+      <div class="kpi-card">
+        <span>Unidades</span>
+        <h2>248</h2>
+        <p>Parque vehicular registrado</p>
+      </div>
+
+      <div class="kpi-card">
+        <span>Peticiones</span>
+        <h2>36</h2>
+        <p>Pendientes de atención</p>
+      </div>
+
+      <div class="kpi-card">
+        <span>Requisiciones</span>
+        <h2>18</h2>
+        <p>En proceso</p>
+      </div>
+
+      <div class="kpi-card">
+        <span>Vales</span>
+        <h2>57</h2>
+        <p>Generados este mes</p>
+      </div>
+    </section>
+
+    <section class="module-section">
+      <h2>Módulos disponibles</h2>
+      <p>Estos módulos aparecen según el usuario que inició sesión.</p>
+
+      <div class="module-grid" id="modulosCards"></div>
+    </section>
+
+  </main>
+
+  <script src="login.js"></script>
+</body>
+</html>

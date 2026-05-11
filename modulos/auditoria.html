@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ESTRATEGIAT | Auditoría</title>
+  <link rel="stylesheet" href="../style.css">
+</head>
+<body class="dashboard-body">
+
+  <aside class="sidebar">
+    <div class="sidebar-logo">
+      <div class="mini-logo">E</div>
+      <div>
+        <h3>ESTRATEGIAT</h3>
+        <small>Auditoría</small>
+      </div>
+    </div>
+
+    <nav>
+      <a href="../dashboard.html" class="nav-item">Dashboard</a>
+      <a href="parque-vehicular.html" class="nav-item">Parque Vehicular</a>
+      <a href="peticiones.html" class="nav-item">Peticiones</a>
+      <a href="requisiciones.html" class="nav-item">Requisiciones</a>
+      <a href="vales.html" class="nav-item">Vales</a>
+      <a href="auditoria.html" class="nav-item active">Auditoría</a>
+    </nav>
+
+    <button class="logout" onclick="cerrarSesion()">Cerrar sesión</button>
+  </aside>
+
+  <main class="main-content">
+
+    <header class="topbar">
+      <div>
+        <h1>Auditoría</h1>
+        <p>Historial de movimientos realizados dentro del sistema.</p>
+      </div>
+
+      <button class="btn-small" onclick="limpiarAuditoria()">Limpiar historial</button>
+    </header>
+
+    <section class="kpi-grid">
+      <div class="kpi-card">
+        <span>Total movimientos</span>
+        <h2 id="kpiAuditoriaTotal">0</h2>
+        <p>Registros guardados</p>
+      </div>
+
+      <div class="kpi-card">
+        <span>Peticiones</span>
+        <h2 id="kpiAuditoriaPeticiones">0</h2>
+        <p>Movimientos del módulo</p>
+      </div>
+
+      <div class="kpi-card">
+        <span>Requisiciones</span>
+        <h2 id="kpiAuditoriaRequisiciones">0</h2>
+        <p>Movimientos del módulo</p>
+      </div>
+
+      <div class="kpi-card">
+        <span>Vales</span>
+        <h2 id="kpiAuditoriaVales">0</h2>
+        <p>Movimientos del módulo</p>
+      </div>
+    </section>
+
+    <section class="panel">
+
+      <div class="panel-header">
+        <div>
+          <h2>Bitácora del sistema</h2>
+          <p>Busca por usuario, módulo, acción o detalle.</p>
+        </div>
+      </div>
+
+      <div class="filters">
+        <input type="text" id="buscarAuditoria" placeholder="Buscar movimiento...">
+
+        <select id="filtroModuloAuditoria">
+          <option value="">Todos los módulos</option>
+          <option value="Peticiones">Peticiones</option>
+          <option value="Requisiciones">Requisiciones</option>
+          <option value="Vales">Vales</option>
+          <option value="Parque Vehicular">Parque Vehicular</option>
+          <option value="Usuarios">Usuarios</option>
+        </select>
+
+        <select id="filtroAccionAuditoria">
+          <option value="">Todas las acciones</option>
+          <option value="Creó">Creó</option>
+          <option value="Cambió">Cambió</option>
+          <option value="Imprimió">Imprimió</option>
+          <option value="Editó">Editó</option>
+          <option value="Eliminó">Eliminó</option>
+        </select>
+      </div>
+
+      <div class="table-container">
+        <table>
+          <thead>
+            <tr>
+              <th>Fecha</th>
+              <th>Usuario</th>
+              <th>Rol</th>
+              <th>Módulo</th>
+              <th>Acción</th>
+              <th>Detalle</th>
+            </tr>
+          </thead>
+
+          <tbody id="tablaAuditoria"></tbody>
+        </table>
+      </div>
+
+    </section>
+
+  </main>
+
+  <script src="../login.js"></script>
+
+  <script>
+    let auditoria = JSON.parse(localStorage.getItem("auditoria")) || [];
+
+    const tablaAuditoria = document.getElementById("tablaAuditoria");
+    const buscarAuditoria = document.getElementById("buscarAuditoria");
+    const filtroModuloAuditoria = document.getElementById("filtroModuloAuditoria");
+    const filtroAccionAuditoria = document.getElementById("filtroAccionAuditoria");
+
+    function cargarAuditoria() {
+      const texto = buscarAuditoria.value.toLowerCase();
+      const modulo = filtroModuloAuditoria.value;
+      const accion = filtroAccionAuditoria.value;
+
+      tablaAuditoria.innerHTML = "";
+
+      const filtrados = auditoria.filter(a => {
+        const coincideTexto =
+          a.fecha.toLowerCase().includes(texto) ||
+          a.usuario.toLowerCase().includes(texto) ||
+          a.rol.toLowerCase().includes(texto) ||
+          a.modulo.toLowerCase().includes(texto) ||
+          a.accion.toLowerCase().includes(texto) ||
+          a.detalle.toLowerCase().includes(texto);
+
+        const coincideModulo = modulo === "" || a.modulo === modulo;
+        const coincideAccion = accion === "" || a.accion.includes(accion);
+
+        return coincideTexto && coincideModulo && coincideAccion;
+      });
+
+      filtrados.forEach(a => {
+        const fila = document.createElement("tr");
+
+        fila.innerHTML = `
+          <td>${a.fecha}</td>
+          <td><strong>${a.usuario}</strong></td>
+          <td>${a.rol}</td>
+          <td>
+            <span class="badge blue">${a.modulo}</span>
+          </td>
+          <td>${a.accion}</td>
+          <td>${a.detalle}</td>
+        `;
+
+        tablaAuditoria.appendChild(fila);
+      });
+
+      actualizarKPIsAuditoria();
+    }
+
+    function actualizarKPIsAuditoria() {
+      document.getElementById("kpiAuditoriaTotal").textContent = auditoria.length;
+
+      document.getElementById("kpiAuditoriaPeticiones").textContent =
+        auditoria.filter(a => a.modulo === "Peticiones").length;
+
+      document.getElementById("kpiAuditoriaRequisiciones").textContent =
+        auditoria.filter(a => a.modulo === "Requisiciones").length;
+
+      document.getElementById("kpiAuditoriaVales").textContent =
+        auditoria.filter(a => a.modulo === "Vales").length;
+    }
+
+    function limpiarAuditoria() {
+      const confirmar = confirm("¿Seguro que quieres limpiar el historial de auditoría?");
+
+      if (!confirmar) return;
+
+      localStorage.removeItem("auditoria");
+      auditoria = [];
+      cargarAuditoria();
+    }
+
+    buscarAuditoria.addEventListener("input", cargarAuditoria);
+    filtroModuloAuditoria.addEventListener("change", cargarAuditoria);
+    filtroAccionAuditoria.addEventListener("change", cargarAuditoria);
+
+    cargarAuditoria();
+
+    function cerrarSesion() {
+      localStorage.removeItem("usuarioActivo");
+      window.location.href = "../index.html";
+    }
+  </script>
+
+</body>
+</html>

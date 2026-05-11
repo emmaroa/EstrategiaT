@@ -1,0 +1,644 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ESTRATEGIAT | Vales</title>
+  <link rel="stylesheet" href="../style.css">
+</head>
+<body class="dashboard-body">
+
+  <aside class="sidebar">
+    <div class="sidebar-logo">
+      <div class="mini-logo">E</div>
+      <div>
+        <h3>ESTRATEGIAT</h3>
+        <small>Vales</small>
+      </div>
+    </div>
+
+    <nav>
+      <a href="../dashboard.html" class="nav-item">Dashboard</a>
+      <a href="parque-vehicular.html" class="nav-item">Parque Vehicular</a>
+      <a href="peticiones.html" class="nav-item">Peticiones</a>
+      <a href="requisiciones.html" class="nav-item">Requisiciones</a>
+      <a href="vales.html" class="nav-item active">Vales</a>
+    </nav>
+
+    <button class="logout" onclick="cerrarSesion()">Cerrar sesión</button>
+  </aside>
+
+  <main class="main-content">
+
+    <header class="topbar">
+      <div>
+        <h1>Vales de Salida</h1>
+        <p>Registro de entrega de refacciones, lubricantes, servicios o materiales.</p>
+      </div>
+
+      <button class="btn-small" onclick="abrirModalVale()">+ Nuevo vale</button>
+    </header>
+
+    <section class="kpi-grid">
+      <div class="kpi-card">
+        <span>Total vales</span>
+        <h2 id="kpiValesTotal">0</h2>
+        <p>Registrados</p>
+      </div>
+
+      <div class="kpi-card">
+        <span>Este mes</span>
+        <h2 id="kpiValesMes">0</h2>
+        <p>Generados en el mes</p>
+      </div>
+
+      <div class="kpi-card">
+        <span>Entregados</span>
+        <h2 id="kpiValesEntregados">0</h2>
+        <p>Con salida confirmada</p>
+      </div>
+
+      <div class="kpi-card">
+        <span>Pendientes</span>
+        <h2 id="kpiValesPendientes">0</h2>
+        <p>Sin entregar</p>
+      </div>
+    </section>
+
+    <section class="panel">
+
+      <div class="panel-header">
+        <div>
+          <h2>Listado de vales</h2>
+          <p>Busca por folio, unidad, solicitante, recibe, entrega o refacción.</p>
+        </div>
+      </div>
+
+      <div class="filters">
+        <input type="text" id="buscarVale" placeholder="Buscar vale...">
+
+        <select id="filtroValeEstatus">
+          <option value="">Todos los estatus</option>
+          <option value="Pendiente">Pendiente</option>
+          <option value="Entregado">Entregado</option>
+          <option value="Cancelado">Cancelado</option>
+        </select>
+
+        <select id="filtroValeArea">
+          <option value="">Todas las áreas</option>
+          <option value="Talleres">Talleres</option>
+          <option value="Infraestructura">Infraestructura</option>
+          <option value="Servicios Públicos">Servicios Públicos</option>
+          <option value="Parques y Jardines">Parques y Jardines</option>
+        </select>
+      </div>
+
+      <div class="table-container">
+        <table>
+          <thead>
+            <tr>
+              <th>Fecha</th>
+              <th>Folio</th>
+              <th>Unidad</th>
+              <th>Área</th>
+              <th>Solicitante</th>
+              <th>Refacción / Material</th>
+              <th>Cant.</th>
+              <th>Entrega</th>
+              <th>Recibe</th>
+              <th>Estatus</th>
+              <th>Acciones</th>
+            </tr>
+          </thead>
+
+          <tbody id="tablaVales"></tbody>
+        </table>
+      </div>
+
+    </section>
+
+  </main>
+
+  <!-- MODAL NUEVO VALE -->
+
+  <div class="modal" id="modalVale">
+    <div class="modal-card">
+
+      <div class="modal-header">
+        <div>
+          <h2>Nuevo vale</h2>
+          <p>Captura la salida de almacén.</p>
+        </div>
+
+        <button class="close-btn" onclick="cerrarModalVale()">×</button>
+      </div>
+
+      <div class="form-grid">
+
+        <div class="input-group">
+          <label>Fecha</label>
+          <input type="date" id="fechaVale">
+        </div>
+
+        <div class="input-group">
+          <label>Folio</label>
+          <input type="text" id="folioVale" readonly>
+        </div>
+
+        <div class="input-group">
+          <label>Unidad</label>
+          <input type="text" id="unidadVale" placeholder="Ej. 2761">
+        </div>
+
+        <div class="input-group">
+          <label>Área</label>
+          <select id="areaVale">
+            <option value="">Selecciona área</option>
+            <option value="Talleres">Talleres</option>
+            <option value="Infraestructura">Infraestructura</option>
+            <option value="Servicios Públicos">Servicios Públicos</option>
+            <option value="Parques y Jardines">Parques y Jardines</option>
+          </select>
+        </div>
+
+        <div class="input-group">
+          <label>Solicitante</label>
+          <input type="text" id="solicitanteVale" placeholder="Quién solicita">
+        </div>
+
+        <div class="input-group">
+          <label>Proveedor / Origen</label>
+          <input type="text" id="proveedorVale" placeholder="Proveedor u origen">
+        </div>
+
+        <div class="input-group">
+          <label>Cantidad</label>
+          <input type="number" id="cantidadVale" placeholder="0">
+        </div>
+
+        <div class="input-group">
+          <label>Unidad de medida</label>
+          <select id="medidaVale">
+            <option value="Pieza">Pieza</option>
+            <option value="Litro">Litro</option>
+            <option value="Juego">Juego</option>
+            <option value="Servicio">Servicio</option>
+            <option value="Metro">Metro</option>
+          </select>
+        </div>
+
+        <div class="input-group">
+          <label>Entrega</label>
+          <input type="text" id="entregaVale" placeholder="Quién entrega">
+        </div>
+
+        <div class="input-group">
+          <label>Recibe</label>
+          <input type="text" id="recibeVale" placeholder="Quién recibe">
+        </div>
+
+        <div class="input-group">
+          <label>Estatus</label>
+          <select id="estatusVale">
+            <option value="Pendiente">Pendiente</option>
+            <option value="Entregado">Entregado</option>
+            <option value="Cancelado">Cancelado</option>
+          </select>
+        </div>
+
+        <div class="input-group">
+          <label>Requisición relacionada</label>
+          <input type="text" id="reqVale" placeholder="Ej. REQ-2026-001">
+        </div>
+
+        <div class="input-group full">
+          <label>Refacción / Material</label>
+          <textarea id="refaccionVale" placeholder="Describe la refacción, lubricante, material o servicio entregado"></textarea>
+        </div>
+
+        <div class="input-group full">
+          <label>Observaciones</label>
+          <textarea id="observacionesVale" placeholder="Notas adicionales"></textarea>
+        </div>
+
+      </div>
+
+      <div class="modal-actions">
+        <button class="btn-secondary" onclick="cerrarModalVale()">Cancelar</button>
+        <button class="btn-small" onclick="guardarVale()">Guardar vale</button>
+      </div>
+
+    </div>
+  </div>
+
+  <script src="../login.js"></script>
+
+  <script>
+    let vales = JSON.parse(localStorage.getItem("vales")) || [
+      {
+        fecha: "2026-05-11",
+        folio: "0001-2026-V",
+        unidad: "2761",
+        area: "Talleres",
+        solicitante: "Víctor Zarate",
+        proveedor: "Refaccionaria del Norte",
+        refaccion: "Balatas delanteras",
+        cantidad: 1,
+        medida: "Juego",
+        entrega: "Jair Encinas",
+        recibe: "Víctor Zarate",
+        estatus: "Entregado",
+        requisicion: "REQ-2026-001",
+        observaciones: "Entrega completa"
+      },
+      {
+        fecha: "2026-05-10",
+        folio: "0002-2026-V",
+        unidad: "3022",
+        area: "Infraestructura",
+        solicitante: "Karl Lohr",
+        proveedor: "Hidráulicos Hermosillo",
+        refaccion: "Manguera hidráulica",
+        cantidad: 1,
+        medida: "Pieza",
+        entrega: "Almacén",
+        recibe: "Karl Lohr",
+        estatus: "Pendiente",
+        requisicion: "REQ-2026-002",
+        observaciones: "Pendiente de recoger"
+      }
+    ];
+
+    const tablaVales = document.getElementById("tablaVales");
+    const buscarVale = document.getElementById("buscarVale");
+    const filtroValeEstatus = document.getElementById("filtroValeEstatus");
+    const filtroValeArea = document.getElementById("filtroValeArea");
+
+    function cargarVales() {
+      const texto = buscarVale.value.toLowerCase();
+      const estatus = filtroValeEstatus.value;
+      const area = filtroValeArea.value;
+
+      tablaVales.innerHTML = "";
+
+      const filtrados = vales.filter(v => {
+        const coincideTexto =
+          v.folio.toLowerCase().includes(texto) ||
+          v.unidad.toLowerCase().includes(texto) ||
+          v.area.toLowerCase().includes(texto) ||
+          v.solicitante.toLowerCase().includes(texto) ||
+          v.proveedor.toLowerCase().includes(texto) ||
+          v.refaccion.toLowerCase().includes(texto) ||
+          v.entrega.toLowerCase().includes(texto) ||
+          v.recibe.toLowerCase().includes(texto) ||
+          v.requisicion.toLowerCase().includes(texto);
+
+        const coincideEstatus = estatus === "" || v.estatus === estatus;
+        const coincideArea = area === "" || v.area === area;
+
+        return coincideTexto && coincideEstatus && coincideArea;
+      });
+
+      filtrados.forEach((v, index) => {
+        const fila = document.createElement("tr");
+
+        fila.innerHTML = `
+          <td>${formatearFechaVale(v.fecha)}</td>
+          <td><strong>${v.folio}</strong></td>
+          <td>${v.unidad}</td>
+          <td>${v.area}</td>
+          <td>${v.solicitante}</td>
+          <td>${v.refaccion}</td>
+          <td>${v.cantidad} ${v.medida}</td>
+          <td>${v.entrega}</td>
+          <td>${v.recibe}</td>
+          <td>
+            <span class="badge ${obtenerClaseEstatusVale(v.estatus)}">
+              ${v.estatus}
+            </span>
+          </td>
+          <td>
+            <button class="action-btn" onclick="verVale(${index})">Ver</button>
+            <button class="action-btn edit" onclick="cambiarEstatusVale(${index})">Estatus</button>
+            <button class="action-btn orange" onclick="imprimirVale(${index})">Imprimir</button>
+          </td>
+        `;
+
+        tablaVales.appendChild(fila);
+      });
+
+      actualizarKPIsVales();
+    }
+
+    function actualizarKPIsVales() {
+      const hoy = new Date();
+      const mesActual = hoy.getMonth();
+      const anioActual = hoy.getFullYear();
+
+      document.getElementById("kpiValesTotal").textContent = vales.length;
+
+      document.getElementById("kpiValesMes").textContent =
+        vales.filter(v => {
+          const fecha = new Date(v.fecha + "T00:00:00");
+          return fecha.getMonth() === mesActual && fecha.getFullYear() === anioActual;
+        }).length;
+
+      document.getElementById("kpiValesEntregados").textContent =
+        vales.filter(v => v.estatus === "Entregado").length;
+
+      document.getElementById("kpiValesPendientes").textContent =
+        vales.filter(v => v.estatus === "Pendiente").length;
+    }
+
+    function abrirModalVale() {
+      document.getElementById("modalVale").classList.add("show");
+
+      const hoy = new Date().toISOString().split("T")[0];
+      document.getElementById("fechaVale").value = hoy;
+      document.getElementById("folioVale").value = generarFolioVale();
+    }
+
+    function cerrarModalVale() {
+      document.getElementById("modalVale").classList.remove("show");
+      limpiarFormularioVale();
+    }
+
+    function generarFolioVale() {
+      const anio = new Date().getFullYear();
+      const consecutivo = vales.length + 1;
+      const numero = String(consecutivo).padStart(4, "0");
+
+      return `${numero}-${anio}-V`;
+    }
+
+    function guardarVale() {
+      const nuevo = {
+        fecha: document.getElementById("fechaVale").value,
+        folio: document.getElementById("folioVale").value,
+        unidad: document.getElementById("unidadVale").value.trim(),
+        area: document.getElementById("areaVale").value,
+        solicitante: document.getElementById("solicitanteVale").value.trim(),
+        proveedor: document.getElementById("proveedorVale").value.trim(),
+        refaccion: document.getElementById("refaccionVale").value.trim(),
+        cantidad: Number(document.getElementById("cantidadVale").value || 0),
+        medida: document.getElementById("medidaVale").value,
+        entrega: document.getElementById("entregaVale").value.trim(),
+        recibe: document.getElementById("recibeVale").value.trim(),
+        estatus: document.getElementById("estatusVale").value,
+        requisicion: document.getElementById("reqVale").value.trim(),
+        observaciones: document.getElementById("observacionesVale").value.trim()
+      };
+
+      if (!nuevo.unidad || !nuevo.area || !nuevo.solicitante || !nuevo.refaccion || !nuevo.recibe) {
+        alert("Completa unidad, área, solicitante, refacción/material y recibe.");
+        return;
+      }
+
+      vales.unshift(nuevo);
+      localStorage.setItem("vales", JSON.stringify(vales));
+
+      cargarVales();
+      cerrarModalVale();
+    }
+
+    function limpiarFormularioVale() {
+      document.getElementById("fechaVale").value = "";
+      document.getElementById("folioVale").value = "";
+      document.getElementById("unidadVale").value = "";
+      document.getElementById("areaVale").value = "";
+      document.getElementById("solicitanteVale").value = "";
+      document.getElementById("proveedorVale").value = "";
+      document.getElementById("refaccionVale").value = "";
+      document.getElementById("cantidadVale").value = "";
+      document.getElementById("medidaVale").value = "Pieza";
+      document.getElementById("entregaVale").value = "";
+      document.getElementById("recibeVale").value = "";
+      document.getElementById("estatusVale").value = "Pendiente";
+      document.getElementById("reqVale").value = "";
+      document.getElementById("observacionesVale").value = "";
+    }
+
+    function cambiarEstatusVale(index) {
+      const actual = vales[index].estatus;
+
+      const nuevoEstatus = prompt(
+        "Nuevo estatus: Pendiente, Entregado o Cancelado",
+        actual
+      );
+
+      if (!nuevoEstatus) return;
+
+      const validos = ["Pendiente", "Entregado", "Cancelado"];
+
+      if (!validos.includes(nuevoEstatus)) {
+        alert("Estatus no válido.");
+        return;
+      }
+
+      vales[index].estatus = nuevoEstatus;
+      localStorage.setItem("vales", JSON.stringify(vales));
+
+localStorage.setItem("vales", JSON.stringify(vales));
+
+      cargarVales();
+    }
+
+    function verVale(index) {
+      const v = vales[index];
+
+      alert(
+        "Folio: " + v.folio +
+        "\nFecha: " + formatearFechaVale(v.fecha) +
+        "\nUnidad: " + v.unidad +
+        "\nÁrea: " + v.area +
+        "\nSolicitante: " + v.solicitante +
+        "\nProveedor/Origen: " + (v.proveedor || "Sin dato") +
+        "\nRefacción/Material: " + v.refaccion +
+        "\nCantidad: " + v.cantidad + " " + v.medida +
+        "\nEntrega: " + (v.entrega || "Sin dato") +
+        "\nRecibe: " + v.recibe +
+        "\nRequisición: " + (v.requisicion || "Sin relacionar") +
+        "\nEstatus: " + v.estatus +
+        "\nObservaciones: " + (v.observaciones || "Sin observaciones")
+      );
+    }
+
+    function imprimirVale(index) {
+      const v = vales[index];
+
+      const ventana = window.open("", "_blank");
+
+      ventana.document.write(`
+        <html>
+        <head>
+          <title>Vale ${v.folio}</title>
+          <style>
+            body {
+              font-family: Arial, sans-serif;
+              padding: 35px;
+              color: #111827;
+            }
+
+            .vale {
+              border: 2px solid #111827;
+              padding: 28px;
+              border-radius: 14px;
+            }
+
+            .header {
+              display: flex;
+              justify-content: space-between;
+              align-items: center;
+              border-bottom: 3px solid #ff7f11;
+              padding-bottom: 15px;
+              margin-bottom: 25px;
+            }
+
+            .logo-print {
+              width: 58px;
+              height: 58px;
+              border-radius: 14px;
+              background: linear-gradient(135deg, #ff7f11, #10c6d1);
+              color: white;
+              display: flex;
+              align-items: center;
+              justify-content: center;
+              font-weight: bold;
+              font-size: 24px;
+            }
+
+            h1 {
+              margin: 0;
+              font-size: 24px;
+            }
+
+            .folio {
+              font-weight: bold;
+              font-size: 18px;
+              color: #ff7f11;
+            }
+
+            .grid {
+              display: grid;
+              grid-template-columns: 1fr 1fr;
+              gap: 14px;
+              margin-bottom: 22px;
+            }
+
+            .item {
+              border: 1px solid #e5e7eb;
+              padding: 12px;
+              border-radius: 10px;
+            }
+
+            .item strong {
+              display: block;
+              color: #374151;
+              font-size: 12px;
+              margin-bottom: 5px;
+            }
+
+            .full {
+              grid-column: 1 / -1;
+            }
+
+            .firmas {
+              display: grid;
+              grid-template-columns: 1fr 1fr;
+              gap: 45px;
+              margin-top: 70px;
+              text-align: center;
+            }
+
+            .firma-linea {
+              border-top: 1px solid #111827;
+              padding-top: 10px;
+            }
+
+            @media print {
+              button {
+                display: none;
+              }
+            }
+          </style>
+        </head>
+        <body>
+
+          <div class="vale">
+
+            <div class="header">
+              <div style="display:flex; gap:15px; align-items:center;">
+                <div class="logo-print">E</div>
+                <div>
+                  <h1>Vale de Salida</h1>
+                  <p>ESTRATEGIAT | Control de Almacén</p>
+                </div>
+              </div>
+
+              <div class="folio">${v.folio}</div>
+            </div>
+
+            <div class="grid">
+              <div class="item"><strong>Fecha</strong>${formatearFechaVale(v.fecha)}</div>
+              <div class="item"><strong>Unidad</strong>${v.unidad}</div>
+              <div class="item"><strong>Área</strong>${v.area}</div>
+              <div class="item"><strong>Solicitante</strong>${v.solicitante}</div>
+              <div class="item"><strong>Proveedor / Origen</strong>${v.proveedor || "Sin dato"}</div>
+              <div class="item"><strong>Requisición relacionada</strong>${v.requisicion || "Sin relacionar"}</div>
+              <div class="item full"><strong>Refacción / Material</strong>${v.refaccion}</div>
+              <div class="item"><strong>Cantidad</strong>${v.cantidad} ${v.medida}</div>
+              <div class="item"><strong>Estatus</strong>${v.estatus}</div>
+              <div class="item full"><strong>Observaciones</strong>${v.observaciones || "Sin observaciones"}</div>
+            </div>
+
+            <div class="firmas">
+              <div class="firma-linea">
+                Entrega<br>
+                ${v.entrega || ""}
+              </div>
+
+              <div class="firma-linea">
+                Recibe<br>
+                ${v.recibe || ""}
+              </div>
+            </div>
+
+          </div>
+
+          <br>
+          <button onclick="window.print()">Imprimir vale</button>
+
+        </body>
+        </html>
+      `);
+
+      ventana.document.close();
+    }
+
+    function obtenerClaseEstatusVale(estatus) {
+      if (estatus === "Pendiente") return "amber";
+      if (estatus === "Entregado") return "green";
+      if (estatus === "Cancelado") return "red";
+      return "gray";
+    }
+
+    function formatearFechaVale(fecha) {
+      if (!fecha) return "";
+      const partes = fecha.split("-");
+      return partes[2] + "/" + partes[1] + "/" + partes[0];
+    }
+
+    buscarVale.addEventListener("input", cargarVales);
+    filtroValeEstatus.addEventListener("change", cargarVales);
+    filtroValeArea.addEventListener("change", cargarVales);
+
+    cargarVales();
+
+    function cerrarSesion() {
+      localStorage.removeItem("usuarioActivo");
+      window.location.href = "../index.html";
+    }
+  </script>
+
+</body>
+</html>
