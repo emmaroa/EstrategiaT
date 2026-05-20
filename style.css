@@ -666,3 +666,8 @@ tbody tr:hover {
   background: rgba(255,127,17,.14);
   color: #ff9f43;
 }
+
+.action-btn.red-btn {
+  background: rgba(239,68,68,.14);
+  color: #f87171;
+}

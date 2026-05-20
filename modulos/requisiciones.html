@@ -229,6 +229,9 @@
   <script src="../login.js"></script>
 
   <script>
+validarPermiso("Requisiciones");
+    
+    
     let requisiciones = JSON.parse(localStorage.getItem("requisiciones")) || [
       {
         fecha: "2026-05-11",
@@ -452,6 +455,12 @@ registrarAuditoria(
 
       requisiciones[index].estatus = nuevoEstatus;
       localStorage.setItem("requisiciones", JSON.stringify(requisiciones));
+
+registrarAuditoria(
+  "Requisiciones",
+  "Cambió estatus",
+  requisiciones[index].numero + ": " + estatusActual + " → " + nuevoEstatus
+);
 
       cargarRequisiciones();
     }

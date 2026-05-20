@@ -1,0 +1,478 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>ESTRATEGIAT | Usuarios</title>
+
+  <link rel="stylesheet" href="../style.css"/>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="../login.js"></script>
+</head>
+
+<body class="dashboard-body">
+
+  <aside class="sidebar">
+    <div class="sidebar-logo">
+      <div class="mini-logo">E</div>
+      <div>
+        <h3>ESTRATEGIAT</h3>
+        <small>Usuarios</small>
+      </div>
+    </div>
+
+    <nav>
+      <a href="../dashboard.html" class="nav-item">Dashboard</a>
+      <a href="parque-vehicular.html" class="nav-item">Parque Vehicular</a>
+      <a href="peticiones.html" class="nav-item">Peticiones</a>
+      <a href="requisiciones.html" class="nav-item">Requisiciones</a>
+      <a href="vales.html" class="nav-item">Vales</a>
+      <a href="usuarios.html" class="nav-item active">Usuarios</a>
+    </nav>
+
+    <button class="logout" onclick="cerrarSesion()">Cerrar sesión</button>
+  </aside>
+
+  <main class="main-content">
+
+    <header class="topbar">
+      <div>
+        <h1>Usuarios</h1>
+        <p>Alta, edición de roles y control de accesos.</p>
+      </div>
+
+      <button class="btn-small" onclick="abrirModalUsuario()">+ Nuevo usuario</button>
+    </header>
+
+    <section class="kpi-grid">
+      <div class="kpi-card">
+        <span>Total usuarios</span>
+        <h2 id="kpiUsuariosTotal">0</h2>
+        <p>Registrados</p>
+      </div>
+
+      <div class="kpi-card">
+        <span>Activos</span>
+        <h2 id="kpiUsuariosActivos">0</h2>
+        <p>Con acceso</p>
+      </div>
+
+      <div class="kpi-card">
+        <span>Inactivos</span>
+        <h2 id="kpiUsuariosInactivos">0</h2>
+        <p>Sin acceso</p>
+      </div>
+
+      <div class="kpi-card">
+        <span>SuperAdmin</span>
+        <h2 id="kpiUsuariosSuperAdmin">0</h2>
+        <p>Control total</p>
+      </div>
+    </section>
+
+    <section class="panel">
+      <div class="panel-header">
+        <div>
+          <h2>Listado de usuarios</h2>
+          <p>Busca por nombre, usuario o rol.</p>
+        </div>
+      </div>
+
+      <div class="filters">
+        <input type="text" id="buscarUsuario" placeholder="Buscar usuario...">
+
+        <select id="filtroRolUsuario">
+          <option value="">Todos los roles</option>
+          <option value="SuperAdmin">SuperAdmin</option>
+          <option value="Admin">Admin</option>
+          <option value="Compras">Compras</option>
+          <option value="Almacen">Almacén</option>
+          <option value="Consulta">Consulta</option>
+          <option value="CapturistaPV">CapturistaPV</option>
+        </select>
+
+        <select id="filtroActivoUsuario">
+          <option value="">Todos los estatus</option>
+          <option value="true">Activos</option>
+          <option value="false">Inactivos</option>
+        </select>
+      </div>
+
+      <div class="table-container">
+        <table>
+          <thead>
+            <tr>
+              <th>Nombre</th>
+              <th>Usuario</th>
+              <th>Rol</th>
+              <th>Estatus</th>
+              <th>Creado</th>
+              <th>Acciones</th>
+            </tr>
+          </thead>
+
+          <tbody id="tablaUsuarios"></tbody>
+        </table>
+      </div>
+    </section>
+
+  </main>
+
+  <div class="modal" id="modalUsuario">
+    <div class="modal-card">
+
+      <div class="modal-header">
+        <div>
+          <h2 id="tituloModalUsuario">Nuevo usuario</h2>
+          <p>Captura los datos de acceso.</p>
+        </div>
+
+        <button class="close-btn" onclick="cerrarModalUsuario()">×</button>
+      </div>
+
+      <div class="form-grid">
+
+        <div class="input-group">
+          <label>Nombre completo</label>
+          <input type="text" id="nombreUsuario" placeholder="Ej. Emma Figueroa">
+        </div>
+
+        <div class="input-group">
+          <label>Usuario</label>
+          <input type="text" id="usuarioUsuario" placeholder="Ej. emma">
+        </div>
+
+        <div class="input-group">
+          <label>Contraseña</label>
+          <input type="password" id="passwordUsuario" placeholder="Contraseña">
+        </div>
+
+        <div class="input-group">
+          <label>Rol</label>
+          <select id="rolUsuarioForm">
+            <option value="">Selecciona rol</option>
+            <option value="SuperAdmin">SuperAdmin</option>
+            <option value="Admin">Admin</option>
+            <option value="Compras">Compras</option>
+            <option value="Almacen">Almacén</option>
+            <option value="Consulta">Consulta</option>
+            <option value="CapturistaPV">CapturistaPV</option>
+          </select>
+        </div>
+
+        <div class="input-group">
+          <label>Estatus</label>
+          <select id="activoUsuario">
+            <option value="true">Activo</option>
+            <option value="false">Inactivo</option>
+          </select>
+        </div>
+
+      </div>
+
+      <div class="modal-actions">
+        <button class="btn-secondary" onclick="cerrarModalUsuario()">Cancelar</button>
+        <button class="btn-small" onclick="guardarUsuario()">Guardar usuario</button>
+      </div>
+
+    </div>
+  </div>
+
+  <script>
+validarPermiso("Usuarios");
+
+    let usuariosSistema = [];
+    let indiceEditandoUsuario = null;
+
+    const SUPABASE_URL = "https://knjuevjxfyohcxrsldpb.supabase.co";
+    const SUPABASE_KEY = "sb_publishable_f_1SKtetMWPSNmZ5eSRaOw_RYtHenaR";
+
+    const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+    const tablaUsuarios = document.getElementById("tablaUsuarios");
+    const buscarUsuario = document.getElementById("buscarUsuario");
+    const filtroRolUsuario = document.getElementById("filtroRolUsuario");
+    const filtroActivoUsuario = document.getElementById("filtroActivoUsuario");
+
+    validarAccesoSuperAdmin();
+
+    function validarAccesoSuperAdmin() {
+      const usuarioActivo = JSON.parse(localStorage.getItem("usuarioActivo"));
+
+      if (!usuarioActivo || usuarioActivo.rol !== "SuperAdmin") {
+        alert("No tienes permiso para acceder a este módulo.");
+        window.location.href = "../dashboard.html";
+      }
+    }
+
+    async function cargarUsuarios() {
+      const { data, error } = await supabaseClient
+        .from("usuarios")
+        .select("*")
+        .order("created_at", { ascending: false });
+
+      if (error) {
+        console.error(error);
+        alert("No se pudieron cargar los usuarios.");
+        return;
+      }
+
+      usuariosSistema = data || [];
+      renderizarUsuarios();
+    }
+
+    function renderizarUsuarios() {
+      const texto = buscarUsuario.value.toLowerCase();
+      const rol = filtroRolUsuario.value;
+      const activo = filtroActivoUsuario.value;
+
+      tablaUsuarios.innerHTML = "";
+
+      const filtrados = usuariosSistema.filter(u => {
+        const coincideTexto =
+          (u.nombre || "").toLowerCase().includes(texto) ||
+          (u.usuario || "").toLowerCase().includes(texto) ||
+          (u.rol || "").toLowerCase().includes(texto);
+
+        const coincideRol = rol === "" || u.rol === rol;
+        const coincideActivo = activo === "" || String(u.activo) === activo;
+
+        return coincideTexto && coincideRol && coincideActivo;
+      });
+
+      filtrados.forEach((u, index) => {
+        const fila = document.createElement("tr");
+
+        fila.innerHTML = `
+          <td><strong>${u.nombre || ""}</strong></td>
+          <td>${u.usuario || ""}</td>
+          <td>
+            <span class="badge blue">${u.rol || ""}</span>
+          </td>
+          <td>
+            <span class="badge ${u.activo ? "green" : "red"}">
+              ${u.activo ? "Activo" : "Inactivo"}
+            </span>
+          </td>
+          <td>${formatearFechaUsuario(u.created_at)}</td>
+          <td>
+            <button class="action-btn edit" onclick="editarUsuario(${index})">Editar</button>
+            <button class="action-btn orange" onclick="toggleUsuario(${index})">
+              ${u.activo ? "Inactivar" : "Activar"}
+            </button>
+            <button class="action-btn red-btn" onclick="eliminarUsuario(${index})">Eliminar</button>
+          </td>
+        `;
+
+        tablaUsuarios.appendChild(fila);
+      });
+
+      actualizarKPIsUsuarios();
+    }
+
+    function actualizarKPIsUsuarios() {
+      document.getElementById("kpiUsuariosTotal").textContent = usuariosSistema.length;
+
+      document.getElementById("kpiUsuariosActivos").textContent =
+        usuariosSistema.filter(u => u.activo === true).length;
+
+      document.getElementById("kpiUsuariosInactivos").textContent =
+        usuariosSistema.filter(u => u.activo === false).length;
+
+      document.getElementById("kpiUsuariosSuperAdmin").textContent =
+        usuariosSistema.filter(u => u.rol === "SuperAdmin").length;
+    }
+
+    function abrirModalUsuario() {
+      indiceEditandoUsuario = null;
+      document.getElementById("tituloModalUsuario").textContent = "Nuevo usuario";
+      document.getElementById("modalUsuario").classList.add("show");
+    }
+
+    function cerrarModalUsuario() {
+      document.getElementById("modalUsuario").classList.remove("show");
+      limpiarFormularioUsuario();
+      indiceEditandoUsuario = null;
+    }
+
+    async function guardarUsuario() {
+      const nuevo = {
+        nombre: document.getElementById("nombreUsuario").value.trim(),
+        usuario: document.getElementById("usuarioUsuario").value.trim(),
+        password: document.getElementById("passwordUsuario").value.trim(),
+        rol: document.getElementById("rolUsuarioForm").value,
+        activo: document.getElementById("activoUsuario").value === "true"
+      };
+
+      if (!nuevo.nombre || !nuevo.usuario || !nuevo.rol) {
+        alert("Completa nombre, usuario y rol.");
+        return;
+      }
+
+      if (indiceEditandoUsuario === null && !nuevo.password) {
+        alert("Captura una contraseña para el usuario nuevo.");
+        return;
+      }
+
+      if (indiceEditandoUsuario === null) {
+        const { error } = await supabaseClient
+          .from("usuarios")
+          .insert([nuevo]);
+
+        if (error) {
+          console.error(error);
+          alert("No se pudo guardar. Revisa si el usuario ya existe.");
+          return;
+        }
+
+        registrarMovimientoUsuarios("Creó usuario", nuevo.usuario);
+
+      } else {
+        const actual = usuariosSistema[indiceEditandoUsuario];
+
+        const datosActualizados = {
+          nombre: nuevo.nombre,
+          usuario: nuevo.usuario,
+          rol: nuevo.rol,
+          activo: nuevo.activo
+        };
+
+        if (nuevo.password) {
+          datosActualizados.password = nuevo.password;
+        }
+
+        const { error } = await supabaseClient
+          .from("usuarios")
+          .update(datosActualizados)
+          .eq("id", actual.id);
+
+        if (error) {
+          console.error(error);
+          alert("No se pudo actualizar el usuario.");
+          return;
+        }
+
+        registrarMovimientoUsuarios("Editó usuario", nuevo.usuario);
+      }
+
+      cerrarModalUsuario();
+      cargarUsuarios();
+
+      alert("Usuario guardado correctamente.");
+    }
+
+    function editarUsuario(index) {
+      const u = usuariosSistema[index];
+
+      indiceEditandoUsuario = index;
+
+      document.getElementById("tituloModalUsuario").textContent = "Editar usuario";
+      document.getElementById("modalUsuario").classList.add("show");
+
+      document.getElementById("nombreUsuario").value = u.nombre || "";
+      document.getElementById("usuarioUsuario").value = u.usuario || "";
+      document.getElementById("passwordUsuario").value = "";
+      document.getElementById("rolUsuarioForm").value = u.rol || "";
+      document.getElementById("activoUsuario").value = String(u.activo);
+    }
+
+    async function toggleUsuario(index) {
+      const u = usuariosSistema[index];
+
+      const nuevoEstado = !u.activo;
+
+      const confirmar = confirm(
+        `¿Seguro que deseas ${nuevoEstado ? "activar" : "inactivar"} a ${u.usuario}?`
+      );
+
+      if (!confirmar) return;
+
+      const { error } = await supabaseClient
+        .from("usuarios")
+        .update({ activo: nuevoEstado })
+        .eq("id", u.id);
+
+      if (error) {
+        console.error(error);
+        alert("No se pudo cambiar el estatus.");
+        return;
+      }
+
+      registrarMovimientoUsuarios(
+        nuevoEstado ? "Activó usuario" : "Inactivó usuario",
+        u.usuario
+      );
+
+      cargarUsuarios();
+    }
+
+    async function eliminarUsuario(index) {
+      const u = usuariosSistema[index];
+
+      const confirmar = confirm(
+        "¿Seguro que deseas eliminar definitivamente al usuario " + u.usuario + "?"
+      );
+
+      if (!confirmar) return;
+
+      const { error } = await supabaseClient
+        .from("usuarios")
+        .delete()
+        .eq("id", u.id);
+
+      if (error) {
+        console.error(error);
+        alert("No se pudo eliminar el usuario.");
+        return;
+      }
+
+      registrarMovimientoUsuarios("Eliminó usuario", u.usuario);
+
+      cargarUsuarios();
+    }
+
+    function limpiarFormularioUsuario() {
+      document.getElementById("nombreUsuario").value = "";
+      document.getElementById("usuarioUsuario").value = "";
+      document.getElementById("passwordUsuario").value = "";
+      document.getElementById("rolUsuarioForm").value = "";
+      document.getElementById("activoUsuario").value = "true";
+    }
+
+    function registrarMovimientoUsuarios(accion, detalle) {
+      if (typeof registrarAuditoria === "function") {
+        registrarAuditoria(
+          "Usuarios",
+          accion,
+          detalle
+        );
+      }
+    }
+
+    function formatearFechaUsuario(fecha) {
+      if (!fecha) return "";
+
+      const f = new Date(fecha);
+
+      return f.toLocaleDateString("es-MX") + " " +
+        f.toLocaleTimeString("es-MX", {
+          hour: "2-digit",
+          minute: "2-digit"
+        });
+    }
+
+    buscarUsuario.addEventListener("input", renderizarUsuarios);
+    filtroRolUsuario.addEventListener("change", renderizarUsuarios);
+    filtroActivoUsuario.addEventListener("change", renderizarUsuarios);
+
+    function cerrarSesion() {
+      localStorage.removeItem("usuarioActivo");
+      window.location.href = "../index.html";
+    }
+
+    cargarUsuarios();
+  </script>
+
+</body>
+</html>

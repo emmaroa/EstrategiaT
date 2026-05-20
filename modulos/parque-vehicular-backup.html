@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ESTRATEGIAT | Parque Vehicular</title>
+  <link rel="stylesheet" href="../style.css">
+</head>
+<body class="dashboard-body">
+
+  <aside class="sidebar">
+    <div class="sidebar-logo">
+      <div class="mini-logo">E</div>
+      <div>
+        <h3>ESTRATEGIAT</h3>
+        <small>Parque Vehicular</small>
+      </div>
+    </div>
+
+    <nav>
+      <a href="../dashboard.html" class="nav-item">Dashboard</a>
+      <a href="parque-vehicular.html" class="nav-item active">Parque Vehicular</a>
+      <a href="peticiones.html" class="nav-item">Peticiones</a>
+      <a href="requisiciones.html" class="nav-item">Requisiciones</a>
+      <a href="vales.html" class="nav-item">Vales</a>
+    </nav>
+
+    <button class="logout" onclick="cerrarSesion()">Cerrar sesión</button>
+  </aside>
+
+  <main class="main-content">
+
+    <header class="topbar">
+      <div>
+        <h1>Parque Vehicular</h1>
+        <p>Consulta y control de unidades registradas.</p>
+      </div>
+
+      <button class="btn-small">+ Nueva unidad</button>
+    </header>
+
+    <section class="kpi-grid">
+      <div class="kpi-card">
+        <span>Total unidades</span>
+        <h2>248</h2>
+        <p>Registradas en sistema</p>
+      </div>
+
+      <div class="kpi-card">
+        <span>Activas</span>
+        <h2>221</h2>
+        <p>Disponibles operativamente</p>
+      </div>
+
+      <div class="kpi-card">
+        <span>Proceso de baja</span>
+        <h2>18</h2>
+        <p>En revisión administrativa</p>
+      </div>
+
+      <div class="kpi-card">
+        <span>Baja</span>
+        <h2>9</h2>
+        <p>Fuera de operación</p>
+      </div>
+    </section>
+
+    <section class="panel">
+
+      <div class="panel-header">
+        <div>
+          <h2>Listado de unidades</h2>
+          <p>Busca por unidad, dependencia, tipo o responsable.</p>
+        </div>
+      </div>
+
+      <div class="filters">
+        <input type="text" id="buscarUnidad" placeholder="Buscar unidad...">
+
+        <select id="filtroEstatus">
+          <option value="">Todos los estatus</option>
+          <option value="Activo">Activo</option>
+          <option value="Proceso de baja">Proceso de baja</option>
+          <option value="Baja">Baja</option>
+        </select>
+
+        <select id="filtroTipo">
+          <option value="">Todos los tipos</option>
+          <option value="Pickup">Pickup</option>
+          <option value="Sedán">Sedán</option>
+          <option value="Maquinaria pesada">Maquinaria pesada</option>
+          <option value="Moto">Moto</option>
+        </select>
+      </div>
+
+      <div class="table-container">
+        <table>
+          <thead>
+            <tr>
+              <th>Unidad</th>
+              <th>Descripción</th>
+              <th>Tipo</th>
+              <th>Dependencia</th>
+              <th>Responsable</th>
+              <th>Estatus</th>
+              <th>Acciones</th>
+            </tr>
+          </thead>
+
+          <tbody id="tablaUnidades"></tbody>
+        </table>
+      </div>
+
+    </section>
+
+  </main>
+
+  <script src="../login.js"></script>
+
+  <script>
+    const unidades = [
+      {
+        unidad: "2761",
+        descripcion: "Ford Ranger 2020",
+        tipo: "Pickup",
+        dependencia: "Dirección de Talleres",
+        responsable: "Víctor Zarate",
+        estatus: "Activo"
+      },
+      {
+        unidad: "1845",
+        descripcion: "Nissan Versa 2019",
+        tipo: "Sedán",
+        dependencia: "Oficialía Mayor",
+        responsable: "Emma Figueroa",
+        estatus: "Activo"
+      },
+      {
+        unidad: "3022",
+        descripcion: "Retroexcavadora CAT",
+        tipo: "Maquinaria pesada",
+        dependencia: "Infraestructura",
+        responsable: "Karl Lohr",
+        estatus: "Proceso de baja"
+      },
+      {
+        unidad: "1189",
+        descripcion: "Honda Cargo",
+        tipo: "Moto",
+        dependencia: "Servicios Públicos",
+        responsable: "Jair Encinas",
+        estatus: "Activo"
+      },
+      {
+        unidad: "4410",
+        descripcion: "Chevrolet Silverado",
+        tipo: "Pickup",
+        dependencia: "Parques y Jardines",
+        responsable: "Christian Mendoza",
+        estatus: "Baja"
+      }
+    ];
+
+    const tabla = document.getElementById("tablaUnidades");
+    const buscarUnidad = document.getElementById("buscarUnidad");
+    const filtroEstatus = document.getElementById("filtroEstatus");
+    const filtroTipo = document.getElementById("filtroTipo");
+
+    function cargarUnidades() {
+      const texto = buscarUnidad.value.toLowerCase();
+      const estatus = filtroEstatus.value;
+      const tipo = filtroTipo.value;
+
+      tabla.innerHTML = "";
+
+      const filtradas = unidades.filter(u => {
+        const coincideTexto =
+          u.unidad.toLowerCase().includes(texto) ||
+          u.descripcion.toLowerCase().includes(texto) ||
+          u.dependencia.toLowerCase().includes(texto) ||
+          u.responsable.toLowerCase().includes(texto);
+
+        const coincideEstatus = estatus === "" || u.estatus === estatus;
+        const coincideTipo = tipo === "" || u.tipo === tipo;
+
+        return coincideTexto && coincideEstatus && coincideTipo;
+      });
+
+      filtradas.forEach(u => {
+        const fila = document.createElement("tr");
+
+        fila.innerHTML = `
+          <td><strong>${u.unidad}</strong></td>
+          <td>${u.descripcion}</td>
+          <td>${u.tipo}</td>
+          <td>${u.dependencia}</td>
+          <td>${u.responsable}</td>
+          <td>
+            <span class="badge ${obtenerClaseEstatus(u.estatus)}">
+              ${u.estatus}
+            </span>
+          </td>
+          <td>
+            <button class="action-btn">Ver</button>
+            <button class="action-btn edit">Editar</button>
+          </td>
+        `;
+
+        tabla.appendChild(fila);
+      });
+    }
+
+    function obtenerClaseEstatus(estatus) {
+      if (estatus === "Activo") return "green";
+      if (estatus === "Proceso de baja") return "amber";
+      if (estatus === "Baja") return "red";
+      return "gray";
+    }
+
+    buscarUnidad.addEventListener("input", cargarUnidades);
+    filtroEstatus.addEventListener("change", cargarUnidades);
+    filtroTipo.addEventListener("change", cargarUnidades);
+
+    cargarUnidades();
+
+    function cerrarSesion() {
+      localStorage.removeItem("usuarioActivo");
+      window.location.href = "../index.html";
+    }
+  </script>
+
+</body>
+</html>

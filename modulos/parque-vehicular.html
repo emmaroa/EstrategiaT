@@ -1,232 +1,823 @@
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+
   <title>ESTRATEGIAT | Parque Vehicular</title>
-  <link rel="stylesheet" href="../style.css">
+
+  <link rel="stylesheet" href="../style.css"/>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="../login.js"></script>
 </head>
+
 <body class="dashboard-body">
 
+  <!-- SIDEBAR -->
+
   <aside class="sidebar">
+
     <div class="sidebar-logo">
+
       <div class="mini-logo">E</div>
+
       <div>
         <h3>ESTRATEGIAT</h3>
         <small>Parque Vehicular</small>
       </div>
+
     </div>
 
     <nav>
-      <a href="../dashboard.html" class="nav-item">Dashboard</a>
-      <a href="parque-vehicular.html" class="nav-item active">Parque Vehicular</a>
-      <a href="peticiones.html" class="nav-item">Peticiones</a>
-      <a href="requisiciones.html" class="nav-item">Requisiciones</a>
-      <a href="vales.html" class="nav-item">Vales</a>
+
+      <a href="../dashboard.html" class="nav-item">
+        Dashboard
+      </a>
+
+      <a href="parque-vehicular.html"
+         class="nav-item active">
+        Parque Vehicular
+      </a>
+
+      <a href="peticiones.html"
+         class="nav-item">
+        Peticiones
+      </a>
+
+      <a href="requisiciones.html"
+         class="nav-item">
+        Requisiciones
+      </a>
+
+      <a href="vales.html"
+         class="nav-item">
+        Vales
+      </a>
+
     </nav>
 
-    <button class="logout" onclick="cerrarSesion()">Cerrar sesión</button>
+    <button class="logout"
+      onclick="cerrarSesion()">
+      Cerrar sesión
+    </button>
+
   </aside>
+
+  <!-- MAIN -->
 
   <main class="main-content">
 
     <header class="topbar">
+
       <div>
+
         <h1>Parque Vehicular</h1>
-        <p>Consulta y control de unidades registradas.</p>
+
+        <p>
+          Control de unidades, dependencias y características.
+        </p>
+
       </div>
 
-      <button class="btn-small">+ Nueva unidad</button>
+      <button class="btn-small"
+        onclick="abrirModalUnidad()">
+
+        + Nueva unidad
+
+      </button>
+
     </header>
 
+    <!-- KPIS -->
+
     <section class="kpi-grid">
+
       <div class="kpi-card">
         <span>Total unidades</span>
-        <h2>248</h2>
-        <p>Registradas en sistema</p>
+        <h2 id="kpiTotal">0</h2>
+        <p>Registradas</p>
       </div>
 
       <div class="kpi-card">
         <span>Activas</span>
-        <h2>221</h2>
-        <p>Disponibles operativamente</p>
+        <h2 id="kpiActivas">0</h2>
+        <p>En operación</p>
       </div>
 
       <div class="kpi-card">
-        <span>Proceso de baja</span>
-        <h2>18</h2>
-        <p>En revisión administrativa</p>
+        <span>Gasolina</span>
+        <h2 id="kpiGasolina">0</h2>
+        <p>Combustión</p>
       </div>
 
       <div class="kpi-card">
-        <span>Baja</span>
-        <h2>9</h2>
-        <p>Fuera de operación</p>
+        <span>Eléctricas</span>
+        <h2 id="kpiElectricas">0</h2>
+        <p>Vehículos eléctricos</p>
       </div>
+
     </section>
+
+    <!-- PANEL -->
 
     <section class="panel">
 
       <div class="panel-header">
+
         <div>
           <h2>Listado de unidades</h2>
-          <p>Busca por unidad, dependencia, tipo o responsable.</p>
+
+          <p>
+            Consulta rápida de parque vehicular.
+          </p>
         </div>
+
       </div>
+
+      <!-- FILTROS -->
 
       <div class="filters">
-        <input type="text" id="buscarUnidad" placeholder="Buscar unidad...">
 
-        <select id="filtroEstatus">
-          <option value="">Todos los estatus</option>
-          <option value="Activo">Activo</option>
-          <option value="Proceso de baja">Proceso de baja</option>
-          <option value="Baja">Baja</option>
+        <input
+          type="text"
+          id="buscarUnidad"
+          placeholder="Buscar unidad..."
+        />
+
+        <select id="filtroDependencia">
+
+          <option value="">
+            Todas las dependencias
+          </option>
+
+          <option value="PRESIDENCIA">
+            PRESIDENCIA
+          </option>
+
+          <option value="INFRAESTRUCTURA">
+            INFRAESTRUCTURA
+          </option>
+
+          <option value="SERVICIOS PUBLICOS">
+            SERVICIOS PÚBLICOS
+          </option>
+
+          <option value="SEGURIDAD PUBLICA">
+            SEGURIDAD PÚBLICA
+          </option>
+
         </select>
 
-        <select id="filtroTipo">
-          <option value="">Todos los tipos</option>
-          <option value="Pickup">Pickup</option>
-          <option value="Sedán">Sedán</option>
-          <option value="Maquinaria pesada">Maquinaria pesada</option>
-          <option value="Moto">Moto</option>
+        <select id="filtroCombustible">
+
+          <option value="">
+            Todos los combustibles
+          </option>
+
+          <option value="GASOLINA">
+            Gasolina
+          </option>
+
+          <option value="DIESEL">
+            Diesel
+          </option>
+
+          <option value="ELECTRICO">
+            Eléctrico
+          </option>
+
         </select>
+
       </div>
 
+      <!-- TABLA -->
+
       <div class="table-container">
+
         <table>
+
           <thead>
+
             <tr>
+              <th>#</th>
+              <th>Inventario</th>
               <th>Unidad</th>
               <th>Descripción</th>
-              <th>Tipo</th>
               <th>Dependencia</th>
-              <th>Responsable</th>
+              <th>Marca</th>
+              <th>Modelo</th>
+              <th>Placa</th>
+              <th>Combustible</th>
               <th>Estatus</th>
               <th>Acciones</th>
             </tr>
+
           </thead>
 
-          <tbody id="tablaUnidades"></tbody>
+          <tbody id="tablaParque"></tbody>
+
         </table>
+
       </div>
 
     </section>
 
   </main>
 
-  <script src="../login.js"></script>
+  <!-- MODAL -->
+
+  <div class="modal" id="modalUnidad">
+
+    <div class="modal-card large-modal">
+
+      <div class="modal-header">
+
+        <div>
+          <h2>Nueva unidad</h2>
+          <p>Registro de parque vehicular</p>
+        </div>
+
+        <button class="close-btn"
+          onclick="cerrarModalUnidad()">
+          ×
+        </button>
+
+      </div>
+
+      <div class="form-grid">
+
+        <div class="input-group">
+          <label>No. Inventario</label>
+
+          <input type="text"
+            id="inventarioUnidad">
+        </div>
+
+        <div class="input-group">
+          <label>Grupo</label>
+
+          <select id="grupoUnidad">
+
+            <option value="">
+              Selecciona grupo
+            </option>
+
+            <option value="EQUIPO DE TRANSPORTE">
+              EQUIPO DE TRANSPORTE
+            </option>
+
+            <option value="MAQUINARIA PESADA">
+              MAQUINARIA PESADA
+            </option>
+
+            <option value="PATRULLAS">
+              PATRULLAS
+            </option>
+
+          </select>
+
+        </div>
+
+        <div class="input-group">
+          <label>Descripción</label>
+
+          <input type="text"
+            id="descripcionUnidad">
+        </div>
+
+        <div class="input-group">
+          <label>Unidad / Patrulla</label>
+
+          <input type="text"
+            id="unidadPatrulla">
+        </div>
+
+        <div class="input-group">
+          <label>Combustible</label>
+
+          <select id="combustibleUnidad">
+
+            <option value="">
+              Selecciona
+            </option>
+
+            <option value="GASOLINA">
+              Gasolina
+            </option>
+
+            <option value="DIESEL">
+              Diesel
+            </option>
+
+            <option value="ELECTRICO">
+              Eléctrico
+            </option>
+
+          </select>
+
+        </div>
+
+        <div class="input-group">
+          <label>Dependencia</label>
+
+          <select id="dependenciaUnidad">
+
+            <option value="">
+              Selecciona dependencia
+            </option>
+
+            <option value="PRESIDENCIA">
+              PRESIDENCIA
+            </option>
+
+            <option value="INFRAESTRUCTURA">
+              INFRAESTRUCTURA
+            </option>
+
+            <option value="SERVICIOS PUBLICOS">
+              SERVICIOS PÚBLICOS
+            </option>
+
+            <option value="SEGURIDAD PUBLICA">
+              SEGURIDAD PÚBLICA
+            </option>
+
+          </select>
+
+        </div>
+
+        <div class="input-group">
+          <label>Marca</label>
+
+          <input type="text"
+            id="marcaUnidad">
+        </div>
+
+        <div class="input-group">
+          <label>Modelo</label>
+
+          <input type="text"
+            id="modeloUnidad">
+        </div>
+
+        <div class="input-group">
+          <label>Color</label>
+
+          <input type="text"
+            id="colorUnidad">
+        </div>
+
+<div class="input-group">
+  <label>Uso</label>
+
+  <select id="usoUnidad">
+    <option value="">Selecciona uso</option>
+    <option value="ADMINISTRATIVO">ADMINISTRATIVO</option>
+    <option value="OPERATIVO">OPERATIVO</option>
+  </select>
+</div>
+
+
+        <div class="input-group">
+          <label>Placa</label>
+
+          <input type="text"
+            id="placaUnidad">
+        </div>
+
+        <div class="input-group">
+          <label>Serie</label>
+
+          <input type="text"
+            id="serieUnidad">
+        </div>
+
+        <div class="input-group">
+          <label>Procedencia</label>
+
+          <select id="procedenciaUnidad">
+
+            <option value="">
+              Selecciona
+            </option>
+
+            <option value="PROPIO">
+              Propio
+            </option>
+
+            <option value="COMODATO">
+              Comodato
+            </option>
+
+            <option value="ARRENDADO">
+              Arrendado
+            </option>
+
+          </select>
+
+        </div>
+
+        <div class="input-group">
+          <label>Estatus</label>
+
+          <select id="estatusUnidad">
+
+            <option value="ACTIVO">
+              ACTIVO
+            </option>
+
+            <option value="TALLER">
+              TALLER
+            </option>
+
+            <option value="BAJA">
+              BAJA
+            </option>
+
+          </select>
+
+        </div>
+
+      </div>
+
+      <div class="modal-actions">
+
+        <button class="btn-secondary"
+          onclick="cerrarModalUnidad()">
+          Cancelar
+        </button>
+
+        <button class="btn-small"
+          onclick="guardarUnidad()">
+          Guardar unidad
+        </button>
+
+      </div>
+
+    </div>
+
+  </div>
+
+  <!-- SCRIPT -->
 
   <script>
-    const unidades = [
-      {
-        unidad: "2761",
-        descripcion: "Ford Ranger 2020",
-        tipo: "Pickup",
-        dependencia: "Dirección de Talleres",
-        responsable: "Víctor Zarate",
-        estatus: "Activo"
-      },
-      {
-        unidad: "1845",
-        descripcion: "Nissan Versa 2019",
-        tipo: "Sedán",
-        dependencia: "Oficialía Mayor",
-        responsable: "Emma Figueroa",
-        estatus: "Activo"
-      },
-      {
-        unidad: "3022",
-        descripcion: "Retroexcavadora CAT",
-        tipo: "Maquinaria pesada",
-        dependencia: "Infraestructura",
-        responsable: "Karl Lohr",
-        estatus: "Proceso de baja"
-      },
-      {
-        unidad: "1189",
-        descripcion: "Honda Cargo",
-        tipo: "Moto",
-        dependencia: "Servicios Públicos",
-        responsable: "Jair Encinas",
-        estatus: "Activo"
-      },
-      {
-        unidad: "4410",
-        descripcion: "Chevrolet Silverado",
-        tipo: "Pickup",
-        dependencia: "Parques y Jardines",
-        responsable: "Christian Mendoza",
-        estatus: "Baja"
+validarPermiso("Parque Vehicular");
+    let parque = [];
+    let indiceEditandoUnidad = null;
+
+    const SUPABASE_URL =
+      "https://knjuevjxfyohcxrsldpb.supabase.co";
+
+    const SUPABASE_KEY =
+      "sb_publishable_f_1SKtetMWPSNmZ5eSRaOw_RYtHenaR";
+
+    const supabaseClient =
+      supabase.createClient(
+        SUPABASE_URL,
+        SUPABASE_KEY
+      );
+
+    const tablaParque =
+      document.getElementById("tablaParque");
+
+    const buscarUnidad =
+      document.getElementById("buscarUnidad");
+
+    const filtroDependencia =
+      document.getElementById("filtroDependencia");
+
+    const filtroCombustible =
+      document.getElementById("filtroCombustible");
+
+    function abrirModalUnidad() {
+      document
+        .getElementById("modalUnidad")
+        .classList.add("show");
+    }
+
+    function cerrarModalUnidad() {
+
+      document
+        .getElementById("modalUnidad")
+        .classList.remove("show");
+
+      limpiarFormularioUnidad();
+
+      indiceEditandoUnidad = null;
+    }
+
+    async function cargarParqueVehicular() {
+
+      const { data, error } =
+        await supabaseClient
+          .from("parque_vehicular")
+          .select("*")
+          .order("numero_consecutivo", {
+            ascending: true
+          });
+
+      if (error) {
+        console.error(error);
+        return;
       }
-    ];
 
-    const tabla = document.getElementById("tablaUnidades");
-    const buscarUnidad = document.getElementById("buscarUnidad");
-    const filtroEstatus = document.getElementById("filtroEstatus");
-    const filtroTipo = document.getElementById("filtroTipo");
+      parque = data || [];
 
-    function cargarUnidades() {
-      const texto = buscarUnidad.value.toLowerCase();
-      const estatus = filtroEstatus.value;
-      const tipo = filtroTipo.value;
+      renderizarTabla();
+    }
 
-      tabla.innerHTML = "";
+    function renderizarTabla() {
 
-      const filtradas = unidades.filter(u => {
-        const coincideTexto =
-          u.unidad.toLowerCase().includes(texto) ||
-          u.descripcion.toLowerCase().includes(texto) ||
-          u.dependencia.toLowerCase().includes(texto) ||
-          u.responsable.toLowerCase().includes(texto);
+      tablaParque.innerHTML = "";
 
-        const coincideEstatus = estatus === "" || u.estatus === estatus;
-        const coincideTipo = tipo === "" || u.tipo === tipo;
+      parque.forEach((u, index) => {
 
-        return coincideTexto && coincideEstatus && coincideTipo;
-      });
-
-      filtradas.forEach(u => {
-        const fila = document.createElement("tr");
+        const fila =
+          document.createElement("tr");
 
         fila.innerHTML = `
-          <td><strong>${u.unidad}</strong></td>
-          <td>${u.descripcion}</td>
-          <td>${u.tipo}</td>
-          <td>${u.dependencia}</td>
-          <td>${u.responsable}</td>
+          <td>${u.numero_consecutivo || ""}</td>
+          <td>${u.numero_inventario || ""}</td>
+          <td>${u.unidad_patrulla || ""}</td>
+          <td>${u.descripcion || ""}</td>
+          <td>${u.dependencia || ""}</td>
+          <td>${u.marca || ""}</td>
+          <td>${u.modelo || ""}</td>
+          <td>${u.placa || ""}</td>
+          <td>${u.combustible || ""}</td>
+
           <td>
-            <span class="badge ${obtenerClaseEstatus(u.estatus)}">
-              ${u.estatus}
+            <span class="badge green">
+              ${u.estatus || ""}
             </span>
           </td>
+
           <td>
-            <button class="action-btn">Ver</button>
-            <button class="action-btn edit">Editar</button>
+
+            <button class="action-btn"
+              onclick="editarUnidad(${index})">
+              Editar
+            </button>
+
+            <button class="action-btn red-btn"
+              onclick="eliminarUnidad(${index})">
+              Eliminar
+            </button>
+
           </td>
         `;
 
-        tabla.appendChild(fila);
+        tablaParque.appendChild(fila);
       });
+
+      actualizarKPIs();
     }
 
-    function obtenerClaseEstatus(estatus) {
-      if (estatus === "Activo") return "green";
-      if (estatus === "Proceso de baja") return "amber";
-      if (estatus === "Baja") return "red";
-      return "gray";
+    function actualizarKPIs() {
+
+      document.getElementById(
+        "kpiTotal"
+      ).textContent = parque.length;
+
+      document.getElementById(
+        "kpiActivas"
+      ).textContent = parque.filter(
+        u => u.estatus === "ACTIVO"
+      ).length;
+
+      document.getElementById(
+        "kpiGasolina"
+      ).textContent = parque.filter(
+        u => u.combustible === "GASOLINA"
+      ).length;
+
+      document.getElementById(
+        "kpiElectricas"
+      ).textContent = parque.filter(
+        u => u.combustible === "ELECTRICO"
+      ).length;
     }
 
-    buscarUnidad.addEventListener("input", cargarUnidades);
-    filtroEstatus.addEventListener("change", cargarUnidades);
-    filtroTipo.addEventListener("change", cargarUnidades);
+    async function guardarUnidad() {
 
-    cargarUnidades();
+      const nueva = {
+
+        numero_consecutivo:
+          parque.length + 1,
+
+        numero_inventario:
+          document.getElementById(
+            "inventarioUnidad"
+          ).value.trim(),
+
+        grupo:
+          document.getElementById(
+            "grupoUnidad"
+          ).value,
+
+        descripcion:
+          document.getElementById(
+            "descripcionUnidad"
+          ).value.trim(),
+
+        unidad_patrulla:
+          document.getElementById(
+            "unidadPatrulla"
+          ).value.trim(),
+
+        combustible:
+          document.getElementById(
+            "combustibleUnidad"
+          ).value,
+
+        dependencia:
+          document.getElementById(
+            "dependenciaUnidad"
+          ).value,
+
+        marca:
+          document.getElementById(
+            "marcaUnidad"
+          ).value.trim(),
+
+        modelo:
+          document.getElementById(
+            "modeloUnidad"
+          ).value.trim(),
+
+          uso:
+  document.getElementById(
+    "usoUnidad"
+  ).value,
+
+        color:
+          document.getElementById(
+            "colorUnidad"
+          ).value.trim(),
+
+        placa:
+          document.getElementById(
+            "placaUnidad"
+          ).value.trim(),
+
+        serie:
+          document.getElementById(
+            "serieUnidad"
+          ).value.trim(),
+
+        procedencia:
+          document.getElementById(
+            "procedenciaUnidad"
+          ).value,
+
+        estatus:
+          document.getElementById(
+            "estatusUnidad"
+          ).value
+      };
+
+      if (
+        !nueva.numero_inventario
+        || !nueva.descripcion
+      ) {
+        alert("Completa inventario y descripción.");
+        return;
+      }
+
+      if (indiceEditandoUnidad === null) {
+
+        const { error } =
+          await supabaseClient
+            .from("parque_vehicular")
+            .insert([nueva]);
+
+        if (error) {
+          console.error(error);
+          return;
+        }
+
+      } else {
+
+        const id =
+          parque[indiceEditandoUnidad].id;
+
+        const { error } =
+          await supabaseClient
+            .from("parque_vehicular")
+            .update(nueva)
+            .eq("id", id);
+
+        if (error) {
+          console.error(error);
+          return;
+        }
+      }
+
+      cerrarModalUnidad();
+
+      cargarParqueVehicular();
+    }
+
+    function editarUnidad(index) {
+
+      const u = parque[index];
+
+      indiceEditandoUnidad = index;
+
+      abrirModalUnidad();
+
+      document.getElementById("inventarioUnidad").value =
+        u.numero_inventario || "";
+
+      document.getElementById("grupoUnidad").value =
+        u.grupo || "";
+
+      document.getElementById("descripcionUnidad").value =
+        u.descripcion || "";
+
+      document.getElementById("unidadPatrulla").value =
+        u.unidad_patrulla || "";
+
+      document.getElementById("combustibleUnidad").value =
+        u.combustible || "";
+
+      document.getElementById("dependenciaUnidad").value =
+        u.dependencia || "";
+
+      document.getElementById("marcaUnidad").value =
+        u.marca || "";
+
+      document.getElementById("modeloUnidad").value =
+        u.modelo || "";
+
+      document.getElementById("colorUnidad").value =
+        u.color || "";
+
+        document.getElementById("usoUnidad").value =
+  u.uso || "";
+  
+      document.getElementById("placaUnidad").value =
+        u.placa || "";
+
+      document.getElementById("serieUnidad").value =
+        u.serie || "";
+
+      document.getElementById("procedenciaUnidad").value =
+        u.procedencia || "";
+
+      document.getElementById("estatusUnidad").value =
+        u.estatus || "";
+    }
+
+    async function eliminarUnidad(index) {
+
+      const u = parque[index];
+
+      const confirmar = confirm(
+        "¿Eliminar unidad?"
+      );
+
+      if (!confirmar) return;
+
+      const { error } =
+        await supabaseClient
+          .from("parque_vehicular")
+          .delete()
+          .eq("id", u.id);
+
+      if (error) {
+        console.error(error);
+        return;
+      }
+
+      cargarParqueVehicular();
+    }
+
+    function limpiarFormularioUnidad() {
+
+      document
+        .querySelectorAll("#modalUnidad input")
+        .forEach(i => i.value = "");
+
+      document
+        .querySelectorAll("#modalUnidad select")
+        .forEach(s => s.selectedIndex = 0);
+    }
 
     function cerrarSesion() {
-      localStorage.removeItem("usuarioActivo");
-      window.location.href = "../index.html";
+
+      localStorage.removeItem(
+        "usuarioActivo"
+      );
+
+      window.location.href =
+        "../index.html";
     }
+
+    cargarParqueVehicular();
+
   </script>
 
 </body>

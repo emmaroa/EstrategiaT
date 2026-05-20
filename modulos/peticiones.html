@@ -199,38 +199,12 @@
   <script src="../login.js"></script>
 
   <script>
-    let peticiones = JSON.parse(localStorage.getItem("peticiones")) || [
-      {
-        fecha: "2026-05-11",
-        unidad: "2761",
-        peticion: "Balatas delanteras y cambio de aceite",
-        solicitante: "Víctor Zarate",
-        area: "Talleres",
-        proveedor: "Refaccionaria del Norte",
-        estatus: "Pendiente",
-        observaciones: "Urgente para salida operativa"
-      },
-      {
-        fecha: "2026-05-10",
-        unidad: "3022",
-        peticion: "Manguera hidráulica para retroexcavadora",
-        solicitante: "Karl Lohr",
-        area: "Infraestructura",
-        proveedor: "Hidráulicos Hermosillo",
-        estatus: "En proceso",
-        observaciones: "Se dejó muestra"
-      },
-      {
-        fecha: "2026-05-09",
-        unidad: "1189",
-        peticion: "Llanta trasera para moto",
-        solicitante: "Jair Encinas",
-        area: "Servicios Públicos",
-        proveedor: "Moto Refacciones",
-        estatus: "Solventado",
-        observaciones: "Entregado en almacén"
-      }
-    ];
+
+validarPermiso("Peticiones");
+
+    let peticiones = JSON.parse(localStorage.getItem("peticiones")) || [];
+    let indiceEditando = null;
+    const URL_SHEETS = "https://script.google.com/macros/s/AKfycbw8EfQqixNLLkRinVKJeOjqPla3CYwj-kY1OaARSuXk5c_x_k2N4j6i9raYhaPZS-1Xrw/exec";
 
     const tablaPeticiones = document.getElementById("tablaPeticiones");
     const buscarPeticion = document.getElementById("buscarPeticion");
@@ -275,8 +249,10 @@
           </td>
           <td>
 <button class="action-btn" onclick="verPeticion(${index})">Ver</button>
-<button class="action-btn edit" onclick="cambiarEstatus(${index})">Estatus</button>
-<button class="action-btn orange" onclick="generarRequisicion(${index})">Generar req.</button>          </td>
+<button class="action-btn edit" onclick="editarPeticion(${index})">Editar</button>
+<button class="action-btn red-btn" onclick="eliminarPeticion(${index})">Eliminar</button>
+<button class="action-btn orange" onclick="generarRequisicion(${index})">Generar req.</button>
+</td>
         `;
 
         tablaPeticiones.appendChild(fila);
@@ -306,11 +282,12 @@
     }
 
     function cerrarModal() {
-      document.getElementById("modalPeticion").classList.remove("show");
-      limpiarFormulario();
-    }
+  document.getElementById("modalPeticion").classList.remove("show");
+  limpiarFormulario();
+  indiceEditando = null;
+}
 
-    fuasync function guardarPeticion() {
+  async function guardarPeticion() {
 
   const nuevaPeticion = {
     fecha: document.getElementById("fecha").value,
@@ -333,50 +310,61 @@
     return;
   }
 
+  if (indiceEditando === null) {
+
+    peticiones.unshift(nuevaPeticion);
+
+    if (typeof registrarAuditoria === "function") {
+      registrarAuditoria(
+        "Peticiones",
+        "Creó nueva petición",
+        "Unidad " + nuevaPeticion.unidad
+      );
+    }
+
+  } else {
+
+    peticiones[indiceEditando] = nuevaPeticion;
+
+    if (typeof registrarAuditoria === "function") {
+      registrarAuditoria(
+        "Peticiones",
+        "Editó petición",
+        "Unidad " + nuevaPeticion.unidad
+      );
+    }
+
+  }
+
+  localStorage.setItem(
+    "peticiones",
+    JSON.stringify(peticiones)
+  );
+
   try {
 
-    const respuesta = await fetch("https://script.google.com/macros/s/AKfycby5Lw6iDMXk56abAjI0QjsnrOVEpt4nI9DlMtpMEnEY7TFDuXLYMbm94sO_UJR_X7HY6g/exec", {
+    await fetch(URL_SHEETS, {
       method: "POST",
+      mode: "no-cors",
       body: JSON.stringify(nuevaPeticion)
     });
 
-    const resultado = await respuesta.json();
+    console.log("Enviado a Google Sheets");
 
-    if (resultado.success) {
-
-      peticiones.unshift(nuevaPeticion);
-
-      localStorage.setItem(
-        "peticiones",
-        JSON.stringify(peticiones)
-      );
-
-      if (typeof registrarAuditoria === "function") {
-        registrarAuditoria(
-          "Peticiones",
-          "Creó nueva petición",
-          "Unidad " + nuevaPeticion.unidad
-        );
-      }
-
-      cargarPeticiones();
-      cerrarModal();
-
-      alert("Petición guardada correctamente.");
-
-    } else {
-
-      alert("No se pudo guardar.");
-
-    }
-
-  } catch (error) {
+  } catch(error) {
 
     console.error(error);
-    alert("Error al conectar con Google Sheets.");
 
   }
-}
+
+  indiceEditando = null;
+
+  cargarPeticiones();
+  cerrarModal();
+
+  alert("Petición guardada correctamente.");
+};
+
 
     function limpiarFormulario() {
       document.getElementById("unidad").value = "";
@@ -409,15 +397,13 @@
 
       localStorage.setItem("peticiones", JSON.stringify(peticiones));
 
-
-      if (typeof registrarAuditoria === "function") {
+        if (typeof registrarAuditoria === "function") {
   registrarAuditoria(
     "Peticiones",
-    "Creó nueva petición",
-    "Unidad " + nuevaPeticion.unidad + " - " + nuevaPeticion.peticion
+    "Cambió estatus",
+    "Unidad " + peticiones[index].unidad + " → " + nuevoEstatus
   );
 }
-
       cargarPeticiones();
     }
 
@@ -456,6 +442,49 @@
     filtroArea.addEventListener("change", cargarPeticiones);
 
     cargarPeticiones();
+
+    function editarPeticion(index) {
+  const p = peticiones[index];
+
+  indiceEditando = index;
+
+  abrirModal();
+
+  document.getElementById("fecha").value = p.fecha;
+  document.getElementById("unidad").value = p.unidad;
+  document.getElementById("peticion").value = p.peticion;
+  document.getElementById("solicitante").value = p.solicitante;
+  document.getElementById("area").value = p.area;
+  document.getElementById("proveedor").value = p.proveedor;
+  document.getElementById("estatus").value = p.estatus;
+  document.getElementById("observaciones").value = p.observaciones;
+}
+
+function eliminarPeticion(index) {
+  const p = peticiones[index];
+
+  const confirmar = confirm(
+    "¿Seguro que deseas eliminar esta petición de la unidad " + p.unidad + "?"
+  );
+
+  if (!confirmar) return;
+
+  peticiones.splice(index, 1);
+
+  localStorage.setItem("peticiones", JSON.stringify(peticiones));
+
+  if (typeof registrarAuditoria === "function") {
+    registrarAuditoria(
+      "Peticiones",
+      "Eliminó petición",
+      "Unidad " + p.unidad + " - " + p.peticion
+    );
+  }
+
+  cargarPeticiones();
+
+  alert("Petición eliminada correctamente.");
+}
 
     function cerrarSesion() {
       localStorage.removeItem("usuarioActivo");

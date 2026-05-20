@@ -5,7 +5,11 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>ESTRATEGIAT | Vales</title>
   <link rel="stylesheet" href="../style.css">
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="../login.js"></script>
 </head>
+
 <body class="dashboard-body">
 
   <aside class="sidebar">
@@ -66,7 +70,6 @@
     </section>
 
     <section class="panel">
-
       <div class="panel-header">
         <div>
           <h2>Listado de vales</h2>
@@ -114,19 +117,18 @@
           <tbody id="tablaVales"></tbody>
         </table>
       </div>
-
     </section>
 
   </main>
 
-  <!-- MODAL NUEVO VALE -->
+    <!-- MODAL NUEVO VALE -->
 
   <div class="modal" id="modalVale">
     <div class="modal-card">
 
       <div class="modal-header">
         <div>
-          <h2>Nuevo vale</h2>
+          <h2 id="tituloModalVale">Nuevo vale</h2>
           <p>Captura la salida de almacén.</p>
         </div>
 
@@ -163,17 +165,17 @@
 
         <div class="input-group">
           <label>Solicitante</label>
-          <input type="text" id="solicitanteVale" placeholder="Quién solicita">
+          <input type="text" id="solicitanteVale">
         </div>
 
         <div class="input-group">
           <label>Proveedor / Origen</label>
-          <input type="text" id="proveedorVale" placeholder="Proveedor u origen">
+          <input type="text" id="proveedorVale">
         </div>
 
         <div class="input-group">
           <label>Cantidad</label>
-          <input type="number" id="cantidadVale" placeholder="0">
+          <input type="number" id="cantidadVale">
         </div>
 
         <div class="input-group">
@@ -189,12 +191,12 @@
 
         <div class="input-group">
           <label>Entrega</label>
-          <input type="text" id="entregaVale" placeholder="Quién entrega">
+          <input type="text" id="entregaVale">
         </div>
 
         <div class="input-group">
           <label>Recibe</label>
-          <input type="text" id="recibeVale" placeholder="Quién recibe">
+          <input type="text" id="recibeVale">
         </div>
 
         <div class="input-group">
@@ -213,12 +215,12 @@
 
         <div class="input-group full">
           <label>Refacción / Material</label>
-          <textarea id="refaccionVale" placeholder="Describe la refacción, lubricante, material o servicio entregado"></textarea>
+          <textarea id="refaccionVale"></textarea>
         </div>
 
         <div class="input-group full">
           <label>Observaciones</label>
-          <textarea id="observacionesVale" placeholder="Notas adicionales"></textarea>
+          <textarea id="observacionesVale"></textarea>
         </div>
 
       </div>
@@ -231,48 +233,37 @@
     </div>
   </div>
 
-  <script src="../login.js"></script>
+    <script>
+    validarPermiso("Vales");
 
-  <script>
-    let vales = JSON.parse(localStorage.getItem("vales")) || [
-      {
-        fecha: "2026-05-11",
-        folio: "0001-2026-V",
-        unidad: "2761",
-        area: "Talleres",
-        solicitante: "Víctor Zarate",
-        proveedor: "Refaccionaria del Norte",
-        refaccion: "Balatas delanteras",
-        cantidad: 1,
-        medida: "Juego",
-        entrega: "Jair Encinas",
-        recibe: "Víctor Zarate",
-        estatus: "Entregado",
-        requisicion: "REQ-2026-001",
-        observaciones: "Entrega completa"
-      },
-      {
-        fecha: "2026-05-10",
-        folio: "0002-2026-V",
-        unidad: "3022",
-        area: "Infraestructura",
-        solicitante: "Karl Lohr",
-        proveedor: "Hidráulicos Hermosillo",
-        refaccion: "Manguera hidráulica",
-        cantidad: 1,
-        medida: "Pieza",
-        entrega: "Almacén",
-        recibe: "Karl Lohr",
-        estatus: "Pendiente",
-        requisicion: "REQ-2026-002",
-        observaciones: "Pendiente de recoger"
-      }
-    ];
+    let vales = [];
+    let indiceEditandoVale = null;
+
+    const SUPABASE_URL = "https://knjuevjxfyohcxrsldpb.supabase.co";
+    const SUPABASE_KEY = "sb_publishable_f_1SKtetMWPSNmZ5eSRaOw_RYtHenaR";
+
+    const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
     const tablaVales = document.getElementById("tablaVales");
     const buscarVale = document.getElementById("buscarVale");
     const filtroValeEstatus = document.getElementById("filtroValeEstatus");
     const filtroValeArea = document.getElementById("filtroValeArea");
+
+    async function cargarValesDesdeSupabase() {
+      const { data, error } = await supabaseClient
+        .from("vales")
+        .select("*")
+        .order("created_at", { ascending: false });
+
+      if (error) {
+        console.error(error);
+        alert("No se pudieron cargar los vales.");
+        return;
+      }
+
+      vales = data || [];
+      cargarVales();
+    }
 
     function cargarVales() {
       const texto = buscarVale.value.toLowerCase();
@@ -283,15 +274,15 @@
 
       const filtrados = vales.filter(v => {
         const coincideTexto =
-          v.folio.toLowerCase().includes(texto) ||
-          v.unidad.toLowerCase().includes(texto) ||
-          v.area.toLowerCase().includes(texto) ||
-          v.solicitante.toLowerCase().includes(texto) ||
-          v.proveedor.toLowerCase().includes(texto) ||
-          v.refaccion.toLowerCase().includes(texto) ||
-          v.entrega.toLowerCase().includes(texto) ||
-          v.recibe.toLowerCase().includes(texto) ||
-          v.requisicion.toLowerCase().includes(texto);
+          (v.folio || "").toLowerCase().includes(texto) ||
+          (v.unidad || "").toLowerCase().includes(texto) ||
+          (v.area || "").toLowerCase().includes(texto) ||
+          (v.solicitante || "").toLowerCase().includes(texto) ||
+          (v.proveedor || "").toLowerCase().includes(texto) ||
+          (v.refaccion || "").toLowerCase().includes(texto) ||
+          (v.entrega || "").toLowerCase().includes(texto) ||
+          (v.recibe || "").toLowerCase().includes(texto) ||
+          (v.requisicion || "").toLowerCase().includes(texto);
 
         const coincideEstatus = estatus === "" || v.estatus === estatus;
         const coincideArea = area === "" || v.area === area;
@@ -304,23 +295,25 @@
 
         fila.innerHTML = `
           <td>${formatearFechaVale(v.fecha)}</td>
-          <td><strong>${v.folio}</strong></td>
-          <td>${v.unidad}</td>
-          <td>${v.area}</td>
-          <td>${v.solicitante}</td>
-          <td>${v.refaccion}</td>
-          <td>${v.cantidad} ${v.medida}</td>
-          <td>${v.entrega}</td>
-          <td>${v.recibe}</td>
+          <td><strong>${v.folio || ""}</strong></td>
+          <td>${v.unidad || ""}</td>
+          <td>${v.area || ""}</td>
+          <td>${v.solicitante || ""}</td>
+          <td>${v.refaccion || ""}</td>
+          <td>${v.cantidad || 0} ${v.medida || ""}</td>
+          <td>${v.entrega || ""}</td>
+          <td>${v.recibe || ""}</td>
           <td>
             <span class="badge ${obtenerClaseEstatusVale(v.estatus)}">
-              ${v.estatus}
+              ${v.estatus || ""}
             </span>
           </td>
           <td>
             <button class="action-btn" onclick="verVale(${index})">Ver</button>
-            <button class="action-btn edit" onclick="cambiarEstatusVale(${index})">Estatus</button>
-            <button class="action-btn orange" onclick="imprimirVale(${index})">Imprimir</button>
+            <button class="action-btn edit" onclick="editarVale(${index})">Editar</button>
+            <button class="action-btn orange" onclick="cambiarEstatusVale(${index})">Estatus</button>
+            <button class="action-btn red-btn" onclick="eliminarVale(${index})">Eliminar</button>
+            <button class="action-btn" onclick="imprimirVale(${index})">Imprimir</button>
           </td>
         `;
 
@@ -339,6 +332,7 @@
 
       document.getElementById("kpiValesMes").textContent =
         vales.filter(v => {
+          if (!v.fecha) return false;
           const fecha = new Date(v.fecha + "T00:00:00");
           return fecha.getMonth() === mesActual && fecha.getFullYear() === anioActual;
         }).length;
@@ -351,6 +345,8 @@
     }
 
     function abrirModalVale() {
+      indiceEditandoVale = null;
+      document.getElementById("tituloModalVale").textContent = "Nuevo vale";
       document.getElementById("modalVale").classList.add("show");
 
       const hoy = new Date().toISOString().split("T")[0];
@@ -361,17 +357,17 @@
     function cerrarModalVale() {
       document.getElementById("modalVale").classList.remove("show");
       limpiarFormularioVale();
+      indiceEditandoVale = null;
     }
 
     function generarFolioVale() {
       const anio = new Date().getFullYear();
       const consecutivo = vales.length + 1;
       const numero = String(consecutivo).padStart(4, "0");
-
       return `${numero}-${anio}-V`;
     }
 
-    function guardarVale() {
+    async function guardarVale() {
       const nuevo = {
         fecha: document.getElementById("fechaVale").value,
         folio: document.getElementById("folioVale").value,
@@ -394,11 +390,123 @@
         return;
       }
 
-      vales.unshift(nuevo);
-      localStorage.setItem("vales", JSON.stringify(vales));
+      if (indiceEditandoVale === null) {
+        const { error } = await supabaseClient
+          .from("vales")
+          .insert([nuevo]);
 
-      cargarVales();
+        if (error) {
+          console.error(error);
+          alert("No se pudo guardar en Supabase.");
+          return;
+        }
+
+        registrarAuditoria("Vales", "Creó nuevo vale", nuevo.folio + " - Unidad " + nuevo.unidad);
+      } else {
+        const id = vales[indiceEditandoVale].id;
+
+        const { error } = await supabaseClient
+          .from("vales")
+          .update(nuevo)
+          .eq("id", id);
+
+        if (error) {
+          console.error(error);
+          alert("No se pudo actualizar en Supabase.");
+          return;
+        }
+
+        registrarAuditoria("Vales", "Editó vale", nuevo.folio + " - Unidad " + nuevo.unidad);
+      }
+
       cerrarModalVale();
+      await cargarValesDesdeSupabase();
+
+      alert("Vale guardado correctamente.");
+    }
+
+    function editarVale(index) {
+      const v = vales[index];
+
+      indiceEditandoVale = index;
+      document.getElementById("tituloModalVale").textContent = "Editar vale";
+      document.getElementById("modalVale").classList.add("show");
+
+      document.getElementById("fechaVale").value = v.fecha || "";
+      document.getElementById("folioVale").value = v.folio || "";
+      document.getElementById("unidadVale").value = v.unidad || "";
+      document.getElementById("areaVale").value = v.area || "";
+      document.getElementById("solicitanteVale").value = v.solicitante || "";
+      document.getElementById("proveedorVale").value = v.proveedor || "";
+      document.getElementById("cantidadVale").value = v.cantidad || "";
+      document.getElementById("medidaVale").value = v.medida || "Pieza";
+      document.getElementById("entregaVale").value = v.entrega || "";
+      document.getElementById("recibeVale").value = v.recibe || "";
+      document.getElementById("estatusVale").value = v.estatus || "Pendiente";
+      document.getElementById("reqVale").value = v.requisicion || "";
+      document.getElementById("refaccionVale").value = v.refaccion || "";
+      document.getElementById("observacionesVale").value = v.observaciones || "";
+    }
+
+    async function cambiarEstatusVale(index) {
+      const v = vales[index];
+      const actual = v.estatus;
+
+      const nuevoEstatus = prompt(
+        "Nuevo estatus: Pendiente, Entregado o Cancelado",
+        actual
+      );
+
+      if (!nuevoEstatus) return;
+
+      const validos = ["Pendiente", "Entregado", "Cancelado"];
+
+      if (!validos.includes(nuevoEstatus)) {
+        alert("Estatus no válido.");
+        return;
+      }
+
+      const { error } = await supabaseClient
+        .from("vales")
+        .update({ estatus: nuevoEstatus })
+        .eq("id", v.id);
+
+      if (error) {
+        console.error(error);
+        alert("No se pudo cambiar el estatus.");
+        return;
+      }
+
+      registrarAuditoria(
+        "Vales",
+        "Cambió estatus",
+        v.folio + ": " + actual + " → " + nuevoEstatus
+      );
+
+      await cargarValesDesdeSupabase();
+    }
+
+    async function eliminarVale(index) {
+      const v = vales[index];
+
+      const confirmar = confirm("¿Seguro que deseas eliminar el vale " + v.folio + "?");
+
+      if (!confirmar) return;
+
+      const { error } = await supabaseClient
+        .from("vales")
+        .delete()
+        .eq("id", v.id);
+
+      if (error) {
+        console.error(error);
+        alert("No se pudo eliminar el vale.");
+        return;
+      }
+
+      registrarAuditoria("Vales", "Eliminó vale", v.folio + " - Unidad " + v.unidad);
+
+      await cargarValesDesdeSupabase();
     }
 
     function limpiarFormularioVale() {
@@ -416,31 +524,6 @@
       document.getElementById("estatusVale").value = "Pendiente";
       document.getElementById("reqVale").value = "";
       document.getElementById("observacionesVale").value = "";
-    }
-
-    function cambiarEstatusVale(index) {
-      const actual = vales[index].estatus;
-
-      const nuevoEstatus = prompt(
-        "Nuevo estatus: Pendiente, Entregado o Cancelado",
-        actual
-      );
-
-      if (!nuevoEstatus) return;
-
-      const validos = ["Pendiente", "Entregado", "Cancelado"];
-
-      if (!validos.includes(nuevoEstatus)) {
-        alert("Estatus no válido.");
-        return;
-      }
-
-      vales[index].estatus = nuevoEstatus;
-      localStorage.setItem("vales", JSON.stringify(vales));
-
-localStorage.setItem("vales", JSON.stringify(vales));
-
-      cargarVales();
     }
 
     function verVale(index) {
@@ -466,6 +549,8 @@ localStorage.setItem("vales", JSON.stringify(vales));
     function imprimirVale(index) {
       const v = vales[index];
 
+      registrarAuditoria("Vales", "Imprimió vale", v.folio + " - Unidad " + v.unidad);
+
       const ventana = window.open("", "_blank");
 
       ventana.document.write(`
@@ -473,99 +558,23 @@ localStorage.setItem("vales", JSON.stringify(vales));
         <head>
           <title>Vale ${v.folio}</title>
           <style>
-            body {
-              font-family: Arial, sans-serif;
-              padding: 35px;
-              color: #111827;
-            }
-
-            .vale {
-              border: 2px solid #111827;
-              padding: 28px;
-              border-radius: 14px;
-            }
-
-            .header {
-              display: flex;
-              justify-content: space-between;
-              align-items: center;
-              border-bottom: 3px solid #ff7f11;
-              padding-bottom: 15px;
-              margin-bottom: 25px;
-            }
-
-            .logo-print {
-              width: 58px;
-              height: 58px;
-              border-radius: 14px;
-              background: linear-gradient(135deg, #ff7f11, #10c6d1);
-              color: white;
-              display: flex;
-              align-items: center;
-              justify-content: center;
-              font-weight: bold;
-              font-size: 24px;
-            }
-
-            h1 {
-              margin: 0;
-              font-size: 24px;
-            }
-
-            .folio {
-              font-weight: bold;
-              font-size: 18px;
-              color: #ff7f11;
-            }
-
-            .grid {
-              display: grid;
-              grid-template-columns: 1fr 1fr;
-              gap: 14px;
-              margin-bottom: 22px;
-            }
-
-            .item {
-              border: 1px solid #e5e7eb;
-              padding: 12px;
-              border-radius: 10px;
-            }
-
-            .item strong {
-              display: block;
-              color: #374151;
-              font-size: 12px;
-              margin-bottom: 5px;
-            }
-
-            .full {
-              grid-column: 1 / -1;
-            }
-
-            .firmas {
-              display: grid;
-              grid-template-columns: 1fr 1fr;
-              gap: 45px;
-              margin-top: 70px;
-              text-align: center;
-            }
-
-            .firma-linea {
-              border-top: 1px solid #111827;
-              padding-top: 10px;
-            }
-
-            @media print {
-              button {
-                display: none;
-              }
-            }
+            body { font-family: Arial, sans-serif; padding: 35px; color: #111827; }
+            .vale { border: 2px solid #111827; padding: 28px; border-radius: 14px; }
+            .header { display: flex; justify-content: space-between; align-items: center; border-bottom: 3px solid #ff7f11; padding-bottom: 15px; margin-bottom: 25px; }
+            .logo-print { width: 58px; height: 58px; border-radius: 14px; background: linear-gradient(135deg, #ff7f11, #10c6d1); color: white; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 24px; }
+            h1 { margin: 0; font-size: 24px; }
+            .folio { font-weight: bold; font-size: 18px; color: #ff7f11; }
+            .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 22px; }
+            .item { border: 1px solid #e5e7eb; padding: 12px; border-radius: 10px; }
+            .item strong { display: block; color: #374151; font-size: 12px; margin-bottom: 5px; }
+            .full { grid-column: 1 / -1; }
+            .firmas { display: grid; grid-template-columns: 1fr 1fr; gap: 45px; margin-top: 70px; text-align: center; }
+            .firma-linea { border-top: 1px solid #111827; padding-top: 10px; }
+            @media print { button { display: none; } }
           </style>
         </head>
         <body>
-
           <div class="vale">
-
             <div class="header">
               <div style="display:flex; gap:15px; align-items:center;">
                 <div class="logo-print">E</div>
@@ -574,7 +583,6 @@ localStorage.setItem("vales", JSON.stringify(vales));
                   <p>ESTRATEGIAT | Control de Almacén</p>
                 </div>
               </div>
-
               <div class="folio">${v.folio}</div>
             </div>
 
@@ -592,24 +600,14 @@ localStorage.setItem("vales", JSON.stringify(vales));
             </div>
 
             <div class="firmas">
-              <div class="firma-linea">
-                Entrega<br>
-                ${v.entrega || ""}
-              </div>
-
-              <div class="firma-linea">
-                Recibe<br>
-                ${v.recibe || ""}
-              </div>
+              <div class="firma-linea">Entrega<br>${v.entrega || ""}</div>
+              <div class="firma-linea">Recibe<br>${v.recibe || ""}</div>
             </div>
-
           </div>
 
           <br>
           <button onclick="window.print()">Imprimir vale</button>
 
-        </body>
-        </html>
       `);
 
       ventana.document.close();
@@ -632,12 +630,13 @@ localStorage.setItem("vales", JSON.stringify(vales));
     filtroValeEstatus.addEventListener("change", cargarVales);
     filtroValeArea.addEventListener("change", cargarVales);
 
-    cargarVales();
+function cerrarSesion() {
+  localStorage.removeItem("usuarioActivo");
+  window.location.href = "../index.html";
+}
 
-    function cerrarSesion() {
-      localStorage.removeItem("usuarioActivo");
-      window.location.href = "../index.html";
-    }
+
+cargarValesDesdeSupabase();
   </script>
 
 </body>
