@@ -5,12 +5,14 @@
   const MODULOS_IMPLEMENTADOS = [
     "Dashboard",
     "Parque Vehicular",
+    "Acuerdos",
     "Peticiones",
     "Requisiciones",
     "Vales",
     "Usuarios",
     "Auditoría",
     "Órdenes de Trabajo"
+    
   ];
 
   function htmlBotonTema() {
