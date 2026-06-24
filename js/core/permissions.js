@@ -24,21 +24,21 @@
 
   const RUTAS = {
     [MODULOS.DASHBOARD]: "dashboard.html",
-    [MODULOS.PARQUE]: "../modulos/parque-vehicular.html",
-    [MODULOS.PETICIONES]: "../modulos/peticiones.html",
-    [MODULOS.REQUISICIONES]: "../modulos/requisiciones.html",
-    [MODULOS.ACUERDOS]: "../modulos/acuerdos.html",
-    [MODULOS.VALES]: "../modulos/vales.html",
-    [MODULOS.USUARIOS]: "../modulos/usuarios.html",
-    [MODULOS.AUDITORIA]: "../modulos/auditoria.html",
-    [MODULOS.ORDENES_TRABAJO]: "../modulos/ordenes-trabajo.html",
-    [MODULOS.INVENTARIO]: "../modulos/inventario.html",
-    [MODULOS.COMPRAS]: "../modulos/compras.html",
-    [MODULOS.PROVEEDORES]: "../modulos/proveedores.html",
-    [MODULOS.REPORTES]: "../modulos/reportes.html",
-    [MODULOS.NOTIFICACIONES]: "../modulos/notificaciones.html",
-    [MODULOS.DOCUMENTOS]: "../modulos/documentos.html",
-    [MODULOS.BI]: "../  modulos/bi.html"
+    [MODULOS.PARQUE]: "../EstrategiaT/modulos/parque-vehicular.html",
+    [MODULOS.PETICIONES]: "../EstrategiaT/modulos/peticiones.html",
+    [MODULOS.REQUISICIONES]: "../EstrategiaT/modulos/requisiciones.html",
+    [MODULOS.ACUERDOS]: "../EstrategiaT/modulos/acuerdos.html",
+    [MODULOS.VALES]: "../EstrategiaT/modulos/vales.html",
+    [MODULOS.USUARIOS]: "../EstrategiaT/modulos/usuarios.html",
+    [MODULOS.AUDITORIA]: "../EstrategiaT/modulos/auditoria.html",
+    [MODULOS.ORDENES_TRABAJO]: "../EstrategiaT/modulos/ordenes-trabajo.html",
+    [MODULOS.INVENTARIO]: "../EstrategiaT/modulos/inventario.html",
+    [MODULOS.COMPRAS]: "../EstrategiaT/modulos/compras.html",
+    [MODULOS.PROVEEDORES]: "../EstrategiaT/modulos/proveedores.html",
+    [MODULOS.REPORTES]: "../EstrategiaT/modulos/reportes.html",
+    [MODULOS.NOTIFICACIONES]: "../EstrategiaT/modulos/notificaciones.html",
+    [MODULOS.DOCUMENTOS]: "../EstrategiaT/modulos/documentos.html",
+    [MODULOS.BI]: "../EstrategiaT/modulos/bi.html"
   };
 
   const DESCRIPCIONES = {
