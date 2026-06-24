@@ -3,11 +3,13 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>ESTRATEGIAT | Usuarios</title>
-
+  <title>Administración de Talleres | Usuarios</title>
   <link rel="stylesheet" href="../style.css"/>
-
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="../js/config/supabase.js"></script>
+  <script src="../js/core/permissions.js"></script>
+  <script src="../js/core/theme.js"></script>
+  <script src="../js/components/layout.js"></script>
   <script src="../login.js"></script>
 </head>
 
@@ -17,21 +19,12 @@
     <div class="sidebar-logo">
       <div class="mini-logo">E</div>
       <div>
-        <h3>ESTRATEGIAT</h3>
-        <small>Usuarios</small>
+        <h3>Administración de Talleres</h3>
+        <small id="etModuleName">Usuarios</small>
       </div>
     </div>
-
-    <nav>
-      <a href="../dashboard.html" class="nav-item">Dashboard</a>
-      <a href="parque-vehicular.html" class="nav-item">Parque Vehicular</a>
-      <a href="peticiones.html" class="nav-item">Peticiones</a>
-      <a href="requisiciones.html" class="nav-item">Requisiciones</a>
-      <a href="vales.html" class="nav-item">Vales</a>
-      <a href="usuarios.html" class="nav-item active">Usuarios</a>
-    </nav>
-
-    <button class="logout" onclick="cerrarSesion()">Cerrar sesión</button>
+    <nav id="etNav"></nav>
+    <button class="logout" id="etLogout">Cerrar sesión</button>
   </aside>
 
   <main class="main-content">
@@ -42,7 +35,10 @@
         <p>Alta, edición de roles y control de accesos.</p>
       </div>
 
-      <button class="btn-small" onclick="abrirModalUsuario()">+ Nuevo usuario</button>
+      <div style="display:flex;gap:12px;align-items:center;">
+        <span id="etTemaContainer"></span>
+        <button class="btn-small" onclick="abrirModalUsuario()">+ Nuevo usuario</button>
+      </div>
     </header>
 
     <section class="kpi-grid">
@@ -84,11 +80,17 @@
 
         <select id="filtroRolUsuario">
           <option value="">Todos los roles</option>
+          <option value="Administrador del Sistema">Administrador del Sistema</option>
           <option value="SuperAdmin">SuperAdmin</option>
+          <option value="Director">Director</option>
+          <option value="Coordinador">Coordinador</option>
           <option value="Admin">Admin</option>
+          <option value="Encargado de Almacén">Encargado de Almacén</option>
+          <option value="Técnico">Técnico</option>
           <option value="Compras">Compras</option>
           <option value="Almacen">Almacén</option>
           <option value="Consulta">Consulta</option>
+          <option value="Solo Lectura">Solo Lectura</option>
           <option value="CapturistaPV">CapturistaPV</option>
         </select>
 
@@ -152,11 +154,17 @@
           <label>Rol</label>
           <select id="rolUsuarioForm">
             <option value="">Selecciona rol</option>
+            <option value="Administrador del Sistema">Administrador del Sistema</option>
             <option value="SuperAdmin">SuperAdmin</option>
+            <option value="Director">Director</option>
+            <option value="Coordinador">Coordinador</option>
             <option value="Admin">Admin</option>
+            <option value="Encargado de Almacén">Encargado de Almacén</option>
+            <option value="Técnico">Técnico</option>
             <option value="Compras">Compras</option>
             <option value="Almacen">Almacén</option>
             <option value="Consulta">Consulta</option>
+            <option value="Solo Lectura">Solo Lectura</option>
             <option value="CapturistaPV">CapturistaPV</option>
           </select>
         </div>
@@ -180,15 +188,11 @@
   </div>
 
   <script>
-validarPermiso("Usuarios");
+    validarPermiso("Usuarios");
+    ETLayout.inicializar("Usuarios");
 
     let usuariosSistema = [];
     let indiceEditandoUsuario = null;
-
-    const SUPABASE_URL = "https://knjuevjxfyohcxrsldpb.supabase.co";
-    const SUPABASE_KEY = "sb_publishable_f_1SKtetMWPSNmZ5eSRaOw_RYtHenaR";
-
-    const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
     const tablaUsuarios = document.getElementById("tablaUsuarios");
     const buscarUsuario = document.getElementById("buscarUsuario");
@@ -200,7 +204,8 @@ validarPermiso("Usuarios");
     function validarAccesoSuperAdmin() {
       const usuarioActivo = JSON.parse(localStorage.getItem("usuarioActivo"));
 
-      if (!usuarioActivo || usuarioActivo.rol !== "SuperAdmin") {
+      const rolesAdmin = ["SuperAdmin", "Administrador del Sistema"];
+      if (!usuarioActivo || rolesAdmin.indexOf(usuarioActivo.rol) < 0) {
         alert("No tienes permiso para acceder a este módulo.");
         window.location.href = "../dashboard.html";
       }
@@ -465,11 +470,6 @@ validarPermiso("Usuarios");
     buscarUsuario.addEventListener("input", renderizarUsuarios);
     filtroRolUsuario.addEventListener("change", renderizarUsuarios);
     filtroActivoUsuario.addEventListener("change", renderizarUsuarios);
-
-    function cerrarSesion() {
-      localStorage.removeItem("usuarioActivo");
-      window.location.href = "../index.html";
-    }
 
     cargarUsuarios();
   </script>

@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Seguimiento de Acuerdos</title>
+  <link rel="stylesheet" href="../css/acuerdos.css">
+</head>
+<body>
+
+  <header class="topbar">
+    <h1>Seguimiento de Acuerdos</h1>
+    <button id="btnNuevoAcuerdo">+ Nuevo acuerdo</button>
+  </header>
+
+  <main class="kanban">
+    <section class="columna" data-estado="Nuevo">
+      <h2>Nuevo</h2>
+      <div class="lista" id="Nuevo"></div>
+    </section>
+
+    <section class="columna" data-estado="En proceso">
+      <h2>En proceso</h2>
+      <div class="lista" id="En proceso"></div>
+    </section>
+
+    <section class="columna" data-estado="En espera">
+      <h2>En espera</h2>
+      <div class="lista" id="En espera"></div>
+    </section>
+
+    <section class="columna" data-estado="Para revisión">
+      <h2>Para revisión</h2>
+      <div class="lista" id="Para revisión"></div>
+    </section>
+
+    <section class="columna" data-estado="Concluido">
+      <h2>Concluido</h2>
+      <div class="lista" id="Concluido"></div>
+    </section>
+  </main>
+
+  <div id="modal" class="modal oculto">
+    <div class="modal-contenido">
+      <h2>Nuevo acuerdo</h2>
+
+      <input id="titulo" placeholder="Título del acuerdo">
+      <textarea id="descripcion" placeholder="Descripción"></textarea>
+
+      <select id="categoria">
+        <option>Oficios</option>
+        <option>Compras</option>
+        <option>Facturas</option>
+        <option>Proveedores</option>
+        <option>Adecuaciones presupuestales</option>
+        <option>Reparaciones</option>
+        <option>Refacciones</option>
+        <option>Vales</option>
+        <option>Capacitación</option>
+        <option>Otro</option>
+      </select>
+
+      <select id="prioridad">
+        <option>Media</option>
+        <option>Alta</option>
+        <option>Baja</option>
+      </select>
+
+      <input id="fechaCompromiso" type="date">
+
+      <div class="acciones">
+        <button id="guardarAcuerdo">Guardar</button>
+        <button id="cerrarModal">Cancelar</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="../js/supabase.js"></script>
+  <script src="../js/acuerdos.js"></script>
+</body>
+</html>

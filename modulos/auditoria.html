@@ -3,8 +3,12 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>ESTRATEGIAT | Auditoría</title>
+  <title>Administración de Talleres | Auditoría</title>
   <link rel="stylesheet" href="../style.css">
+  <script src="../js/core/permissions.js"></script>
+  <script src="../js/core/theme.js"></script>
+  <script src="../js/components/layout.js"></script>
+  <script src="../login.js"></script>
 </head>
 <body class="dashboard-body">
 
@@ -12,21 +16,12 @@
     <div class="sidebar-logo">
       <div class="mini-logo">E</div>
       <div>
-        <h3>ESTRATEGIAT</h3>
-        <small>Auditoría</small>
+        <h3>Administración de Talleres</h3>
+        <small id="etModuleName">Auditoría</small>
       </div>
     </div>
-
-    <nav>
-      <a href="../dashboard.html" class="nav-item">Dashboard</a>
-      <a href="parque-vehicular.html" class="nav-item">Parque Vehicular</a>
-      <a href="peticiones.html" class="nav-item">Peticiones</a>
-      <a href="requisiciones.html" class="nav-item">Requisiciones</a>
-      <a href="vales.html" class="nav-item">Vales</a>
-      <a href="auditoria.html" class="nav-item active">Auditoría</a>
-    </nav>
-
-    <button class="logout" onclick="cerrarSesion()">Cerrar sesión</button>
+    <nav id="etNav"></nav>
+    <button class="logout" id="etLogout">Cerrar sesión</button>
   </aside>
 
   <main class="main-content">
@@ -37,7 +32,10 @@
         <p>Historial de movimientos realizados dentro del sistema.</p>
       </div>
 
-      <button class="btn-small" onclick="limpiarAuditoria()">Limpiar historial</button>
+      <div style="display:flex;gap:12px;align-items:center;">
+        <span id="etTemaContainer"></span>
+        <button class="btn-small" onclick="limpiarAuditoria()">Limpiar historial</button>
+      </div>
     </header>
 
     <section class="kpi-grid">
@@ -85,6 +83,8 @@
           <option value="Vales">Vales</option>
           <option value="Parque Vehicular">Parque Vehicular</option>
           <option value="Usuarios">Usuarios</option>
+          <option value="Órdenes de Trabajo">Órdenes de Trabajo</option>
+          <option value="Login">Login</option>
         </select>
 
         <select id="filtroAccionAuditoria">
@@ -118,9 +118,9 @@
 
   </main>
 
-  <script src="../login.js"></script>
-
   <script>
+    validarPermiso("Auditoría");
+    ETLayout.inicializar("Auditoría");
     let auditoria = JSON.parse(localStorage.getItem("auditoria")) || [];
 
     const tablaAuditoria = document.getElementById("tablaAuditoria");
@@ -199,10 +199,6 @@
 
     cargarAuditoria();
 
-    function cerrarSesion() {
-      localStorage.removeItem("usuarioActivo");
-      window.location.href = "../index.html";
-    }
   </script>
 
 </body>

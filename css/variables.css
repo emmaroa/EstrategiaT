@@ -1,0 +1,74 @@
+:root {
+  --color-primary: #FC712B;
+  --color-secondary: #FD9319;
+  --color-accent: #FECD5A;
+  --color-teal: #07B1BC;
+  --color-teal-dark: #2B8180;
+
+  --gradient-brand: linear-gradient(135deg, var(--color-primary), var(--color-teal));
+  --gradient-warm: linear-gradient(135deg, var(--color-primary), var(--color-secondary));
+
+  --bg-body: #0f172a;
+  --bg-surface: #111827;
+  --bg-card: rgba(255, 255, 255, 0.06);
+  --bg-card-hover: rgba(255, 255, 255, 0.09);
+  --border-subtle: rgba(255, 255, 255, 0.1);
+  --text-primary: #ffffff;
+  --text-secondary: #cbd5e1;
+  --text-muted: #94a3b8;
+  --shadow-card: 0 10px 30px rgba(0, 0, 0, 0.25);
+
+  --sidebar-width: 280px;
+  --radius-sm: 12px;
+  --radius-md: 16px;
+  --radius-lg: 20px;
+  --radius-xl: 28px;
+}
+
+[data-theme="light"] {
+  --bg-body: #f1f5f9;
+  --bg-surface: #ffffff;
+  --bg-card: #ffffff;
+  --bg-card-hover: #f8fafc;
+  --border-subtle: #e2e8f0;
+  --text-primary: #0f172a;
+  --text-secondary: #475569;
+  --text-muted: #64748b;
+  --shadow-card: 0 4px 20px rgba(15, 23, 42, 0.08);
+}
+
+[data-theme="light"] .chart-card {
+  background: #ffffff;
+  border: 1px solid var(--border-subtle);
+}
+
+[data-theme="light"] .kpi-card,
+[data-theme="light"] .panel,
+[data-theme="light"] .module-card {
+  background: #ffffff;
+  border: 1px solid var(--border-subtle);
+}
+
+[data-theme="light"] .sidebar {
+  background: #ffffff;
+  border-right: 1px solid var(--border-subtle);
+}
+
+[data-theme="light"] .input-group input,
+[data-theme="light"] .input-group select,
+[data-theme="light"] .input-group textarea,
+[data-theme="light"] .dashboard-select {
+  background: #f8fafc;
+  color: var(--text-primary);
+  border-color: var(--border-subtle);
+}
+
+[data-theme="light"] table th {
+  background: #f1f5f9;
+  color: var(--text-primary);
+}
+
+[data-theme="light"] table td {
+  color: var(--text-secondary);
+  border-color: var(--border-subtle);
+}

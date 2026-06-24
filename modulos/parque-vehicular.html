@@ -5,64 +5,28 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 
-  <title>ESTRATEGIAT | Parque Vehicular</title>
-
+  <title>Administración de Talleres | Parque Vehicular</title>
   <link rel="stylesheet" href="../style.css"/>
-
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="../js/config/supabase.js"></script>
+  <script src="../js/core/permissions.js"></script>
+  <script src="../js/core/theme.js"></script>
+  <script src="../js/components/layout.js"></script>
   <script src="../login.js"></script>
 </head>
 
 <body class="dashboard-body">
 
-  <!-- SIDEBAR -->
-
   <aside class="sidebar">
-
     <div class="sidebar-logo">
-
       <div class="mini-logo">E</div>
-
       <div>
-        <h3>ESTRATEGIAT</h3>
-        <small>Parque Vehicular</small>
+        <h3>Administración de Talleres</h3>
+        <small id="etModuleName">Parque Vehicular</small>
       </div>
-
     </div>
-
-    <nav>
-
-      <a href="../dashboard.html" class="nav-item">
-        Dashboard
-      </a>
-
-      <a href="parque-vehicular.html"
-         class="nav-item active">
-        Parque Vehicular
-      </a>
-
-      <a href="peticiones.html"
-         class="nav-item">
-        Peticiones
-      </a>
-
-      <a href="requisiciones.html"
-         class="nav-item">
-        Requisiciones
-      </a>
-
-      <a href="vales.html"
-         class="nav-item">
-        Vales
-      </a>
-
-    </nav>
-
-    <button class="logout"
-      onclick="cerrarSesion()">
-      Cerrar sesión
-    </button>
-
+    <nav id="etNav"></nav>
+    <button class="logout" id="etLogout">Cerrar sesión</button>
   </aside>
 
   <!-- MAIN -->
@@ -81,12 +45,10 @@
 
       </div>
 
-      <button class="btn-small"
-        onclick="abrirModalUnidad()">
-
-        + Nueva unidad
-
-      </button>
+      <div style="display:flex;gap:12px;align-items:center;">
+        <span id="etTemaContainer"></span>
+        <button class="btn-small" id="btnNuevaUnidad" onclick="abrirModalUnidad()">+ Nueva unidad</button>
+      </div>
 
     </header>
 
@@ -463,21 +425,16 @@
   <!-- SCRIPT -->
 
   <script>
-validarPermiso("Parque Vehicular");
+    validarPermiso("Parque Vehicular");
+    ETLayout.inicializar("Parque Vehicular");
+    ETLayout.ocultarSiSoloLectura("#btnNuevaUnidad");
+
     let parque = [];
-    let indiceEditandoUnidad = null;
+    let idEditandoUnidad = null;
 
-    const SUPABASE_URL =
-      "https://knjuevjxfyohcxrsldpb.supabase.co";
-
-    const SUPABASE_KEY =
-      "sb_publishable_f_1SKtetMWPSNmZ5eSRaOw_RYtHenaR";
-
-    const supabaseClient =
-      supabase.createClient(
-        SUPABASE_URL,
-        SUPABASE_KEY
-      );
+    function obtenerUnidadPorId(id) {
+      return parque.find(function (u) { return u.id === id; });
+    }
 
     const tablaParque =
       document.getElementById("tablaParque");
@@ -492,9 +449,9 @@ validarPermiso("Parque Vehicular");
       document.getElementById("filtroCombustible");
 
     function abrirModalUnidad() {
-      document
-        .getElementById("modalUnidad")
-        .classList.add("show");
+      if (typeof esSoloLectura === "function" && esSoloLectura()) return;
+      idEditandoUnidad = null;
+      document.getElementById("modalUnidad").classList.add("show");
     }
 
     function cerrarModalUnidad() {
@@ -505,7 +462,7 @@ validarPermiso("Parque Vehicular");
 
       limpiarFormularioUnidad();
 
-      indiceEditandoUnidad = null;
+      idEditandoUnidad = null;
     }
 
     async function cargarParqueVehicular() {
@@ -529,48 +486,51 @@ validarPermiso("Parque Vehicular");
     }
 
     function renderizarTabla() {
+      const texto = (buscarUnidad.value || "").toLowerCase();
+      const dependencia = filtroDependencia.value;
+      const combustible = filtroCombustible.value;
+
+      const filtradas = parque.filter(function (u) {
+        const coincideTexto =
+          (u.numero_inventario || "").toString().toLowerCase().includes(texto) ||
+          (u.unidad_patrulla || "").toLowerCase().includes(texto) ||
+          (u.descripcion || "").toLowerCase().includes(texto) ||
+          (u.placa || "").toLowerCase().includes(texto) ||
+          (u.marca || "").toLowerCase().includes(texto);
+        const coincideDep = !dependencia || u.dependencia === dependencia;
+        const coincideComb = !combustible || u.combustible === combustible;
+        return coincideTexto && coincideDep && coincideComb;
+      });
 
       tablaParque.innerHTML = "";
 
-      parque.forEach((u, index) => {
+      if (!filtradas.length) {
+        tablaParque.innerHTML = '<tr><td colspan="11">No hay unidades registradas.</td></tr>';
+      } else {
+        const soloLectura = typeof esSoloLectura === "function" && esSoloLectura();
 
-        const fila =
-          document.createElement("tr");
-
-        fila.innerHTML = `
-          <td>${u.numero_consecutivo || ""}</td>
-          <td>${u.numero_inventario || ""}</td>
-          <td>${u.unidad_patrulla || ""}</td>
-          <td>${u.descripcion || ""}</td>
-          <td>${u.dependencia || ""}</td>
-          <td>${u.marca || ""}</td>
-          <td>${u.modelo || ""}</td>
-          <td>${u.placa || ""}</td>
-          <td>${u.combustible || ""}</td>
-
-          <td>
-            <span class="badge green">
-              ${u.estatus || ""}
-            </span>
-          </td>
-
-          <td>
-
-            <button class="action-btn"
-              onclick="editarUnidad(${index})">
-              Editar
-            </button>
-
-            <button class="action-btn red-btn"
-              onclick="eliminarUnidad(${index})">
-              Eliminar
-            </button>
-
-          </td>
-        `;
-
-        tablaParque.appendChild(fila);
-      });
+        filtradas.forEach(function (u) {
+          const fila = document.createElement("tr");
+          fila.innerHTML =
+            "<td>" + (u.numero_consecutivo || "") + "</td>" +
+            "<td>" + (u.numero_inventario || "") + "</td>" +
+            "<td>" + (u.unidad_patrulla || "") + "</td>" +
+            "<td>" + (u.descripcion || "") + "</td>" +
+            "<td>" + (u.dependencia || "") + "</td>" +
+            "<td>" + (u.marca || "") + "</td>" +
+            "<td>" + (u.modelo || "") + "</td>" +
+            "<td>" + (u.placa || "") + "</td>" +
+            "<td>" + (u.combustible || "") + "</td>" +
+            '<td><span class="badge green">' + (u.estatus || "") + "</span></td>" +
+            "<td>" +
+              (soloLectura ? "—" :
+                '<button class="action-btn" onclick="editarUnidad(\'' + u.id + '\')">Editar</button>' +
+                '<button class="action-btn red-btn" onclick="eliminarUnidad(\'' + u.id + '\')">Eliminar</button>'
+              ) +
+            "</td>";
+          tablaParque.appendChild(fila);
+        });
+      }
 
       actualizarKPIs();
     }
@@ -686,47 +646,47 @@ validarPermiso("Parque Vehicular");
         return;
       }
 
-      if (indiceEditandoUnidad === null) {
-
-        const { error } =
-          await supabaseClient
-            .from("parque_vehicular")
-            .insert([nueva]);
+      if (!idEditandoUnidad) {
+        const { error } = await supabaseClient
+          .from("parque_vehicular")
+          .insert([nueva]);
 
         if (error) {
           console.error(error);
+          alert("No se pudo guardar la unidad.");
           return;
         }
 
+        if (typeof registrarAuditoria === "function") {
+          registrarAuditoria("Parque Vehicular", "Creó unidad", nueva.unidad_patrulla || nueva.numero_inventario);
+        }
       } else {
-
-        const id =
-          parque[indiceEditandoUnidad].id;
-
-        const { error } =
-          await supabaseClient
-            .from("parque_vehicular")
-            .update(nueva)
-            .eq("id", id);
+        const { error } = await supabaseClient
+          .from("parque_vehicular")
+          .update(nueva)
+          .eq("id", idEditandoUnidad);
 
         if (error) {
           console.error(error);
+          alert("No se pudo actualizar la unidad.");
           return;
+        }
+
+        if (typeof registrarAuditoria === "function") {
+          registrarAuditoria("Parque Vehicular", "Editó unidad", nueva.unidad_patrulla || nueva.numero_inventario);
         }
       }
 
       cerrarModalUnidad();
-
       cargarParqueVehicular();
     }
 
-    function editarUnidad(index) {
+    function editarUnidad(id) {
+      const u = obtenerUnidadPorId(id);
+      if (!u) return;
 
-      const u = parque[index];
-
-      indiceEditandoUnidad = index;
-
-      abrirModalUnidad();
+      idEditandoUnidad = id;
+      document.getElementById("modalUnidad").classList.add("show");
 
       document.getElementById("inventarioUnidad").value =
         u.numero_inventario || "";
@@ -771,25 +731,25 @@ validarPermiso("Parque Vehicular");
         u.estatus || "";
     }
 
-    async function eliminarUnidad(index) {
+    async function eliminarUnidad(id) {
+      const u = obtenerUnidadPorId(id);
+      if (!u) return;
 
-      const u = parque[index];
+      if (!confirm("¿Eliminar la unidad " + (u.unidad_patrulla || u.numero_inventario) + "?")) return;
 
-      const confirmar = confirm(
-        "¿Eliminar unidad?"
-      );
-
-      if (!confirmar) return;
-
-      const { error } =
-        await supabaseClient
-          .from("parque_vehicular")
-          .delete()
-          .eq("id", u.id);
+      const { error } = await supabaseClient
+        .from("parque_vehicular")
+        .delete()
+        .eq("id", u.id);
 
       if (error) {
         console.error(error);
+        alert("No se pudo eliminar la unidad.");
         return;
+      }
+
+      if (typeof registrarAuditoria === "function") {
+        registrarAuditoria("Parque Vehicular", "Eliminó unidad", u.unidad_patrulla || u.numero_inventario);
       }
 
       cargarParqueVehicular();
@@ -806,15 +766,9 @@ validarPermiso("Parque Vehicular");
         .forEach(s => s.selectedIndex = 0);
     }
 
-    function cerrarSesion() {
-
-      localStorage.removeItem(
-        "usuarioActivo"
-      );
-
-      window.location.href =
-        "../index.html";
-    }
+    buscarUnidad.addEventListener("input", renderizarTabla);
+    filtroDependencia.addEventListener("change", renderizarTabla);
+    filtroCombustible.addEventListener("change", renderizarTabla);
 
     cargarParqueVehicular();
 

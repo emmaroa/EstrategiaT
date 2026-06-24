@@ -3,10 +3,13 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>ESTRATEGIAT | Vales</title>
+  <title>Administración de Talleres | Vales</title>
   <link rel="stylesheet" href="../style.css">
-
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="../js/config/supabase.js"></script>
+  <script src="../js/core/permissions.js"></script>
+  <script src="../js/core/theme.js"></script>
+  <script src="../js/components/layout.js"></script>
   <script src="../login.js"></script>
 </head>
 
@@ -16,20 +19,12 @@
     <div class="sidebar-logo">
       <div class="mini-logo">E</div>
       <div>
-        <h3>ESTRATEGIAT</h3>
-        <small>Vales</small>
+        <h3>Administración de Talleres</h3>
+        <small id="etModuleName">Vales</small>
       </div>
     </div>
-
-    <nav>
-      <a href="../dashboard.html" class="nav-item">Dashboard</a>
-      <a href="parque-vehicular.html" class="nav-item">Parque Vehicular</a>
-      <a href="peticiones.html" class="nav-item">Peticiones</a>
-      <a href="requisiciones.html" class="nav-item">Requisiciones</a>
-      <a href="vales.html" class="nav-item active">Vales</a>
-    </nav>
-
-    <button class="logout" onclick="cerrarSesion()">Cerrar sesión</button>
+    <nav id="etNav"></nav>
+    <button class="logout" id="etLogout">Cerrar sesión</button>
   </aside>
 
   <main class="main-content">
@@ -40,7 +35,10 @@
         <p>Registro de entrega de refacciones, lubricantes, servicios o materiales.</p>
       </div>
 
-      <button class="btn-small" onclick="abrirModalVale()">+ Nuevo vale</button>
+      <div style="display:flex;gap:12px;align-items:center;">
+        <span id="etTemaContainer"></span>
+        <button class="btn-small" id="btnNuevoVale" onclick="abrirModalVale()">+ Nuevo vale</button>
+      </div>
     </header>
 
     <section class="kpi-grid">
@@ -150,6 +148,7 @@
         <div class="input-group">
           <label>Unidad</label>
           <input type="text" id="unidadVale" placeholder="Ej. 2761">
+          <small id="infoUnidadVale" class="helper-text"></small>
         </div>
 
         <div class="input-group">
@@ -235,14 +234,15 @@
 
     <script>
     validarPermiso("Vales");
+    ETLayout.inicializar("Vales");
+    ETLayout.ocultarSiSoloLectura("#btnNuevoVale");
 
     let vales = [];
-    let indiceEditandoVale = null;
+    let idEditandoVale = null;
 
-    const SUPABASE_URL = "https://knjuevjxfyohcxrsldpb.supabase.co";
-    const SUPABASE_KEY = "sb_publishable_f_1SKtetMWPSNmZ5eSRaOw_RYtHenaR";
-
-    const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+    function obtenerValePorId(id) {
+      return vales.find(function (v) { return v.id === id; });
+    }
 
     const tablaVales = document.getElementById("tablaVales");
     const buscarVale = document.getElementById("buscarVale");
@@ -264,6 +264,41 @@
       vales = data || [];
       cargarVales();
     }
+
+    async function buscarUnidadParque(valorUnidad) {
+  if (!valorUnidad) return null;
+
+  const { data, error } = await supabaseClient
+    .from("parque_vehicular")
+    .select("*")
+    .or(`unidad_patrulla.ilike.%${valorUnidad}%,numero_inventario.ilike.%${valorUnidad}%`)
+    .limit(1)
+    .single();
+
+  if (error) {
+    console.warn("Unidad no encontrada:", error);
+    return null;
+  }
+
+  return data;
+}
+
+document.getElementById("unidadVale").addEventListener("blur", async function () {
+  const valor = this.value.trim();
+  const unidad = await buscarUnidadParque(valor);
+
+  const info = document.getElementById("infoUnidadVale");
+
+  if (!unidad) {
+    info.textContent = "Unidad no encontrada en Parque Vehicular.";
+    return;
+  }
+
+  document.getElementById("areaVale").value = unidad.dependencia || "";
+
+  info.textContent =
+    `${unidad.descripcion || ""} | Placa: ${unidad.placa || "Sin placa"} | Combustible: ${unidad.combustible || "Sin dato"}`;
+});
 
     function cargarVales() {
       const texto = buscarVale.value.toLowerCase();
@@ -290,35 +325,36 @@
         return coincideTexto && coincideEstatus && coincideArea;
       });
 
-      filtrados.forEach((v, index) => {
-        const fila = document.createElement("tr");
+      if (!filtrados.length) {
+        tablaVales.innerHTML = '<tr><td colspan="11">No hay vales registrados.</td></tr>';
+      } else {
+        const soloLectura = typeof esSoloLectura === "function" && esSoloLectura();
 
-        fila.innerHTML = `
-          <td>${formatearFechaVale(v.fecha)}</td>
-          <td><strong>${v.folio || ""}</strong></td>
-          <td>${v.unidad || ""}</td>
-          <td>${v.area || ""}</td>
-          <td>${v.solicitante || ""}</td>
-          <td>${v.refaccion || ""}</td>
-          <td>${v.cantidad || 0} ${v.medida || ""}</td>
-          <td>${v.entrega || ""}</td>
-          <td>${v.recibe || ""}</td>
-          <td>
-            <span class="badge ${obtenerClaseEstatusVale(v.estatus)}">
-              ${v.estatus || ""}
-            </span>
-          </td>
-          <td>
-            <button class="action-btn" onclick="verVale(${index})">Ver</button>
-            <button class="action-btn edit" onclick="editarVale(${index})">Editar</button>
-            <button class="action-btn orange" onclick="cambiarEstatusVale(${index})">Estatus</button>
-            <button class="action-btn red-btn" onclick="eliminarVale(${index})">Eliminar</button>
-            <button class="action-btn" onclick="imprimirVale(${index})">Imprimir</button>
-          </td>
-        `;
-
-        tablaVales.appendChild(fila);
-      });
+        filtrados.forEach(function (v) {
+          const fila = document.createElement("tr");
+          fila.innerHTML =
+            "<td>" + formatearFechaVale(v.fecha) + "</td>" +
+            "<td><strong>" + (v.folio || "") + "</strong></td>" +
+            "<td>" + (v.unidad || "") + "</td>" +
+            "<td>" + (v.area || "") + "</td>" +
+            "<td>" + (v.solicitante || "") + "</td>" +
+            "<td>" + (v.refaccion || "") + "</td>" +
+            "<td>" + (v.cantidad || 0) + " " + (v.medida || "") + "</td>" +
+            "<td>" + (v.entrega || "") + "</td>" +
+            "<td>" + (v.recibe || "") + "</td>" +
+            '<td><span class="badge ' + obtenerClaseEstatusVale(v.estatus) + '">' + (v.estatus || "") + "</span></td>" +
+            "<td>" +
+              '<button class="action-btn" onclick="verVale(\'' + v.id + '\')">Ver</button>' +
+              (soloLectura ? "" :
+                '<button class="action-btn edit" onclick="editarVale(\'' + v.id + '\')">Editar</button>' +
+                '<button class="action-btn orange" onclick="cambiarEstatusVale(\'' + v.id + '\')">Estatus</button>' +
+                '<button class="action-btn red-btn" onclick="eliminarVale(\'' + v.id + '\')">Eliminar</button>'
+              ) +
+              '<button class="action-btn" onclick="imprimirVale(\'' + v.id + '\')">Imprimir</button>' +
+            "</td>";
+          tablaVales.appendChild(fila);
+        });
+      }
 
       actualizarKPIsVales();
     }
@@ -345,7 +381,8 @@
     }
 
     function abrirModalVale() {
-      indiceEditandoVale = null;
+      if (typeof esSoloLectura === "function" && esSoloLectura()) return;
+      idEditandoVale = null;
       document.getElementById("tituloModalVale").textContent = "Nuevo vale";
       document.getElementById("modalVale").classList.add("show");
 
@@ -357,7 +394,7 @@
     function cerrarModalVale() {
       document.getElementById("modalVale").classList.remove("show");
       limpiarFormularioVale();
-      indiceEditandoVale = null;
+      idEditandoVale = null;
     }
 
     function generarFolioVale() {
@@ -390,7 +427,7 @@
         return;
       }
 
-      if (indiceEditandoVale === null) {
+      if (!idEditandoVale) {
         const { error } = await supabaseClient
           .from("vales")
           .insert([nuevo]);
@@ -403,12 +440,10 @@
 
         registrarAuditoria("Vales", "Creó nuevo vale", nuevo.folio + " - Unidad " + nuevo.unidad);
       } else {
-        const id = vales[indiceEditandoVale].id;
-
         const { error } = await supabaseClient
           .from("vales")
           .update(nuevo)
-          .eq("id", id);
+          .eq("id", idEditandoVale);
 
         if (error) {
           console.error(error);
@@ -425,10 +460,11 @@
       alert("Vale guardado correctamente.");
     }
 
-    function editarVale(index) {
-      const v = vales[index];
+    function editarVale(id) {
+      const v = obtenerValePorId(id);
+      if (!v) return;
 
-      indiceEditandoVale = index;
+      idEditandoVale = id;
       document.getElementById("tituloModalVale").textContent = "Editar vale";
       document.getElementById("modalVale").classList.add("show");
 
@@ -448,8 +484,9 @@
       document.getElementById("observacionesVale").value = v.observaciones || "";
     }
 
-    async function cambiarEstatusVale(index) {
-      const v = vales[index];
+    async function cambiarEstatusVale(id) {
+      const v = obtenerValePorId(id);
+      if (!v) return;
       const actual = v.estatus;
 
       const nuevoEstatus = prompt(
@@ -486,8 +523,9 @@
       await cargarValesDesdeSupabase();
     }
 
-    async function eliminarVale(index) {
-      const v = vales[index];
+    async function eliminarVale(id) {
+      const v = obtenerValePorId(id);
+      if (!v) return;
 
       const confirmar = confirm("¿Seguro que deseas eliminar el vale " + v.folio + "?");
 
@@ -526,8 +564,9 @@
       document.getElementById("observacionesVale").value = "";
     }
 
-    function verVale(index) {
-      const v = vales[index];
+    function verVale(id) {
+      const v = obtenerValePorId(id);
+      if (!v) return;
 
       alert(
         "Folio: " + v.folio +
@@ -546,8 +585,9 @@
       );
     }
 
-    function imprimirVale(index) {
-      const v = vales[index];
+    function imprimirVale(id) {
+      const v = obtenerValePorId(id);
+      if (!v) return;
 
       registrarAuditoria("Vales", "Imprimió vale", v.folio + " - Unidad " + v.unidad);
 
@@ -580,7 +620,7 @@
                 <div class="logo-print">E</div>
                 <div>
                   <h1>Vale de Salida</h1>
-                  <p>ESTRATEGIAT | Control de Almacén</p>
+                  <p>Administración de Talleres | Control de Almacén</p>
                 </div>
               </div>
               <div class="folio">${v.folio}</div>
@@ -629,12 +669,6 @@
     buscarVale.addEventListener("input", cargarVales);
     filtroValeEstatus.addEventListener("change", cargarVales);
     filtroValeArea.addEventListener("change", cargarVales);
-
-function cerrarSesion() {
-  localStorage.removeItem("usuarioActivo");
-  window.location.href = "../index.html";
-}
-
 
 cargarValesDesdeSupabase();
   </script>

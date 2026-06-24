@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Administración de Talleres | Órdenes de Trabajo</title>
+  <link rel="stylesheet" href="../style.css">
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="../js/config/supabase.js"></script>
+  <script src="../js/core/permissions.js"></script>
+  <script src="../js/core/theme.js"></script>
+  <script src="../js/components/layout.js"></script>
+  <script src="../login.js"></script>
+</head>
+<body class="dashboard-body">
+
+  <aside class="sidebar">
+    <div class="sidebar-logo">
+      <div class="mini-logo">E</div>
+      <div>
+        <h3>Administración de Talleres</h3>
+        <small id="etModuleName">Órdenes de Trabajo</small>
+      </div>
+    </div>
+    <nav id="etNav"></nav>
+    <button class="logout" id="etLogout">Cerrar sesión</button>
+  </aside>
+
+  <main class="main-content">
+    <header class="topbar">
+      <div>
+        <h1>Órdenes de Trabajo</h1>
+        <p>Flujo: Solicitud → Diagnóstico → Aprobación → Reparación → Control de Calidad → Entrega → Cerrada</p>
+      </div>
+      <div class="filter-bar">
+        <span id="etTemaContainer"></span>
+        <button class="btn-small" id="btnNuevaOrden" onclick="abrirModalOrden()">+ Nueva orden</button>
+      </div>
+    </header>
+
+    <section class="kpi-grid">
+      <div class="kpi-card"><span>Activas</span><h2 id="kpiActivas">0</h2><p>En proceso</p></div>
+      <div class="kpi-card"><span>Pendientes aprobación</span><h2 id="kpiAprobacion">0</h2><p>Por autorizar</p></div>
+      <div class="kpi-card"><span>En reparación</span><h2 id="kpiReparacion">0</h2><p>Taller interno/externo</p></div>
+      <div class="kpi-card"><span>Cerradas (mes)</span><h2 id="kpiCerradas">0</h2><p>Completadas</p></div>
+    </section>
+
+    <section class="panel">
+      <div class="filters">
+        <input type="search" id="buscarOrden" placeholder="Buscar folio, unidad o descripción...">
+        <select id="filtroEstado" class="dashboard-select">
+          <option value="">Todos los estados</option>
+          <option value="solicitud">Solicitud</option>
+          <option value="diagnostico">Diagnóstico</option>
+          <option value="aprobacion">Aprobación</option>
+          <option value="reparacion">Reparación</option>
+          <option value="control_calidad">Control de calidad</option>
+          <option value="entrega">Entrega</option>
+          <option value="cerrada">Cerrada</option>
+        </select>
+        <select id="filtroTipo" class="dashboard-select">
+          <option value="">Interno y externo</option>
+          <option value="interno">Interno</option>
+          <option value="externo">Externo</option>
+        </select>
+      </div>
+      <div class="table-container">
+        <table>
+          <thead>
+            <tr>
+              <th>Folio</th>
+              <th>Unidad</th>
+              <th>Estado</th>
+              <th>Tipo</th>
+              <th>Prioridad</th>
+              <th>Fecha</th>
+              <th>Acciones</th>
+            </tr>
+          </thead>
+          <tbody id="tablaOrdenes"></tbody>
+        </table>
+      </div>
+    </section>
+  </main>
+
+  <div class="modal" id="modalOrden">
+    <div class="modal-card">
+      <h2 id="tituloModalOrden">Nueva orden de trabajo</h2>
+      <div class="form-grid">
+        <div class="input-group">
+          <label>Unidad</label>
+          <input type="text" id="unidadOrden" placeholder="Número de unidad">
+        </div>
+        <div class="input-group">
+          <label>Tipo</label>
+          <select id="tipoOrden">
+            <option value="interno">Interno</option>
+            <option value="externo">Externo</option>
+          </select>
+        </div>
+        <div class="input-group">
+          <label>Prioridad</label>
+          <select id="prioridadOrden">
+            <option value="normal">Normal</option>
+            <option value="alta">Alta</option>
+            <option value="urgente">Urgente</option>
+          </select>
+        </div>
+        <div class="input-group full">
+          <label>Descripción de la falla</label>
+          <textarea id="descripcionOrden" placeholder="Describa el problema reportado"></textarea>
+        </div>
+      </div>
+      <div class="modal-actions">
+        <button class="btn-secondary" onclick="cerrarModalOrden()">Cancelar</button>
+        <button class="btn-small" onclick="guardarOrden()">Guardar</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    validarPermiso("Órdenes de Trabajo");
+    ETLayout.inicializar("Órdenes de Trabajo");
+    ETLayout.ocultarSiSoloLectura("#btnNuevaOrden");
+
+    const ESTADOS = {
+      solicitud: { label: "Solicitud", badge: "amber" },
+      diagnostico: { label: "Diagnóstico", badge: "blue" },
+      aprobacion: { label: "Aprobación", badge: "orange" },
+      reparacion: { label: "Reparación", badge: "teal" },
+      control_calidad: { label: "Control de calidad", badge: "blue" },
+      entrega: { label: "Entrega", badge: "green" },
+      cerrada: { label: "Cerrada", badge: "gray" }
+    };
+
+    const FLUJO = ["solicitud", "diagnostico", "aprobacion", "reparacion", "control_calidad", "entrega", "cerrada"];
+    let ordenes = [];
+
+    async function cargarOrdenes() {
+      if (!supabaseClient) return;
+      const { data, error } = await supabaseClient
+        .from("ordenes_trabajo")
+        .select("*, parque_vehicular(unidad_patrulla)")
+        .order("created_at", { ascending: false });
+
+      if (error) {
+        console.warn("Tabla ordenes_trabajo no disponible aún:", error.message);
+        ordenes = [];
+      } else {
+        ordenes = data || [];
+      }
+      renderizarOrdenes();
+    }
+
+    function renderizarOrdenes() {
+      const busqueda = document.getElementById("buscarOrden").value.toLowerCase();
+      const estado = document.getElementById("filtroEstado").value;
+      const tipo = document.getElementById("filtroTipo").value;
+      const soloLectura = typeof esSoloLectura === "function" && esSoloLectura();
+
+      const filtradas = ordenes.filter(function (o) {
+        const texto = (o.folio + " " + (o.descripcion_falla || "") + " " + (o.parque_vehicular?.unidad_patrulla || "")).toLowerCase();
+        if (busqueda && !texto.includes(busqueda)) return false;
+        if (estado && o.estado !== estado) return false;
+        if (tipo && o.tipo !== tipo) return false;
+        return true;
+      });
+
+      document.getElementById("kpiActivas").textContent = ordenes.filter(function (o) { return o.estado !== "cerrada"; }).length;
+      document.getElementById("kpiAprobacion").textContent = ordenes.filter(function (o) { return o.estado === "aprobacion"; }).length;
+      document.getElementById("kpiReparacion").textContent = ordenes.filter(function (o) { return o.estado === "reparacion"; }).length;
+      document.getElementById("kpiCerradas").textContent = ordenes.filter(function (o) { return o.estado === "cerrada"; }).length;
+
+      document.getElementById("tablaOrdenes").innerHTML = filtradas.length
+        ? filtradas.map(function (o) {
+            const info = ESTADOS[o.estado] || { label: o.estado, badge: "gray" };
+            return "<tr>" +
+              "<td><strong>" + (o.folio || "—") + "</strong></td>" +
+              "<td>" + (o.parque_vehicular?.unidad_patrulla || "—") + "</td>" +
+              "<td><span class=\"badge " + info.badge + "\">" + info.label + "</span></td>" +
+              "<td>" + (o.tipo || "—") + "</td>" +
+              "<td>" + (o.prioridad || "—") + "</td>" +
+              "<td>" + (o.fecha_solicitud || "—") + "</td>" +
+              "<td>" +
+                (soloLectura ? "—" : '<button class="action-btn" onclick="avanzarEstado(\'' + o.id + '\')">Avanzar</button>') +
+              "</td></tr>";
+          }).join("")
+        : "<tr><td colspan=\"7\">No hay órdenes. Ejecute la migración SQL y cree la primera orden.</td></tr>";
+    }
+
+    function abrirModalOrden() {
+      if (typeof esSoloLectura === "function" && esSoloLectura()) return;
+      document.getElementById("tituloModalOrden").textContent = "Nueva orden de trabajo";
+      document.getElementById("modalOrden").style.display = "flex";
+    }
+
+    function cerrarModalOrden() {
+      document.getElementById("modalOrden").style.display = "none";
+    }
+
+    async function guardarOrden() {
+      const usuario = JSON.parse(localStorage.getItem("usuarioActivo"));
+      const payload = {
+        folio: "OT-" + Date.now(),
+        descripcion_falla: document.getElementById("descripcionOrden").value,
+        tipo: document.getElementById("tipoOrden").value,
+        prioridad: document.getElementById("prioridadOrden").value,
+        estado: "solicitud",
+        fecha_solicitud: new Date().toISOString().slice(0, 10),
+        solicitante_id: usuario.id
+      };
+
+      const { error } = await supabaseClient.from("ordenes_trabajo").insert(payload);
+      if (error) {
+        alert("No se pudo guardar. Verifique que la tabla ordenes_trabajo exista en Supabase.");
+        return;
+      }
+      registrarAuditoria("Órdenes de Trabajo", "Creación", payload.folio);
+      cerrarModalOrden();
+      cargarOrdenes();
+    }
+
+    async function avanzarEstado(id) {
+      const orden = ordenes.find(function (o) { return o.id === id; });
+      if (!orden) return;
+      const pos = FLUJO.indexOf(orden.estado);
+      if (pos < 0 || pos >= FLUJO.length - 1) return;
+      const nuevo = FLUJO[pos + 1];
+      const { error } = await supabaseClient.from("ordenes_trabajo").update({ estado: nuevo }).eq("id", orden.id);
+      if (!error) {
+        registrarAuditoria("Órdenes de Trabajo", "Cambio de estado", orden.folio + " → " + nuevo);
+        cargarOrdenes();
+      }
+    }
+
+    document.getElementById("buscarOrden").addEventListener("input", renderizarOrdenes);
+    document.getElementById("filtroEstado").addEventListener("change", renderizarOrdenes);
+    document.getElementById("filtroTipo").addEventListener("change", renderizarOrdenes);
+
+    cargarOrdenes();
+  </script>
+</body>
+</html>

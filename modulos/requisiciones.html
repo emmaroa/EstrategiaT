@@ -3,8 +3,15 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>ESTRATEGIAT | Requisiciones</title>
+  <title>Administración de Talleres | Requisiciones</title>
   <link rel="stylesheet" href="../style.css">
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="../js/config/supabase.js"></script>
+  <script src="../js/core/permissions.js"></script>
+  <script src="../js/core/theme.js"></script>
+  <script src="../js/components/layout.js"></script>
+  <script src="../js/services/requisiciones.service.js"></script>
+  <script src="../login.js"></script>
 </head>
 <body class="dashboard-body">
 
@@ -12,20 +19,12 @@
     <div class="sidebar-logo">
       <div class="mini-logo">E</div>
       <div>
-        <h3>ESTRATEGIAT</h3>
-        <small>Requisiciones</small>
+        <h3>Administración de Talleres</h3>
+        <small id="etModuleName">Requisiciones</small>
       </div>
     </div>
-
-    <nav>
-      <a href="../dashboard.html" class="nav-item">Dashboard</a>
-      <a href="parque-vehicular.html" class="nav-item">Parque Vehicular</a>
-      <a href="peticiones.html" class="nav-item">Peticiones</a>
-      <a href="requisiciones.html" class="nav-item active">Requisiciones</a>
-      <a href="vales.html" class="nav-item">Vales</a>
-    </nav>
-
-    <button class="logout" onclick="cerrarSesion()">Cerrar sesión</button>
+    <nav id="etNav"></nav>
+    <button class="logout" id="etLogout">Cerrar sesión</button>
   </aside>
 
   <main class="main-content">
@@ -36,7 +35,10 @@
         <p>Seguimiento de requisiciones, órdenes de compra, facturas y pagos.</p>
       </div>
 
-      <button class="btn-small" onclick="abrirModalRequisicion()">+ Nueva requisición</button>
+      <div style="display:flex;gap:12px;align-items:center;">
+        <span id="etTemaContainer"></span>
+        <button class="btn-small" id="btnNuevaRequisicion" onclick="abrirModalRequisicion()">+ Nueva requisición</button>
+      </div>
     </header>
 
     <section class="kpi-grid">
@@ -153,6 +155,7 @@
         <div class="input-group">
           <label>Unidad</label>
           <input type="text" id="unidadReq" placeholder="Ej. 2761">
+          <small id="infoUnidadReq" class="helper-text"></small>
         </div>
 
         <div class="input-group">
@@ -226,96 +229,102 @@
     </div>
   </div>
 
-  <script src="../login.js"></script>
-
   <script>
-validarPermiso("Requisiciones");
-    
-    
-    let requisiciones = JSON.parse(localStorage.getItem("requisiciones")) || [
-      {
-        fecha: "2026-05-11",
-        numero: "REQ-2026-001",
-        unidad: "2761",
-        dependencia: "Talleres",
-        concepto: "Balatas delanteras y servicio de mantenimiento",
-        proveedor: "Refaccionaria del Norte",
-        oc: "OC-2026-055",
-        factura: "FAC-8891",
-        solicitudPago: "",
-        monto: 8450,
-        estatus: "Orden de compra",
-        observaciones: "Pendiente autorización de OC"
-      },
-      {
-        fecha: "2026-05-10",
-        numero: "REQ-2026-002",
-        unidad: "3022",
-        dependencia: "Infraestructura",
-        concepto: "Manguera hidráulica para retroexcavadora",
-        proveedor: "Hidráulicos Hermosillo",
-        oc: "",
-        factura: "",
-        solicitudPago: "",
-        monto: 12600,
-        estatus: "Cotización en portal",
-        observaciones: "Se dejó muestra"
-      },
-      {
-        fecha: "2026-05-09",
-        numero: "REQ-2026-003",
-        unidad: "1189",
-        dependencia: "Servicios Públicos",
-        concepto: "Llanta trasera para moto",
-        proveedor: "Moto Refacciones",
-        oc: "OC-2026-061",
-        factura: "FAC-1044",
-        solicitudPago: "SP-2026-078",
-        monto: 1850,
-        estatus: "Solicitud de pago",
-        observaciones: "Factura recibida"
-      }
-    ];
+    validarPermiso("Requisiciones");
+    ETLayout.inicializar("Requisiciones");
+    ETLayout.ocultarSiSoloLectura("#btnNuevaRequisicion");
+
+    let requisiciones = [];
+    let idEditando = null;
+    let prefillPeticionId = null;
 
     const tablaRequisiciones = document.getElementById("tablaRequisiciones");
     const buscarRequisicion = document.getElementById("buscarRequisicion");
     const filtroReqEstatus = document.getElementById("filtroReqEstatus");
     const filtroDependencia = document.getElementById("filtroDependencia");
 
-function revisarDatosDesdePeticion() {
-  const datos = JSON.parse(localStorage.getItem("datosParaRequisicion"));
+    async function inicializarRequisiciones() {
+      const migracion = await ETRequisiciones.migrarDesdeLocalStorage();
+      if (migracion.migrados > 0) {
+        console.info("Migradas " + migracion.migrados + " requisiciones desde localStorage.");
+      }
+      await recargarRequisiciones();
+      await revisarPrefillDesdePeticion();
+    }
 
-  if (!datos) return;
+    async function recargarRequisiciones() {
+      const { data, error } = await ETRequisiciones.listar();
+      if (error) {
+        console.error("Error cargando requisiciones:", error);
+        alert("No se pudieron cargar las requisiciones. Verifique la conexión con Supabase.");
+        return;
+      }
+      requisiciones = data || [];
+      renderizarRequisiciones();
+    }
 
-  abrirModalRequisicion();
+    async function revisarPrefillDesdePeticion() {
+      const params = new URLSearchParams(window.location.search);
+      const peticionId = params.get("desde_peticion");
+      let prefill = null;
 
-  document.getElementById("unidadReq").value = datos.unidad || "";
-  document.getElementById("conceptoReq").value = datos.concepto || "";
-  document.getElementById("dependenciaReq").value = datos.dependencia || "";
-  document.getElementById("proveedorReq").value = datos.proveedor || "";
-  document.getElementById("observacionesReq").value = datos.observaciones || "";
+      if (peticionId) {
+        prefill = await ETRequisiciones.obtenerPrefillDesdePeticion(peticionId);
+      }
 
-  localStorage.removeItem("datosParaRequisicion");
-}
+      if (!prefill) {
+        const session = sessionStorage.getItem("prefillRequisicion");
+        if (session) prefill = JSON.parse(session);
+      }
 
-revisarDatosDesdePeticion();
+      if (!prefill) return;
 
-    function cargarRequisiciones() {
+      sessionStorage.removeItem("prefillRequisicion");
+      prefillPeticionId = prefill.peticion_id || null;
+
+      abrirModalRequisicion();
+      document.getElementById("unidadReq").value = prefill.unidad || "";
+      document.getElementById("conceptoReq").value = prefill.concepto || "";
+      document.getElementById("dependenciaReq").value = prefill.dependencia || "";
+      document.getElementById("proveedorReq").value = prefill.proveedor || "";
+      document.getElementById("observacionesReq").value = prefill.observaciones || "";
+
+      const numero = await ETRequisiciones.generarNumero();
+      document.getElementById("numeroReq").value = numero;
+    }
+
+    document.getElementById("unidadReq").addEventListener("blur", async function () {
+      const valor = this.value.trim();
+      const unidad = await ETRequisiciones.buscarUnidadParque(valor);
+      const info = document.getElementById("infoUnidadReq");
+
+      if (!unidad) {
+        info.textContent = "Unidad no encontrada en Parque Vehicular.";
+        return;
+      }
+
+      document.getElementById("dependenciaReq").value = unidad.dependencia || "";
+      info.textContent =
+        (unidad.descripcion || "") + " | Placa: " + (unidad.placa || "Sin placa") +
+        " | Combustible: " + (unidad.combustible || "Sin dato");
+    });
+
+    function renderizarRequisiciones() {
       const texto = buscarRequisicion.value.toLowerCase();
       const estatus = filtroReqEstatus.value;
       const dependencia = filtroDependencia.value;
 
       tablaRequisiciones.innerHTML = "";
 
-      const filtradas = requisiciones.filter(r => {
+      const filtradas = requisiciones.filter(function (r) {
         const coincideTexto =
-          r.numero.toLowerCase().includes(texto) ||
-          r.unidad.toLowerCase().includes(texto) ||
-          r.concepto.toLowerCase().includes(texto) ||
-          r.proveedor.toLowerCase().includes(texto) ||
-          r.oc.toLowerCase().includes(texto) ||
-          r.factura.toLowerCase().includes(texto) ||
-          r.estatus.toLowerCase().includes(texto);
+          (r.numero || "").toLowerCase().includes(texto) ||
+          (r.unidad || "").toLowerCase().includes(texto) ||
+          (r.concepto || "").toLowerCase().includes(texto) ||
+          (r.proveedor || "").toLowerCase().includes(texto) ||
+          (r.oc || "").toLowerCase().includes(texto) ||
+          (r.factura || "").toLowerCase().includes(texto) ||
+          (r.estatus || "").toLowerCase().includes(texto);
 
         const coincideEstatus = estatus === "" || r.estatus === estatus;
         const coincideDependencia = dependencia === "" || r.dependencia === dependencia;
@@ -323,31 +332,33 @@ revisarDatosDesdePeticion();
         return coincideTexto && coincideEstatus && coincideDependencia;
       });
 
-      filtradas.forEach((r, index) => {
-        const fila = document.createElement("tr");
-
-        fila.innerHTML = `
-          <td>${formatearFechaReq(r.fecha)}</td>
-          <td><strong>${r.numero}</strong></td>
-          <td>${r.unidad}</td>
-          <td>${r.concepto}</td>
-          <td>${r.proveedor || "Sin asignar"}</td>
-          <td>${r.oc || "Pendiente"}</td>
-          <td>${r.factura || "Pendiente"}</td>
-          <td>${formatoMoneda(r.monto)}</td>
-          <td>
-            <span class="badge ${obtenerClaseEstatusReq(r.estatus)}">
-              ${r.estatus}
-            </span>
-          </td>
-          <td>
-            <button class="action-btn" onclick="verRequisicion(${index})">Ver</button>
-            <button class="action-btn edit" onclick="cambiarEstatusReq(${index})">Estatus</button>
-          </td>
-        `;
-
-        tablaRequisiciones.appendChild(fila);
-      });
+      if (!filtradas.length) {
+        tablaRequisiciones.innerHTML = '<tr><td colspan="10">No hay requisiciones registradas.</td></tr>';
+      } else {
+        filtradas.forEach(function (r) {
+          const fila = document.createElement("tr");
+          const soloLectura = typeof esSoloLectura === "function" && esSoloLectura();
+          fila.innerHTML =
+            "<td>" + formatearFechaReq(r.fecha) + "</td>" +
+            "<td><strong>" + r.numero + "</strong></td>" +
+            "<td>" + r.unidad + "</td>" +
+            "<td>" + r.concepto + "</td>" +
+            "<td>" + (r.proveedor || "Sin asignar") + "</td>" +
+            "<td>" + (r.oc || "Pendiente") + "</td>" +
+            "<td>" + (r.factura || "Pendiente") + "</td>" +
+            "<td>" + formatoMoneda(r.monto) + "</td>" +
+            '<td><span class="badge ' + obtenerClaseEstatusReq(r.estatus) + '">' + r.estatus + "</span></td>" +
+            "<td>" +
+              '<button class="action-btn" onclick="verRequisicion(\'' + r.id + '\')">Ver</button>' +
+              (soloLectura ? "" :
+                '<button class="action-btn edit" onclick="editarRequisicion(\'' + r.id + '\')">Editar</button>' +
+                '<button class="action-btn" onclick="cambiarEstatusReq(\'' + r.id + '\')">Estatus</button>' +
+                '<button class="action-btn red-btn" onclick="eliminarRequisicion(\'' + r.id + '\')">Eliminar</button>'
+              ) +
+            "</td>";
+          tablaRequisiciones.appendChild(fila);
+        });
+      }
 
       actualizarKPIsReq();
     }
@@ -368,48 +379,70 @@ revisarDatosDesdePeticion();
       document.getElementById("kpiMonto").textContent = formatoMoneda(total);
     }
 
-    function abrirModalRequisicion() {
+    async function abrirModalRequisicion() {
+      if (typeof esSoloLectura === "function" && esSoloLectura()) return;
       document.getElementById("modalRequisicion").classList.add("show");
+      document.querySelector("#modalRequisicion h2").textContent =
+        idEditando ? "Editar requisición" : "Nueva requisición";
 
-      const hoy = new Date().toISOString().split("T")[0];
-      document.getElementById("fechaReq").value = hoy;
+      if (!idEditando) {
+        document.getElementById("fechaReq").value = new Date().toISOString().split("T")[0];
+        if (!document.getElementById("numeroReq").value) {
+          document.getElementById("numeroReq").value = await ETRequisiciones.generarNumero();
+        }
+      }
     }
 
     function cerrarModalRequisicion() {
       document.getElementById("modalRequisicion").classList.remove("show");
       limpiarFormularioReq();
+      idEditando = null;
+      prefillPeticionId = null;
     }
 
-    function guardarRequisicion() {
+    async function guardarRequisicion() {
       const nueva = {
         fecha: document.getElementById("fechaReq").value,
         numero: document.getElementById("numeroReq").value.trim(),
         unidad: document.getElementById("unidadReq").value.trim(),
         dependencia: document.getElementById("dependenciaReq").value,
         concepto: document.getElementById("conceptoReq").value.trim(),
-        proveedor: document.getElementById("proveedorReq").value.trim(),
-        oc: document.getElementById("ocReq").value.trim(),
-        factura: document.getElementById("facturaReq").value.trim(),
-        solicitudPago: document.getElementById("solicitudPagoReq").value.trim(),
+        proveedor: document.getElementById("proveedorReq").value.trim() || null,
+        oc: document.getElementById("ocReq").value.trim() || null,
+        factura: document.getElementById("facturaReq").value.trim() || null,
+        solicitudPago: document.getElementById("solicitudPagoReq").value.trim() || null,
         monto: Number(document.getElementById("montoReq").value || 0),
         estatus: document.getElementById("estatusReq").value,
-        observaciones: document.getElementById("observacionesReq").value.trim()
+        observaciones: document.getElementById("observacionesReq").value.trim() || null,
+        peticion_id: prefillPeticionId
       };
 
-      if (!nueva.numero || !nueva.unidad || !nueva.dependencia || !nueva.concepto) {
-        alert("Completa número de requisición, unidad, dependencia y concepto.");
+      if (!nueva.unidad || !nueva.dependencia || !nueva.concepto) {
+        alert("Completa unidad, dependencia y concepto.");
         return;
       }
 
-      requisiciones.unshift(nueva);
-      localStorage.setItem("requisiciones", JSON.stringify(requisiciones));
-registrarAuditoria(
-  "Requisiciones",
-  "Creó nueva requisición",
-  nueva.numero + " - Unidad " + nueva.unidad
-);
-      cargarRequisiciones();
+      let resultado;
+      if (idEditando) {
+        resultado = await ETRequisiciones.actualizar(idEditando, nueva);
+        if (!resultado.error) {
+          registrarAuditoria("Requisiciones", "Editó requisición", nueva.numero + " - Unidad " + nueva.unidad);
+        }
+      } else {
+        resultado = await ETRequisiciones.crear(nueva);
+        if (!resultado.error) {
+          registrarAuditoria("Requisiciones", "Creó nueva requisición", (resultado.data?.numero || nueva.numero) + " - Unidad " + nueva.unidad);
+        }
+      }
+
+      if (resultado.error) {
+        alert("Error al guardar: " + resultado.error.message);
+        return;
+      }
+
+      await recargarRequisiciones();
       cerrarModalRequisicion();
+      alert("Requisición guardada correctamente.");
     }
 
     function limpiarFormularioReq() {
@@ -424,28 +457,28 @@ registrarAuditoria(
       document.getElementById("montoReq").value = "";
       document.getElementById("estatusReq").value = "Por autorizar";
       document.getElementById("observacionesReq").value = "";
+      document.getElementById("infoUnidadReq").textContent = "";
     }
 
-    function cambiarEstatusReq(index) {
-      const estatusActual = requisiciones[index].estatus;
+    function obtenerRequisicionPorId(id) {
+      return requisiciones.find(function (r) { return r.id === id; });
+    }
+
+    async function cambiarEstatusReq(id) {
+      const req = obtenerRequisicionPorId(id);
+      if (!req) return;
 
       const nuevoEstatus = prompt(
         "Nuevo estatus:\nPor autorizar\nInicio de procedimiento\nCotización en portal\nOrden de compra\nOrden de compra autorizada\nFactura recibida\nSolicitud de pago\nEn firma final\nEnviado",
-        estatusActual
+        req.estatus
       );
 
       if (!nuevoEstatus) return;
 
       const validos = [
-        "Por autorizar",
-        "Inicio de procedimiento",
-        "Cotización en portal",
-        "Orden de compra",
-        "Orden de compra autorizada",
-        "Factura recibida",
-        "Solicitud de pago",
-        "En firma final",
-        "Enviado"
+        "Por autorizar", "Inicio de procedimiento", "Cotización en portal",
+        "Orden de compra", "Orden de compra autorizada", "Factura recibida",
+        "Solicitud de pago", "En firma final", "Enviado"
       ];
 
       if (!validos.includes(nuevoEstatus)) {
@@ -453,20 +486,53 @@ registrarAuditoria(
         return;
       }
 
-      requisiciones[index].estatus = nuevoEstatus;
-      localStorage.setItem("requisiciones", JSON.stringify(requisiciones));
+      const { error } = await ETRequisiciones.actualizar(id, { estatus: nuevoEstatus });
+      if (error) {
+        alert("Error al actualizar estatus: " + error.message);
+        return;
+      }
 
-registrarAuditoria(
-  "Requisiciones",
-  "Cambió estatus",
-  requisiciones[index].numero + ": " + estatusActual + " → " + nuevoEstatus
-);
-
-      cargarRequisiciones();
+      registrarAuditoria("Requisiciones", "Cambió estatus", req.numero + ": " + req.estatus + " → " + nuevoEstatus);
+      await recargarRequisiciones();
     }
 
-    function verRequisicion(index) {
-      const r = requisiciones[index];
+    function editarRequisicion(id) {
+      const r = obtenerRequisicionPorId(id);
+      if (!r) return;
+      idEditando = id;
+      abrirModalRequisicion();
+      document.getElementById("fechaReq").value = r.fecha;
+      document.getElementById("numeroReq").value = r.numero;
+      document.getElementById("unidadReq").value = r.unidad;
+      document.getElementById("dependenciaReq").value = r.dependencia;
+      document.getElementById("conceptoReq").value = r.concepto;
+      document.getElementById("proveedorReq").value = r.proveedor || "";
+      document.getElementById("ocReq").value = r.oc || "";
+      document.getElementById("facturaReq").value = r.factura || "";
+      document.getElementById("solicitudPagoReq").value = r.solicitudPago || "";
+      document.getElementById("montoReq").value = r.monto || 0;
+      document.getElementById("estatusReq").value = r.estatus;
+      document.getElementById("observacionesReq").value = r.observaciones || "";
+    }
+
+    async function eliminarRequisicion(id) {
+      const r = obtenerRequisicionPorId(id);
+      if (!r) return;
+      if (!confirm("¿Eliminar la requisición " + r.numero + "?")) return;
+
+      const { error } = await ETRequisiciones.eliminar(id);
+      if (error) {
+        alert("Error al eliminar: " + error.message);
+        return;
+      }
+
+      registrarAuditoria("Requisiciones", "Eliminó requisición", r.numero);
+      await recargarRequisiciones();
+    }
+
+    function verRequisicion(id) {
+      const r = obtenerRequisicionPorId(id);
+      if (!r) return;
 
       alert(
         "Requisición: " + r.numero +
@@ -510,16 +576,11 @@ registrarAuditoria(
       return partes[2] + "/" + partes[1] + "/" + partes[0];
     }
 
-    buscarRequisicion.addEventListener("input", cargarRequisiciones);
-    filtroReqEstatus.addEventListener("change", cargarRequisiciones);
-    filtroDependencia.addEventListener("change", cargarRequisiciones);
+    buscarRequisicion.addEventListener("input", renderizarRequisiciones);
+    filtroReqEstatus.addEventListener("change", renderizarRequisiciones);
+    filtroDependencia.addEventListener("change", renderizarRequisiciones);
 
-    cargarRequisiciones();
-
-    function cerrarSesion() {
-      localStorage.removeItem("usuarioActivo");
-      window.location.href = "../index.html";
-    }
+    inicializarRequisiciones();
   </script>
 
 </body>
