@@ -8,6 +8,7 @@
     PARQUE: "Parque Vehicular",
     PETICIONES: "Peticiones",
     REQUISICIONES: "Requisiciones",
+    ACUERDOS: "Acuerdos",
     VALES: "Vales",
     USUARIOS: "Usuarios",
     AUDITORIA: "Auditoría",
@@ -23,27 +24,29 @@
 
   const RUTAS = {
     [MODULOS.DASHBOARD]: "dashboard.html",
-    [MODULOS.PARQUE]: "modulos/parque-vehicular.html",
-    [MODULOS.PETICIONES]: "modulos/peticiones.html",
-    [MODULOS.REQUISICIONES]: "modulos/requisiciones.html",
-    [MODULOS.VALES]: "modulos/vales.html",
-    [MODULOS.USUARIOS]: "modulos/usuarios.html",
-    [MODULOS.AUDITORIA]: "modulos/auditoria.html",
-    [MODULOS.ORDENES_TRABAJO]: "modulos/ordenes-trabajo.html",
-    [MODULOS.INVENTARIO]: "modulos/inventario.html",
-    [MODULOS.COMPRAS]: "modulos/compras.html",
-    [MODULOS.PROVEEDORES]: "modulos/proveedores.html",
-    [MODULOS.REPORTES]: "modulos/reportes.html",
-    [MODULOS.NOTIFICACIONES]: "modulos/notificaciones.html",
-    [MODULOS.DOCUMENTOS]: "modulos/documentos.html",
-    [MODULOS.BI]: "modulos/bi.html"
+    [MODULOS.PARQUE]: "../modulos/parque-vehicular.html",
+    [MODULOS.PETICIONES]: "../modulos/peticiones.html",
+    [MODULOS.REQUISICIONES]: "../modulos/requisiciones.html",
+    [MODULOS.ACUERDOS]: "../modulos/acuerdos.html",
+    [MODULOS.VALES]: "../modulos/vales.html",
+    [MODULOS.USUARIOS]: "../modulos/usuarios.html",
+    [MODULOS.AUDITORIA]: "../modulos/auditoria.html",
+    [MODULOS.ORDENES_TRABAJO]: "../modulos/ordenes-trabajo.html",
+    [MODULOS.INVENTARIO]: "../modulos/inventario.html",
+    [MODULOS.COMPRAS]: "../modulos/compras.html",
+    [MODULOS.PROVEEDORES]: "../modulos/proveedores.html",
+    [MODULOS.REPORTES]: "../modulos/reportes.html",
+    [MODULOS.NOTIFICACIONES]: "../modulos/notificaciones.html",
+    [MODULOS.DOCUMENTOS]: "../modulos/documentos.html",
+    [MODULOS.BI]: "../  modulos/bi.html"
   };
 
   const DESCRIPCIONES = {
     [MODULOS.DASHBOARD]: "Indicadores ejecutivos y KPIs operativos.",
     [MODULOS.PARQUE]: "Expediente digital de unidades y seguimiento de flota.",
-    [MODULOS.PETICIONES]: "Solicitudes de refacciones y servicios al almacén.",
+    [MODULOS.PETICIONES]: "Solicitudes de refacciones al almacén.",
     [MODULOS.REQUISICIONES]: "Requisiciones, órdenes de compra y pagos.",
+    [MODULOS.ACUERDOS]: "Seguimiento de acuerdos, compromisos y plazos.",
     [MODULOS.VALES]: "Vales de salida con folio, firma y trazabilidad.",
     [MODULOS.USUARIOS]: "Administración de usuarios, roles y permisos.",
     [MODULOS.AUDITORIA]: "Registro de actividad y trazabilidad del sistema.",
@@ -61,21 +64,21 @@
     "Administrador del Sistema": Object.values(MODULOS),
     "Director": [
       MODULOS.DASHBOARD, MODULOS.PARQUE, MODULOS.PETICIONES,
-      MODULOS.REQUISICIONES, MODULOS.VALES, MODULOS.ORDENES_TRABAJO,
+      MODULOS.REQUISICIONES, MODULOS.ACUERDOS, MODULOS.VALES, MODULOS.ORDENES_TRABAJO,
       MODULOS.INVENTARIO, MODULOS.COMPRAS, MODULOS.PROVEEDORES,
       MODULOS.REPORTES, MODULOS.NOTIFICACIONES, MODULOS.DOCUMENTOS, MODULOS.BI
     ],
     "Coordinador": [
       MODULOS.DASHBOARD, MODULOS.PARQUE, MODULOS.PETICIONES,
-      MODULOS.REQUISICIONES, MODULOS.VALES, MODULOS.ORDENES_TRABAJO,
+      MODULOS.REQUISICIONES, MODULOS.ACUERDOS, MODULOS.VALES, MODULOS.ORDENES_TRABAJO,
       MODULOS.INVENTARIO, MODULOS.COMPRAS, MODULOS.REPORTES, MODULOS.NOTIFICACIONES
     ],
     "Encargado de Almacén": [
-      MODULOS.DASHBOARD, MODULOS.PETICIONES, MODULOS.VALES,
+      MODULOS.DASHBOARD, MODULOS.ACUERDOS, MODULOS.PETICIONES, MODULOS.VALES,
       MODULOS.INVENTARIO, MODULOS.NOTIFICACIONES
     ],
     "Técnico": [
-      MODULOS.DASHBOARD, MODULOS.PARQUE, MODULOS.PETICIONES,
+      MODULOS.DASHBOARD, MODULOS.PARQUE, MODULOS.PETICIONES, MODULOS.ACUERDOS,  
       MODULOS.ORDENES_TRABAJO, MODULOS.NOTIFICACIONES
     ],
     "Solo Lectura": [
@@ -84,7 +87,7 @@
     ],
     SuperAdmin: Object.values(MODULOS),
     Admin: [
-      MODULOS.DASHBOARD, MODULOS.PARQUE, MODULOS.PETICIONES,
+      MODULOS.DASHBOARD, MODULOS.PARQUE, MODULOS.PETICIONES, MODULOS.ACUERDOS,
       MODULOS.REQUISICIONES, MODULOS.VALES, MODULOS.AUDITORIA,
       MODULOS.ORDENES_TRABAJO
     ],

@@ -61,12 +61,13 @@ function pintarTarjeta(acuerdo) {
     <small>Prioridad: ${acuerdo.prioridad}</small>
     <small>Vence: ${acuerdo.fecha_compromiso || "Sin fecha"}</small>
 
-    <div class="card-acciones">
-      <button onclick="cambiarEstado('${acuerdo.id}', 'En proceso')">En proceso</button>
-      <button onclick="cambiarEstado('${acuerdo.id}', 'En espera')">En espera</button>
-      <button onclick="cambiarEstado('${acuerdo.id}', 'Para revisión')">Para revisión</button>
-      <button onclick="cambiarEstado('${acuerdo.id}', 'Concluido')">Concluir</button>
-    </div>
+<div class="card-acciones">
+  <button onclick="cambiarEstado('${acuerdo.id}', 'En proceso')">En proceso</button>
+  <button onclick="cambiarEstado('${acuerdo.id}', 'En espera')">En espera</button>
+  <button onclick="turnarALuis('${acuerdo.id}')">Turnar a Luis</button>
+  <button onclick="cambiarEstado('${acuerdo.id}', 'Para revisión')">Para revisión</button>
+  <button onclick="cambiarEstado('${acuerdo.id}', 'Concluido')">Concluir</button>
+</div>
   `;
 
   contenedor.appendChild(card);
@@ -135,6 +136,34 @@ async function cambiarEstado(id, estado) {
     usuario_id: USUARIO_ACTUAL.id,
     accion: "Cambio de estado",
     detalle: `Estado cambiado a ${estado}`
+  });
+
+  cargarAcuerdos();
+}
+
+async function turnarALuis(id) {
+  const luisId = "312705af-3fa7-4639-9518-2f3b332b0a0c";
+
+  const { error } = await db
+    .from("acuerdos")
+    .update({
+      asignado_a: luisId,
+      turnado_por: USUARIO_ACTUAL.id,
+      estado: "Turnado"
+    })
+    .eq("id", id);
+
+  if (error) {
+    console.error("Error turnando acuerdo:", error);
+    alert("No se pudo turnar el acuerdo");
+    return;
+  }
+
+  await db.from("acuerdos_historial").insert({
+    acuerdo_id: id,
+    usuario_id: USUARIO_ACTUAL.id,
+    accion: "Acuerdo turnado",
+    detalle: "Emma turnó el acuerdo a Luis Lerma"
   });
 
   cargarAcuerdos();
