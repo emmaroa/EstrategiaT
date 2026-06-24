@@ -1,0 +1,357 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Administración de Talleres | Textos Frecuentes</title>
+
+  <link rel="stylesheet" href="../style.css">
+
+  <style>
+    .copy-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 18px;
+      margin-top: 18px;
+    }
+
+    .copy-card {
+      background: var(--card-bg, #fff);
+      border: 1px solid var(--border-color, #e5e7eb);
+      border-radius: 18px;
+      padding: 18px;
+      box-shadow: var(--shadow-sm, 0 4px 12px rgba(0,0,0,.08));
+    }
+
+    .copy-card-header {
+      margin-bottom: 14px;
+    }
+
+    .copy-card-header h3 {
+      margin: 0;
+      color: #2B8180;
+      font-size: 18px;
+    }
+
+    .copy-card-header p {
+      margin: 4px 0 0;
+      font-size: 13px;
+      color: #6b7280;
+    }
+
+    .copy-list {
+      display: grid;
+      gap: 10px;
+    }
+
+    .copy-item {
+      width: 100%;
+      text-align: left;
+      background: #fff;
+      border: 1px solid #e5e7eb;
+      border-left: 4px solid #FC712B;
+      padding: 12px 14px;
+      border-radius: 12px;
+      cursor: pointer;
+      color: #374151;
+      font-weight: 600;
+      transition: .2s ease;
+      line-height: 1.4;
+    }
+
+    .copy-item:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 14px rgba(0,0,0,.10);
+      border-color: #FC712B;
+    }
+
+    .copy-textarea {
+      white-space: pre-line;
+      min-height: 110px;
+    }
+
+    .search-box {
+      width: 100%;
+      max-width: 420px;
+      padding: 12px 14px;
+      border-radius: 12px;
+      border: 1px solid #d1d5db;
+      font-size: 15px;
+      outline: none;
+    }
+
+    .search-box:focus {
+      border-color: #FC712B;
+      box-shadow: 0 0 0 3px rgba(252,113,43,.15);
+    }
+
+    .toast {
+      position: fixed;
+      right: 24px;
+      bottom: 24px;
+      background: #2B8180;
+      color: white;
+      padding: 14px 18px;
+      border-radius: 14px;
+      box-shadow: 0 8px 20px rgba(0,0,0,.18);
+      opacity: 0;
+      transform: translateY(20px);
+      pointer-events: none;
+      transition: .3s ease;
+      z-index: 9999;
+      font-weight: 700;
+    }
+
+    .toast.show {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    @media (max-width: 768px) {
+      .copy-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+
+<body class="dashboard-body">
+
+  <aside class="sidebar">
+    <div class="sidebar-logo">
+      <div class="mini-logo">E</div>
+      <div>
+        <h3>Administración de Talleres</h3>
+        <small id="etModuleName">Textos Frecuentes</small>
+      </div>
+    </div>
+
+    <nav id="etNav"></nav>
+
+    <button class="logout" id="etLogout">Cerrar sesión</button>
+  </aside>
+
+  <main class="main-content">
+
+    <header class="topbar">
+      <div>
+        <h1>Textos Frecuentes</h1>
+        <p>Accesos rápidos para requisiciones, órdenes de compra, portal web y solicitudes de pago.</p>
+      </div>
+
+      <div style="display:flex;gap:12px;align-items:center;">
+        <span id="etTemaContainer"></span>
+      </div>
+    </header>
+
+    <section class="kpi-grid">
+      <div class="kpi-card">
+        <span>Requisiciones</span>
+        <h2>4</h2>
+        <p>Textos disponibles</p>
+      </div>
+
+      <div class="kpi-card">
+        <span>Órdenes de compra</span>
+        <h2>4</h2>
+        <p>Datos frecuentes</p>
+      </div>
+
+      <div class="kpi-card">
+        <span>Solicitudes de pago</span>
+        <h2>4</h2>
+        <p>Formatos rápidos</p>
+      </div>
+
+      <div class="kpi-card">
+        <span>Total textos</span>
+        <h2 id="kpiTotalTextos">0</h2>
+        <p>Para copiar</p>
+      </div>
+    </section>
+
+    <section class="panel">
+      <div class="panel-header">
+        <div>
+          <h2>Biblioteca de textos</h2>
+          <p>Haz clic en cualquier tarjeta para copiar el texto al portapapeles.</p>
+        </div>
+      </div>
+
+      <div class="filters">
+        <input
+          class="search-box"
+          type="text"
+          id="buscarTexto"
+          placeholder="Buscar texto..."
+        >
+      </div>
+
+      <div class="copy-grid" id="contenedorTextos">
+
+        <div class="copy-card" data-section>
+          <div class="copy-card-header">
+            <h3>📄 Para requisiciones</h3>
+            <p>Datos usados en captura de requisiciones.</p>
+          </div>
+
+          <div class="copy-list">
+            <button class="copy-item" data-copy="TALLERES, REFACCIONES PARA UNIDAD">TALLERES, REFACCIONES PARA UNIDAD</button>
+            <button class="copy-item" data-copy="ALMACEN DE TALLERES">ALMACEN DE TALLERES</button>
+            <button class="copy-item" data-copy="CHRISTIAN DOLORES MENDOZA MARQUEZ">CHRISTIAN DOLORES MENDOZA MARQUEZ</button>
+            <button class="copy-item" data-copy="6625110233">6625110233</button>
+          </div>
+        </div>
+
+        <div class="copy-card" data-section>
+          <div class="copy-card-header">
+            <h3>🔎 Seguimiento</h3>
+            <p>Texto para procedimientos.</p>
+          </div>
+
+          <div class="copy-list">
+            <button class="copy-item" data-copy="SEGUIMIENTO DE PROCEDIMIENTO">SEGUIMIENTO DE PROCEDIMIENTO</button>
+          </div>
+        </div>
+
+        <div class="copy-card" data-section>
+          <div class="copy-card-header">
+            <h3>🧾 Órdenes de compra</h3>
+            <p>Firmantes y cargos frecuentes.</p>
+          </div>
+
+          <div class="copy-list">
+            <button class="copy-item" data-copy="SUBDIRECTOR ADMINISTRATIVO TALLERES">SUBDIRECTOR ADMINISTRATIVO TALLERES</button>
+            <button class="copy-item" data-copy="ING. VICTOR EMMANUEL ZARATE IBARRA">ING. VICTOR EMMANUEL ZARATE IBARRA</button>
+            <button class="copy-item" data-copy="DIRECTOR DE TALLERES">DIRECTOR DE TALLERES</button>
+            <button class="copy-item" data-copy="ING. HECTOR MANUEL DIAZ YOUNG">ING. HECTOR MANUEL DIAZ YOUNG</button>
+          </div>
+        </div>
+
+        <div class="copy-card" data-section>
+          <div class="copy-card-header">
+            <h3>🌐 Portal web</h3>
+            <p>Ubicación frecuente.</p>
+          </div>
+
+          <div class="copy-list">
+            <button class="copy-item" data-copy="HERMOSILLO, SONORA.">HERMOSILLO, SONORA.</button>
+          </div>
+        </div>
+
+        <div class="copy-card" data-section>
+          <div class="copy-card-header">
+            <h3>💳 Solicitudes de pago</h3>
+            <p>Plantillas rápidas para descripción.</p>
+          </div>
+
+          <div class="copy-list">
+            <button class="copy-item" data-copy="XXXX: PAGO DE FACTURA XXX POR ADQUISICION DE XXX PARA UNIDAD XXX DE XXX">
+              XXXX: PAGO DE FACTURA XXX POR ADQUISICION DE XXX PARA UNIDAD XXX DE XXX
+            </button>
+
+            <button class="copy-item" data-copy="OC XXX REQ XXX EA-000">
+              OC XXX REQ XXX EA-000
+            </button>
+
+            <button class="copy-item" data-copy="PROCEDIMIENTO EN PORTAL WEB DE COMPRAS: T26-">
+              PROCEDIMIENTO EN PORTAL WEB DE COMPRAS: T26-
+            </button>
+          </div>
+        </div>
+
+        <div class="copy-card" data-section>
+          <div class="copy-card-header">
+            <h3>📝 Solicitud de pago multilínea</h3>
+            <p>Formato completo para copiar en bloque.</p>
+          </div>
+
+          <div class="copy-list">
+            <button class="copy-item copy-textarea" data-copy="XXXX : PAGO DE FACTURA XXX  POR ADQUISICION DE XXX  PARA UNIDAD XXX DE XXX
+OC XXX REQ XXX E XXXXX
+PROCEDIMIENTO EN PORTAL WEB DE COMPRAS: T-">
+XXXX : PAGO DE FACTURA XXX  POR ADQUISICION DE XXX  PARA UNIDAD XXX DE XXX
+OC XXX REQ XXX E XXXXX
+PROCEDIMIENTO EN PORTAL WEB DE COMPRAS: T-
+            </button>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+  </main>
+
+  <div id="toast" class="toast">Copiado al portapapeles</div>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="../js/config/supabase.js"></script>
+  <script src="../js/core/permissions.js"></script>
+  <script src="../js/core/theme.js"></script>
+  <script src="../js/components/layout.js"></script>
+  <script src="../login.js"></script>
+
+  <script>
+    document.addEventListener("DOMContentLoaded", function () {
+      if (typeof validarPermiso === "function") {
+        validarPermiso("Textos Frecuentes");
+      }
+
+      if (window.ETLayout && typeof ETLayout.inicializar === "function") {
+        ETLayout.inicializar("Textos Frecuentes");
+      }
+
+      const botones = document.querySelectorAll("[data-copy]");
+      const buscador = document.getElementById("buscarTexto");
+      const tarjetas = document.querySelectorAll("[data-section]");
+
+      document.getElementById("kpiTotalTextos").textContent = botones.length;
+
+      botones.forEach(function (boton) {
+        boton.addEventListener("click", function () {
+          copiarTexto(this.dataset.copy);
+        });
+      });
+
+      buscador.addEventListener("input", function () {
+        const texto = this.value.toLowerCase().trim();
+
+        tarjetas.forEach(function (tarjeta) {
+          const contenido = tarjeta.textContent.toLowerCase();
+          tarjeta.style.display = contenido.includes(texto) ? "" : "none";
+        });
+      });
+    });
+
+    async function copiarTexto(texto) {
+      try {
+        await navigator.clipboard.writeText(texto);
+        mostrarToast("Copiado al portapapeles");
+      } catch (error) {
+        copiarFallback(texto);
+      }
+    }
+
+    function copiarFallback(texto) {
+      const temporal = document.createElement("textarea");
+      temporal.value = texto;
+      document.body.appendChild(temporal);
+      temporal.select();
+      document.execCommand("copy");
+      document.body.removeChild(temporal);
+      mostrarToast("Copiado al portapapeles");
+    }
+
+    function mostrarToast(mensaje) {
+      const toast = document.getElementById("toast");
+      toast.textContent = mensaje;
+      toast.classList.add("show");
+
+      setTimeout(function () {
+        toast.classList.remove("show");
+      }, 1800);
+    }
+  </script>
+
+</body>
+</html>
