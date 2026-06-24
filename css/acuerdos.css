@@ -1,5 +1,3 @@
-/* Estilos extra para Acuerdos
-   Usa style.css como base principal para igualar la estética de Peticiones. */
 
 .acuerdos-panel {
   overflow: hidden;
@@ -12,7 +10,7 @@
 .kanban {
   display: flex;
   gap: 16px;
-  overflow-x: auto;
+  overflow-x: hidden;
   padding-bottom: 8px;
 }
 
@@ -184,12 +182,17 @@
 }
 
 @media (max-width: 900px) {
-  .kanban {
-    padding-bottom: 14px;
-  }
-
+ .kanban {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 16px;
+  padding: 0;
+  overflow-x: hidden;
+}
   .columna {
-    min-width: 285px;
-    max-width: 285px;
+  min-width: 0;
+  max-width: none;
+  width: 100%;
+
   }
 }
