@@ -2,85 +2,234 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8">
-  <title>Seguimiento de Acuerdos</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Administración de Talleres | Acuerdos</title>
+
+  <link rel="stylesheet" href="../style.css">
   <link rel="stylesheet" href="../css/acuerdos.css">
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="../js/config/supabase.js"></script>
+  <script src="../js/core/permissions.js"></script>
+  <script src="../js/core/theme.js"></script>
+  <script src="../js/components/layout.js"></script>
+  <script src="../login.js"></script>
 </head>
-<body>
 
-  <header class="topbar">
-    <h1>Seguimiento de Acuerdos</h1>
-    <button id="btnNuevoAcuerdo">+ Nuevo acuerdo</button>
-  </header>
+<body class="dashboard-body">
 
-  <main class="kanban">
-    <section class="columna" data-estado="Nuevo">
-      <h2>Nuevo</h2>
-      <div class="lista" id="Nuevo"></div>
+  <aside class="sidebar">
+    <div class="sidebar-logo">
+      <div class="mini-logo">E</div>
+      <div>
+        <h3>Administración de Talleres</h3>
+        <small id="etModuleName">Acuerdos</small>
+      </div>
+    </div>
+
+    <nav id="etNav"></nav>
+
+    <button class="logout" id="etLogout">Cerrar sesión</button>
+  </aside>
+
+  <main class="main-content">
+
+    <header class="topbar">
+      <div>
+        <h1>Seguimiento de Acuerdos</h1>
+        <p>Control y seguimiento de compromisos institucionales.</p>
+      </div>
+
+      <div style="display:flex;gap:12px;align-items:center;">
+        <span id="etTemaContainer"></span>
+        <button class="btn-small" id="btnNuevoAcuerdo">+ Nuevo acuerdo</button>
+      </div>
+    </header>
+
+    <section class="kpi-grid">
+      <div class="kpi-card">
+        <span>Total acuerdos</span>
+        <h2 id="kpiTotal">0</h2>
+        <p>Registrados en sistema</p>
+      </div>
+
+      <div class="kpi-card">
+        <span>Nuevos</span>
+        <h2 id="kpiNuevos">0</h2>
+        <p>Pendientes de atención</p>
+      </div>
+
+      <div class="kpi-card">
+        <span>En proceso</span>
+        <h2 id="kpiProceso">0</h2>
+        <p>En seguimiento</p>
+      </div>
+
+      <div class="kpi-card">
+        <span>Concluidos</span>
+        <h2 id="kpiConcluidos">0</h2>
+        <p>Finalizados</p>
+      </div>
     </section>
 
-    <section class="columna" data-estado="Turnado">
-  <h2>Turnado</h2>
-  <div class="lista" id="Turnado"></div>
-</section>
+    <section class="panel acuerdos-panel">
+      <div class="panel-header">
+        <div>
+          <h2>Tablero de acuerdos</h2>
+          <p>Visualiza cada acuerdo según su estado actual.</p>
+        </div>
+      </div>
 
-    <section class="columna" data-estado="En proceso">
-      <h2>En proceso</h2>
-      <div class="lista" id="En proceso"></div>
+      <div class="filters acuerdos-filters">
+        <input type="text" id="buscarAcuerdo" placeholder="Buscar acuerdo...">
+
+        <select id="filtroEstado">
+          <option value="">Todos los estados</option>
+          <option value="Nuevo">Nuevo</option>
+          <option value="Turnado">Turnado</option>
+          <option value="En proceso">En proceso</option>
+          <option value="En espera">En espera</option>
+          <option value="Para revisión">Para revisión</option>
+          <option value="Concluido">Concluido</option>
+        </select>
+
+        <select id="filtroPrioridad">
+          <option value="">Todas las prioridades</option>
+          <option value="Alta">Alta</option>
+          <option value="Media">Media</option>
+          <option value="Baja">Baja</option>
+        </select>
+
+        <select id="filtroCategoria">
+          <option value="">Todas las categorías</option>
+          <option value="Oficios">Oficios</option>
+          <option value="Compras">Compras</option>
+          <option value="Facturas">Facturas</option>
+          <option value="Proveedores">Proveedores</option>
+          <option value="Adecuaciones presupuestales">Adecuaciones presupuestales</option>
+          <option value="Reparaciones">Reparaciones</option>
+          <option value="Refacciones">Refacciones</option>
+          <option value="Vales">Vales</option>
+          <option value="Capacitación">Capacitación</option>
+          <option value="Otro">Otro</option>
+        </select>
+      </div>
+
+      <div class="kanban">
+        <section class="columna" data-estado="Nuevo">
+          <div class="columna-header">
+            <h2>Nuevo</h2>
+            <span id="countNuevo">0</span>
+          </div>
+          <div class="lista" id="Nuevo"></div>
+        </section>
+
+        <section class="columna" data-estado="Turnado">
+          <div class="columna-header">
+            <h2>Turnado</h2>
+            <span id="countTurnado">0</span>
+          </div>
+          <div class="lista" id="Turnado"></div>
+        </section>
+
+        <section class="columna" data-estado="En proceso">
+          <div class="columna-header">
+            <h2>En proceso</h2>
+            <span id="countEnProceso">0</span>
+          </div>
+          <div class="lista" id="En proceso"></div>
+        </section>
+
+        <section class="columna" data-estado="En espera">
+          <div class="columna-header">
+            <h2>En espera</h2>
+            <span id="countEnEspera">0</span>
+          </div>
+          <div class="lista" id="En espera"></div>
+        </section>
+
+        <section class="columna" data-estado="Para revisión">
+          <div class="columna-header">
+            <h2>Para revisión</h2>
+            <span id="countParaRevision">0</span>
+          </div>
+          <div class="lista" id="Para revisión"></div>
+        </section>
+
+        <section class="columna" data-estado="Concluido">
+          <div class="columna-header">
+            <h2>Concluido</h2>
+            <span id="countConcluido">0</span>
+          </div>
+          <div class="lista" id="Concluido"></div>
+        </section>
+      </div>
     </section>
 
-    <section class="columna" data-estado="En espera">
-      <h2>En espera</h2>
-      <div class="lista" id="En espera"></div>
-    </section>
-
-    <section class="columna" data-estado="Para revisión">
-      <h2>Para revisión</h2>
-      <div class="lista" id="Para revisión"></div>
-    </section>
-
-    <section class="columna" data-estado="Concluido">
-      <h2>Concluido</h2>
-      <div class="lista" id="Concluido"></div>
-    </section>
   </main>
 
-  <div id="modal" class="modal oculto">
-    <div class="modal-contenido">
-      <h2>Nuevo acuerdo</h2>
+  <div class="modal" id="modalAcuerdo">
+    <div class="modal-card">
 
-      <input id="titulo" placeholder="Título del acuerdo">
-      <textarea id="descripcion" placeholder="Descripción"></textarea>
+      <div class="modal-header">
+        <div>
+          <h2>Nuevo acuerdo</h2>
+          <p>Captura los datos del compromiso.</p>
+        </div>
 
-      <select id="categoria">
-        <option>Oficios</option>
-        <option>Compras</option>
-        <option>Facturas</option>
-        <option>Proveedores</option>
-        <option>Adecuaciones presupuestales</option>
-        <option>Reparaciones</option>
-        <option>Refacciones</option>
-        <option>Vales</option>
-        <option>Capacitación</option>
-        <option>Otro</option>
-      </select>
-
-      <select id="prioridad">
-        <option>Media</option>
-        <option>Alta</option>
-        <option>Baja</option>
-      </select>
-
-      <input id="fechaCompromiso" type="date">
-
-      <div class="acciones">
-        <button id="guardarAcuerdo">Guardar</button>
-        <button id="cerrarModal">Cancelar</button>
+        <button class="close-btn" id="cerrarModal">×</button>
       </div>
+
+      <div class="form-grid">
+        <div class="input-group full">
+          <label>Título del acuerdo</label>
+          <input id="titulo" type="text" placeholder="Ej. Enviar oficio de seguimiento">
+        </div>
+
+        <div class="input-group full">
+          <label>Descripción</label>
+          <textarea id="descripcion" placeholder="Describe el acuerdo o compromiso"></textarea>
+        </div>
+
+        <div class="input-group">
+          <label>Categoría</label>
+          <select id="categoria">
+            <option value="Oficios">Oficios</option>
+            <option value="Compras">Compras</option>
+            <option value="Facturas">Facturas</option>
+            <option value="Proveedores">Proveedores</option>
+            <option value="Adecuaciones presupuestales">Adecuaciones presupuestales</option>
+            <option value="Reparaciones">Reparaciones</option>
+            <option value="Refacciones">Refacciones</option>
+            <option value="Vales">Vales</option>
+            <option value="Capacitación">Capacitación</option>
+            <option value="Otro">Otro</option>
+          </select>
+        </div>
+
+        <div class="input-group">
+          <label>Prioridad</label>
+          <select id="prioridad">
+            <option value="Media">Media</option>
+            <option value="Alta">Alta</option>
+            <option value="Baja">Baja</option>
+          </select>
+        </div>
+
+        <div class="input-group">
+          <label>Fecha compromiso</label>
+          <input id="fechaCompromiso" type="date">
+        </div>
+      </div>
+
+      <div class="modal-actions">
+        <button class="btn-secondary" id="cancelarAcuerdo">Cancelar</button>
+        <button class="btn-small" id="guardarAcuerdo">Guardar acuerdo</button>
+      </div>
+
     </div>
   </div>
 
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="../js/supabase.js"></script>
   <script src="../js/acuerdos.js"></script>
 </body>
 </html>
