@@ -24,21 +24,21 @@
 
   const RUTAS = {
     [MODULOS.DASHBOARD]: "dashboard.html",
-    [MODULOS.PARQUE]: "..EstrategiaT/modulos/parque-vehicular.html",
-    [MODULOS.PETICIONES]: "..EstrategiaT/modulos/peticiones.html",
-    [MODULOS.REQUISICIONES]: "..EstrategiaT/modulos/requisiciones.html",
-    [MODULOS.ACUERDOS]: "..EstrategiaT/modulos/acuerdos.html",
-    [MODULOS.VALES]: "..EstrategiaT/modulos/vales.html",
-    [MODULOS.USUARIOS]: "..EstrategiaT/modulos/usuarios.html",
-    [MODULOS.AUDITORIA]: "..EstrategiaT/modulos/auditoria.html",
-    [MODULOS.ORDENES_TRABAJO]: "..EstrategiaT/modulos/ordenes-trabajo.html",
-    [MODULOS.INVENTARIO]: "..EstrategiaT/modulos/inventario.html",
-    [MODULOS.COMPRAS]: "..EstrategiaT/modulos/compras.html",
-    [MODULOS.PROVEEDORES]: "..EstrategiaT/modulos/proveedores.html",
-    [MODULOS.REPORTES]: "..EstrategiaT/modulos/reportes.html",
-    [MODULOS.NOTIFICACIONES]: "..EstrategiaT/modulos/notificaciones.html",
-    [MODULOS.DOCUMENTOS]: "..EstrategiaT/modulos/documentos.html",
-    [MODULOS.BI]: "..EstrategiaT/modulos/bi.html"
+    [MODULOS.PARQUE]: "../EstrategiaT/modulos/parque-vehicular.html",
+    [MODULOS.PETICIONES]: "../EstrategiaT/modulos/peticiones.html",
+    [MODULOS.REQUISICIONES]: "../EstrategiaT/modulos/requisiciones.html",
+    [MODULOS.ACUERDOS]: "../EstrategiaT/modulos/acuerdos.html",
+    [MODULOS.VALES]: "../EstrategiaT/modulos/vales.html",
+    [MODULOS.USUARIOS]: "../EstrategiaT/modulos/usuarios.html",
+    [MODULOS.AUDITORIA]: "../EstrategiaT/modulos/auditoria.html",
+    [MODULOS.ORDENES_TRABAJO]: "../EstrategiaT/modulos/ordenes-trabajo.html",
+    [MODULOS.INVENTARIO]: "../EstrategiaT/modulos/inventario.html",
+    [MODULOS.COMPRAS]: "../EstrategiaT/modulos/compras.html",
+    [MODULOS.PROVEEDORES]: "../EstrategiaT/modulos/proveedores.html",
+    [MODULOS.REPORTES]: "../EstrategiaT/modulos/reportes.html",
+    [MODULOS.NOTIFICACIONES]: "../EstrategiaT/modulos/notificaciones.html",
+    [MODULOS.DOCUMENTOS]: "../EstrategiaT/modulos/documentos.html",
+    [MODULOS.BI]: "../EstrategiaT/modulos/bi.html"
   };
 
   const DESCRIPCIONES = {
