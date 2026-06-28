@@ -34,7 +34,7 @@
       </div>
       <div class="filter-bar">
         <span id="etTemaContainer"></span>
-        <button class="btn-small" id="btnNuevaOrden" onclick="abrirModalOrden()">+ Nueva orden</button>
+        <button type="button" class="btn-small" id="btnNuevaOrden" aria-haspopup="dialog" onclick="abrirModalOrden()">+ Nueva orden</button>
       </div>
     </header>
 
@@ -47,8 +47,8 @@
 
     <section class="panel">
       <div class="filters">
-        <input type="search" id="buscarOrden" placeholder="Buscar folio, unidad o descripción...">
-        <select id="filtroEstado" class="dashboard-select">
+        <input type="search" id="buscarOrden" placeholder="Buscar folio, unidad o descripción..." aria-label="Buscar orden de trabajo">
+        <select id="filtroEstado" class="dashboard-select" aria-label="Filtrar por estado">
           <option value="">Todos los estados</option>
           <option value="solicitud">Solicitud</option>
           <option value="diagnostico">Diagnóstico</option>
@@ -58,7 +58,7 @@
           <option value="entrega">Entrega</option>
           <option value="cerrada">Cerrada</option>
         </select>
-        <select id="filtroTipo" class="dashboard-select">
+        <select id="filtroTipo" class="dashboard-select" aria-label="Filtrar por tipo">
           <option value="">Interno y externo</option>
           <option value="interno">Interno</option>
           <option value="externo">Externo</option>
@@ -83,9 +83,12 @@
     </section>
   </main>
 
-  <div class="modal" id="modalOrden">
+  <div class="modal" id="modalOrden" role="dialog" aria-modal="true" aria-labelledby="tituloModalOrden" aria-hidden="true">
     <div class="modal-card">
-      <h2 id="tituloModalOrden">Nueva orden de trabajo</h2>
+      <div class="modal-header">
+        <h2 id="tituloModalOrden">Nueva orden de trabajo</h2>
+        <button type="button" class="close-btn" aria-label="Cerrar diálogo" onclick="cerrarModalOrden()">×</button>
+      </div>
       <div class="form-grid">
         <div class="input-group">
           <label>Unidad</label>
@@ -112,8 +115,8 @@
         </div>
       </div>
       <div class="modal-actions">
-        <button class="btn-secondary" onclick="cerrarModalOrden()">Cancelar</button>
-        <button class="btn-small" onclick="guardarOrden()">Guardar</button>
+        <button type="button" class="btn-secondary" onclick="cerrarModalOrden()">Cancelar</button>
+        <button type="button" class="btn-small" onclick="guardarOrden()">Guardar</button>
       </div>
     </div>
   </div>
@@ -122,6 +125,15 @@
     validarPermiso("Órdenes de Trabajo");
     ETLayout.inicializar("Órdenes de Trabajo");
     ETLayout.ocultarSiSoloLectura("#btnNuevaOrden");
+
+    const modalOrden = document.getElementById("modalOrden");
+    const tablaOrdenes = document.getElementById("tablaOrdenes");
+    const buscarOrden = document.getElementById("buscarOrden");
+    const filtroEstado = document.getElementById("filtroEstado");
+    const filtroTipo = document.getElementById("filtroTipo");
+    const descripcionOrden = document.getElementById("descripcionOrden");
+    const tipoOrden = document.getElementById("tipoOrden");
+    const prioridadOrden = document.getElementById("prioridadOrden");
 
     const ESTADOS = {
       solicitud: { label: "Solicitud", badge: "amber" },
@@ -135,6 +147,16 @@
 
     const FLUJO = ["solicitud", "diagnostico", "aprobacion", "reparacion", "control_calidad", "entrega", "cerrada"];
     let ordenes = [];
+
+    modalOrden?.addEventListener("click", function (event) {
+      if (event.target === modalOrden) cerrarModalOrden();
+    });
+
+    document.addEventListener("keydown", function (event) {
+      if (event.key === "Escape" && modalOrden?.classList.contains("show")) {
+        cerrarModalOrden();
+      }
+    });
 
     async function cargarOrdenes() {
       if (!supabaseClient) return;
@@ -153,9 +175,9 @@
     }
 
     function renderizarOrdenes() {
-      const busqueda = document.getElementById("buscarOrden").value.toLowerCase();
-      const estado = document.getElementById("filtroEstado").value;
-      const tipo = document.getElementById("filtroTipo").value;
+      const busqueda = String(buscarOrden?.value || "").toLowerCase();
+      const estado = String(filtroEstado?.value || "");
+      const tipo = String(filtroTipo?.value || "");
       const soloLectura = typeof esSoloLectura === "function" && esSoloLectura();
 
       const filtradas = ordenes.filter(function (o) {
@@ -171,8 +193,9 @@
       document.getElementById("kpiReparacion").textContent = ordenes.filter(function (o) { return o.estado === "reparacion"; }).length;
       document.getElementById("kpiCerradas").textContent = ordenes.filter(function (o) { return o.estado === "cerrada"; }).length;
 
-      document.getElementById("tablaOrdenes").innerHTML = filtradas.length
-        ? filtradas.map(function (o) {
+      if (tablaOrdenes) {
+        tablaOrdenes.innerHTML = filtradas.length
+          ? filtradas.map(function (o) {
             const info = ESTADOS[o.estado] || { label: o.estado, badge: "gray" };
             return "<tr>" +
               "<td><strong>" + (o.folio || "—") + "</strong></td>" +
@@ -182,7 +205,7 @@
               "<td>" + (o.prioridad || "—") + "</td>" +
               "<td>" + (o.fecha_solicitud || "—") + "</td>" +
               "<td>" +
-                (soloLectura ? "—" : '<button class="action-btn" onclick="avanzarEstado(\'' + o.id + '\')">Avanzar</button>') +
+                (soloLectura ? "—" : '<button type="button" class="action-btn" onclick="avanzarEstado(\'' + o.id + '\')">Avanzar</button>') +
               "</td></tr>";
           }).join("")
         : "<tr><td colspan=\"7\">No hay órdenes. Ejecute la migración SQL y cree la primera orden.</td></tr>";
@@ -191,23 +214,32 @@
     function abrirModalOrden() {
       if (typeof esSoloLectura === "function" && esSoloLectura()) return;
       document.getElementById("tituloModalOrden").textContent = "Nueva orden de trabajo";
-      document.getElementById("modalOrden").style.display = "flex";
+      modalOrden?.classList.add("show");
+      modalOrden?.setAttribute("aria-hidden", "false");
+      descripcionOrden?.focus();
     }
 
     function cerrarModalOrden() {
-      document.getElementById("modalOrden").style.display = "none";
+      modalOrden?.classList.remove("show");
+      modalOrden?.setAttribute("aria-hidden", "true");
     }
 
     async function guardarOrden() {
-      const usuario = JSON.parse(localStorage.getItem("usuarioActivo"));
+      let usuario = null;
+      try {
+        usuario = JSON.parse(localStorage.getItem("usuarioActivo"));
+      } catch (error) {
+        console.warn("No se pudo parsear usuarioActivo:", error);
+      }
+
       const payload = {
         folio: "OT-" + Date.now(),
-        descripcion_falla: document.getElementById("descripcionOrden").value,
-        tipo: document.getElementById("tipoOrden").value,
-        prioridad: document.getElementById("prioridadOrden").value,
+        descripcion_falla: String(descripcionOrden?.value || "").trim(),
+        tipo: String(tipoOrden?.value || "interno"),
+        prioridad: String(prioridadOrden?.value || "normal"),
         estado: "solicitud",
         fecha_solicitud: new Date().toISOString().slice(0, 10),
-        solicitante_id: usuario.id
+        solicitante_id: usuario?.id || null
       };
 
       const { error } = await supabaseClient.from("ordenes_trabajo").insert(payload);
@@ -233,9 +265,9 @@
       }
     }
 
-    document.getElementById("buscarOrden").addEventListener("input", renderizarOrdenes);
-    document.getElementById("filtroEstado").addEventListener("change", renderizarOrdenes);
-    document.getElementById("filtroTipo").addEventListener("change", renderizarOrdenes);
+    buscarOrden?.addEventListener("input", renderizarOrdenes);
+    filtroEstado?.addEventListener("change", renderizarOrdenes);
+    filtroTipo?.addEventListener("change", renderizarOrdenes);
 
     cargarOrdenes();
   </script>

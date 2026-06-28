@@ -38,7 +38,7 @@
     [MODULOS.REPORTES]: "../modulos/reportes.html",
     [MODULOS.NOTIFICACIONES]: "../modulos/notificaciones.html",
     [MODULOS.DOCUMENTOS]: "../modulos/documentos.html",
-    [MODULOS.BI]: " ../modulos/bi.html"
+    [MODULOS.BI]: "../modulos/bi.html"
   };
 
   const DESCRIPCIONES = {
@@ -62,6 +62,8 @@
 
   const PERMISOS = {
     "Administrador del Sistema": Object.values(MODULOS),
+    jefe: Object.values(MODULOS),
+    Jefe: Object.values(MODULOS),
     "Director": [
       MODULOS.DASHBOARD, MODULOS.PARQUE, MODULOS.PETICIONES,
       MODULOS.REQUISICIONES, MODULOS.ACUERDOS, MODULOS.VALES, MODULOS.ORDENES_TRABAJO,
@@ -103,13 +105,124 @@
 
   const ACCIONES_LECTURA = ["ver", "consultar", "exportar", "imprimir"];
 
-  function puedeAcceder(rol, modulo) {
-    const modulos = PERMISOS[rol] || [];
+  function normalizarRol(rol) {
+    if (!rol) return "";
+    const valor = String(rol).trim();
+    const clave = valor.toLowerCase();
+    if (clave === "superadmin") return "SuperAdmin";
+    if (clave === "admin") return "Admin";
+    if (clave === "jefe") return "jefe";
+    return valor;
+  }
+
+  function obtenerPermisosModulosDesdeValor(valor) {
+    if (!valor) return [];
+
+    if (Array.isArray(valor)) {
+      return valor
+        .map(function (item) {
+          if (!item) return null;
+          if (typeof item === "string") {
+            return { modulo: item.trim(), permiso: "editar" };
+          }
+          if (typeof item === "object") {
+            const modulo = String(item.modulo || item.nombre || item.module || "").trim();
+            if (!modulo) return null;
+            const permiso = String(item.permiso || item.acceso || item.nivel || "").trim().toLowerCase();
+            let permisoFinal = "none";
+            if (permiso === "ver" || permiso === "vista" || permiso === "view" || permiso === "solo vista") {
+              permisoFinal = "ver";
+            } else if (permiso === "editar" || permiso === "edit" || permiso === "write" || permiso === "modificar") {
+              permisoFinal = "editar";
+            }
+            return { modulo, permiso: permisoFinal };
+          }
+          return null;
+        })
+        .filter(Boolean);
+    }
+
+    if (typeof valor === "string") {
+      const texto = valor.trim();
+      if (!texto) return [];
+
+      try {
+        const parseado = JSON.parse(texto);
+        if (Array.isArray(parseado)) {
+          return obtenerPermisosModulosDesdeValor(parseado);
+        }
+      } catch (_) {}
+
+      return texto.split(",").map(function (item) {
+        return { modulo: item.trim(), permiso: "editar" };
+      }).filter(function (item) {
+        return item.modulo;
+      });
+    }
+
+    return [];
+  }
+
+  function obtenerPermisosModulosUsuario(usuario) {
+    const datos = usuario || {};
+    return obtenerPermisosModulosDesdeValor(
+      datos.modulos_permitidos ?? datos.modulos ?? datos.permisos_modulos ?? datos.permisos ?? datos.accesos
+    );
+  }
+
+  function obtenerModulosUsuario(usuario) {
+    const permisosModulos = obtenerPermisosModulosUsuario(usuario);
+
+    if (permisosModulos.length) {
+      return permisosModulos
+        .filter(function (item) { return item.permiso !== "none"; })
+        .map(function (item) { return item.modulo; })
+        .filter(function (modulo) {
+          return Object.values(MODULOS).includes(modulo);
+        });
+    }
+
+    const rol = normalizarRol((usuario || {}).rol || (usuario || {}).cargo || (usuario || {}).tipo || "");
+    return PERMISOS[rol] || [];
+  }
+
+  function obtenerPermisoModuloUsuario(usuario, modulo) {
+    const permisosModulos = obtenerPermisosModulosUsuario(usuario);
+    const encontrado = permisosModulos.find(function (item) {
+      return item.modulo === modulo;
+    });
+
+    if (encontrado) {
+      return encontrado.permiso;
+    }
+
+    const rol = normalizarRol((usuario || {}).rol || (usuario || {}).cargo || (usuario || {}).tipo || "");
+    if (["super_admin", "SuperAdmin", "Administrador del Sistema", "Admin", "admin", "jefe", "Jefe"].includes(rol)) {
+      return "editar";
+    }
+
+    return (PERMISOS[rol] || []).includes(modulo) ? "editar" : "none";
+  }
+
+  function puedeAcceder(rolOUsuario, modulo) {
+    const modulos = typeof rolOUsuario === "object"
+      ? obtenerModulosUsuario(rolOUsuario)
+      : (PERMISOS[normalizarRol(rolOUsuario)] || []);
     return modulos.includes(modulo);
   }
 
-  function esSoloLectura(rol) {
-    return rol === "Solo Lectura" || rol === "Consulta";
+  function puedeVerModulo(usuario, modulo) {
+    const permiso = obtenerPermisoModuloUsuario(usuario, modulo);
+    return permiso === "ver" || permiso === "editar";
+  }
+
+  function puedeEditarModulo(usuario, modulo) {
+    return obtenerPermisoModuloUsuario(usuario, modulo) === "editar";
+  }
+
+  function esSoloLectura(rolOUsuario) {
+    const rol = typeof rolOUsuario === "object" ? (rolOUsuario.rol || "") : rolOUsuario;
+    return normalizarRol(rol) === "Solo Lectura" || normalizarRol(rol) === "Consulta";
   }
 
   function obtenerRutaModulo(modulo, desdeModulo) {
@@ -123,7 +236,12 @@
     RUTAS,
     DESCRIPCIONES,
     PERMISOS,
+    obtenerModulosUsuario,
+    obtenerPermisosModulosUsuario,
+    obtenerPermisoModuloUsuario,
     puedeAcceder,
+    puedeVerModulo,
+    puedeEditarModulo,
     esSoloLectura,
     obtenerRutaModulo,
     ACCIONES_LECTURA

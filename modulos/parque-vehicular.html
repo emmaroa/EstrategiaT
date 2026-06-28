@@ -26,7 +26,7 @@
       </div>
     </div>
     <nav id="etNav"></nav>
-    <button class="logout" id="etLogout">Cerrar sesión</button>
+    <button type="button" class="logout" id="etLogout">Cerrar sesión</button>
   </aside>
 
   <!-- MAIN -->
@@ -47,7 +47,7 @@
 
       <div style="display:flex;gap:12px;align-items:center;">
         <span id="etTemaContainer"></span>
-        <button class="btn-small" id="btnNuevaUnidad" onclick="abrirModalUnidad()">+ Nueva unidad</button>
+        <button type="button" class="btn-small" id="btnNuevaUnidad" aria-haspopup="dialog" onclick="abrirModalUnidad()">+ Nueva unidad</button>
       </div>
 
     </header>
@@ -106,9 +106,10 @@
           type="text"
           id="buscarUnidad"
           placeholder="Buscar unidad..."
+          aria-label="Buscar unidad"
         />
 
-        <select id="filtroDependencia">
+        <select id="filtroDependencia" aria-label="Filtrar por dependencia">
 
           <option value="">
             Todas las dependencias
@@ -132,7 +133,7 @@
 
         </select>
 
-        <select id="filtroCombustible">
+        <select id="filtroCombustible" aria-label="Filtrar por combustible">
 
           <option value="">
             Todos los combustibles
@@ -190,18 +191,19 @@
 
   <!-- MODAL -->
 
-  <div class="modal" id="modalUnidad">
+  <div class="modal" id="modalUnidad" role="dialog" aria-modal="true" aria-labelledby="modalUnidadTitulo" aria-hidden="true">
 
     <div class="modal-card large-modal">
 
       <div class="modal-header">
 
         <div>
-          <h2>Nueva unidad</h2>
+          <h2 id="modalUnidadTitulo">Nueva unidad</h2>
           <p>Registro de parque vehicular</p>
         </div>
 
-        <button class="close-btn"
+        <button type="button" class="close-btn"
+          aria-label="Cerrar diálogo"
           onclick="cerrarModalUnidad()">
           ×
         </button>
@@ -211,14 +213,14 @@
       <div class="form-grid">
 
         <div class="input-group">
-          <label>No. Inventario</label>
+          <label for="inventarioUnidad">No. Inventario</label>
 
           <input type="text"
             id="inventarioUnidad">
         </div>
 
         <div class="input-group">
-          <label>Grupo</label>
+          <label for="grupoUnidad">Grupo</label>
 
           <select id="grupoUnidad">
 
@@ -243,21 +245,21 @@
         </div>
 
         <div class="input-group">
-          <label>Descripción</label>
+          <label for="descripcionUnidad">Descripción</label>
 
           <input type="text"
             id="descripcionUnidad">
         </div>
 
         <div class="input-group">
-          <label>Unidad / Patrulla</label>
+          <label for="unidadPatrulla">Unidad / Patrulla</label>
 
           <input type="text"
             id="unidadPatrulla">
         </div>
 
         <div class="input-group">
-          <label>Combustible</label>
+          <label for="combustibleUnidad">Combustible</label>
 
           <select id="combustibleUnidad">
 
@@ -282,7 +284,7 @@
         </div>
 
         <div class="input-group">
-          <label>Dependencia</label>
+          <label for="dependenciaUnidad">Dependencia</label>
 
           <select id="dependenciaUnidad">
 
@@ -311,53 +313,52 @@
         </div>
 
         <div class="input-group">
-          <label>Marca</label>
+          <label for="marcaUnidad">Marca</label>
 
           <input type="text"
             id="marcaUnidad">
         </div>
 
         <div class="input-group">
-          <label>Modelo</label>
+          <label for="modeloUnidad">Modelo</label>
 
           <input type="text"
             id="modeloUnidad">
         </div>
 
         <div class="input-group">
-          <label>Color</label>
+          <label for="colorUnidad">Color</label>
 
           <input type="text"
             id="colorUnidad">
         </div>
 
-<div class="input-group">
-  <label>Uso</label>
+        <div class="input-group">
+          <label for="usoUnidad">Uso</label>
 
-  <select id="usoUnidad">
-    <option value="">Selecciona uso</option>
-    <option value="ADMINISTRATIVO">ADMINISTRATIVO</option>
-    <option value="OPERATIVO">OPERATIVO</option>
-  </select>
-</div>
-
+          <select id="usoUnidad">
+            <option value="">Selecciona uso</option>
+            <option value="ADMINISTRATIVO">ADMINISTRATIVO</option>
+            <option value="OPERATIVO">OPERATIVO</option>
+          </select>
+        </div>
 
         <div class="input-group">
-          <label>Placa</label>
+          <label for="placaUnidad">Placa</label>
 
           <input type="text"
             id="placaUnidad">
         </div>
 
         <div class="input-group">
-          <label>Serie</label>
+          <label for="serieUnidad">Serie</label>
 
           <input type="text"
             id="serieUnidad">
         </div>
 
         <div class="input-group">
-          <label>Procedencia</label>
+          <label for="procedenciaUnidad">Procedencia</label>
 
           <select id="procedenciaUnidad">
 
@@ -382,7 +383,7 @@
         </div>
 
         <div class="input-group">
-          <label>Estatus</label>
+          <label for="estatusUnidad">Estatus</label>
 
           <select id="estatusUnidad">
 
@@ -406,12 +407,12 @@
 
       <div class="modal-actions">
 
-        <button class="btn-secondary"
+        <button type="button" class="btn-secondary"
           onclick="cerrarModalUnidad()">
           Cancelar
         </button>
 
-        <button class="btn-small"
+        <button type="button" class="btn-small"
           onclick="guardarUnidad()">
           Guardar unidad
         </button>
@@ -436,44 +437,92 @@
       return parque.find(function (u) { return u.id === id; });
     }
 
-    const tablaParque =
-      document.getElementById("tablaParque");
+    const modalUnidad = document.getElementById("modalUnidad");
+    const modalUnidadTitulo = document.getElementById("modalUnidadTitulo");
+    const tablaParque = document.getElementById("tablaParque");
+    const buscarUnidad = document.getElementById("buscarUnidad");
+    const filtroDependencia = document.getElementById("filtroDependencia");
+    const filtroCombustible = document.getElementById("filtroCombustible");
+    const inventarioUnidad = document.getElementById("inventarioUnidad");
+    const grupoUnidad = document.getElementById("grupoUnidad");
+    const descripcionUnidad = document.getElementById("descripcionUnidad");
+    const unidadPatrulla = document.getElementById("unidadPatrulla");
+    const combustibleUnidad = document.getElementById("combustibleUnidad");
+    const dependenciaUnidad = document.getElementById("dependenciaUnidad");
+    const marcaUnidad = document.getElementById("marcaUnidad");
+    const modeloUnidad = document.getElementById("modeloUnidad");
+    const colorUnidad = document.getElementById("colorUnidad");
+    const usoUnidad = document.getElementById("usoUnidad");
+    const placaUnidad = document.getElementById("placaUnidad");
+    const serieUnidad = document.getElementById("serieUnidad");
+    const procedenciaUnidad = document.getElementById("procedenciaUnidad");
+    const estatusUnidad = document.getElementById("estatusUnidad");
+    const kpiTotal = document.getElementById("kpiTotal");
+    const kpiActivas = document.getElementById("kpiActivas");
+    const kpiGasolina = document.getElementById("kpiGasolina");
+    const kpiElectricas = document.getElementById("kpiElectricas");
 
-    const buscarUnidad =
-      document.getElementById("buscarUnidad");
-
-    const filtroDependencia =
-      document.getElementById("filtroDependencia");
-
-    const filtroCombustible =
-      document.getElementById("filtroCombustible");
+    function claseEstatusParque(estatus) {
+      switch ((estatus || "").toUpperCase()) {
+        case "ACTIVO":
+          return "green";
+        case "TALLER":
+          return "amber";
+        case "BAJA":
+          return "red";
+        default:
+          return "gray";
+      }
+    }
 
     function abrirModalUnidad() {
       if (typeof esSoloLectura === "function" && esSoloLectura()) return;
+
       idEditandoUnidad = null;
-      document.getElementById("modalUnidad").classList.add("show");
+      modalUnidad.classList.add("show");
+      modalUnidad.setAttribute("aria-hidden", "false");
+      modalUnidadTitulo.textContent = "Nueva unidad";
+      inventarioUnidad.focus();
     }
 
     function cerrarModalUnidad() {
-
-      document
-        .getElementById("modalUnidad")
-        .classList.remove("show");
+      modalUnidad.classList.remove("show");
+      modalUnidad.setAttribute("aria-hidden", "true");
 
       limpiarFormularioUnidad();
-
       idEditandoUnidad = null;
     }
 
-    async function cargarParqueVehicular() {
+    modalUnidad.addEventListener("click", function (event) {
+      if (event.target === modalUnidad) {
+        cerrarModalUnidad();
+      }
+    });
 
-      const { data, error } =
-        await supabaseClient
+    document.addEventListener("keydown", function (event) {
+      if (event.key === "Escape" && modalUnidad.classList.contains("show")) {
+        cerrarModalUnidad();
+      }
+    });
+
+    async function cargarParqueVehicular() {
+      if (!supabaseClient) {
+        console.error("Supabase no está disponible.");
+        return;
+      }
+
+      let data, error;
+      try {
+        ({ data, error } = await supabaseClient
           .from("parque_vehicular")
           .select("*")
           .order("numero_consecutivo", {
             ascending: true
-          });
+          }));
+      } catch (err) {
+        console.error("Error cargando parque vehicular:", err);
+        return;
+      }
 
       if (error) {
         console.error(error);
@@ -521,11 +570,11 @@
             "<td>" + (u.modelo || "") + "</td>" +
             "<td>" + (u.placa || "") + "</td>" +
             "<td>" + (u.combustible || "") + "</td>" +
-            '<td><span class="badge green">' + (u.estatus || "") + "</span></td>" +
+            '<td><span class="badge ' + claseEstatusParque(u.estatus) + '">' + (u.estatus || "") + "</span></td>" +
             "<td>" +
               (soloLectura ? "—" :
-                '<button class="action-btn" onclick="editarUnidad(\'' + u.id + '\')">Editar</button>' +
-                '<button class="action-btn red-btn" onclick="eliminarUnidad(\'' + u.id + '\')">Eliminar</button>'
+                '<button type="button" class="action-btn" onclick="editarUnidad(\'' + u.id + '\')">Editar</button>' +
+                '<button type="button" class="action-btn red-btn" onclick="eliminarUnidad(\'' + u.id + '\')">Eliminar</button>'
               ) +
             "</td>";
           tablaParque.appendChild(fila);
@@ -536,106 +585,37 @@
     }
 
     function actualizarKPIs() {
-
-      document.getElementById(
-        "kpiTotal"
-      ).textContent = parque.length;
-
-      document.getElementById(
-        "kpiActivas"
-      ).textContent = parque.filter(
-        u => u.estatus === "ACTIVO"
-      ).length;
-
-      document.getElementById(
-        "kpiGasolina"
-      ).textContent = parque.filter(
-        u => u.combustible === "GASOLINA"
-      ).length;
-
-      document.getElementById(
-        "kpiElectricas"
-      ).textContent = parque.filter(
-        u => u.combustible === "ELECTRICO"
-      ).length;
+      if (kpiTotal) kpiTotal.textContent = parque.length;
+      if (kpiActivas) kpiActivas.textContent = parque.filter(u => u.estatus === "ACTIVO").length;
+      if (kpiGasolina) kpiGasolina.textContent = parque.filter(u => u.combustible === "GASOLINA").length;
+      if (kpiElectricas) kpiElectricas.textContent = parque.filter(u => u.combustible === "ELECTRICO").length;
     }
 
     async function guardarUnidad() {
+      const unidadExistente = idEditandoUnidad ? obtenerUnidadPorId(idEditandoUnidad) : null;
+      const siguienteNumero = parque.reduce(function (maximo, u) {
+        return Math.max(maximo, Number(u.numero_consecutivo) || 0);
+      }, 0) + 1;
 
       const nueva = {
+        numero_consecutivo: unidadExistente
+          ? unidadExistente.numero_consecutivo
+          : siguienteNumero,
 
-        numero_consecutivo:
-          parque.length + 1,
-
-        numero_inventario:
-          document.getElementById(
-            "inventarioUnidad"
-          ).value.trim(),
-
-        grupo:
-          document.getElementById(
-            "grupoUnidad"
-          ).value,
-
-        descripcion:
-          document.getElementById(
-            "descripcionUnidad"
-          ).value.trim(),
-
-        unidad_patrulla:
-          document.getElementById(
-            "unidadPatrulla"
-          ).value.trim(),
-
-        combustible:
-          document.getElementById(
-            "combustibleUnidad"
-          ).value,
-
-        dependencia:
-          document.getElementById(
-            "dependenciaUnidad"
-          ).value,
-
-        marca:
-          document.getElementById(
-            "marcaUnidad"
-          ).value.trim(),
-
-        modelo:
-          document.getElementById(
-            "modeloUnidad"
-          ).value.trim(),
-
-          uso:
-  document.getElementById(
-    "usoUnidad"
-  ).value,
-
-        color:
-          document.getElementById(
-            "colorUnidad"
-          ).value.trim(),
-
-        placa:
-          document.getElementById(
-            "placaUnidad"
-          ).value.trim(),
-
-        serie:
-          document.getElementById(
-            "serieUnidad"
-          ).value.trim(),
-
-        procedencia:
-          document.getElementById(
-            "procedenciaUnidad"
-          ).value,
-
-        estatus:
-          document.getElementById(
-            "estatusUnidad"
-          ).value
+        numero_inventario: inventarioUnidad?.value.trim(),
+        grupo: grupoUnidad?.value,
+        descripcion: descripcionUnidad?.value.trim(),
+        unidad_patrulla: unidadPatrulla?.value.trim(),
+        combustible: combustibleUnidad?.value,
+        dependencia: dependenciaUnidad?.value,
+        marca: marcaUnidad?.value.trim(),
+        modelo: modeloUnidad?.value.trim(),
+        uso: usoUnidad?.value,
+        color: colorUnidad?.value.trim(),
+        placa: placaUnidad?.value.trim(),
+        serie: serieUnidad?.value.trim(),
+        procedencia: procedenciaUnidad?.value,
+        estatus: estatusUnidad?.value
       };
 
       if (
@@ -686,49 +666,25 @@
       if (!u) return;
 
       idEditandoUnidad = id;
-      document.getElementById("modalUnidad").classList.add("show");
+      modalUnidad.classList.add("show");
+      modalUnidad.setAttribute("aria-hidden", "false");
+      modalUnidadTitulo.textContent = "Editar unidad";
+      inventarioUnidad.focus();
 
-      document.getElementById("inventarioUnidad").value =
-        u.numero_inventario || "";
-
-      document.getElementById("grupoUnidad").value =
-        u.grupo || "";
-
-      document.getElementById("descripcionUnidad").value =
-        u.descripcion || "";
-
-      document.getElementById("unidadPatrulla").value =
-        u.unidad_patrulla || "";
-
-      document.getElementById("combustibleUnidad").value =
-        u.combustible || "";
-
-      document.getElementById("dependenciaUnidad").value =
-        u.dependencia || "";
-
-      document.getElementById("marcaUnidad").value =
-        u.marca || "";
-
-      document.getElementById("modeloUnidad").value =
-        u.modelo || "";
-
-      document.getElementById("colorUnidad").value =
-        u.color || "";
-
-        document.getElementById("usoUnidad").value =
-  u.uso || "";
-  
-      document.getElementById("placaUnidad").value =
-        u.placa || "";
-
-      document.getElementById("serieUnidad").value =
-        u.serie || "";
-
-      document.getElementById("procedenciaUnidad").value =
-        u.procedencia || "";
-
-      document.getElementById("estatusUnidad").value =
-        u.estatus || "";
+      inventarioUnidad.value = u.numero_inventario || "";
+      grupoUnidad.value = u.grupo || "";
+      descripcionUnidad.value = u.descripcion || "";
+      unidadPatrulla.value = u.unidad_patrulla || "";
+      combustibleUnidad.value = u.combustible || "";
+      dependenciaUnidad.value = u.dependencia || "";
+      marcaUnidad.value = u.marca || "";
+      modeloUnidad.value = u.modelo || "";
+      colorUnidad.value = u.color || "";
+      usoUnidad.value = u.uso || "";
+      placaUnidad.value = u.placa || "";
+      serieUnidad.value = u.serie || "";
+      procedenciaUnidad.value = u.procedencia || "";
+      estatusUnidad.value = u.estatus || "";
     }
 
     async function eliminarUnidad(id) {
@@ -766,9 +722,9 @@
         .forEach(s => s.selectedIndex = 0);
     }
 
-    buscarUnidad.addEventListener("input", renderizarTabla);
-    filtroDependencia.addEventListener("change", renderizarTabla);
-    filtroCombustible.addEventListener("change", renderizarTabla);
+    buscarUnidad?.addEventListener("input", renderizarTabla);
+    filtroDependencia?.addEventListener("change", renderizarTabla);
+    filtroCombustible?.addEventListener("change", renderizarTabla);
 
     cargarParqueVehicular();
 

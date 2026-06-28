@@ -39,7 +39,7 @@
 
     const nav = document.getElementById("etNav");
     if (nav) {
-      const permitidos = (global.ETPermissions.PERMISOS[usuario.rol] || [])
+      const permitidos = (global.ETPermissions.obtenerModulosUsuario(usuario) || [])
         .filter(function (m) { return MODULOS_IMPLEMENTADOS.indexOf(m) >= 0; });
 
       nav.innerHTML = permitidos.map(function (m) {

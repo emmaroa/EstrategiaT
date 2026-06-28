@@ -24,7 +24,7 @@
       </div>
     </div>
     <nav id="etNav"></nav>
-    <button class="logout" id="etLogout">Cerrar sesión</button>
+    <button type="button" class="logout" id="etLogout">Cerrar sesión</button>
   </aside>
 
   <main class="main-content">
@@ -37,7 +37,7 @@
 
       <div style="display:flex;gap:12px;align-items:center;">
         <span id="etTemaContainer"></span>
-        <button class="btn-small" onclick="abrirModalUsuario()">+ Nuevo usuario</button>
+        <button type="button" class="btn-small" aria-haspopup="dialog" onclick="abrirModalUsuario()">+ Nuevo usuario</button>
       </div>
     </header>
 
@@ -76,9 +76,9 @@
       </div>
 
       <div class="filters">
-        <input type="text" id="buscarUsuario" placeholder="Buscar usuario...">
+        <input type="text" id="buscarUsuario" placeholder="Buscar usuario..." aria-label="Buscar usuario">
 
-        <select id="filtroRolUsuario">
+        <select id="filtroRolUsuario" aria-label="Filtrar por rol">
           <option value="">Todos los roles</option>
           <option value="Administrador del Sistema">Administrador del Sistema</option>
           <option value="SuperAdmin">SuperAdmin</option>
@@ -94,7 +94,7 @@
           <option value="CapturistaPV">CapturistaPV</option>
         </select>
 
-        <select id="filtroActivoUsuario">
+        <select id="filtroActivoUsuario" aria-label="Filtrar por estatus">
           <option value="">Todos los estatus</option>
           <option value="true">Activos</option>
           <option value="false">Inactivos</option>
@@ -121,7 +121,7 @@
 
   </main>
 
-  <div class="modal" id="modalUsuario">
+  <div class="modal" id="modalUsuario" role="dialog" aria-modal="true" aria-labelledby="tituloModalUsuario" aria-hidden="true">
     <div class="modal-card">
 
       <div class="modal-header">
@@ -130,7 +130,7 @@
           <p>Captura los datos de acceso.</p>
         </div>
 
-        <button class="close-btn" onclick="cerrarModalUsuario()">×</button>
+        <button type="button" class="close-btn" aria-label="Cerrar diálogo" onclick="cerrarModalUsuario()">×</button>
       </div>
 
       <div class="form-grid">
@@ -177,11 +177,16 @@
           </select>
         </div>
 
+        <div class="input-group full">
+          <label>Permisos de módulos</label>
+          <div id="permisosModulosContainer" style="display:grid; gap:10px;"></div>
+        </div>
+
       </div>
 
       <div class="modal-actions">
-        <button class="btn-secondary" onclick="cerrarModalUsuario()">Cancelar</button>
-        <button class="btn-small" onclick="guardarUsuario()">Guardar usuario</button>
+        <button type="button" class="btn-secondary" onclick="cerrarModalUsuario()">Cancelar</button>
+        <button type="button" class="btn-small" onclick="guardarUsuario()">Guardar usuario</button>
       </div>
 
     </div>
@@ -195,6 +200,18 @@
     let indiceEditandoUsuario = null;
 
     const tablaUsuarios = document.getElementById("tablaUsuarios");
+    const permisosModulosContainer = document.getElementById("permisosModulosContainer");
+    const modulosDisponibles = [
+      "Dashboard",
+      "Parque Vehicular",
+      "Acuerdos",
+      "Peticiones",
+      "Requisiciones",
+      "Vales",
+      "Usuarios",
+      "Auditoría",
+      "Órdenes de Trabajo"
+    ];
     const buscarUsuario = document.getElementById("buscarUsuario");
     const filtroRolUsuario = document.getElementById("filtroRolUsuario");
     const filtroActivoUsuario = document.getElementById("filtroActivoUsuario");
@@ -262,11 +279,11 @@
           </td>
           <td>${formatearFechaUsuario(u.created_at)}</td>
           <td>
-            <button class="action-btn edit" onclick="editarUsuario(${index})">Editar</button>
-            <button class="action-btn orange" onclick="toggleUsuario(${index})">
+            <button type="button" class="action-btn edit" onclick="editarUsuario(${index})">Editar</button>
+            <button type="button" class="action-btn orange" onclick="toggleUsuario(${index})">
               ${u.activo ? "Inactivar" : "Activar"}
             </button>
-            <button class="action-btn red-btn" onclick="eliminarUsuario(${index})">Eliminar</button>
+            <button type="button" class="action-btn red-btn" onclick="eliminarUsuario(${index})">Eliminar</button>
           </td>
         `;
 
@@ -289,9 +306,79 @@
         usuariosSistema.filter(u => u.rol === "SuperAdmin").length;
     }
 
+    function parsearPermisosModulos(valor) {
+      if (!valor) return [];
+      if (Array.isArray(valor)) return valor;
+      if (typeof valor === "string") {
+        try {
+          const parseado = JSON.parse(valor);
+          return Array.isArray(parseado) ? parseado : [];
+        } catch (_) {
+          return [];
+        }
+      }
+      return [];
+    }
+
+    function renderPermisosModulos(usuario) {
+      if (!permisosModulosContainer) return;
+
+      permisosModulosContainer.innerHTML = "";
+
+      const permisosActuales = parsearPermisosModulos(usuario && (usuario.modulos_permitidos || usuario.modulos || usuario.permisos_modulos || usuario.permisos || usuario.accesos));
+
+      modulosDisponibles.forEach(function (modulo) {
+        const permisoActual = permisosActuales.find(function (item) {
+          return (item.modulo || item.nombre || item.module || "") === modulo;
+        });
+
+        const valorActual = permisoActual
+          ? String(permisoActual.permiso || permisoActual.acceso || permisoActual.nivel || "editar").toLowerCase()
+          : "editar";
+
+        const fila = document.createElement("div");
+        fila.style.display = "flex";
+        fila.style.justifyContent = "space-between";
+        fila.style.alignItems = "center";
+        fila.style.gap = "10px";
+        fila.style.padding = "8px 10px";
+        fila.style.border = "1px solid #e5e7eb";
+        fila.style.borderRadius = "10px";
+
+        fila.innerHTML = `
+          <span style="font-weight:600;">${modulo}</span>
+          <select data-modulo="${modulo}" style="min-width:180px;">
+            <option value="none">Sin acceso</option>
+            <option value="ver">Solo vista</option>
+            <option value="editar">Editar</option>
+          </select>
+        `;
+
+        const select = fila.querySelector("select");
+        select.value = valorActual === "ver" || valorActual === "editar" ? valorActual : "none";
+        permisosModulosContainer.appendChild(fila);
+      });
+    }
+
+    function obtenerPermisosModulosDesdeFormulario() {
+      if (!permisosModulosContainer) return [];
+
+      return Array.from(permisosModulosContainer.querySelectorAll("select[data-modulo]"))
+        .map(function (select) {
+          const modulo = select.getAttribute("data-modulo");
+          const permiso = select.value;
+          return { modulo, permiso };
+        })
+        .filter(function (item) {
+          return item.modulo && item.permiso;
+        });
+    }
+
     function abrirModalUsuario() {
       indiceEditandoUsuario = null;
       document.getElementById("tituloModalUsuario").textContent = "Nuevo usuario";
+      limpiarFormularioUsuario();
+      renderPermisosModulos(null);
       document.getElementById("modalUsuario").classList.add("show");
     }
 
@@ -307,7 +394,8 @@
         usuario: document.getElementById("usuarioUsuario").value.trim(),
         password: document.getElementById("passwordUsuario").value.trim(),
         rol: document.getElementById("rolUsuarioForm").value,
-        activo: document.getElementById("activoUsuario").value === "true"
+        activo: document.getElementById("activoUsuario").value === "true",
+        modulos_permitidos: obtenerPermisosModulosDesdeFormulario()
       };
 
       if (!nuevo.nombre || !nuevo.usuario || !nuevo.rol) {
@@ -340,7 +428,8 @@
           nombre: nuevo.nombre,
           usuario: nuevo.usuario,
           rol: nuevo.rol,
-          activo: nuevo.activo
+          activo: nuevo.activo,
+          modulos_permitidos: nuevo.modulos_permitidos
         };
 
         if (nuevo.password) {
@@ -380,6 +469,7 @@
       document.getElementById("passwordUsuario").value = "";
       document.getElementById("rolUsuarioForm").value = u.rol || "";
       document.getElementById("activoUsuario").value = String(u.activo);
+      renderPermisosModulos(u);
     }
 
     async function toggleUsuario(index) {

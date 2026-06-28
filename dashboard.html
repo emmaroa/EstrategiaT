@@ -42,37 +42,34 @@
       </div>
 
       <div class="filter-bar">
-        <div class="search-global">
-          <input type="search" id="busquedaGlobal" placeholder="Buscar en dashboard...">
-        </div>
         <label>
           Año
-          <select id="filtroAnioDashboard" class="dashboard-select">
+          <select id="filtroAnioDashboard" class="dashboard-select" aria-label="Filtrar por año">
             <option value="">Todos</option>
           </select>
         </label>
         <label>
           Desde
-          <input type="date" id="filtroDesde" class="dashboard-select">
+          <input type="date" id="filtroDesde" class="dashboard-select" aria-label="Fecha desde">
         </label>
         <label>
           Hasta
-          <input type="date" id="filtroHasta" class="dashboard-select">
+          <input type="date" id="filtroHasta" class="dashboard-select" aria-label="Fecha hasta">
         </label>
-        <button class="btn-small" onclick="exportarDashboardCSV()">Exportar Excel</button>
-        <button class="btn-small" onclick="imprimirDashboard()">Exportar PDF</button>
+        <button type="button" class="btn-small" onclick="exportarDashboardCSV()">Exportar Excel</button>
+        <button type="button" class="btn-small" onclick="imprimirDashboard()">Exportar PDF</button>
         <span id="etTemaContainer"></span>
         <div class="user-badge" id="rolUsuario"></div>
       </div>
     </header>
 
     <section class="kpi-grid">
-      <div class="kpi-card highlight-teal">
+      <div class="kpi-card highlight-teal" id="kpiCostoAnualCard">
         <span>Costo total anual</span>
         <h2 id="kpiCostoAnual">$0</h2>
         <p id="kpiCostoAnualDesc">Año en curso</p>
       </div>
-      <div class="kpi-card highlight">
+      <div class="kpi-card highlight" id="kpiCostoMensualCard">
         <span>Costo mensual</span>
         <h2 id="kpiCostoMensual">$0</h2>
         <p id="kpiCostoMensualDesc">Mes en curso</p>
@@ -88,7 +85,7 @@
         <p>En proceso</p>
       </div>
       <div class="kpi-card">
-        <span>Vales emitidos</span>
+        <span id="labelKpiVales">Vales emitidos</span>
         <h2 id="kpiValesEmitidos">0</h2>
         <p id="kpiValesEmitidosDesc">Del periodo</p>
       </div>
@@ -211,7 +208,7 @@
       </div>
     </section>
 
-<section class="panel">
+<section class="panel" id="seccionGraficasOperativas">
   <div class="panel-header">
     <div>
       <h2>Gráficas operativas</h2>
@@ -254,18 +251,31 @@
   </main>
 
   <script>
-    const usuarioActivo = JSON.parse(localStorage.getItem("usuarioActivo"));
-    if (!usuarioActivo) window.location.href = "index.html";
+    function parseJSON(value) {
+      try {
+        return JSON.parse(value);
+      } catch (_) {
+        return null;
+      }
+    }
 
-    ETLayout.inicializar("Dashboard");
+    function obtenerUsuarioActivo() {
+      return parseJSON(localStorage.getItem("usuarioActivo"));
+    }
 
-    const bienvenida = document.getElementById("bienvenida");
-    const rolUsuario = document.getElementById("rolUsuario");
-    if (bienvenida) bienvenida.textContent = "Bienvenida, " + usuarioActivo.nombre;
-    if (rolUsuario) rolUsuario.textContent = usuarioActivo.rol;
+    let usuarioActivo = obtenerUsuarioActivo();
+    if (!usuarioActivo) {
+      window.location.href = "index.html";
+    } else {
+      ETLayout.inicializar("Dashboard");
 
-    const modulosCards = document.getElementById("modulosCards");
-    if (modulosCards && window.ETPermissions) {
+      const bienvenida = document.getElementById("bienvenida");
+      const rolUsuario = document.getElementById("rolUsuario");
+      if (bienvenida) bienvenida.textContent = "Bienvenida, " + usuarioActivo.nombre;
+      if (rolUsuario) rolUsuario.textContent = usuarioActivo.rol;
+
+      const modulosCards = document.getElementById("modulosCards");
+      if (modulosCards && window.ETPermissions) {
       const permitidos = (ETPermissions.PERMISOS[usuarioActivo.rol] || [])
         .filter(function (m) { return m !== "Dashboard" && ETLayout.MODULOS_IMPLEMENTADOS.indexOf(m) >= 0; });
       modulosCards.innerHTML = permitidos.map(function (modulo) {
@@ -278,6 +288,12 @@
           window.location.href = card.dataset.href;
         });
       });
+    }
+  }
+
+    function esRolFinanciero(usuario) {
+      const rol = (usuario && (usuario.rol || "")) || "";
+      return ["SuperAdmin", "Administrador del Sistema", "Admin", "Compras"].includes(rol);
     }
 
     const dashboardClient = supabaseClient;
@@ -295,19 +311,30 @@ let fechaDesdeDashboard = "";
 let fechaHastaDashboard = "";
 
     async function cargarDashboardReal() {
-  const [
-    peticionesRes,
-    requisicionesRes,
-    valesRes,
-    parqueRes,
-    usuariosRes
-  ] = await Promise.all([
-    dashboardClient.from("peticiones").select("*").order("created_at", { ascending: false }),
-    dashboardClient.from("requisiciones").select("*").order("created_at", { ascending: false }),
-    dashboardClient.from("vales").select("*").order("created_at", { ascending: false }),
-    dashboardClient.from("parque_vehicular").select("*").order("created_at", { ascending: false }),
-    dashboardClient.from("usuarios").select("*").order("created_at", { ascending: false })
-  ]);
+      if (!dashboardClient) {
+        console.error("Supabase no está disponible.");
+        return;
+      }
+
+      let peticionesRes, requisicionesRes, valesRes, parqueRes, usuariosRes;
+      try {
+        [
+          peticionesRes,
+          requisicionesRes,
+          valesRes,
+          parqueRes,
+          usuariosRes
+        ] = await Promise.all([
+          dashboardClient.from("peticiones").select("*").order("created_at", { ascending: false }),
+          dashboardClient.from("requisiciones").select("*").order("created_at", { ascending: false }),
+          dashboardClient.from("vales").select("*").order("created_at", { ascending: false }),
+          dashboardClient.from("parque_vehicular").select("*").order("created_at", { ascending: false }),
+          dashboardClient.from("usuarios").select("*").order("created_at", { ascending: false })
+        ]);
+      } catch (err) {
+        console.error("Error cargando datos del dashboard:", err);
+        return;
+      }
 
   if (peticionesRes.error) console.error("Error peticiones:", peticionesRes.error);
   if (requisicionesRes.error) console.error("Error requisiciones:", requisicionesRes.error);
@@ -406,6 +433,22 @@ function renderizarDashboard() {
     usuarios: usuarios
   });
 
+  const puedeVerFinanciero = esRolFinanciero(usuarioActivo);
+  const costoAnualCard = document.getElementById("kpiCostoAnualCard");
+  const costoMensualCard = document.getElementById("kpiCostoMensualCard");
+  const rankingsOperativos = document.getElementById("seccionRankingsOperativos");
+  const graficasOperativas = document.getElementById("seccionGraficasOperativas");
+  const labelKpiVales = document.getElementById("labelKpiVales");
+
+  if (costoAnualCard) costoAnualCard.style.display = puedeVerFinanciero ? "" : "none";
+  if (costoMensualCard) costoMensualCard.style.display = puedeVerFinanciero ? "" : "none";
+  if (rankingsOperativos) rankingsOperativos.style.display = puedeVerFinanciero ? "" : "none";
+  if (graficasOperativas) graficasOperativas.style.display = puedeVerFinanciero ? "" : "none";
+
+  if (labelKpiVales) {
+    labelKpiVales.textContent = puedeVerFinanciero ? "Vales emitidos" : "Vales activos";
+  }
+
   const anioEtiqueta = anioSeleccionadoDashboard || new Date().getFullYear().toString();
   const mesEtiqueta = new Date().toLocaleString("es-MX", { month: "long", year: "numeric" });
 
@@ -413,16 +456,18 @@ function renderizarDashboard() {
   document.getElementById("kpiCostoMensual").textContent = moneda(kpis.costoMensual);
   document.getElementById("kpiPeticiones").textContent = kpis.peticionesPendientes;
   document.getElementById("kpiRequisiciones").textContent = kpis.requisicionesActivas;
-  document.getElementById("kpiValesEmitidos").textContent = kpis.valesEmitidos;
+  document.getElementById("kpiValesEmitidos").textContent = puedeVerFinanciero ? kpis.valesEmitidos : kpis.valesActivos;
 
   document.getElementById("kpiCostoAnualDesc").textContent =
     anioSeleccionadoDashboard ? "Año " + anioSeleccionadoDashboard : "Año " + anioEtiqueta;
   document.getElementById("kpiCostoMensualDesc").textContent =
     anioSeleccionadoDashboard ? "Mes actual (" + mesEtiqueta + ")" : mesEtiqueta;
   document.getElementById("kpiValesEmitidosDesc").textContent =
-    anioSeleccionadoDashboard || fechaDesdeDashboard || fechaHastaDashboard
-      ? "Según filtros aplicados"
-      : "Total registrado";
+    puedeVerFinanciero
+      ? ((anioSeleccionadoDashboard || fechaDesdeDashboard || fechaHastaDashboard)
+          ? "Según filtros aplicados"
+          : "Total registrado")
+      : "Activos";
 
   document.getElementById("alertReqSinOC").textContent = kpis.reqSinOC;
   document.getElementById("alertFacturas").textContent = kpis.facturasPendientes;
@@ -517,7 +562,9 @@ function crearGraficaGastoMes(requisiciones) {
   const ordenado = Object.entries(meses)
     .sort((a, b) => a[0].localeCompare(b[0]));
 
-  const ctx = document.getElementById("graficaGastoMes").getContext("2d");
+  const gastoMesCanvas = document.getElementById("graficaGastoMes");
+  if (!gastoMesCanvas) return;
+  const ctx = gastoMesCanvas.getContext("2d");
 
   if (graficaGastoMes) graficaGastoMes.destroy();
 
@@ -562,7 +609,9 @@ function crearGraficaGastoDependencia(requisiciones) {
   const datos = agruparSuma(requisiciones, "dependencia");
   const top = topN(datos, 8);
 
-  const ctx = document.getElementById("graficaGastoDependencia").getContext("2d");
+  const gastoDependenciaCanvas = document.getElementById("graficaGastoDependencia");
+  if (!gastoDependenciaCanvas) return;
+  const ctx = gastoDependenciaCanvas.getContext("2d");
 
   if (graficaGastoDependencia) graficaGastoDependencia.destroy();
 
@@ -605,7 +654,9 @@ function crearGraficaProveedor(requisiciones) {
   const datos = agruparSuma(requisiciones, "proveedor");
   const top = topN(datos, 10);
 
-  const ctx = document.getElementById("graficaProveedor").getContext("2d");
+  const proveedorCanvas = document.getElementById("graficaProveedor");
+  if (!proveedorCanvas) return;
+  const ctx = proveedorCanvas.getContext("2d");
 
   if (graficaProveedor) graficaProveedor.destroy();
 
@@ -647,7 +698,9 @@ function crearGraficaUnidadesGasto(requisiciones) {
   const datos = agruparSuma(requisiciones, "unidad");
   const top = topN(datos, 10);
 
-  const ctx = document.getElementById("graficaUnidadesGasto").getContext("2d");
+  const unidadesGastoCanvas = document.getElementById("graficaUnidadesGasto");
+  if (!unidadesGastoCanvas) return;
+  const ctx = unidadesGastoCanvas.getContext("2d");
 
   if (graficaUnidadesGasto) graficaUnidadesGasto.destroy();
 
@@ -684,31 +737,41 @@ function crearGraficaUnidadesGasto(requisiciones) {
     }
   });
 }
-document.getElementById("filtroAnioDashboard").addEventListener("change", function () {
-  anioSeleccionadoDashboard = this.value;
-  renderizarDashboard();
-});
+function debounce(fn, delay) {
+  let timeout;
+  return function () {
+    const context = this;
+    const args = arguments;
+    clearTimeout(timeout);
+    timeout = setTimeout(function () {
+      fn.apply(context, args);
+    }, delay);
+  };
+}
 
-document.getElementById("filtroDesde").addEventListener("change", function () {
-  fechaDesdeDashboard = this.value;
-  renderizarDashboard();
-});
-
-document.getElementById("filtroHasta").addEventListener("change", function () {
-  fechaHastaDashboard = this.value;
-  renderizarDashboard();
-});
-
-document.getElementById("busquedaGlobal").addEventListener("input", function () {
-  const termino = this.value.toLowerCase().trim();
-  document.querySelectorAll(".panel, .kpi-card, .recent-card, .chart-card").forEach(function (el) {
-    if (!termino) {
-      el.style.display = "";
-      return;
-    }
-    el.style.display = el.textContent.toLowerCase().includes(termino) ? "" : "none";
+const filtroAnioEl = document.getElementById("filtroAnioDashboard");
+if (filtroAnioEl) {
+  filtroAnioEl.addEventListener("change", function () {
+    anioSeleccionadoDashboard = this.value;
+    renderizarDashboard();
   });
-});
+}
+
+const filtroDesdeEl = document.getElementById("filtroDesde");
+if (filtroDesdeEl) {
+  filtroDesdeEl.addEventListener("change", function () {
+    fechaDesdeDashboard = this.value;
+    renderizarDashboard();
+  });
+}
+
+const filtroHastaEl = document.getElementById("filtroHasta");
+if (filtroHastaEl) {
+  filtroHastaEl.addEventListener("change", function () {
+    fechaHastaDashboard = this.value;
+    renderizarDashboard();
+  });
+}
 
 function exportarDashboardCSV() {
   const requisiciones = aplicarFiltros(datosDashboard.requisiciones);

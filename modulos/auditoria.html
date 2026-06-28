@@ -21,7 +21,7 @@
       </div>
     </div>
     <nav id="etNav"></nav>
-    <button class="logout" id="etLogout">Cerrar sesión</button>
+    <button type="button" class="logout" id="etLogout">Cerrar sesión</button>
   </aside>
 
   <main class="main-content">
@@ -34,7 +34,7 @@
 
       <div style="display:flex;gap:12px;align-items:center;">
         <span id="etTemaContainer"></span>
-        <button class="btn-small" onclick="limpiarAuditoria()">Limpiar historial</button>
+        <button type="button" class="btn-small" onclick="limpiarAuditoria()">Limpiar historial</button>
       </div>
     </header>
 
@@ -74,9 +74,9 @@
       </div>
 
       <div class="filters">
-        <input type="text" id="buscarAuditoria" placeholder="Buscar movimiento...">
+        <input type="text" id="buscarAuditoria" placeholder="Buscar movimiento..." aria-label="Buscar movimiento">
 
-        <select id="filtroModuloAuditoria">
+        <select id="filtroModuloAuditoria" aria-label="Filtrar por módulo">
           <option value="">Todos los módulos</option>
           <option value="Peticiones">Peticiones</option>
           <option value="Requisiciones">Requisiciones</option>
@@ -87,7 +87,7 @@
           <option value="Login">Login</option>
         </select>
 
-        <select id="filtroAccionAuditoria">
+        <select id="filtroAccionAuditoria" aria-label="Filtrar por acción">
           <option value="">Todas las acciones</option>
           <option value="Creó">Creó</option>
           <option value="Cambió">Cambió</option>
@@ -121,7 +121,14 @@
   <script>
     validarPermiso("Auditoría");
     ETLayout.inicializar("Auditoría");
-    let auditoria = JSON.parse(localStorage.getItem("auditoria")) || [];
+    let auditoria = [];
+
+    try {
+      auditoria = JSON.parse(localStorage.getItem("auditoria")) || [];
+    } catch (error) {
+      console.warn("No se pudo parsear la auditoría de localStorage:", error);
+      auditoria = [];
+    }
 
     const tablaAuditoria = document.getElementById("tablaAuditoria");
     const buscarAuditoria = document.getElementById("buscarAuditoria");
@@ -137,15 +144,15 @@
 
       const filtrados = auditoria.filter(a => {
         const coincideTexto =
-          a.fecha.toLowerCase().includes(texto) ||
-          a.usuario.toLowerCase().includes(texto) ||
-          a.rol.toLowerCase().includes(texto) ||
-          a.modulo.toLowerCase().includes(texto) ||
-          a.accion.toLowerCase().includes(texto) ||
-          a.detalle.toLowerCase().includes(texto);
+          String(a.fecha || "").toLowerCase().includes(texto) ||
+          String(a.usuario || "").toLowerCase().includes(texto) ||
+          String(a.rol || "").toLowerCase().includes(texto) ||
+          String(a.modulo || "").toLowerCase().includes(texto) ||
+          String(a.accion || "").toLowerCase().includes(texto) ||
+          String(a.detalle || "").toLowerCase().includes(texto);
 
-        const coincideModulo = modulo === "" || a.modulo === modulo;
-        const coincideAccion = accion === "" || a.accion.includes(accion);
+        const coincideModulo = modulo === "" || String(a.modulo || "") === modulo;
+        const coincideAccion = accion === "" || String(a.accion || "").includes(accion);
 
         return coincideTexto && coincideModulo && coincideAccion;
       });

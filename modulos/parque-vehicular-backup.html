@@ -27,7 +27,7 @@
       <a href="../modulos/usuarios.html" class="nav-item">Usuarios</a>
     </nav>
 
-    <button class="logout" onclick="cerrarSesion()">Cerrar sesión</button>
+    <button type="button" class="logout" onclick="cerrarSesion()">Cerrar sesión</button>
   </aside>
 
   <main class="main-content">
@@ -38,7 +38,7 @@
         <p>Consulta y control de unidades registradas.</p>
       </div>
 
-      <button class="btn-small">+ Nueva unidad</button>
+      <button type="button" class="btn-small" aria-haspopup="dialog" aria-label="Crear nueva unidad">+ Nueva unidad</button>
     </header>
 
     <section class="kpi-grid">
@@ -77,16 +77,16 @@
       </div>
 
       <div class="filters">
-        <input type="text" id="buscarUnidad" placeholder="Buscar unidad...">
+        <input type="text" id="buscarUnidad" placeholder="Buscar unidad..." aria-label="Buscar unidad">
 
-        <select id="filtroEstatus">
+        <select id="filtroEstatus" aria-label="Filtrar por estatus">
           <option value="">Todos los estatus</option>
           <option value="Activo">Activo</option>
           <option value="Proceso de baja">Proceso de baja</option>
           <option value="Baja">Baja</option>
         </select>
 
-        <select id="filtroTipo">
+        <select id="filtroTipo" aria-label="Filtrar por tipo de unidad">
           <option value="">Todos los tipos</option>
           <option value="Pickup">Pickup</option>
           <option value="Sedán">Sedán</option>
@@ -169,10 +169,11 @@
     const filtroTipo = document.getElementById("filtroTipo");
 
     function cargarUnidades() {
-      const texto = buscarUnidad.value.toLowerCase();
-      const estatus = filtroEstatus.value;
-      const tipo = filtroTipo.value;
+      const texto = String(buscarUnidad?.value || "").toLowerCase();
+      const estatus = String(filtroEstatus?.value || "");
+      const tipo = String(filtroTipo?.value || "");
 
+      if (!tabla) return;
       tabla.innerHTML = "";
 
       const filtradas = unidades.filter(u => {
@@ -203,8 +204,8 @@
             </span>
           </td>
           <td>
-            <button class="action-btn">Ver</button>
-            <button class="action-btn edit">Editar</button>
+            <button type="button" class="action-btn" aria-label="Ver unidad ${u.unidad}">Ver</button>
+            <button type="button" class="action-btn edit" aria-label="Editar unidad ${u.unidad}">Editar</button>
           </td>
         `;
 
@@ -219,9 +220,9 @@
       return "gray";
     }
 
-    buscarUnidad.addEventListener("input", cargarUnidades);
-    filtroEstatus.addEventListener("change", cargarUnidades);
-    filtroTipo.addEventListener("change", cargarUnidades);
+    buscarUnidad?.addEventListener("input", cargarUnidades);
+    filtroEstatus?.addEventListener("change", cargarUnidades);
+    filtroTipo?.addEventListener("change", cargarUnidades);
 
     cargarUnidades();
 

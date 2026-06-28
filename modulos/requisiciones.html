@@ -24,7 +24,7 @@
       </div>
     </div>
     <nav id="etNav"></nav>
-    <button class="logout" id="etLogout">Cerrar sesión</button>
+    <button type="button" class="logout" id="etLogout">Cerrar sesión</button>
   </aside>
 
   <main class="main-content">
@@ -37,7 +37,7 @@
 
       <div style="display:flex;gap:12px;align-items:center;">
         <span id="etTemaContainer"></span>
-        <button class="btn-small" id="btnNuevaRequisicion" onclick="abrirModalRequisicion()">+ Nueva requisición</button>
+        <button type="button" class="btn-small" id="btnNuevaRequisicion" aria-haspopup="dialog" onclick="abrirModalRequisicion()">+ Nueva requisición</button>
       </div>
     </header>
 
@@ -77,9 +77,9 @@
       </div>
 
       <div class="filters">
-        <input type="text" id="buscarRequisicion" placeholder="Buscar requisición...">
+        <input type="text" id="buscarRequisicion" placeholder="Buscar requisición..." aria-label="Buscar requisición">
 
-        <select id="filtroReqEstatus">
+        <select id="filtroReqEstatus" aria-label="Filtrar por estatus">
           <option value="">Todos los estatus</option>
           <option value="Por autorizar">Por autorizar</option>
           <option value="Inicio de procedimiento">Inicio de procedimiento</option>
@@ -92,7 +92,7 @@
           <option value="Enviado">Enviado</option>
         </select>
 
-        <select id="filtroDependencia">
+        <select id="filtroDependencia" aria-label="Filtrar por dependencia">
           <option value="">Todas las dependencias</option>
           <option value="Talleres">Talleres</option>
           <option value="Infraestructura">Infraestructura</option>
@@ -128,16 +128,16 @@
 
   <!-- MODAL -->
 
-  <div class="modal" id="modalRequisicion">
+  <div class="modal" id="modalRequisicion" role="dialog" aria-modal="true" aria-labelledby="modalRequisicionTitulo" aria-hidden="true">
     <div class="modal-card">
 
       <div class="modal-header">
         <div>
-          <h2>Nueva requisición</h2>
+          <h2 id="modalRequisicionTitulo">Nueva requisición</h2>
           <p>Captura los datos principales del trámite.</p>
         </div>
 
-        <button class="close-btn" onclick="cerrarModalRequisicion()">×</button>
+        <button type="button" class="close-btn" aria-label="Cerrar diálogo" onclick="cerrarModalRequisicion()">×</button>
       </div>
 
       <div class="form-grid">
@@ -222,8 +222,8 @@
       </div>
 
       <div class="modal-actions">
-        <button class="btn-secondary" onclick="cerrarModalRequisicion()">Cancelar</button>
-        <button class="btn-small" onclick="guardarRequisicion()">Guardar requisición</button>
+        <button type="button" class="btn-secondary" onclick="cerrarModalRequisicion()">Cancelar</button>
+        <button type="button" class="btn-small" onclick="guardarRequisicion()">Guardar requisición</button>
       </div>
 
     </div>
@@ -242,6 +242,21 @@
     const buscarRequisicion = document.getElementById("buscarRequisicion");
     const filtroReqEstatus = document.getElementById("filtroReqEstatus");
     const filtroDependencia = document.getElementById("filtroDependencia");
+    const modalRequisicion = document.getElementById("modalRequisicion");
+    const modalRequisicionTitulo = document.getElementById("modalRequisicionTitulo");
+    const fechaReqInput = document.getElementById("fechaReq");
+    const numeroReqInput = document.getElementById("numeroReq");
+    const unidadReqInput = document.getElementById("unidadReq");
+    const dependenciaReqSelect = document.getElementById("dependenciaReq");
+    const proveedorReqInput = document.getElementById("proveedorReq");
+    const montoReqInput = document.getElementById("montoReq");
+    const ocReqInput = document.getElementById("ocReq");
+    const facturaReqInput = document.getElementById("facturaReq");
+    const solicitudPagoReqInput = document.getElementById("solicitudPagoReq");
+    const estatusReqSelect = document.getElementById("estatusReq");
+    const conceptoReqInput = document.getElementById("conceptoReq");
+    const observacionesReqInput = document.getElementById("observacionesReq");
+    const infoUnidadReq = document.getElementById("infoUnidadReq");
 
     async function inicializarRequisiciones() {
       const migracion = await ETRequisiciones.migrarDesdeLocalStorage();
@@ -283,28 +298,27 @@
       prefillPeticionId = prefill.peticion_id || null;
 
       abrirModalRequisicion();
-      document.getElementById("unidadReq").value = prefill.unidad || "";
-      document.getElementById("conceptoReq").value = prefill.concepto || "";
-      document.getElementById("dependenciaReq").value = prefill.dependencia || "";
-      document.getElementById("proveedorReq").value = prefill.proveedor || "";
-      document.getElementById("observacionesReq").value = prefill.observaciones || "";
+      unidadReqInput.value = prefill.unidad || "";
+      conceptoReqInput.value = prefill.concepto || "";
+      dependenciaReqSelect.value = prefill.dependencia || "";
+      proveedorReqInput.value = prefill.proveedor || "";
+      observacionesReqInput.value = prefill.observaciones || "";
 
       const numero = await ETRequisiciones.generarNumero();
-      document.getElementById("numeroReq").value = numero;
+      numeroReqInput.value = numero;
     }
 
-    document.getElementById("unidadReq").addEventListener("blur", async function () {
+    unidadReqInput.addEventListener("blur", async function () {
       const valor = this.value.trim();
       const unidad = await ETRequisiciones.buscarUnidadParque(valor);
-      const info = document.getElementById("infoUnidadReq");
 
       if (!unidad) {
-        info.textContent = "Unidad no encontrada en Parque Vehicular.";
+        infoUnidadReq.textContent = "Unidad no encontrada en Parque Vehicular.";
         return;
       }
 
-      document.getElementById("dependenciaReq").value = unidad.dependencia || "";
-      info.textContent =
+      dependenciaReqSelect.value = unidad.dependencia || "";
+      infoUnidadReq.textContent =
         (unidad.descripcion || "") + " | Placa: " + (unidad.placa || "Sin placa") +
         " | Combustible: " + (unidad.combustible || "Sin dato");
     });
@@ -349,11 +363,11 @@
             "<td>" + formatoMoneda(r.monto) + "</td>" +
             '<td><span class="badge ' + obtenerClaseEstatusReq(r.estatus) + '">' + r.estatus + "</span></td>" +
             "<td>" +
-              '<button class="action-btn" onclick="verRequisicion(\'' + r.id + '\')">Ver</button>' +
+              '<button type="button" class="action-btn" onclick="verRequisicion(\'' + r.id + '\')">Ver</button>' +
               (soloLectura ? "" :
-                '<button class="action-btn edit" onclick="editarRequisicion(\'' + r.id + '\')">Editar</button>' +
-                '<button class="action-btn" onclick="cambiarEstatusReq(\'' + r.id + '\')">Estatus</button>' +
-                '<button class="action-btn red-btn" onclick="eliminarRequisicion(\'' + r.id + '\')">Eliminar</button>'
+                '<button type="button" class="action-btn edit" onclick="editarRequisicion(\'' + r.id + '\')">Editar</button>' +
+                '<button type="button" class="action-btn" onclick="cambiarEstatusReq(\'' + r.id + '\')">Estatus</button>' +
+                '<button type="button" class="action-btn red-btn" onclick="eliminarRequisicion(\'' + r.id + '\')">Eliminar</button>'
               ) +
             "</td>";
           tablaRequisiciones.appendChild(fila);
@@ -381,39 +395,53 @@
 
     async function abrirModalRequisicion() {
       if (typeof esSoloLectura === "function" && esSoloLectura()) return;
-      document.getElementById("modalRequisicion").classList.add("show");
-      document.querySelector("#modalRequisicion h2").textContent =
-        idEditando ? "Editar requisición" : "Nueva requisición";
+      modalRequisicion.classList.add("show");
+      modalRequisicion.setAttribute("aria-hidden", "false");
+      modalRequisicionTitulo.textContent = idEditando ? "Editar requisición" : "Nueva requisición";
 
       if (!idEditando) {
-        document.getElementById("fechaReq").value = new Date().toISOString().split("T")[0];
-        if (!document.getElementById("numeroReq").value) {
-          document.getElementById("numeroReq").value = await ETRequisiciones.generarNumero();
+        fechaReqInput.value = new Date().toISOString().split("T")[0];
+        if (!numeroReqInput.value) {
+          numeroReqInput.value = await ETRequisiciones.generarNumero();
         }
       }
+      unidadReqInput.focus();
     }
 
     function cerrarModalRequisicion() {
-      document.getElementById("modalRequisicion").classList.remove("show");
+      modalRequisicion.classList.remove("show");
+      modalRequisicion.setAttribute("aria-hidden", "true");
       limpiarFormularioReq();
       idEditando = null;
       prefillPeticionId = null;
     }
 
+    modalRequisicion.addEventListener("click", function (event) {
+      if (event.target === modalRequisicion) {
+        cerrarModalRequisicion();
+      }
+    });
+
+    document.addEventListener("keydown", function (event) {
+      if (event.key === "Escape" && modalRequisicion.classList.contains("show")) {
+        cerrarModalRequisicion();
+      }
+    });
+
     async function guardarRequisicion() {
       const nueva = {
-        fecha: document.getElementById("fechaReq").value,
-        numero: document.getElementById("numeroReq").value.trim(),
-        unidad: document.getElementById("unidadReq").value.trim(),
-        dependencia: document.getElementById("dependenciaReq").value,
-        concepto: document.getElementById("conceptoReq").value.trim(),
-        proveedor: document.getElementById("proveedorReq").value.trim() || null,
-        oc: document.getElementById("ocReq").value.trim() || null,
-        factura: document.getElementById("facturaReq").value.trim() || null,
-        solicitudPago: document.getElementById("solicitudPagoReq").value.trim() || null,
-        monto: Number(document.getElementById("montoReq").value || 0),
-        estatus: document.getElementById("estatusReq").value,
-        observaciones: document.getElementById("observacionesReq").value.trim() || null,
+        fecha: fechaReqInput.value,
+        numero: numeroReqInput.value.trim(),
+        unidad: unidadReqInput.value.trim(),
+        dependencia: dependenciaReqSelect.value,
+        concepto: conceptoReqInput.value.trim(),
+        proveedor: proveedorReqInput.value.trim() || null,
+        oc: ocReqInput.value.trim() || null,
+        factura: facturaReqInput.value.trim() || null,
+        solicitudPago: solicitudPagoReqInput.value.trim() || null,
+        monto: Number(montoReqInput.value || 0),
+        estatus: estatusReqSelect.value,
+        observaciones: observacionesReqInput.value.trim() || null,
         peticion_id: prefillPeticionId
       };
 
@@ -446,18 +474,18 @@
     }
 
     function limpiarFormularioReq() {
-      document.getElementById("numeroReq").value = "";
-      document.getElementById("unidadReq").value = "";
-      document.getElementById("dependenciaReq").value = "";
-      document.getElementById("conceptoReq").value = "";
-      document.getElementById("proveedorReq").value = "";
-      document.getElementById("ocReq").value = "";
-      document.getElementById("facturaReq").value = "";
-      document.getElementById("solicitudPagoReq").value = "";
-      document.getElementById("montoReq").value = "";
-      document.getElementById("estatusReq").value = "Por autorizar";
-      document.getElementById("observacionesReq").value = "";
-      document.getElementById("infoUnidadReq").textContent = "";
+      numeroReqInput.value = "";
+      unidadReqInput.value = "";
+      dependenciaReqSelect.value = "";
+      conceptoReqInput.value = "";
+      proveedorReqInput.value = "";
+      ocReqInput.value = "";
+      facturaReqInput.value = "";
+      solicitudPagoReqInput.value = "";
+      montoReqInput.value = "";
+      estatusReqSelect.value = "Por autorizar";
+      observacionesReqInput.value = "";
+      infoUnidadReq.textContent = "";
     }
 
     function obtenerRequisicionPorId(id) {

@@ -108,6 +108,10 @@
       peticionesPendientes: peticiones.filter(function (p) { return p.estatus === "Pendiente"; }).length,
       requisicionesActivas: requisicionesOperativas.filter(function (r) { return r.estatus !== "Enviado"; }).length,
       valesEmitidos: vales.length,
+      valesActivos: valesOperativos.filter(function (v) {
+        const estatus = String(v.estatus || "").trim().toLowerCase();
+        return !["cancelado", "cerrado", "entregado", "finalizado"].includes(estatus);
+      }).length,
       valesPendientes: valesOperativos.filter(function (v) { return v.estatus === "Pendiente"; }).length,
       usuariosActivos: usuarios.filter(function (u) { return u.activo === true; }).length,
       costoAnual: costoAnual,

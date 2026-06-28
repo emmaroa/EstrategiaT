@@ -7,6 +7,8 @@ const USUARIO_ACTUAL = {
 };
 
 let acuerdos = [];
+let usuarios = [];
+let acuerdoSeleccionadoParaTurnar = null;
 
 const ESTADOS = [
   "Nuevo",
@@ -34,31 +36,65 @@ document.addEventListener("DOMContentLoaded", () => {
   const btnCerrar = document.getElementById("cerrarModal");
   const btnCancelar = document.getElementById("cancelarAcuerdo");
   const btnGuardar = document.getElementById("guardarAcuerdo");
+  const modalAcuerdo = document.getElementById("modalAcuerdo");
+  const modalAcuerdoTitulo = document.getElementById("modalAcuerdoTitulo");
+  const buscarAcuerdo = document.getElementById("buscarAcuerdo");
+  const filtroEstado = document.getElementById("filtroEstado");
+  const filtroPrioridad = document.getElementById("filtroPrioridad");
+  const filtroCategoria = document.getElementById("filtroCategoria");
 
   if (btnNuevo) btnNuevo.addEventListener("click", abrirModal);
   if (btnCerrar) btnCerrar.addEventListener("click", cerrarModal);
   if (btnCancelar) btnCancelar.addEventListener("click", cerrarModal);
   if (btnGuardar) btnGuardar.addEventListener("click", guardarAcuerdo);
 
-  document.getElementById("buscarAcuerdo")?.addEventListener("input", renderizarAcuerdos);
-  document.getElementById("filtroEstado")?.addEventListener("change", renderizarAcuerdos);
-  document.getElementById("filtroPrioridad")?.addEventListener("change", renderizarAcuerdos);
-  document.getElementById("filtroCategoria")?.addEventListener("change", renderizarAcuerdos);
+  buscarAcuerdo?.addEventListener("input", renderizarAcuerdos);
+  filtroEstado?.addEventListener("change", renderizarAcuerdos);
+  filtroPrioridad?.addEventListener("change", renderizarAcuerdos);
+  filtroCategoria?.addEventListener("change", renderizarAcuerdos);
 
-  document.getElementById("modalAcuerdo")?.addEventListener("click", function (event) {
-    if (event.target.id === "modalAcuerdo") cerrarModal();
+  modalAcuerdo?.addEventListener("click", function (event) {
+    if (event.target === modalAcuerdo) cerrarModal();
   });
 
+  const modalTurnar = document.getElementById("modalTurnar");
+  const btnCerrarTurnar = document.getElementById("cerrarTurnar");
+  const btnCancelarTurnar = document.getElementById("cancelarTurnar");
+  const btnConfirmarTurnar = document.getElementById("confirmarTurnar");
+
+  if (modalTurnar) {
+    modalTurnar.addEventListener("click", function (event) {
+      if (event.target === modalTurnar) cerrarModalTurnar();
+    });
+  }
+
+  if (btnCerrarTurnar) btnCerrarTurnar.addEventListener("click", cerrarModalTurnar);
+  if (btnCancelarTurnar) btnCancelarTurnar.addEventListener("click", cerrarModalTurnar);
+  if (btnConfirmarTurnar) btnConfirmarTurnar.addEventListener("click", confirmarTurnar);
+
+  document.addEventListener("keydown", function (event) {
+    if (event.key === "Escape") {
+      if (modalAcuerdo?.classList.contains("show")) cerrarModal();
+      if (modalTurnar?.classList.contains("show")) cerrarModalTurnar();
+    }
+  });
+
+  cargarUsuarios();
   cargarAcuerdos();
 });
 
 function abrirModal() {
   if (typeof esSoloLectura === "function" && esSoloLectura()) return;
-  document.getElementById("modalAcuerdo").classList.add("show");
+  const modal = document.getElementById("modalAcuerdo");
+  modal?.classList.add("show");
+  modal?.setAttribute("aria-hidden", "false");
+  document.getElementById("titulo")?.focus();
 }
 
 function cerrarModal() {
-  document.getElementById("modalAcuerdo").classList.remove("show");
+  const modal = document.getElementById("modalAcuerdo");
+  modal?.classList.remove("show");
+  modal?.setAttribute("aria-hidden", "true");
   limpiarFormulario();
 }
 
@@ -84,6 +120,60 @@ async function cargarAcuerdos() {
   renderizarAcuerdos();
 }
 
+function obtenerUsuarioActivo() {
+  const almacenado = localStorage.getItem("usuarioActivo");
+  if (!almacenado) return USUARIO_ACTUAL;
+
+  try {
+    return JSON.parse(almacenado);
+  } catch (error) {
+    return USUARIO_ACTUAL;
+  }
+}
+
+async function cargarUsuarios() {
+  if (!db || typeof db.from !== "function") return;
+
+  const { data, error } = await db
+    .from("usuarios")
+    .select("id,nombre,usuario,rol,activo")
+    .eq("activo", true)
+    .order("nombre", { ascending: true });
+
+  if (error) {
+    console.warn("No se pudieron cargar los usuarios:", error);
+    usuarios = [];
+    return;
+  }
+
+  usuarios = data || [];
+  renderUsuariosTurnar();
+}
+
+function renderUsuariosTurnar() {
+  const select = document.getElementById("turnarUsuario");
+  if (!select) return;
+
+  select.innerHTML = "<option value=''>Selecciona un usuario</option>";
+  usuarios.forEach(function (usuario) {
+    const option = document.createElement("option");
+    option.value = usuario.id;
+    option.textContent = `${usuario.nombre || usuario.usuario} (${usuario.rol || "Usuario"})`;
+    select.appendChild(option);
+  });
+}
+
+function esUsuarioAdministrador(usuarioActivo) {
+  if (!usuarioActivo) return false;
+  return ["super_admin", "admin", "jefe"].includes(usuarioActivo.rol);
+}
+
+function esUsuarioAsignadoTurnado(acuerdo, usuarioActivo) {
+  if (!acuerdo || !usuarioActivo) return false;
+  if (esUsuarioAdministrador(usuarioActivo)) return true;
+  return acuerdo.asignado_a === usuarioActivo.id;
+}
+
 function renderizarAcuerdos() {
   limpiarColumnas();
 
@@ -91,8 +181,13 @@ function renderizarAcuerdos() {
   const estado = document.getElementById("filtroEstado")?.value || "";
   const prioridad = document.getElementById("filtroPrioridad")?.value || "";
   const categoria = document.getElementById("filtroCategoria")?.value || "";
+  const usuarioActivo = obtenerUsuarioActivo();
 
   const filtrados = acuerdos.filter(function (acuerdo) {
+    if (!esUsuarioAsignadoTurnado(acuerdo, usuarioActivo)) {
+      return false;
+    }
+
     const coincideTexto =
       (acuerdo.folio || "").toLowerCase().includes(texto) ||
       (acuerdo.titulo || "").toLowerCase().includes(texto) ||
@@ -110,7 +205,7 @@ function renderizarAcuerdos() {
 
   filtrados.forEach(pintarTarjeta);
   pintarColumnasVacias();
-  actualizarKPIs(acuerdos);
+  actualizarKPIs(acuerdos.filter(a => esUsuarioAsignadoTurnado(a, usuarioActivo)));
   actualizarContadores(filtrados);
 }
 
@@ -156,7 +251,7 @@ function pintarTarjeta(acuerdo) {
     </div>
 
     <div class="acuerdo-acciones">
-      <button class="action-btn" onclick="verAcuerdo('${acuerdo.id}')">Ver</button>
+      <button type="button" class="action-btn" onclick="verAcuerdo('${acuerdo.id}')">Ver</button>
       ${soloLectura ? "" : botonesEstado(acuerdo)}
     </div>
   `;
@@ -165,12 +260,19 @@ function pintarTarjeta(acuerdo) {
 }
 
 function botonesEstado(acuerdo) {
+  const usuarioActivo = obtenerUsuarioActivo();
+  const puedeModificar = esUsuarioAdministrador(usuarioActivo) || acuerdo.asignado_a === usuarioActivo.id;
+
+  if (!puedeModificar) {
+    return "";
+  }
+
   return `
-    <button class="action-btn blue" onclick="cambiarEstado('${acuerdo.id}', 'En proceso')">En proceso</button>
-    <button class="action-btn" onclick="cambiarEstado('${acuerdo.id}', 'En espera')">En espera</button>
-    <button class="action-btn orange" onclick="turnarALuis('${acuerdo.id}')">Turnar</button>
-    <button class="action-btn" onclick="cambiarEstado('${acuerdo.id}', 'Para revisión')">Revisión</button>
-    <button class="action-btn edit" onclick="cambiarEstado('${acuerdo.id}', 'Concluido')">Concluir</button>
+    <button type="button" class="action-btn blue" onclick="cambiarEstado('${acuerdo.id}', 'En proceso')">En proceso</button>
+    <button type="button" class="action-btn" onclick="cambiarEstado('${acuerdo.id}', 'En espera')">En espera</button>
+    <button type="button" class="action-btn orange" onclick="abrirTurnarModal('${acuerdo.id}')">Turnar</button>
+    <button type="button" class="action-btn" onclick="cambiarEstado('${acuerdo.id}', 'Para revisión')">Revisión</button>
+    <button type="button" class="action-btn edit" onclick="cambiarEstado('${acuerdo.id}', 'Concluido')">Concluir</button>
   `;
 }
 
@@ -180,6 +282,7 @@ async function guardarAcuerdo() {
   const categoria = document.getElementById("categoria").value;
   const prioridad = document.getElementById("prioridad").value;
   const fechaCompromiso = document.getElementById("fechaCompromiso").value;
+  const usuarioActivo = obtenerUsuarioActivo();
 
   if (!titulo) {
     alert("Escribe el título del acuerdo.");
@@ -187,22 +290,29 @@ async function guardarAcuerdo() {
   }
 
   const nuevoAcuerdo = {
+    folio: `AC-${Date.now().toString().slice(-6)}`,
     titulo,
     descripcion,
     categoria,
     prioridad,
     estado: "Nuevo",
-    creado_por: USUARIO_ACTUAL.id,
-    asignado_a: USUARIO_ACTUAL.id,
-    fecha_compromiso: fechaCompromiso || null
+    creado_por: usuarioActivo.id,
+    asignado_a: usuarioActivo.id,
+    fecha_compromiso: fechaCompromiso || null,
+    creado_en: new Date().toISOString(),
+    actualizado_en: new Date().toISOString()
   };
 
-  const { error } = await db.from("acuerdos").insert(nuevoAcuerdo);
+  const { data, error } = await db.from("acuerdos").insert([nuevoAcuerdo]).select().single();
 
   if (error) {
     console.error("Error guardando acuerdo:", error);
-    alert("No se pudo guardar el acuerdo.");
+    alert("No se pudo guardar el acuerdo. Revisa la tabla y columnas de Supabase.");
     return;
+  }
+
+  if (data) {
+    acuerdos = [data, ...acuerdos];
   }
 
   if (typeof registrarAuditoria === "function") {
@@ -249,38 +359,77 @@ async function cambiarEstado(id, estado) {
   await cargarAcuerdos();
 }
 
-async function turnarALuis(id) {
-  const luisId = "312705af-3fa7-4639-9518-2f3b332b0a0c";
+function abrirTurnarModal(id) {
+  acuerdoSeleccionadoParaTurnar = id;
+  const modal = document.getElementById("modalTurnar");
+  const titulo = document.getElementById("modalTurnarTitulo");
+  const mensaje = document.getElementById("modalTurnarMensaje");
+
+  if (titulo) titulo.textContent = "Turnar acuerdo";
+  if (mensaje) mensaje.textContent = "Selecciona el usuario al que deseas turnar este acuerdo.";
+
+  modal?.classList.add("show");
+  modal?.setAttribute("aria-hidden", "false");
+}
+
+function cerrarModalTurnar() {
+  const modal = document.getElementById("modalTurnar");
+  const select = document.getElementById("turnarUsuario");
+
+  modal?.classList.remove("show");
+  modal?.setAttribute("aria-hidden", "true");
+  if (select) select.value = "";
+  acuerdoSeleccionadoParaTurnar = null;
+}
+
+async function confirmarTurnar() {
+  if (!acuerdoSeleccionadoParaTurnar) return;
+
+  const usuarioSeleccionado = document.getElementById("turnarUsuario")?.value;
+  if (!usuarioSeleccionado) {
+    alert("Selecciona un usuario válido para turnar.");
+    return;
+  }
+
+  const usuarioActivo = obtenerUsuarioActivo();
 
   const { error } = await db
     .from("acuerdos")
     .update({
-      asignado_a: luisId,
-      turnado_por: USUARIO_ACTUAL.id,
-      estado: "Turnado"
+      asignado_a: usuarioSeleccionado,
+      turnado_por: usuarioActivo.id,
+      estado: "Turnado",
+      actualizado_en: new Date().toISOString()
     })
-    .eq("id", id);
+    .eq("id", acuerdoSeleccionadoParaTurnar);
 
   if (error) {
     console.error("Error turnando acuerdo:", error);
-    alert("No se pudo turnar el acuerdo.");
+    alert("No se pudo turnar el acuerdo. " + (error.message || JSON.stringify(error)));
     return;
   }
 
-  await registrarHistorial(id, "Acuerdo turnado", "Emma turnó el acuerdo a Luis Lerma");
+  const usuarioDestino = usuarios.find(u => u.id === usuarioSeleccionado);
+  const detalle = usuarioDestino
+    ? `Turnado a ${usuarioDestino.nombre || usuarioDestino.usuario}`
+    : "Turnado a otro usuario";
+
+  await registrarHistorial(acuerdoSeleccionadoParaTurnar, "Acuerdo turnado", detalle);
 
   if (typeof registrarAuditoria === "function") {
-    registrarAuditoria("Acuerdos", "Turnó acuerdo", "Turnado a Luis Lerma");
+    registrarAuditoria("Acuerdos", "Turnó acuerdo", detalle);
   }
 
+  cerrarModalTurnar();
   await cargarAcuerdos();
 }
 
 async function registrarHistorial(acuerdoId, accion, detalle) {
   try {
+    const usuarioActivo = obtenerUsuarioActivo();
     await db.from("acuerdos_historial").insert({
       acuerdo_id: acuerdoId,
-      usuario_id: USUARIO_ACTUAL.id,
+      usuario_id: usuarioActivo.id,
       accion,
       detalle
     });
@@ -307,6 +456,7 @@ function verAcuerdo(id) {
 function actualizarKPIs(lista) {
   document.getElementById("kpiTotal").textContent = lista.length;
   document.getElementById("kpiNuevos").textContent = lista.filter(a => a.estado === "Nuevo").length;
+  document.getElementById("kpiSinConcluir").textContent = lista.filter(a => a.estado !== "Concluido").length;
   document.getElementById("kpiProceso").textContent = lista.filter(a => a.estado === "En proceso").length;
   document.getElementById("kpiConcluidos").textContent = lista.filter(a => a.estado === "Concluido").length;
 }

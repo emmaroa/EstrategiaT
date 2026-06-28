@@ -36,10 +36,22 @@
       };
 
   const btnLogin = document.getElementById("btnLogin");
+  const usuarioInput = document.getElementById("usuario");
+  const passwordInput = document.getElementById("password");
 
   if (btnLogin) {
     btnLogin.addEventListener("click", iniciarSesion);
   }
+
+  [usuarioInput, passwordInput].forEach(function (input) {
+    if (!input) return;
+    input.addEventListener("keydown", function (event) {
+      if (event.key === "Enter") {
+        event.preventDefault();
+        iniciarSesion();
+      }
+    });
+  });
 
   const btnLogout = document.getElementById("btnLogout");
   if (btnLogout) {
@@ -51,37 +63,72 @@
     etLogout.addEventListener("click", window.cerrarSesion);
   }
 
-  async function iniciarSesion() {
-    const usuario = document.getElementById("usuario").value.trim();
-    const password = document.getElementById("password").value.trim();
-    const mensajeError = document.getElementById("mensajeError");
+  function parseJSON(value) {
+    try {
+      return JSON.parse(value);
+    } catch (_) {
+      return null;
+    }
+  }
 
-    mensajeError.textContent = "";
+  function obtenerUsuarioActivo() {
+    return parseJSON(localStorage.getItem("usuarioActivo"));
+  }
+
+  function mostrarError(mensaje) {
+    const mensajeError = document.getElementById("mensajeError");
+    if (mensajeError) {
+      mensajeError.textContent = mensaje;
+    }
+  }
+
+  function obtenerModulosUsuario(data) {
+    if (window.ETPermissions && typeof window.ETPermissions.obtenerModulosUsuario === "function") {
+      return window.ETPermissions.obtenerModulosUsuario(data);
+    }
+
+    return permisos[data && data.rol ? data.rol : ""] || [];
+  }
+
+  async function iniciarSesion() {
+    const usuarioInput = document.getElementById("usuario");
+    const passwordInput = document.getElementById("password");
+    const usuario = usuarioInput ? usuarioInput.value.trim() : "";
+    const password = passwordInput ? passwordInput.value.trim() : "";
+
+    mostrarError("");
 
     if (!usuario || !password) {
-      mensajeError.textContent = "Ingresa usuario y contraseña.";
+      mostrarError("Ingresa usuario y contraseña.");
       return;
     }
 
     if (!loginSupabaseClient) {
-      mensajeError.textContent = "No se pudo conectar con Supabase.";
+      mostrarError("No se pudo conectar con Supabase.");
       return;
     }
 
-    const { data, error } = await loginSupabaseClient
-      .from("usuarios")
-      .select("*")
-      .eq("usuario", usuario)
-      .eq("password", password)
-      .single();
+    let data, error;
+    try {
+      ({ data, error } = await loginSupabaseClient
+        .from("usuarios")
+        .select("*")
+        .eq("usuario", usuario)
+        .eq("password", password)
+        .single());
+    } catch (err) {
+      console.error("Login error:", err);
+      mostrarError("Ocurrió un error al iniciar sesión. Intenta de nuevo.");
+      return;
+    }
 
     if (error || !data) {
-      mensajeError.textContent = "Usuario o contraseña incorrectos.";
+      mostrarError("Usuario o contraseña incorrectos.");
       return;
     }
 
     if (!data.activo) {
-      mensajeError.textContent = "Este usuario está inactivo.";
+      mostrarError("Este usuario está inactivo.");
       return;
     }
 
@@ -89,7 +136,8 @@
       id: data.id,
       nombre: data.nombre,
       usuario: data.usuario,
-      rol: data.rol
+      rol: data.rol,
+      modulos: obtenerModulosUsuario(data)
     };
 
     localStorage.setItem("usuarioActivo", JSON.stringify(usuarioActivo));
@@ -109,7 +157,7 @@
   }
 
   function cargarDashboard() {
-    const usuarioActivo = JSON.parse(localStorage.getItem("usuarioActivo"));
+    const usuarioActivo = obtenerUsuarioActivo();
 
     if (!usuarioActivo) {
       window.location.href = "index.html";
@@ -127,7 +175,9 @@
       rolUsuario.textContent = usuarioActivo.rol;
     }
 
-    const modulosPermitidos = permisos[usuarioActivo.rol] || [];
+    const modulosPermitidos = window.ETPermissions && typeof window.ETPermissions.obtenerModulosUsuario === "function"
+      ? window.ETPermissions.obtenerModulosUsuario(usuarioActivo)
+      : (permisos[usuarioActivo.rol] || []);
 
     menuModulos.innerHTML = "";
     modulosCards.innerHTML = "";
@@ -175,7 +225,7 @@
   }
 
   window.cerrarSesion = function () {
-    const usuarioActivo = JSON.parse(localStorage.getItem("usuarioActivo"));
+    const usuarioActivo = obtenerUsuarioActivo();
     if (usuarioActivo && typeof registrarAuditoria === "function") {
       registrarAuditoria("Login", "Cierre de sesión", usuarioActivo.usuario);
     }
@@ -184,8 +234,8 @@
   };
 
   window.registrarAuditoria = function (modulo, accion, detalle) {
-    const usuarioActivo = JSON.parse(localStorage.getItem("usuarioActivo"));
-    const auditoria = JSON.parse(localStorage.getItem("auditoria")) || [];
+    const usuarioActivo = obtenerUsuarioActivo();
+    let auditoria = parseJSON(localStorage.getItem("auditoria")) || [];
 
     const registro = {
       fecha: new Date().toLocaleString("es-MX"),
@@ -205,12 +255,14 @@
         modulo: modulo,
         accion: accion,
         detalle: detalle
-      }).then(function () {}).catch(function () {});
+      }).then(function () {}).catch(function (err) {
+        console.error("Auditoría error:", err);
+      });
     }
   };
 
   window.validarPermiso = function (modulo) {
-    const usuarioActivo = JSON.parse(localStorage.getItem("usuarioActivo"));
+    const usuarioActivo = obtenerUsuarioActivo();
 
     if (!usuarioActivo) {
       window.location.href = window.location.pathname.includes("/modulos/")
@@ -233,7 +285,7 @@
   };
 
   window.esSoloLectura = function () {
-    const usuarioActivo = JSON.parse(localStorage.getItem("usuarioActivo"));
+    const usuarioActivo = obtenerUsuarioActivo();
     if (!usuarioActivo) return true;
     return usuarioActivo.rol === "Solo Lectura" || usuarioActivo.rol === "Consulta";
   };

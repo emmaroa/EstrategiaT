@@ -29,7 +29,7 @@
 
     <nav id="etNav"></nav>
 
-    <button class="logout" id="etLogout">Cerrar sesión</button>
+    <button type="button" class="logout" id="etLogout">Cerrar sesión</button>
   </aside>
 
   <main class="main-content">
@@ -42,7 +42,7 @@
 
       <div style="display:flex;gap:12px;align-items:center;">
         <span id="etTemaContainer"></span>
-        <button class="btn-small" id="btnNuevoAcuerdo">+ Nuevo acuerdo</button>
+        <button type="button" class="btn-small" id="btnNuevoAcuerdo" aria-haspopup="dialog">+ Nuevo acuerdo</button>
       </div>
     </header>
 
@@ -57,6 +57,12 @@
         <span>Nuevos</span>
         <h2 id="kpiNuevos">0</h2>
         <p>Pendientes de atención</p>
+      </div>
+
+      <div class="kpi-card">
+        <span>Sin concluir</span>
+        <h2 id="kpiSinConcluir">0</h2>
+        <p>Acuerdos no finalizados</p>
       </div>
 
       <div class="kpi-card">
@@ -81,9 +87,9 @@
       </div>
 
       <div class="filters acuerdos-filters">
-        <input type="text" id="buscarAcuerdo" placeholder="Buscar acuerdo...">
+        <input type="text" id="buscarAcuerdo" placeholder="Buscar acuerdo..." aria-label="Buscar acuerdo">
 
-        <select id="filtroEstado">
+        <select id="filtroEstado" aria-label="Filtrar por estado">
           <option value="">Todos los estados</option>
           <option value="Nuevo">Nuevo</option>
           <option value="Turnado">Turnado</option>
@@ -93,14 +99,14 @@
           <option value="Concluido">Concluido</option>
         </select>
 
-        <select id="filtroPrioridad">
+        <select id="filtroPrioridad" aria-label="Filtrar por prioridad">
           <option value="">Todas las prioridades</option>
           <option value="Alta">Alta</option>
           <option value="Media">Media</option>
           <option value="Baja">Baja</option>
         </select>
 
-        <select id="filtroCategoria">
+        <select id="filtroCategoria" aria-label="Filtrar por categoría">
           <option value="">Todas las categorías</option>
           <option value="Oficios">Oficios</option>
           <option value="Compras">Compras</option>
@@ -168,16 +174,16 @@
 
   </main>
 
-  <div class="modal" id="modalAcuerdo">
+  <div class="modal" id="modalAcuerdo" role="dialog" aria-modal="true" aria-labelledby="modalAcuerdoTitulo" aria-hidden="true">
     <div class="modal-card">
 
       <div class="modal-header">
         <div>
-          <h2>Nuevo acuerdo</h2>
+          <h2 id="modalAcuerdoTitulo">Nuevo acuerdo</h2>
           <p>Captura los datos del compromiso.</p>
         </div>
 
-        <button class="close-btn" id="cerrarModal">×</button>
+        <button type="button" class="close-btn" id="cerrarModal" aria-label="Cerrar diálogo">×</button>
       </div>
 
       <div class="form-grid">
@@ -223,13 +229,37 @@
       </div>
 
       <div class="modal-actions">
-        <button class="btn-secondary" id="cancelarAcuerdo">Cancelar</button>
-        <button class="btn-small" id="guardarAcuerdo">Guardar acuerdo</button>
+        <button type="button" class="btn-secondary" id="cancelarAcuerdo">Cancelar</button>
+        <button type="button" class="btn-small" id="guardarAcuerdo">Guardar acuerdo</button>
       </div>
 
     </div>
   </div>
 
-  <script src="../js/acuerdos.js"></script>
+  <div class="modal" id="modalTurnar" role="dialog" aria-modal="true" aria-labelledby="modalTurnarTitulo" aria-hidden="true">
+    <div class="modal-card">
+      <div class="modal-header">
+        <div>
+          <h2 id="modalTurnarTitulo">Turnar acuerdo</h2>
+          <p id="modalTurnarMensaje">Selecciona el usuario al que deseas turnar este acuerdo.</p>
+        </div>
+        <button type="button" class="close-btn" id="cerrarTurnar" aria-label="Cerrar diálogo">×</button>
+      </div>
+
+      <div class="form-grid">
+        <div class="input-group full">
+          <label>Usuario destino</label>
+          <select id="turnarUsuario" aria-label="Seleccionar usuario para turnar"></select>
+        </div>
+      </div>
+
+      <div class="modal-actions">
+        <button type="button" class="btn-secondary" id="cancelarTurnar">Cancelar</button>
+        <button type="button" class="btn-small" id="confirmarTurnar">Turnar acuerdo</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="../js/services/acuerdos.js"></script>
 </body>
 </html>
