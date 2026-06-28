@@ -5,7 +5,114 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Administración de Talleres | Textos Frecuentes</title>
 
-  
+  <link rel="stylesheet" href="..css/style.css">
+
+  <style>
+    .copy-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 18px;
+      margin-top: 18px;
+    }
+
+    .copy-card {
+      background: var(--card-bg, #fff);
+      border: 1px solid var(--border-color, #e5e7eb);
+      border-radius: 18px;
+      padding: 18px;
+      box-shadow: var(--shadow-sm, 0 4px 12px rgba(0,0,0,.08));
+    }
+
+    .copy-card-header {
+      margin-bottom: 14px;
+    }
+
+    .copy-card-header h3 {
+      margin: 0;
+      color: #2B8180;
+      font-size: 18px;
+    }
+
+    .copy-card-header p {
+      margin: 4px 0 0;
+      font-size: 13px;
+      color: #6b7280;
+    }
+
+    .copy-list {
+      display: grid;
+      gap: 10px;
+    }
+
+    .copy-item {
+      width: 100%;
+      text-align: left;
+      background: #fff;
+      border: 1px solid #e5e7eb;
+      border-left: 4px solid #FC712B;
+      padding: 12px 14px;
+      border-radius: 12px;
+      cursor: pointer;
+      color: #374151;
+      font-weight: 600;
+      transition: .2s ease;
+      line-height: 1.4;
+    }
+
+    .copy-item:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 14px rgba(0,0,0,.10);
+      border-color: #FC712B;
+    }
+
+    .copy-textarea {
+      white-space: pre-line;
+      min-height: 110px;
+    }
+
+    .search-box {
+      width: 100%;
+      max-width: 420px;
+      padding: 12px 14px;
+      border-radius: 12px;
+      border: 1px solid #d1d5db;
+      font-size: 15px;
+      outline: none;
+    }
+
+    .search-box:focus {
+      border-color: #FC712B;
+      box-shadow: 0 0 0 3px rgba(252,113,43,.15);
+    }
+
+    .toast {
+      position: fixed;
+      right: 24px;
+      bottom: 24px;
+      background: #2B8180;
+      color: white;
+      padding: 14px 18px;
+      border-radius: 14px;
+      box-shadow: 0 8px 20px rgba(0,0,0,.18);
+      opacity: 0;
+      transform: translateY(20px);
+      pointer-events: none;
+      transition: .3s ease;
+      z-index: 9999;
+      font-weight: 700;
+    }
+
+    .toast.show {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    @media (max-width: 768px) {
+      .copy-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
 </head>
 
 <body class="dashboard-body">
@@ -37,7 +144,31 @@
       </div>
     </header>
 
-  
+    <section class="kpi-grid">
+      <div class="kpi-card">
+        <span>Requisiciones</span>
+        <h2>4</h2>
+        <p>Textos disponibles</p>
+      </div>
+
+      <div class="kpi-card">
+        <span>Órdenes de compra</span>
+        <h2>4</h2>
+        <p>Datos frecuentes</p>
+      </div>
+
+      <div class="kpi-card">
+        <span>Solicitudes de pago</span>
+        <h2>4</h2>
+        <p>Formatos rápidos</p>
+      </div>
+
+      <div class="kpi-card">
+        <span>Total textos</span>
+        <h2 id="kpiTotalTextos">0</h2>
+        <p>Para copiar</p>
+      </div>
+    </section>
 
     <section class="panel">
       <div class="panel-header">
@@ -79,7 +210,7 @@
           </div>
 
           <div class="copy-list">
-            <button class="copy-item" data-copy="SEGUIMIENTO DE PROCEDIMIENTO COMPRAS-TALLERES">SEGUIMIENTO DE PROCEDIMIENTO COMPRAS-TALLERES</button>
+            <button class="copy-item" data-copy="SEGUIMIENTO DE PROCEDIMIENTO DE COMPRAS-TALLERES">SEGUIMIENTO DE PROCEDIMIENTO</button>
           </div>
         </div>
 
@@ -114,20 +245,6 @@
             <p>Plantillas rápidas para descripción.</p>
           </div>
 
-          <div class="copy-list">
-            <button class="copy-item" data-copy="XXXX: PAGO DE FACTURA XXX POR ADQUISICION DE XXX PARA UNIDAD XXX DE XXX">
-              XXXX: PAGO DE FACTURA XXX POR ADQUISICION DE XXX PARA UNIDAD XXX DE XXX
-            </button>
-
-            <button class="copy-item" data-copy="OC XXX REQ XXX EA-000">
-              OC XXX REQ XXX EA-000
-            </button>
-
-            <button class="copy-item" data-copy="PROCEDIMIENTO EN PORTAL WEB DE COMPRAS: T26-000">
-              PROCEDIMIENTO EN PORTAL WEB DE COMPRAS: T26-000
-            </button>
-          </div>
-        </div>
 
         <div class="copy-card" data-section>
           <div class="copy-card-header">
@@ -137,11 +254,11 @@
 
           <div class="copy-list">
             <button class="copy-item copy-textarea" data-copy="XXXX : PAGO DE FACTURA XXX  POR ADQUISICION DE XXX  PARA UNIDAD XXX DE XXX
-OC XXX REQ XXX E XXXXX
+OC XXX REQ XXX EA-000
 PROCEDIMIENTO EN PORTAL WEB DE COMPRAS: T-">
 XXXX : PAGO DE FACTURA XXX  POR ADQUISICION DE XXX  PARA UNIDAD XXX DE XXX
 OC XXX REQ XXX EA-000
-PROCEDIMIENTO EN PORTAL WEB DE COMPRAS: T26-000
+PROCEDIMIENTO EN PORTAL WEB DE COMPRAS: T26-00
             </button>
           </div>
         </div>
