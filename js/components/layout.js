@@ -1,6 +1,3 @@
-/**
- * Layout compartido — sidebar dinámico por rol
- */
 (function (global) {
   const MODULOS_IMPLEMENTADOS = [
     "Dashboard",
