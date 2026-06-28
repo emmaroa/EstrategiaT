@@ -23,7 +23,7 @@
   };
 
   const RUTAS = {
-    [MODULOS.DASHBOARD]: "../dashboard.html",
+    [MODULOS.DASHBOARD]: "../EstrategiaT/dashboard.html",
     [MODULOS.PARQUE]: "../EstrategiaT/modulos/parque-vehicular.html",
     [MODULOS.PETICIONES]: "../EstrategiaT/modulos/peticiones.html",
     [MODULOS.REQUISICIONES]: "../EstrategiaT/modulos/requisiciones.html",
