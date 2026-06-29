@@ -3,24 +3,25 @@
  * Roles nuevos + compatibilidad con roles legacy del sistema v1
  */
 (function (global) {
-  const MODULOS = {
-    DASHBOARD: "Dashboard",
-    PARQUE: "Parque Vehicular",
-    PETICIONES: "Peticiones",
-    REQUISICIONES: "Requisiciones",
-    ACUERDOS: "Acuerdos",
-    VALES: "Vales",
-    USUARIOS: "Usuarios",
-    AUDITORIA: "Auditoría",
-    ORDENES_TRABAJO: "Órdenes de Trabajo",
-    INVENTARIO: "Inventario",
-    COMPRAS: "Compras",
-    PROVEEDORES: "Proveedores",
-    REPORTES: "Reportes",
-    NOTIFICACIONES: "Notificaciones",
-    DOCUMENTOS: "Documentos",
-    BI: "Inteligencia de Negocio"
-  };
+    const MODULOS = {
+      DASHBOARD: "Dashboard",
+      PARQUE: "Parque Vehicular",
+      PETICIONES: "Peticiones",
+      REQUISICIONES: "Requisiciones",
+      ACUERDOS: "Acuerdos",
+      VALES: "Vales",
+      USUARIOS: "Usuarios",
+      AUDITORIA: "Auditoría",
+      ORDENES_TRABAJO: "Órdenes de Trabajo",
+      TIEMPO_EXTRA: "Tiempo Extra",
+      INVENTARIO: "Inventario",
+      COMPRAS: "Compras",
+      PROVEEDORES: "Proveedores",
+      REPORTES: "Reportes",
+      NOTIFICACIONES: "Notificaciones",
+      DOCUMENTOS: "Documentos",
+      BI: "Inteligencia de Negocio"
+    };
 
   const RUTAS = {
     [MODULOS.DASHBOARD]: "../EstrategiaT/dashboard.html",
@@ -32,6 +33,7 @@
     [MODULOS.USUARIOS]: "../EstrategiaT/modulos/usuarios.html",
     [MODULOS.AUDITORIA]: "../EstrategiaT/modulos/auditoria.html",
     [MODULOS.ORDENES_TRABAJO]: "../EstrategiaT/modulos/ordenes-trabajo.html",
+    [MODULOS.TIEMPO_EXTRA]: "../EstrategiaT/modulos/tiempo-extra.html",
     [MODULOS.INVENTARIO]: "../EstrategiaT/modulos/inventario.html",
     [MODULOS.COMPRAS]: "../EstrategiaT/modulos/compras.html",
     [MODULOS.PROVEEDORES]: "../EstrategiaT/modulos/proveedores.html",
@@ -57,7 +59,8 @@
     [MODULOS.REPORTES]: "Reportes personalizados con exportación.",
     [MODULOS.NOTIFICACIONES]: "Alertas, recordatorios y aprobaciones.",
     [MODULOS.DOCUMENTOS]: "Gestión documental centralizada.",
-    [MODULOS.BI]: "Análisis avanzado y mantenimiento predictivo."
+    [MODULOS.BI]: "Análisis avanzado y mantenimiento predictivo.",
+    [MODULOS.TIEMPO_EXTRA]: "Gestión de solicitudes y autorizaciones de tiempo extra."
   };
 
   const PERMISOS = {
@@ -68,7 +71,7 @@
       MODULOS.DASHBOARD, MODULOS.PARQUE, MODULOS.PETICIONES,
       MODULOS.REQUISICIONES, MODULOS.ACUERDOS, MODULOS.VALES, MODULOS.ORDENES_TRABAJO,
       MODULOS.INVENTARIO, MODULOS.COMPRAS, MODULOS.PROVEEDORES,
-      MODULOS.REPORTES, MODULOS.NOTIFICACIONES, MODULOS.DOCUMENTOS, MODULOS.BI
+      MODULOS.REPORTES, MODULOS.NOTIFICACIONES, MODULOS.DOCUMENTOS, MODULOS.BI, MODULOS.TIEMPO_EXTRA
     ],
     "Coordinador": [
       MODULOS.DASHBOARD, MODULOS.PARQUE, MODULOS.PETICIONES,
@@ -81,18 +84,18 @@
     ],
     "Técnico": [
       MODULOS.DASHBOARD, MODULOS.PARQUE, MODULOS.PETICIONES, MODULOS.ACUERDOS,  
-      MODULOS.ORDENES_TRABAJO, MODULOS.NOTIFICACIONES
+      MODULOS.ORDENES_TRABAJO, MODULOS.NOTIFICACIONES, MODULOS.TIEMPO_EXTRA
     ],
     "Solo Lectura": [
       MODULOS.DASHBOARD, MODULOS.PARQUE, MODULOS.PETICIONES,
-      MODULOS.REQUISICIONES, MODULOS.VALES, MODULOS.REPORTES
+      MODULOS.REQUISICIONES, MODULOS.VALES, MODULOS.REPORTES, MODULOS.TIEMPO_EXTRA
     ],
     SuperAdmin: Object.values(MODULOS),
     Admin: [
       MODULOS.DASHBOARD, MODULOS.PARQUE, MODULOS.PETICIONES, MODULOS.ACUERDOS,
       MODULOS.REQUISICIONES, MODULOS.VALES, MODULOS.AUDITORIA,
       MODULOS.ORDENES_TRABAJO, MODULOS.INVENTARIO, MODULOS.COMPRAS, MODULOS.PROVEEDORES,
-      MODULOS.REPORTES, MODULOS.NOTIFICACIONES, MODULOS.DOCUMENTOS, MODULOS.BI
+      MODULOS.REPORTES, MODULOS.NOTIFICACIONES, MODULOS.DOCUMENTOS, MODULOS.BI, MODULOS.TIEMPO_EXTRA
     ],
     Compras: [MODULOS.DASHBOARD, MODULOS.PETICIONES, MODULOS.REQUISICIONES, MODULOS.COMPRAS, MODULOS.PARQUE],
     Almacen: [MODULOS.DASHBOARD, MODULOS.PETICIONES, MODULOS.VALES, MODULOS.INVENTARIO, MODULOS.PARQUE],

@@ -30,6 +30,7 @@ const permisos = {
     "Parque Vehicular",
     "Peticiones",
     "Requisiciones",
+    "Acuerdos",
     "Vales",
     "Dashboard",
     "Usuarios",
@@ -37,17 +38,20 @@ const permisos = {
   ],
   Almacen: [
     "Peticiones",
+    "Acuerdos",
     "Vales",
     "Dashboard"
   ],
   Compras: [
     "Peticiones",
     "Requisiciones",
+    "Acuerdos",
     "Dashboard"
   ],
   Consulta: [
     "Parque Vehicular",
     "Peticiones",
+    "Acuerdos",
     "Requisiciones",
     "Dashboard"
   ]
@@ -60,7 +64,8 @@ const descripciones = {
   "Vales": "Registro y consulta de vales de salida.",
   "Dashboard": "Indicadores generales del sistema.",
   "Usuarios": "Administración de usuarios y permisos.",
-  "Auditoría": "Historial de movimientos del sistema."
+  "Auditoría": "Historial de movimientos del sistema.",
+  "Acuerdos": "Gestión de acuerdos y tareas pendientes."
 };
 
 const btnLogin = document.getElementById("btnLogin");
