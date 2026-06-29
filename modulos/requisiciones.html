@@ -361,7 +361,7 @@
             "<td>" + (r.oc || "Pendiente") + "</td>" +
             "<td>" + (r.factura || "Pendiente") + "</td>" +
             "<td>" + formatoMoneda(r.monto) + "</td>" +
-            '<td><span class="badge ' + obtenerClaseEstatusReq(r.estatus) + '">' + r.estatus + "</span></td>" +
+            '<td><span style="white-space: nowrap;" class="badge ' + obtenerClaseEstatusReq(r.estatus) + '">' + r.estatus + "</span></td>" +
             "<td>" +
               '<button type="button" class="action-btn" onclick="verRequisicion(\'' + r.id + '\')">Ver</button>' +
               (soloLectura ? "" :
