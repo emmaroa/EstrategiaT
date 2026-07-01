@@ -1,7 +1,4 @@
-/**
- * Cliente Supabase centralizado — Administración de Talleres
- * Importar después de @supabase/supabase-js CDN
- */
+
 (function (global) {
   const SUPABASE_URL = "https://knjuevjxfyohcxrsldpb.supabase.co";
   const SUPABASE_KEY = "sb_publishable_f_1SKtetMWPSNmZ5eSRaOw_RYtHenaR";

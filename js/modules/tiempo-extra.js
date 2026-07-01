@@ -8,7 +8,7 @@ let periodoActual = null;
       return window.supabaseClient;
     }
 
-    if (window.supabase && typeof window.supabase.from === "function") {
+    if (window.supabase && typeof window.supabaseClient.from === "function") {
       return window.supabase;
     }
 
@@ -246,6 +246,319 @@ function limpiarDatosEmpleado() {
     $("docHoras").textContent = totalHoras;
   }
 
+async function cargarArchivoComoArrayBuffer(ruta) {
+  const res = await fetch(ruta);
+
+  if (!res.ok) {
+    throw new Error("No se pudo cargar la plantilla: " + ruta);
+  }
+
+  return await res.arrayBuffer();
+}
+
+function obtenerPeriodoTexto() {
+  const inicio = periodoInicio.value;
+  const fin = periodoFin.value;
+
+  if (!inicio || !fin) return "SIN PERIODO";
+
+  return `${formatearFechaLarga(inicio)} AL ${formatearFechaLarga(fin)}`;
+}
+
+function formatearFechaLarga(fechaISO) {
+  const fecha = new Date(fechaISO + "T00:00:00");
+
+  return fecha.toLocaleDateString("es-MX", {
+    day: "numeric",
+    month: "long",
+    year: "numeric"
+  }).toUpperCase();
+}
+
+function obtenerMesPeriodo() {
+  if (!periodoInicio.value) return "";
+
+  const fecha = new Date(periodoInicio.value + "T00:00:00");
+
+  return fecha.toLocaleDateString("es-MX", {
+    month: "long"
+  }).toUpperCase();
+}
+
+function obtenerAnioPeriodo() {
+  if (!periodoInicio.value) return "";
+
+  return new Date(periodoInicio.value + "T00:00:00").getFullYear();
+}
+
+function descargarArchivo(buffer, nombre, tipo) {
+  const blob = new Blob([buffer], { type: tipo });
+  saveAs(blob, nombre);
+}
+
+async function generarGeneradorIndividual(empleado) {
+  const buffer = await cargarArchivoComoArrayBuffer("../templates/GENERADOR_DE_TIEMPO_XTRA.xlsx");
+
+  const workbook = new ExcelJS.Workbook();
+  await workbook.xlsx.load(buffer);
+
+  const sheet = workbook.worksheets[0];
+
+  sheet.name = empleado.nombre.substring(0, 31);
+
+  const inicio = new Date(periodoInicio.value + "T00:00:00");
+  const fin = new Date(periodoFin.value + "T00:00:00");
+
+  sheet.getCell("C2").value = inicio.getDate();
+  sheet.getCell("F2").value = fin.getDate();
+  sheet.getCell("H2").value = obtenerMesPeriodo();
+  sheet.getCell("J2").value = obtenerAnioPeriodo();
+
+  sheet.getCell("C4").value = empleado.direccion || "DIRECCION DE TALLERES";
+  sheet.getCell("C5").value = empleado.departamento || "";
+  sheet.getCell("C6").value = empleado.nombre || "";
+  sheet.getCell("C7").value = empleado.numero || "";
+  sheet.getCell("G7").value = empleado.puesto || "";
+
+  const dias = empleado.dias || [];
+
+  for (let i = 0; i < 7; i++) {
+    const fila = 11 + i;
+    const dia = dias[i];
+
+    if (!dia) {
+      sheet.getCell(`B${fila}`).value = "";
+      sheet.getCell(`C${fila}`).value = "";
+      sheet.getCell(`D${fila}`).value = "";
+      sheet.getCell(`E${fila}`).value = "";
+      sheet.getCell(`F${fila}`).value = "";
+      continue;
+    }
+
+    sheet.getCell(`B${fila}`).value = dia.dia || "";
+    sheet.getCell(`C${fila}`).value = dia.entrada || "";
+    sheet.getCell(`D${fila}`).value = dia.salida || "";
+    sheet.getCell(`E${fila}`).value = Number(dia.horas || 0);
+    sheet.getCell(`F${fila}`).value = dia.actividad || empleado.actividad || "";
+  }
+
+  sheet.getCell("E18").value = Number(empleado.totalHoras || 0);
+
+  const salida = await workbook.xlsx.writeBuffer();
+
+  descargarArchivo(
+    salida,
+    `Generador_${empleado.numero}_${empleado.nombre}.xlsx`,
+    "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+  );
+}
+
+async function generarRelacionSemanal() {
+  if (!empleadosAgregados.length) {
+    alert("Agrega empleados antes de generar la relación semanal.");
+    return;
+  }
+
+  const buffer = await cargarArchivoComoArrayBuffer("../templates/RELACION_SEMANAL_TIEMPO_EXTRA.xlsx");
+
+  const workbook = new ExcelJS.Workbook();
+  await workbook.xlsx.load(buffer);
+
+  const sheet = workbook.getWorksheet("relacion semanal") || workbook.worksheets[0];
+
+  const totalHoras = empleadosAgregados.reduce((sum, emp) => {
+    return sum + Number(emp.totalHoras || 0);
+  }, 0);
+
+  sheet.getCell("D7").value = obtenerPeriodoTexto();
+  sheet.getCell("C8").value = empleadosAgregados.length;
+  sheet.getCell("C9").value = totalHoras;
+
+  for (let i = 0; i < 19; i++) {
+    const fila = 12 + i;
+
+    sheet.getCell(`B${fila}`).value = "";
+    sheet.getCell(`C${fila}`).value = "";
+    sheet.getCell(`D${fila}`).value = "";
+    sheet.getCell(`E${fila}`).value = "";
+  }
+
+  empleadosAgregados.forEach((emp, index) => {
+    const fila = 12 + index;
+
+    sheet.getCell(`B${fila}`).value = emp.numero || "";
+    sheet.getCell(`C${fila}`).value = Number(emp.totalHoras || 0);
+    sheet.getCell(`D${fila}`).value = emp.nombre || "";
+    sheet.getCell(`E${fila}`).value = emp.coste || "";
+  });
+
+  const salida = await workbook.xlsx.writeBuffer();
+
+  descargarArchivo(
+    salida,
+    `Relacion_Semanal_Tiempo_Extra_${periodoInicio.value || "periodo"}.xlsx`,
+    "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+  );
+}
+
+
+async function generarOficioWord() {
+  if (!empleadosAgregados.length) {
+    alert("Agrega empleados antes de generar el oficio.");
+    return;
+  }
+
+  const buffer = await cargarArchivoComoArrayBuffer("../templates/OFICIO_TIEMPO_EXTRA.docx");
+
+  const zip = new PizZip(buffer);
+  const doc = new window.docxtemplater(zip, {
+    paragraphLoop: true,
+    linebreaks: true
+  });
+
+  const totalHoras = empleadosAgregados.reduce((sum, emp) => {
+    return sum + Number(emp.totalHoras || 0);
+  }, 0);
+
+  doc.render({
+    OFICIO: numeroOficio.value || "",
+    FECHA_OFICIO: formatearFechaLarga(fechaOficio.value),
+    DIRIGIDO_A: dirigidoA.value || "",
+    PERIODO: obtenerPeriodoTexto(),
+    ADSCRIPCION: adscripcion.value || "DIRECCION DE TALLERES",
+    NUM_EMPLEADOS: empleadosAgregados.length,
+    TOTAL_HORAS: totalHoras
+  });
+
+  const salida = doc.getZip().generate({
+    type: "blob",
+    mimeType: "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+  });
+
+  saveAs(salida, `Oficio_Tiempo_Extra_${numeroOficio.value || "sin_oficio"}.docx`);
+}
+
+
+async function generarPaqueteFormatos() {
+  if (!empleadosAgregados.length) {
+    alert("Agrega al menos un empleado.");
+    return;
+  }
+
+  const zip = new JSZip();
+
+  await agregarRelacionSemanalAlZip(zip);
+  await agregarOficioAlZip(zip);
+
+  const carpetaGeneradores = zip.folder("Generadores");
+
+  for (const emp of empleadosAgregados) {
+    await agregarGeneradorAlZip(carpetaGeneradores, emp);
+  }
+
+  const contenido = await zip.generateAsync({ type: "blob" });
+
+  saveAs(contenido, `Tiempo_Extra_${periodoInicio.value || "periodo"}.zip`);
+}
+
+async function agregarGeneradorAlZip(zip, empleado) {
+  const buffer = await cargarArchivoComoArrayBuffer("../templates/GENERADOR_DE_TIEMPO_XTRA.xlsx");
+
+  const workbook = new ExcelJS.Workbook();
+  await workbook.xlsx.load(buffer);
+
+  const sheet = workbook.worksheets[0];
+
+  sheet.name = empleado.nombre.substring(0, 31);
+
+  sheet.getCell("C4").value = empleado.direccion || "DIRECCION DE TALLERES";
+  sheet.getCell("C5").value = empleado.departamento || "";
+  sheet.getCell("C6").value = empleado.nombre || "";
+  sheet.getCell("C7").value = empleado.numero || "";
+  sheet.getCell("G7").value = empleado.puesto || "";
+
+  const dias = empleado.dias || [];
+
+  for (let i = 0; i < 7; i++) {
+    const fila = 11 + i;
+    const dia = dias[i];
+
+    sheet.getCell(`B${fila}`).value = dia?.dia || "";
+    sheet.getCell(`C${fila}`).value = dia?.entrada || "";
+    sheet.getCell(`D${fila}`).value = dia?.salida || "";
+    sheet.getCell(`E${fila}`).value = Number(dia?.horas || 0);
+    sheet.getCell(`F${fila}`).value = dia?.actividad || empleado.actividad || "";
+  }
+
+  sheet.getCell("E18").value = Number(empleado.totalHoras || 0);
+
+  const salida = await workbook.xlsx.writeBuffer();
+
+  zip.file(`Generador_${empleado.numero}_${empleado.nombre}.xlsx`, salida);
+}
+
+
+async function agregarRelacionSemanalAlZip(zip) {
+  const buffer = await cargarArchivoComoArrayBuffer("../templates/RELACION_SEMANAL_TIEMPO_EXTRA.xlsx");
+
+  const workbook = new ExcelJS.Workbook();
+  await workbook.xlsx.load(buffer);
+
+  const sheet = workbook.getWorksheet("relacion semanal") || workbook.worksheets[0];
+
+  const totalHoras = empleadosAgregados.reduce((sum, emp) => {
+    return sum + Number(emp.totalHoras || 0);
+  }, 0);
+
+  sheet.getCell("D7").value = obtenerPeriodoTexto();
+  sheet.getCell("C8").value = empleadosAgregados.length;
+  sheet.getCell("C9").value = totalHoras;
+
+  empleadosAgregados.forEach((emp, index) => {
+    const fila = 12 + index;
+
+    sheet.getCell(`B${fila}`).value = emp.numero || "";
+    sheet.getCell(`C${fila}`).value = Number(emp.totalHoras || 0);
+    sheet.getCell(`D${fila}`).value = emp.nombre || "";
+    sheet.getCell(`E${fila}`).value = emp.coste || "";
+  });
+
+  const salida = await workbook.xlsx.writeBuffer();
+
+  zip.file("Relacion_Semanal_Tiempo_Extra.xlsx", salida);
+}
+
+async function agregarOficioAlZip(zip) {
+  const buffer = await cargarArchivoComoArrayBuffer("../templates/OFICIO_TIEMPO_EXTRA.docx");
+
+  const docZip = new PizZip(buffer);
+  const doc = new window.docxtemplater(docZip, {
+    paragraphLoop: true,
+    linebreaks: true
+  });
+
+  const totalHoras = empleadosAgregados.reduce((sum, emp) => {
+    return sum + Number(emp.totalHoras || 0);
+  }, 0);
+
+  doc.render({
+    OFICIO: numeroOficio.value || "",
+    FECHA_OFICIO: formatearFechaLarga(fechaOficio.value),
+    DIRIGIDO_A: dirigidoA.value || "",
+    PERIODO: obtenerPeriodoTexto(),
+    ADSCRIPCION: adscripcion.value || "DIRECCION DE TALLERES",
+    NUM_EMPLEADOS: empleadosAgregados.length,
+    TOTAL_HORAS: totalHoras
+  });
+
+  const salida = doc.getZip().generate({
+    type: "blob",
+    mimeType: "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+  });
+
+  zip.file("Oficio_Tiempo_Extra.docx", salida);
+}
+
   async function guardarPeriodoTemporal() {
   const inicio = $("periodoInicio").value;
   const fin = $("periodoFin").value;
@@ -354,11 +667,9 @@ function cambiarTab(tab) {
     alert("Aquí irá la vista previa del paquete: generadores, resumen y oficio.");
   }
 
-  function generarPDF() {
-    if (!empleadosAgregados.length) {
-      alert("Agrega al menos un empleado antes de generar el PDF.");
-      return;
-    }
+function generarPDF() {
+  generarPaqueteFormatos();
+}
 
     alert("Aquí generaremos el PDF completo.");
   }
