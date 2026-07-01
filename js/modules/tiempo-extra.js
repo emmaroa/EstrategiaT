@@ -3,6 +3,18 @@
 let periodoActual = null;
   const $ = (id) => document.getElementById(id);
 
+  function getSupabaseClient() {
+    if (window.supabaseClient && typeof window.supabaseClient.from === "function") {
+      return window.supabaseClient;
+    }
+
+    if (window.supabase && typeof window.supabase.from === "function") {
+      return window.supabase;
+    }
+
+    return null;
+  }
+
   document.addEventListener("DOMContentLoaded", function () {
     configurarTabs();
     configurarHoras();
@@ -85,8 +97,14 @@ let periodoActual = null;
 
   limpiarDatosEmpleado();
 
+  const client = getSupabaseClient();
+  if (!client) {
+    alert("No se pudo conectar con Supabase.");
+    return;
+  }
+
   try {
-    const { data, error } = await supabase
+    const { data, error } = await client
       .from("empleados")
       .select("*")
       .eq("num_empleado", num)
@@ -244,8 +262,14 @@ function limpiarDatosEmpleado() {
   const semana = obtenerSemanaISO(inicio);
   const anio = new Date(inicio + "T00:00:00").getFullYear();
 
+  const client = getSupabaseClient();
+  if (!client) {
+    alert("No se pudo conectar con Supabase.");
+    return;
+  }
+
   try {
-    const { data, error } = await supabase
+    const { data, error } = await client
       .from("periodos_tiempo_extra")
       .insert({
         fecha_inicio: inicio,
