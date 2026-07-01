@@ -100,7 +100,7 @@ function cerrarModal() {
 
 async function cargarAcuerdos() {
   if (!db || typeof db.from !== "function") {
-    console.error("Supabase no está inicializado. Revisa ../js/config/supabase.js");
+    console.error("Supabase no está inicializado. Revisa ../js/core/supabase.js");
     alert("No se pudo conectar con Supabase.");
     return;
   }

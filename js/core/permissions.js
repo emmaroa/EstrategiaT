@@ -24,23 +24,23 @@
     };
 
   const RUTAS = {
-    [MODULOS.DASHBOARD]: "../EstrategiaT/dashboard.html",
-    [MODULOS.PARQUE]: "../EstrategiaT/modulos/parque-vehicular.html",
-    [MODULOS.PETICIONES]: "../EstrategiaT/modulos/peticiones.html",
-    [MODULOS.REQUISICIONES]: "../EstrategiaT/modulos/requisiciones.html",
-    [MODULOS.ACUERDOS]: "../EstrategiaT/modulos/acuerdos.html",
-    [MODULOS.VALES]: "../EstrategiaT/modulos/vales.html",
-    [MODULOS.USUARIOS]: "../EstrategiaT/modulos/usuarios.html",
-    [MODULOS.AUDITORIA]: "../EstrategiaT/modulos/auditoria.html",
-    [MODULOS.ORDENES_TRABAJO]: "../EstrategiaT/modulos/ordenes-trabajo.html",
-    [MODULOS.TIEMPO_EXTRA]: "../EstrategiaT/modulos/tiempo-extra.html",
-    [MODULOS.INVENTARIO]: "../EstrategiaT/modulos/inventario.html",
-    [MODULOS.COMPRAS]: "../EstrategiaT/modulos/compras.html",
-    [MODULOS.PROVEEDORES]: "../EstrategiaT/modulos/proveedores.html",
-    [MODULOS.REPORTES]: "../EstrategiaT/modulos/reportes.html",
-    [MODULOS.NOTIFICACIONES]: "../EstrategiaT/modulos/notificaciones.html",
-    [MODULOS.DOCUMENTOS]: "../EstrategiaT/modulos/documentos.html",
-    [MODULOS.BI]: "../EstrategiaT/modulos/bi.html"
+    [MODULOS.DASHBOARD]: "dashboard.html",
+    [MODULOS.PARQUE]: "modulos/parque-vehicular.html",
+    [MODULOS.PETICIONES]: "modulos/peticiones.html",
+    [MODULOS.REQUISICIONES]: "modulos/requisiciones.html",
+    [MODULOS.ACUERDOS]: "modulos/acuerdos.html",
+    [MODULOS.VALES]: "modulos/vales.html",
+    [MODULOS.USUARIOS]: "modulos/usuarios.html",
+    [MODULOS.AUDITORIA]: "modulos/auditoria.html",
+    [MODULOS.ORDENES_TRABAJO]: "modulos/ordenes-trabajo.html",
+    [MODULOS.TIEMPO_EXTRA]: "modulos/tiempo-extra.html",
+    [MODULOS.INVENTARIO]: "modulos/inventario.html",
+    [MODULOS.COMPRAS]: "modulos/compras.html",
+    [MODULOS.PROVEEDORES]: "modulos/proveedores.html",
+    [MODULOS.REPORTES]: "modulos/reportes.html",
+    [MODULOS.NOTIFICACIONES]: "modulos/notificaciones.html",
+    [MODULOS.DOCUMENTOS]: "modulos/documentos.html",
+    [MODULOS.BI]: "modulos/bi.html"
   };
 
   const DESCRIPCIONES = {
@@ -68,42 +68,114 @@
     jefe: Object.values(MODULOS),
     Jefe: Object.values(MODULOS),
     "Director": [
-      MODULOS.DASHBOARD, MODULOS.PARQUE, MODULOS.PETICIONES,
-      MODULOS.REQUISICIONES, MODULOS.ACUERDOS, MODULOS.VALES, MODULOS.ORDENES_TRABAJO,
-      MODULOS.INVENTARIO, MODULOS.COMPRAS, MODULOS.PROVEEDORES,
-      MODULOS.REPORTES, MODULOS.NOTIFICACIONES, MODULOS.DOCUMENTOS, MODULOS.BI, MODULOS.TIEMPO_EXTRA
+      MODULOS.DASHBOARD, 
+      MODULOS.PARQUE, 
+      MODULOS.PETICIONES,
+      MODULOS.REQUISICIONES, 
+      MODULOS.ACUERDOS, 
+      MODULOS.VALES, 
+      MODULOS.ORDENES_TRABAJO,
+      MODULOS.INVENTARIO, 
+      MODULOS.COMPRAS, 
+      MODULOS.PROVEEDORES,
+      MODULOS.REPORTES, 
+      MODULOS.NOTIFICACIONES, 
+      MODULOS.DOCUMENTOS, 
+      MODULOS.BI, 
+      MODULOS.TIEMPO_EXTRA
     ],
     "Coordinador": [
-      MODULOS.DASHBOARD, MODULOS.PARQUE, MODULOS.PETICIONES,
-      MODULOS.REQUISICIONES, MODULOS.ACUERDOS, MODULOS.VALES, MODULOS.ORDENES_TRABAJO,
-      MODULOS.INVENTARIO, MODULOS.COMPRAS, MODULOS.REPORTES, MODULOS.NOTIFICACIONES
+      MODULOS.DASHBOARD, 
+      MODULOS.PARQUE, 
+      MODULOS.PETICIONES,
+      MODULOS.REQUISICIONES, 
+      MODULOS.ACUERDOS, 
+      MODULOS.VALES, 
+      MODULOS.ORDENES_TRABAJO,
+      MODULOS.INVENTARIO, 
+      MODULOS.COMPRAS, 
+      MODULOS.REPORTES, 
+      MODULOS.NOTIFICACIONES
     ],
     "Encargado de Almacén": [
-      MODULOS.DASHBOARD, MODULOS.ACUERDOS, MODULOS.PETICIONES, MODULOS.VALES,
-      MODULOS.INVENTARIO, MODULOS.NOTIFICACIONES
+      MODULOS.DASHBOARD, 
+      MODULOS.ACUERDOS, 
+      MODULOS.PETICIONES, 
+      MODULOS.VALES,
+      MODULOS.INVENTARIO, 
+      MODULOS.NOTIFICACIONES
     ],
     "Técnico": [
-      MODULOS.DASHBOARD, MODULOS.PARQUE, MODULOS.PETICIONES, MODULOS.ACUERDOS,  
-      MODULOS.ORDENES_TRABAJO, MODULOS.NOTIFICACIONES, MODULOS.TIEMPO_EXTRA
+      MODULOS.DASHBOARD, 
+      MODULOS.PARQUE, 
+      MODULOS.PETICIONES, 
+      MODULOS.ACUERDOS,  
+      MODULOS.ORDENES_TRABAJO, 
+      MODULOS.NOTIFICACIONES, 
+      MODULOS.TIEMPO_EXTRA
     ],
     "Solo Lectura": [
-      MODULOS.DASHBOARD, MODULOS.PARQUE, MODULOS.PETICIONES,
-      MODULOS.REQUISICIONES, MODULOS.VALES, MODULOS.REPORTES, MODULOS.TIEMPO_EXTRA
+      MODULOS.DASHBOARD, 
+      MODULOS.PARQUE, 
+      MODULOS.PETICIONES,
+      MODULOS.REQUISICIONES, 
+      MODULOS.VALES, 
+      MODULOS.REPORTES, 
+      MODULOS.TIEMPO_EXTRA
     ],
     SuperAdmin: Object.values(MODULOS),
     Admin: [
-      MODULOS.DASHBOARD, MODULOS.PARQUE, MODULOS.PETICIONES, MODULOS.ACUERDOS,
-      MODULOS.REQUISICIONES, MODULOS.VALES, MODULOS.AUDITORIA,
-      MODULOS.ORDENES_TRABAJO, MODULOS.INVENTARIO, MODULOS.COMPRAS, MODULOS.PROVEEDORES,
-      MODULOS.REPORTES, MODULOS.NOTIFICACIONES, MODULOS.DOCUMENTOS, MODULOS.BI, MODULOS.TIEMPO_EXTRA
+      MODULOS.DASHBOARD, 
+      MODULOS.PARQUE, 
+      MODULOS.PETICIONES, 
+      MODULOS.ACUERDOS,
+      MODULOS.REQUISICIONES, 
+      MODULOS.VALES, 
+      MODULOS.AUDITORIA,
+      MODULOS.ORDENES_TRABAJO, 
+      MODULOS.INVENTARIO, 
+      MODULOS.COMPRAS, 
+      MODULOS.PROVEEDORES,
+      MODULOS.REPORTES, 
+      MODULOS.NOTIFICACIONES, 
+      MODULOS.DOCUMENTOS, 
+      MODULOS.BI, 
+      MODULOS.TIEMPO_EXTRA
     ],
-    Compras: [MODULOS.DASHBOARD, MODULOS.PETICIONES, MODULOS.REQUISICIONES, MODULOS.COMPRAS, MODULOS.PARQUE],
-    Almacen: [MODULOS.DASHBOARD, MODULOS.PETICIONES, MODULOS.VALES, MODULOS.INVENTARIO, MODULOS.PARQUE],
-    Consulta: [
-      MODULOS.DASHBOARD, MODULOS.PARQUE, MODULOS.PETICIONES,
-      MODULOS.REQUISICIONES, MODULOS.VALES, MODULOS.REPORTES
+    Compras: 
+    [
+      MODULOS.DASHBOARD, 
+      MODULOS.PETICIONES, 
+      MODULOS.REQUISICIONES, 
+      MODULOS.COMPRAS, 
+      MODULOS.PARQUE
     ],
-    CapturistaPV: [MODULOS.DASHBOARD, MODULOS.PARQUE]
+
+    Almacen: 
+    [
+    MODULOS.DASHBOARD, 
+    MODULOS.PETICIONES, 
+    MODULOS.VALES, 
+    MODULOS.INVENTARIO, 
+    MODULOS.PARQUE
+  ],
+
+    Consulta: 
+    [
+      MODULOS.DASHBOARD, 
+      MODULOS.PARQUE, 
+      MODULOS.PETICIONES,
+      MODULOS.REQUISICIONES, 
+      MODULOS.VALES, 
+      MODULOS.REPORTES
+    ],
+
+
+    CapturistaPV: 
+    [
+      MODULOS.DASHBOARD, 
+      MODULOS.PARQUE
+      ]
   };
 
   const ACCIONES_LECTURA = ["ver", "consultar", "exportar", "imprimir"];

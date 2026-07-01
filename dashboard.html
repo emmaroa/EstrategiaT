@@ -5,13 +5,13 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Administración de Talleres | Dashboard</title>
 
-  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="css/style.css">
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-  <script src="js/config/supabase.js"></script>
+  <script src="js/core/supabase.js"></script>
   <script src="js/core/permissions.js"></script>
   <script src="js/core/theme.js"></script>
-  <script src="js/components/layout.js"></script>
+  <script src="js/core/layout.js"></script>
   <script src="js/services/export.service.js"></script>
   <script src="js/services/dashboard.service.js"></script>
   <script src="login.js"></script>
@@ -185,7 +185,7 @@
       </div>
     </section>
 
-    <section class="panel">
+    <section class="panel" id="seccionRankingsOperativos">
       <div class="panel-header">
         <div>
           <h2>Rankings operativos</h2>
@@ -867,16 +867,19 @@ function consultarParqueVehicular() {
   }).join("");
 }
 
-document.getElementById("consultaParqueDigitos").addEventListener("keydown", function (e) {
-  if (e.key === "Enter") {
-    e.preventDefault();
-    consultarParqueVehicular();
-  }
-});
+const consultaParqueInput = document.getElementById("consultaParqueDigitos");
+if (consultaParqueInput) {
+  consultaParqueInput.addEventListener("keydown", function (e) {
+    if (e.key === "Enter") {
+      e.preventDefault();
+      consultarParqueVehicular();
+    }
+  });
 
-document.getElementById("consultaParqueDigitos").addEventListener("input", function () {
-  this.value = this.value.replace(/\D/g, "").slice(0, 4);
-});
+  consultaParqueInput.addEventListener("input", function () {
+    this.value = this.value.replace(/\D/g, "").slice(0, 4);
+  });
+}
 
     cargarDashboardReal();
   </script>
