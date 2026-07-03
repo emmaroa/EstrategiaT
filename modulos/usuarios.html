@@ -85,6 +85,7 @@
           <option value="Director">Director</option>
           <option value="Coordinador">Coordinador</option>
           <option value="Admin">Admin</option>
+          <option value="Moderador de Acuerdos">Moderador de Acuerdos</option>
           <option value="Encargado de Almacén">Encargado de Almacén</option>
           <option value="Técnico">Técnico</option>
           <option value="Compras">Compras</option>
@@ -159,6 +160,7 @@
             <option value="Director">Director</option>
             <option value="Coordinador">Coordinador</option>
             <option value="Admin">Admin</option>
+            <option value="Moderador de Acuerdos">Moderador de Acuerdos</option>
             <option value="Encargado de Almacén">Encargado de Almacén</option>
             <option value="Técnico">Técnico</option>
             <option value="Compras">Compras</option>
@@ -351,12 +353,13 @@
           <select data-modulo="${modulo}" style="min-width:180px;">
             <option value="none">Sin acceso</option>
             <option value="ver">Solo vista</option>
+            ${modulo === "Acuerdos" ? '<option value="moderar">Moderar acuerdos</option>' : ""}
             <option value="editar">Editar</option>
           </select>
         `;
 
         const select = fila.querySelector("select");
-        select.value = valorActual === "ver" || valorActual === "editar" ? valorActual : "none";
+        select.value = valorActual === "ver" || valorActual === "editar" || valorActual === "moderar" ? valorActual : "none";
         permisosModulosContainer.appendChild(fila);
       });
     }

@@ -163,14 +163,48 @@ function renderUsuariosTurnar() {
   });
 }
 
+function normalizarRolAcuerdos(rol) {
+  return String(rol || "")
+    .trim()
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .toLowerCase()
+    .replace(/[\s-]+/g, "_");
+}
+
 function esUsuarioAdministrador(usuarioActivo) {
   if (!usuarioActivo) return false;
-  return ["super_admin", "admin", "jefe"].includes(usuarioActivo.rol);
+  return ["super_admin", "superadmin", "administrador_del_sistema", "admin", "jefe"].includes(
+    normalizarRolAcuerdos(usuarioActivo.rol)
+  );
+}
+
+function esModeradorAcuerdos(usuarioActivo) {
+  if (!usuarioActivo) return false;
+  const rol = normalizarRolAcuerdos(usuarioActivo.rol);
+
+  if (rol === "moderador_de_acuerdos" || rol === "moderador_acuerdos") {
+    return true;
+  }
+
+  if (window.ETPermissions && typeof ETPermissions.obtenerPermisoModuloUsuario === "function") {
+    return ETPermissions.obtenerPermisoModuloUsuario(usuarioActivo, "Acuerdos") === "moderar";
+  }
+
+  return false;
+}
+
+function puedeVerTodosLosAcuerdos(usuarioActivo) {
+  return esUsuarioAdministrador(usuarioActivo) || esModeradorAcuerdos(usuarioActivo);
+}
+
+function puedeTurnarAcuerdos(usuarioActivo) {
+  return esUsuarioAdministrador(usuarioActivo) || esModeradorAcuerdos(usuarioActivo);
 }
 
 function esUsuarioAsignadoTurnado(acuerdo, usuarioActivo) {
   if (!acuerdo || !usuarioActivo) return false;
-  if (esUsuarioAdministrador(usuarioActivo)) return true;
+  if (puedeVerTodosLosAcuerdos(usuarioActivo)) return true;
   return acuerdo.asignado_a === usuarioActivo.id;
 }
 
@@ -261,10 +295,15 @@ function pintarTarjeta(acuerdo) {
 
 function botonesEstado(acuerdo) {
   const usuarioActivo = obtenerUsuarioActivo();
-  const puedeModificar = esUsuarioAdministrador(usuarioActivo) || acuerdo.asignado_a === usuarioActivo.id;
+  const puedeModificarEstado = esUsuarioAdministrador(usuarioActivo) || acuerdo.asignado_a === usuarioActivo.id;
+  const puedeTurnar = puedeTurnarAcuerdos(usuarioActivo);
 
-  if (!puedeModificar) {
+  if (!puedeModificarEstado && !puedeTurnar) {
     return "";
+  }
+
+  if (!puedeModificarEstado && puedeTurnar) {
+    return `<button type="button" class="action-btn orange" onclick="abrirTurnarModal('${acuerdo.id}')">Turnar</button>`;
   }
 
   return `
@@ -360,6 +399,12 @@ async function cambiarEstado(id, estado) {
 }
 
 function abrirTurnarModal(id) {
+  const usuarioActivo = obtenerUsuarioActivo();
+  if (!puedeTurnarAcuerdos(usuarioActivo)) {
+    alert("No tienes permiso para turnar acuerdos.");
+    return;
+  }
+
   acuerdoSeleccionadoParaTurnar = id;
   const modal = document.getElementById("modalTurnar");
   const titulo = document.getElementById("modalTurnarTitulo");
@@ -392,6 +437,10 @@ async function confirmarTurnar() {
   }
 
   const usuarioActivo = obtenerUsuarioActivo();
+  if (!puedeTurnarAcuerdos(usuarioActivo)) {
+    alert("No tienes permiso para turnar acuerdos.");
+    return;
+  }
 
   const { error } = await db
     .from("acuerdos")

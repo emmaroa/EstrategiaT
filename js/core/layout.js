@@ -39,13 +39,9 @@
     if (nav) {
 let permitidos = global.ETPermissions.obtenerModulosUsuario(usuario) || [];
 
-if (usuario.rol === "SuperAdmin" || usuario.rol === "Admin") {
-  permitidos = MODULOS_IMPLEMENTADOS;
-} else {
-  permitidos = permitidos.filter(function (m) {
-    return MODULOS_IMPLEMENTADOS.indexOf(m) >= 0;
-  });
-}
+permitidos = permitidos.filter(function (m) {
+  return MODULOS_IMPLEMENTADOS.indexOf(m) >= 0;
+});
 
       nav.innerHTML = permitidos.map(function (m) {
         const ruta = global.ETPermissions.obtenerRutaModulo(m, true);

@@ -15,8 +15,9 @@
   const permisos = window.ETPermissions
     ? window.ETPermissions.PERMISOS
     : {
-        SuperAdmin: ["Dashboard", "Parque Vehicular", "Peticiones", "Requisiciones", "Vales", "Usuarios", "Auditoría"],
-        Admin: ["Dashboard", "Parque Vehicular", "Peticiones", "Requisiciones", "Vales", "Auditoría"],
+        SuperAdmin: ["Dashboard", "Parque Vehicular", "Acuerdos", "Peticiones", "Requisiciones", "Vales", "Usuarios", "Auditoría", "Tiempo Extra"],
+        Admin: ["Dashboard", "Parque Vehicular", "Acuerdos", "Peticiones", "Requisiciones", "Vales", "Auditoría", "Tiempo Extra"],
+        "Moderador de Acuerdos": ["Dashboard", "Acuerdos"],
         Compras: ["Dashboard", "Peticiones", "Requisiciones"],
         Almacen: ["Dashboard", "Peticiones", "Vales"],
         Consulta: ["Dashboard", "Parque Vehicular", "Peticiones", "Requisiciones", "Vales"],
@@ -82,12 +83,33 @@
     }
   }
 
+  function normalizarRolLogin(rol) {
+    const clave = String(rol || "").trim().toLowerCase().replace(/[\s-]+/g, "_");
+    if (clave === "superadmin" || clave === "super_admin") return "SuperAdmin";
+    if (clave === "admin") return "Admin";
+    if (clave === "jefe") return "jefe";
+    if (clave === "moderador_de_acuerdos" || clave === "moderador_acuerdos") return "Moderador de Acuerdos";
+    return String(rol || "").trim();
+  }
+
   function obtenerModulosUsuario(data) {
     if (window.ETPermissions && typeof window.ETPermissions.obtenerModulosUsuario === "function") {
       return window.ETPermissions.obtenerModulosUsuario(data);
     }
 
-    return permisos[data && data.rol ? data.rol : ""] || [];
+    const permisosModulos = data && (data.modulos_permitidos || data.modulos || data.permisos_modulos || data.permisos || data.accesos);
+    if (Array.isArray(permisosModulos) && permisosModulos.length) {
+      return permisosModulos
+        .filter(function (item) {
+          return item && item.permiso !== "none";
+        })
+        .map(function (item) {
+          return typeof item === "string" ? item : item.modulo;
+        })
+        .filter(Boolean);
+    }
+
+    return permisos[normalizarRolLogin(data && data.rol ? data.rol : "")] || [];
   }
 
   async function iniciarSesion() {
@@ -132,11 +154,14 @@
       return;
     }
 
+    const rolNormalizado = normalizarRolLogin(data.rol);
     const usuarioActivo = {
       id: data.id,
       nombre: data.nombre,
       usuario: data.usuario,
-      rol: data.rol,
+      rol: rolNormalizado,
+      rol_original: data.rol,
+      modulos_permitidos: data.modulos_permitidos || [],
       modulos: obtenerModulosUsuario(data)
     };
 
@@ -177,7 +202,7 @@
 
     const modulosPermitidos = window.ETPermissions && typeof window.ETPermissions.obtenerModulosUsuario === "function"
       ? window.ETPermissions.obtenerModulosUsuario(usuarioActivo)
-      : (permisos[usuarioActivo.rol] || []);
+      : (permisos[normalizarRolLogin(usuarioActivo.rol)] || []);
 
     menuModulos.innerHTML = "";
     modulosCards.innerHTML = "";
@@ -271,7 +296,10 @@
       return false;
     }
 
-    const modulosPermitidos = permisos[usuarioActivo.rol] || [];
+    const rolNormalizado = normalizarRolLogin(usuarioActivo.rol);
+    const modulosPermitidos = window.ETPermissions && typeof window.ETPermissions.obtenerModulosUsuario === "function"
+      ? window.ETPermissions.obtenerModulosUsuario(usuarioActivo)
+      : (permisos[rolNormalizado] || []);
 
     if (!modulosPermitidos.includes(modulo)) {
       alert("No tienes permiso para acceder a este módulo.");

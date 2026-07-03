@@ -1,6 +1,11 @@
 (function () {
+  const DIAS_SEMANA = ["Lunes", "Martes", "Miercoles", "Jueves", "Viernes", "Sabado", "Domingo"];
+
   let empleadosAgregados = [];
-let periodoActual = null;
+  let periodoActual = null;
+  let indiceEdicion = null;
+  let modoAltaEmpleado = false;
+
   const $ = (id) => document.getElementById(id);
 
   function getSupabaseClient() {
@@ -8,11 +13,69 @@ let periodoActual = null;
       return window.supabaseClient;
     }
 
-    if (window.supabase && typeof window.supabaseClient.from === "function") {
+    if (window.supabase && typeof window.supabase.from === "function") {
       return window.supabase;
     }
 
     return null;
+  }
+
+  function escapeHTML(valor) {
+    return String(valor == null ? "" : valor)
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;")
+      .replace(/"/g, "&quot;")
+      .replace(/'/g, "&#039;");
+  }
+
+  function texto(valor, fallback = "") {
+    const str = String(valor == null ? "" : valor).trim();
+    return str || fallback;
+  }
+
+  function normalizarNombreDia(dia) {
+    return texto(dia)
+      .normalize("NFD")
+      .replace(/[\u0300-\u036f]/g, "")
+      .toLowerCase();
+  }
+
+  function normalizarDia(dia, fallbackActividad) {
+    const justificacion = texto(dia?.justificacion || dia?.actividad || dia?.motivo || fallbackActividad);
+    return {
+      dia: texto(dia?.dia),
+      fecha: texto(dia?.fecha),
+      entrada: texto(dia?.entrada),
+      salida: texto(dia?.salida),
+      horas: Number(dia?.horas || 0),
+      justificacion,
+      actividad: justificacion
+    };
+  }
+
+  function normalizarEmpleado(emp) {
+    const detalleOriginal = emp?.detalleDias || emp?.dias || [];
+    const actividadLegacy = emp?.actividad || emp?.justificacion || "";
+    const detalleDias = detalleOriginal.map((dia) => normalizarDia(dia, actividadLegacy));
+    const totalHoras = detalleDias.length
+      ? detalleDias.reduce((sum, dia) => sum + Number(dia.horas || 0), 0)
+      : Number(emp?.totalHoras || emp?.total_horas || 0);
+
+    return {
+      id: emp?.id || emp?.empleado_periodo_id || null,
+      empleadoId: emp?.empleadoId || emp?.empleado_id || null,
+      numEmpleado: texto(emp?.numEmpleado || emp?.numero || emp?.num_empleado),
+      numero: texto(emp?.numero || emp?.numEmpleado || emp?.num_empleado),
+      nombre: texto(emp?.nombre || emp?.nombre_completo),
+      direccion: texto(emp?.direccion),
+      departamento: texto(emp?.departamento),
+      puesto: texto(emp?.puesto),
+      coste: texto(emp?.coste || emp?.centro_costo),
+      totalHoras,
+      detalleDias,
+      dias: detalleDias
+    };
   }
 
   document.addEventListener("DOMContentLoaded", function () {
@@ -20,19 +83,13 @@ let periodoActual = null;
     configurarHoras();
     configurarBotones();
     actualizarResumen();
+    actualizarResumenDocumentos();
   });
 
   function configurarTabs() {
     document.querySelectorAll(".tab-btn").forEach(function (btn) {
       btn.addEventListener("click", function () {
-        const tab = btn.dataset.tab;
-
-        document.querySelectorAll(".tab-btn").forEach(b => b.classList.remove("active"));
-        document.querySelectorAll(".tab-panel").forEach(p => p.classList.remove("active"));
-
-        btn.classList.add("active");
-        $("tab-" + tab).classList.add("active");
-
+        cambiarTab(btn.dataset.tab);
         actualizarResumenDocumentos();
       });
     });
@@ -45,9 +102,13 @@ let periodoActual = null;
   }
 
   function configurarBotones() {
-    $("btnAgregarEmpleado")?.addEventListener("click", agregarEmpleado);
+    $("btnAgregarEmpleado")?.addEventListener("click", agregarOActualizarEmpleado);
+    $("btnCancelarEdicion")?.addEventListener("click", cancelarEdicion);
+    $("btnGuardarAltaEmpleado")?.addEventListener("click", guardarAltaEmpleado);
+    $("btnCancelarAltaEmpleado")?.addEventListener("click", cancelarAltaEmpleado);
     $("btnVistaPrevia")?.addEventListener("click", vistaPrevia);
-    $("btnGenerarPDF")?.addEventListener("click", generarPDF);
+    $("btnImprimirPDF")?.addEventListener("click", generarPDF);
+    $("btnGenerarPDF")?.addEventListener("click", generarPaqueteFormatos);
     $("btnGuardarPeriodo")?.addEventListener("click", guardarPeriodoTemporal);
     $("btnBuscarHistorial")?.addEventListener("click", buscarHistorial);
 
@@ -67,7 +128,7 @@ let periodoActual = null;
       total += Number(input.value || 0);
     });
 
-    $("totalHorasEmpleado").textContent = total;
+    if ($("totalHorasEmpleado")) $("totalHorasEmpleado").textContent = total;
     return total;
   }
 
@@ -77,76 +138,246 @@ let periodoActual = null;
     return Array.from(filas).map(function (fila) {
       const celdas = fila.querySelectorAll("td");
       const inputs = fila.querySelectorAll("input");
+      const justificacion = fila.querySelector(".justificacion-dia");
 
-      return {
+      return normalizarDia({
         dia: celdas[0]?.textContent || "",
         fecha: inputs[0]?.value || "",
         entrada: inputs[1]?.value || "",
         salida: inputs[2]?.value || "",
-        horas: Number(inputs[3]?.value || 0)
-      };
+        horas: Number(inputs[3]?.value || 0),
+        justificacion: justificacion?.value || ""
+      });
     }).filter(function (item) {
-      return item.horas > 0 || item.fecha || item.entrada || item.salida;
+      return item.horas > 0 || item.fecha || item.entrada || item.salida || item.justificacion;
     });
   }
 
-  async function buscarEmpleado() {
-  const num = $("numEmpleado").value.trim();
+  function validarDetalleDias(detalleDias) {
+    const diasConHorasSinJustificacion = detalleDias.filter(function (dia) {
+      return Number(dia.horas || 0) > 0 && !texto(dia.justificacion);
+    });
 
-  if (!num) return;
+    if (diasConHorasSinJustificacion.length) {
+      alert("Captura la justificacion de cada dia que tenga horas extra.");
+      return false;
+    }
 
-  limpiarDatosEmpleado();
-
-  const client = getSupabaseClient();
-  if (!client) {
-    alert("No se pudo conectar con Supabase.");
-    return;
+    return true;
   }
 
-  try {
-    const { data, error } = await client
-      .from("empleados")
-      .select("*")
-      .eq("num_empleado", num)
-      .eq("activo", true)
-      .single();
+  async function buscarEmpleado() {
+    const num = $("numEmpleado")?.value.trim();
 
-    if (error || !data) {
-      alert("No se encontró el empleado.");
+    if (!num) return;
+
+    if (modoAltaEmpleado && $("numEmpleado")?.dataset.altaNum === num) return;
+
+    limpiarDatosEmpleado();
+
+    const client = getSupabaseClient();
+    if (!client) {
+      alert("No se pudo conectar con Supabase.");
       return;
     }
 
+    try {
+      const { data, error } = await buscarEmpleadoCatalogo(client, num);
+
+      if (error || !data) {
+        prepararAltaEmpleado(num);
+        return;
+      }
+
+      cargarDatosEmpleado(data);
+    } catch (err) {
+      console.error("Error al buscar empleado:", err);
+      alert("Ocurrio un error al buscar el empleado.");
+    }
+  }
+
+  function cargarDatosEmpleado(data) {
     $("nombreEmpleado").value = data.nombre_completo || data.nombre || "";
     $("direccionEmpleado").value = data.direccion || "";
     $("departamentoEmpleado").value = data.departamento || "";
     $("puestoEmpleado").value = data.puesto || "";
-
-  } catch (err) {
-    console.error("Error al buscar empleado:", err);
-    alert("Ocurrió un error al buscar el empleado.");
+    $("numEmpleado").dataset.empleadoId = data.id || "";
+    desactivarAltaEmpleado();
   }
-}
 
-function limpiarDatosEmpleado() {
-  $("nombreEmpleado").value = "";
-  $("direccionEmpleado").value = "";
-  $("departamentoEmpleado").value = "";
-  $("puestoEmpleado").value = "";
-}
-  
+  function limpiarDatosEmpleado() {
+    $("nombreEmpleado").value = "";
+    $("direccionEmpleado").value = "";
+    $("departamentoEmpleado").value = "";
+    $("puestoEmpleado").value = "";
+    $("numEmpleado").dataset.empleadoId = "";
+  }
 
-  function agregarEmpleado() {
-    const numEmpleado = $("numEmpleado").value.trim();
-    const nombre = $("nombreEmpleado").value.trim();
-    const direccion = $("direccionEmpleado").value.trim();
-    const departamento = $("departamentoEmpleado").value.trim();
-    const puesto = $("puestoEmpleado").value.trim();
-    const actividad = $("actividadEmpleado").value.trim();
-    const totalHoras = calcularTotalEmpleado();
-    const detalleDias = obtenerDetalleDias();
+  function setCamposEmpleadoEditables(editable) {
+    ["nombreEmpleado", "direccionEmpleado", "departamentoEmpleado", "puestoEmpleado"].forEach(function (id) {
+      const input = $(id);
+      if (input) input.readOnly = !editable;
+    });
+  }
+
+  function prepararAltaEmpleado(numEmpleado) {
+    modoAltaEmpleado = true;
+    setCamposEmpleadoEditables(true);
+    $("numEmpleado").dataset.empleadoId = "";
+    $("numEmpleado").dataset.altaNum = numEmpleado;
+
+    const box = $("altaEmpleadoBox");
+    const mensaje = $("altaEmpleadoMensaje");
+    if (mensaje) {
+      mensaje.textContent = `El empleado ${numEmpleado} no existe. Captura sus datos basicos y guardalo en el catalogo.`;
+    }
+    if (box) box.hidden = false;
+
+    $("nombreEmpleado")?.focus();
+  }
+
+  function desactivarAltaEmpleado() {
+    modoAltaEmpleado = false;
+    setCamposEmpleadoEditables(false);
+    if ($("altaEmpleadoBox")) $("altaEmpleadoBox").hidden = true;
+    if ($("numEmpleado")) $("numEmpleado").dataset.altaNum = "";
+  }
+
+  function cancelarAltaEmpleado() {
+    desactivarAltaEmpleado();
+    limpiarDatosEmpleado();
+  }
+
+  function obtenerPayloadEmpleadoNuevo(preferirNombreCompleto = true) {
+    const numEmpleado = texto($("numEmpleado")?.value);
+    const nombre = texto($("nombreEmpleado")?.value);
+    const payload = {
+      num_empleado: numEmpleado,
+      direccion: texto($("direccionEmpleado")?.value),
+      departamento: texto($("departamentoEmpleado")?.value),
+      puesto: texto($("puestoEmpleado")?.value),
+      activo: true
+    };
+
+    if (preferirNombreCompleto) {
+      payload.nombre_completo = nombre;
+      payload.nombre = nombre;
+    } else {
+      payload.nombre = nombre;
+    }
+
+    return payload;
+  }
+
+  function esErrorColumnaInexistente(error) {
+    const mensaje = `${error?.message || ""} ${error?.details || ""} ${error?.hint || ""}`.toLowerCase();
+    return error?.code === "42703" || mensaje.includes("column") || mensaje.includes("schema cache");
+  }
+
+  async function buscarEmpleadoCatalogo(client, numEmpleado, soloActivos = true) {
+    let query = client
+      .from("empleados")
+      .select("*")
+      .eq("num_empleado", numEmpleado);
+
+    if (soloActivos) {
+      query = query.eq("activo", true);
+    }
+
+    const res = await query.maybeSingle();
+
+    if (res.error && soloActivos && esErrorColumnaInexistente(res.error)) {
+      return buscarEmpleadoCatalogo(client, numEmpleado, false);
+    }
+
+    return res;
+  }
+
+  async function insertarEmpleadoConFallback(client) {
+    const intentos = [
+      obtenerPayloadEmpleadoNuevo(true),
+      obtenerPayloadEmpleadoNuevo(false),
+      {
+        num_empleado: texto($("numEmpleado")?.value),
+        nombre: texto($("nombreEmpleado")?.value),
+        activo: true
+      },
+      {
+        num_empleado: texto($("numEmpleado")?.value),
+        nombre: texto($("nombreEmpleado")?.value)
+      }
+    ];
+
+    let ultimoError = null;
+
+    for (const payload of intentos) {
+      const { data, error } = await client
+        .from("empleados")
+        .insert(payload)
+        .select()
+        .single();
+
+      if (!error) return data;
+
+      ultimoError = error;
+      if (!esErrorColumnaInexistente(error)) break;
+    }
+
+    throw ultimoError;
+  }
+
+  async function guardarAltaEmpleado() {
+    const numEmpleado = texto($("numEmpleado")?.value);
+    const nombre = texto($("nombreEmpleado")?.value);
 
     if (!numEmpleado) {
-      alert("Ingresa el número de empleado.");
+      alert("Ingresa el numero de empleado.");
+      return;
+    }
+
+    if (!nombre) {
+      alert("Ingresa el nombre del empleado.");
+      $("nombreEmpleado")?.focus();
+      return;
+    }
+
+    const client = getSupabaseClient();
+    if (!client) {
+      alert("No se pudo conectar con Supabase.");
+      return;
+    }
+
+    try {
+      const existente = await buscarEmpleadoCatalogo(client, numEmpleado, false);
+
+      if (existente.error) throw existente.error;
+
+      if (existente.data) {
+        cargarDatosEmpleado(existente.data);
+        alert("El empleado ya existia en el catalogo y fue cargado.");
+        return;
+      }
+
+      const data = await insertarEmpleadoConFallback(client);
+      cargarDatosEmpleado(data);
+      alert("Empleado agregado al catalogo correctamente.");
+    } catch (err) {
+      console.error("Error al guardar empleado:", err);
+      alert("No se pudo guardar el empleado. Verifica las columnas y permisos de la tabla empleados.");
+    }
+  }
+
+  function agregarOActualizarEmpleado() {
+    const detalleDias = obtenerDetalleDias();
+    const totalHoras = detalleDias.reduce((sum, dia) => sum + Number(dia.horas || 0), 0);
+
+    if (!texto($("numEmpleado")?.value)) {
+      alert("Ingresa el numero de empleado.");
+      return;
+    }
+
+    if (modoAltaEmpleado || !$("numEmpleado")?.dataset.empleadoId) {
+      alert("Guarda o carga el empleado antes de agregar horas extra.");
       return;
     }
 
@@ -155,16 +386,25 @@ function limpiarDatosEmpleado() {
       return;
     }
 
-    empleadosAgregados.push({
-      numEmpleado,
-      nombre,
-      direccion,
-      departamento,
-      puesto,
-      actividad,
+    if (!validarDetalleDias(detalleDias)) return;
+
+    const empleado = normalizarEmpleado({
+      id: indiceEdicion == null ? null : empleadosAgregados[indiceEdicion]?.id,
+      empleadoId: $("numEmpleado").dataset.empleadoId || null,
+      numEmpleado: $("numEmpleado").value,
+      nombre: $("nombreEmpleado").value,
+      direccion: $("direccionEmpleado").value,
+      departamento: $("departamentoEmpleado").value,
+      puesto: $("puestoEmpleado").value,
       totalHoras,
       detalleDias
     });
+
+    if (indiceEdicion == null) {
+      empleadosAgregados.push(empleado);
+    } else {
+      empleadosAgregados[indiceEdicion] = empleado;
+    }
 
     renderTablaEmpleados();
     limpiarCapturaEmpleado();
@@ -172,8 +412,13 @@ function limpiarDatosEmpleado() {
     actualizarResumenDocumentos();
   }
 
+  function contarDiasJustificados(emp) {
+    return (emp.detalleDias || []).filter((dia) => Number(dia.horas || 0) > 0 && texto(dia.justificacion)).length;
+  }
+
   function renderTablaEmpleados() {
     const tbody = $("tablaTiempoExtra");
+    if (!tbody) return;
 
     if (!empleadosAgregados.length) {
       tbody.innerHTML = '<tr><td colspan="7" class="empty-state">Sin empleados agregados.</td></tr>';
@@ -183,51 +428,99 @@ function limpiarDatosEmpleado() {
     tbody.innerHTML = empleadosAgregados.map(function (emp, index) {
       return `
         <tr>
-          <td>${emp.numEmpleado}</td>
-          <td>${emp.nombre || "Sin nombre"}</td>
-          <td>${emp.departamento || "-"}</td>
-          <td>${emp.puesto || "-"}</td>
-          <td>${emp.totalHoras}</td>
-          <td>${emp.actividad || "-"}</td>
-          <td>
-            <button class="btn btn-danger btn-sm" onclick="TiempoExtra.eliminarEmpleado(${index})">
-              Eliminar
-            </button>
+          <td>${escapeHTML(emp.numEmpleado)}</td>
+          <td>${escapeHTML(emp.nombre || "Sin nombre")}</td>
+          <td>${escapeHTML(emp.departamento || "-")}</td>
+          <td>${escapeHTML(emp.puesto || "-")}</td>
+          <td>${Number(emp.totalHoras || 0)}</td>
+          <td>${contarDiasJustificados(emp)} de ${(emp.detalleDias || []).filter((dia) => Number(dia.horas || 0) > 0).length}</td>
+          <td class="acciones-tabla">
+            <button class="btn btn-secondary btn-sm" type="button" data-accion="editar" data-index="${index}">Editar</button>
+            <button class="btn btn-danger btn-sm" type="button" data-accion="eliminar" data-index="${index}">Eliminar</button>
           </td>
         </tr>
       `;
     }).join("");
+
+    tbody.querySelectorAll("button[data-accion]").forEach(function (btn) {
+      btn.addEventListener("click", function () {
+        const index = Number(btn.dataset.index);
+        if (btn.dataset.accion === "editar") editarEmpleado(index);
+        if (btn.dataset.accion === "eliminar") eliminarEmpleado(index);
+      });
+    });
+  }
+
+  function editarEmpleado(index) {
+    const emp = empleadosAgregados[index];
+    if (!emp) return;
+
+    desactivarAltaEmpleado();
+    indiceEdicion = index;
+    $("numEmpleado").value = emp.numEmpleado || emp.numero || "";
+    $("numEmpleado").dataset.empleadoId = emp.empleadoId || "";
+    $("nombreEmpleado").value = emp.nombre || "";
+    $("direccionEmpleado").value = emp.direccion || "";
+    $("departamentoEmpleado").value = emp.departamento || "";
+    $("puestoEmpleado").value = emp.puesto || "";
+
+    const filas = document.querySelectorAll("#tablaDias tr");
+    filas.forEach(function (fila) {
+      const inputs = fila.querySelectorAll("input");
+      const justificacion = fila.querySelector(".justificacion-dia");
+      const nombreDia = fila.querySelector("td")?.textContent || "";
+      const dia = obtenerDiaParaFila(emp, nombreDia) || {};
+
+      inputs[0].value = dia.fecha || "";
+      inputs[1].value = dia.entrada || "";
+      inputs[2].value = dia.salida || "";
+      inputs[3].value = dia.horas || "";
+      if (justificacion) justificacion.value = dia.justificacion || dia.actividad || "";
+    });
+
+    $("btnAgregarEmpleado").textContent = "Actualizar empleado";
+    $("btnCancelarEdicion").hidden = false;
+    calcularTotalEmpleado();
+    cambiarTab("captura");
   }
 
   function eliminarEmpleado(index) {
     empleadosAgregados.splice(index, 1);
+    if (indiceEdicion === index) limpiarCapturaEmpleado();
     renderTablaEmpleados();
     actualizarResumen();
     actualizarResumenDocumentos();
   }
 
-  function limpiarCapturaEmpleado() {
-    $("numEmpleado").value = "";
-    $("nombreEmpleado").value = "";
-    $("direccionEmpleado").value = "";
-    $("departamentoEmpleado").value = "";
-    $("puestoEmpleado").value = "";
-    $("actividadEmpleado").value = "";
+  function cancelarEdicion() {
+    limpiarCapturaEmpleado();
+  }
 
-    document.querySelectorAll("#tablaDias input").forEach(function (input) {
+  function limpiarCapturaEmpleado() {
+    indiceEdicion = null;
+    desactivarAltaEmpleado();
+    $("numEmpleado").value = "";
+    limpiarDatosEmpleado();
+
+    document.querySelectorAll("#tablaDias input, #tablaDias textarea").forEach(function (input) {
       input.value = "";
     });
 
+    $("btnAgregarEmpleado").textContent = "Agregar empleado";
+    $("btnCancelarEdicion").hidden = true;
     $("totalHorasEmpleado").textContent = "0";
   }
 
-  function actualizarResumen() {
-    const totalEmpleados = empleadosAgregados.length;
-    const totalHoras = empleadosAgregados.reduce(function (sum, emp) {
+  function obtenerTotalHoras() {
+    return empleadosAgregados.reduce(function (sum, emp) {
       return sum + Number(emp.totalHoras || 0);
     }, 0);
+  }
 
-    $("resumenPeriodo").textContent = `${totalEmpleados} empleados | ${totalHoras} horas`;
+  function actualizarResumen() {
+    if ($("resumenPeriodo")) {
+      $("resumenPeriodo").textContent = `${empleadosAgregados.length} empleados | ${obtenerTotalHoras()} horas`;
+    }
   }
 
   function actualizarResumenDocumentos() {
@@ -235,450 +528,751 @@ function limpiarDatosEmpleado() {
     const fin = $("periodoFin")?.value || "";
     const oficio = $("numeroOficio")?.value || "";
 
-    const totalEmpleados = empleadosAgregados.length;
-    const totalHoras = empleadosAgregados.reduce(function (sum, emp) {
-      return sum + Number(emp.totalHoras || 0);
-    }, 0);
-
-    $("docPeriodo").textContent = inicio && fin ? `${inicio} al ${fin}` : "Sin periodo";
-    $("docOficio").textContent = oficio || "Sin oficio";
-    $("docEmpleados").textContent = totalEmpleados;
-    $("docHoras").textContent = totalHoras;
+    if ($("docPeriodo")) $("docPeriodo").textContent = inicio && fin ? `${inicio} al ${fin}` : "Sin periodo";
+    if ($("docOficio")) $("docOficio").textContent = oficio || "Sin oficio";
+    if ($("docEmpleados")) $("docEmpleados").textContent = empleadosAgregados.length;
+    if ($("docHoras")) $("docHoras").textContent = obtenerTotalHoras();
   }
 
-async function cargarArchivoComoArrayBuffer(ruta) {
-  const res = await fetch(ruta);
+  async function cargarArchivoComoArrayBuffer(ruta) {
+    const res = await fetch(ruta);
 
-  if (!res.ok) {
-    throw new Error("No se pudo cargar la plantilla: " + ruta);
-  }
-
-  return await res.arrayBuffer();
-}
-
-function obtenerPeriodoTexto() {
-  const inicio = periodoInicio.value;
-  const fin = periodoFin.value;
-
-  if (!inicio || !fin) return "SIN PERIODO";
-
-  return `${formatearFechaLarga(inicio)} AL ${formatearFechaLarga(fin)}`;
-}
-
-function formatearFechaLarga(fechaISO) {
-  const fecha = new Date(fechaISO + "T00:00:00");
-
-  return fecha.toLocaleDateString("es-MX", {
-    day: "numeric",
-    month: "long",
-    year: "numeric"
-  }).toUpperCase();
-}
-
-function obtenerMesPeriodo() {
-  if (!periodoInicio.value) return "";
-
-  const fecha = new Date(periodoInicio.value + "T00:00:00");
-
-  return fecha.toLocaleDateString("es-MX", {
-    month: "long"
-  }).toUpperCase();
-}
-
-function obtenerAnioPeriodo() {
-  if (!periodoInicio.value) return "";
-
-  return new Date(periodoInicio.value + "T00:00:00").getFullYear();
-}
-
-function descargarArchivo(buffer, nombre, tipo) {
-  const blob = new Blob([buffer], { type: tipo });
-  saveAs(blob, nombre);
-}
-
-async function generarGeneradorIndividual(empleado) {
-  const buffer = await cargarArchivoComoArrayBuffer("../templates/GENERADOR_DE_TIEMPO_XTRA.xlsx");
-
-  const workbook = new ExcelJS.Workbook();
-  await workbook.xlsx.load(buffer);
-
-  const sheet = workbook.worksheets[0];
-
-  sheet.name = empleado.nombre.substring(0, 31);
-
-  const inicio = new Date(periodoInicio.value + "T00:00:00");
-  const fin = new Date(periodoFin.value + "T00:00:00");
-
-  sheet.getCell("C2").value = inicio.getDate();
-  sheet.getCell("F2").value = fin.getDate();
-  sheet.getCell("H2").value = obtenerMesPeriodo();
-  sheet.getCell("J2").value = obtenerAnioPeriodo();
-
-  sheet.getCell("C4").value = empleado.direccion || "DIRECCION DE TALLERES";
-  sheet.getCell("C5").value = empleado.departamento || "";
-  sheet.getCell("C6").value = empleado.nombre || "";
-  sheet.getCell("C7").value = empleado.numero || "";
-  sheet.getCell("G7").value = empleado.puesto || "";
-
-  const dias = empleado.dias || [];
-
-  for (let i = 0; i < 7; i++) {
-    const fila = 11 + i;
-    const dia = dias[i];
-
-    if (!dia) {
-      sheet.getCell(`B${fila}`).value = "";
-      sheet.getCell(`C${fila}`).value = "";
-      sheet.getCell(`D${fila}`).value = "";
-      sheet.getCell(`E${fila}`).value = "";
-      sheet.getCell(`F${fila}`).value = "";
-      continue;
+    if (!res.ok) {
+      throw new Error("No se pudo cargar la plantilla: " + ruta);
     }
 
-    sheet.getCell(`B${fila}`).value = dia.dia || "";
-    sheet.getCell(`C${fila}`).value = dia.entrada || "";
-    sheet.getCell(`D${fila}`).value = dia.salida || "";
-    sheet.getCell(`E${fila}`).value = Number(dia.horas || 0);
-    sheet.getCell(`F${fila}`).value = dia.actividad || empleado.actividad || "";
+    return await res.arrayBuffer();
   }
 
-  sheet.getCell("E18").value = Number(empleado.totalHoras || 0);
+  function obtenerPeriodoTexto() {
+    const inicio = $("periodoInicio")?.value;
+    const fin = $("periodoFin")?.value;
 
-  const salida = await workbook.xlsx.writeBuffer();
+    if (!inicio || !fin) return "SIN PERIODO";
 
-  descargarArchivo(
-    salida,
-    `Generador_${empleado.numero}_${empleado.nombre}.xlsx`,
-    "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
-  );
-}
-
-async function generarRelacionSemanal() {
-  if (!empleadosAgregados.length) {
-    alert("Agrega empleados antes de generar la relación semanal.");
-    return;
+    return `${formatearFechaLarga(inicio)} AL ${formatearFechaLarga(fin)}`;
   }
 
-  const buffer = await cargarArchivoComoArrayBuffer("../templates/RELACION_SEMANAL_TIEMPO_EXTRA.xlsx");
+  function formatearFechaLarga(fechaISO) {
+    if (!fechaISO) return "";
 
-  const workbook = new ExcelJS.Workbook();
-  await workbook.xlsx.load(buffer);
+    const fecha = new Date(fechaISO + "T00:00:00");
 
-  const sheet = workbook.getWorksheet("relacion semanal") || workbook.worksheets[0];
-
-  const totalHoras = empleadosAgregados.reduce((sum, emp) => {
-    return sum + Number(emp.totalHoras || 0);
-  }, 0);
-
-  sheet.getCell("D7").value = obtenerPeriodoTexto();
-  sheet.getCell("C8").value = empleadosAgregados.length;
-  sheet.getCell("C9").value = totalHoras;
-
-  for (let i = 0; i < 19; i++) {
-    const fila = 12 + i;
-
-    sheet.getCell(`B${fila}`).value = "";
-    sheet.getCell(`C${fila}`).value = "";
-    sheet.getCell(`D${fila}`).value = "";
-    sheet.getCell(`E${fila}`).value = "";
+    return fecha.toLocaleDateString("es-MX", {
+      day: "numeric",
+      month: "long",
+      year: "numeric"
+    }).toUpperCase();
   }
 
-  empleadosAgregados.forEach((emp, index) => {
-    const fila = 12 + index;
+  function obtenerMesPeriodo() {
+    if (!$("periodoInicio")?.value) return "";
 
-    sheet.getCell(`B${fila}`).value = emp.numero || "";
-    sheet.getCell(`C${fila}`).value = Number(emp.totalHoras || 0);
-    sheet.getCell(`D${fila}`).value = emp.nombre || "";
-    sheet.getCell(`E${fila}`).value = emp.coste || "";
-  });
+    const fecha = new Date($("periodoInicio").value + "T00:00:00");
 
-  const salida = await workbook.xlsx.writeBuffer();
-
-  descargarArchivo(
-    salida,
-    `Relacion_Semanal_Tiempo_Extra_${periodoInicio.value || "periodo"}.xlsx`,
-    "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
-  );
-}
-
-
-async function generarOficioWord() {
-  if (!empleadosAgregados.length) {
-    alert("Agrega empleados antes de generar el oficio.");
-    return;
+    return fecha.toLocaleDateString("es-MX", {
+      month: "long"
+    }).toUpperCase();
   }
 
-  const buffer = await cargarArchivoComoArrayBuffer("../templates/OFICIO_TIEMPO_EXTRA.docx");
-
-  const zip = new PizZip(buffer);
-  const doc = new window.docxtemplater(zip, {
-    paragraphLoop: true,
-    linebreaks: true
-  });
-
-  const totalHoras = empleadosAgregados.reduce((sum, emp) => {
-    return sum + Number(emp.totalHoras || 0);
-  }, 0);
-
-  doc.render({
-    OFICIO: numeroOficio.value || "",
-    FECHA_OFICIO: formatearFechaLarga(fechaOficio.value),
-    DIRIGIDO_A: dirigidoA.value || "",
-    PERIODO: obtenerPeriodoTexto(),
-    ADSCRIPCION: adscripcion.value || "DIRECCION DE TALLERES",
-    NUM_EMPLEADOS: empleadosAgregados.length,
-    TOTAL_HORAS: totalHoras
-  });
-
-  const salida = doc.getZip().generate({
-    type: "blob",
-    mimeType: "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
-  });
-
-  saveAs(salida, `Oficio_Tiempo_Extra_${numeroOficio.value || "sin_oficio"}.docx`);
-}
-
-
-async function generarPaqueteFormatos() {
-  if (!empleadosAgregados.length) {
-    alert("Agrega al menos un empleado.");
-    return;
+  function obtenerAnioPeriodo() {
+    if (!$("periodoInicio")?.value) return "";
+    return new Date($("periodoInicio").value + "T00:00:00").getFullYear();
   }
 
-  const zip = new JSZip();
-
-  await agregarRelacionSemanalAlZip(zip);
-  await agregarOficioAlZip(zip);
-
-  const carpetaGeneradores = zip.folder("Generadores");
-
-  for (const emp of empleadosAgregados) {
-    await agregarGeneradorAlZip(carpetaGeneradores, emp);
+  function descargarArchivo(buffer, nombre, tipo) {
+    const blob = new Blob([buffer], { type: tipo });
+    saveAs(blob, nombre);
   }
 
-  const contenido = await zip.generateAsync({ type: "blob" });
+  function obtenerHojaGenerador(workbook) {
+    const activeTab = workbook.views?.[0]?.activeTab;
+    const hojaActiva = Number.isInteger(activeTab) ? workbook.worksheets[activeTab] : null;
+    const hojaSeleccionada = workbook.worksheets.find((sheet) => {
+      return sheet.state !== "hidden" && sheet.views?.some((view) => view.tabSelected);
+    });
 
-  saveAs(contenido, `Tiempo_Extra_${periodoInicio.value || "periodo"}.zip`);
-}
+    if (hojaActiva && hojaActiva.state !== "hidden") {
+      return hojaActiva;
+    }
 
-async function agregarGeneradorAlZip(zip, empleado) {
-  const buffer = await cargarArchivoComoArrayBuffer("../templates/GENERADOR_DE_TIEMPO_XTRA.xlsx");
+    if (hojaSeleccionada) {
+      return hojaSeleccionada;
+    }
 
-  const workbook = new ExcelJS.Workbook();
-  await workbook.xlsx.load(buffer);
-
-  const sheet = workbook.worksheets[0];
-
-  sheet.name = empleado.nombre.substring(0, 31);
-
-  sheet.getCell("C4").value = empleado.direccion || "DIRECCION DE TALLERES";
-  sheet.getCell("C5").value = empleado.departamento || "";
-  sheet.getCell("C6").value = empleado.nombre || "";
-  sheet.getCell("C7").value = empleado.numero || "";
-  sheet.getCell("G7").value = empleado.puesto || "";
-
-  const dias = empleado.dias || [];
-
-  for (let i = 0; i < 7; i++) {
-    const fila = 11 + i;
-    const dia = dias[i];
-
-    sheet.getCell(`B${fila}`).value = dia?.dia || "";
-    sheet.getCell(`C${fila}`).value = dia?.entrada || "";
-    sheet.getCell(`D${fila}`).value = dia?.salida || "";
-    sheet.getCell(`E${fila}`).value = Number(dia?.horas || 0);
-    sheet.getCell(`F${fila}`).value = dia?.actividad || empleado.actividad || "";
+    const hojasVisibles = workbook.worksheets.filter((sheet) => sheet.state !== "hidden" && sheet.name !== "Combos");
+    return hojasVisibles[hojasVisibles.length - 1] || workbook.worksheets[0];
   }
 
-  sheet.getCell("E18").value = Number(empleado.totalHoras || 0);
+  function activarHojaGenerador(workbook, sheet) {
+    const activeTab = workbook.worksheets.findIndex((item) => item.id === sheet.id);
+    sheet.state = "visible";
 
-  const salida = await workbook.xlsx.writeBuffer();
+    workbook.views = workbook.views?.length ? workbook.views : [{}];
+    workbook.views[0].activeTab = activeTab >= 0 ? activeTab : 0;
+    workbook.views[0].firstSheet = activeTab >= 0 ? activeTab : 0;
+  }
 
-  zip.file(`Generador_${empleado.numero}_${empleado.nombre}.xlsx`, salida);
-}
+  function obtenerDiasEmpleado(empleado) {
+    return (empleado.detalleDias || empleado.dias || []).map((dia) => normalizarDia(dia, empleado.actividad));
+  }
 
+  function obtenerDiaParaFila(empleado, nombreDia) {
+    const buscado = normalizarNombreDia(nombreDia);
+    return obtenerDiasEmpleado(empleado).find((dia) => normalizarNombreDia(dia.dia) === buscado);
+  }
 
-async function agregarRelacionSemanalAlZip(zip) {
-  const buffer = await cargarArchivoComoArrayBuffer("../templates/RELACION_SEMANAL_TIEMPO_EXTRA.xlsx");
+  function obtenerDiasOrdenadosSemana(empleado) {
+    const dias = obtenerDiasEmpleado(empleado);
 
-  const workbook = new ExcelJS.Workbook();
-  await workbook.xlsx.load(buffer);
+    return DIAS_SEMANA.map(function (diaSemana) {
+      return dias.find((dia) => normalizarNombreDia(dia.dia) === normalizarNombreDia(diaSemana)) || {
+        dia: diaSemana,
+        fecha: "",
+        entrada: "",
+        salida: "",
+        horas: 0,
+        justificacion: ""
+      };
+    });
+  }
 
-  const sheet = workbook.getWorksheet("relacion semanal") || workbook.worksheets[0];
+  function escribirDiasEnGenerador(sheet, empleado) {
+    const dias = obtenerDiasOrdenadosSemana(empleado);
 
-  const totalHoras = empleadosAgregados.reduce((sum, emp) => {
-    return sum + Number(emp.totalHoras || 0);
-  }, 0);
+    for (let i = 0; i < 8; i++) {
+      const fila = 11 + i;
+      const dia = dias[i] || {};
 
-  sheet.getCell("D7").value = obtenerPeriodoTexto();
-  sheet.getCell("C8").value = empleadosAgregados.length;
-  sheet.getCell("C9").value = totalHoras;
+      sheet.getCell(`B${fila}`).value = dia.dia || DIAS_SEMANA[i] || "";
+      sheet.getCell(`C${fila}`).value = dia.entrada || "";
+      sheet.getCell(`D${fila}`).value = dia.salida || "";
+      sheet.getCell(`E${fila}`).value = Number(dia.horas || 0) || "";
+      sheet.getCell(`F${fila}`).value = dia.justificacion || "";
+    }
 
-  empleadosAgregados.forEach((emp, index) => {
-    const fila = 12 + index;
+    sheet.getCell("E19").value = {
+      formula: "SUM(E11:E18)",
+      result: Number(empleado.totalHoras || 0)
+    };
+  }
 
-    sheet.getCell(`B${fila}`).value = emp.numero || "";
-    sheet.getCell(`C${fila}`).value = Number(emp.totalHoras || 0);
-    sheet.getCell(`D${fila}`).value = emp.nombre || "";
-    sheet.getCell(`E${fila}`).value = emp.coste || "";
-  });
+  async function generarGeneradorIndividual(empleado) {
+    const buffer = await cargarArchivoComoArrayBuffer("../templates/GENERADOR_DE_TIEMPO_XTRA.xlsx");
+    const workbook = new ExcelJS.Workbook();
+    await workbook.xlsx.load(buffer);
 
-  const salida = await workbook.xlsx.writeBuffer();
+    const sheet = obtenerHojaGenerador(workbook);
+    sheet.name = texto(empleado.nombre, "Empleado").substring(0, 31);
+    activarHojaGenerador(workbook, sheet);
 
-  zip.file("Relacion_Semanal_Tiempo_Extra.xlsx", salida);
-}
+    const inicio = $("periodoInicio").value ? new Date($("periodoInicio").value + "T00:00:00") : null;
+    const fin = $("periodoFin").value ? new Date($("periodoFin").value + "T00:00:00") : null;
 
-async function agregarOficioAlZip(zip) {
-  const buffer = await cargarArchivoComoArrayBuffer("../templates/OFICIO_TIEMPO_EXTRA.docx");
+    sheet.getCell("D2").value = inicio ? inicio.getDate() : "";
+    sheet.getCell("F2").value = fin ? fin.getDate() : "";
+    sheet.getCell("H2").value = obtenerMesPeriodo();
+    sheet.getCell("J2").value = obtenerAnioPeriodo();
+    sheet.getCell("C4").value = empleado.direccion || "DIRECCION DE TALLERES";
+    sheet.getCell("C5").value = empleado.departamento || "";
+    sheet.getCell("C6").value = empleado.nombre || "";
+    sheet.getCell("C7").value = empleado.numEmpleado || empleado.numero || "";
+    sheet.getCell("G7").value = empleado.puesto || "";
 
-  const docZip = new PizZip(buffer);
-  const doc = new window.docxtemplater(docZip, {
-    paragraphLoop: true,
-    linebreaks: true
-  });
+    escribirDiasEnGenerador(sheet, empleado);
 
-  const totalHoras = empleadosAgregados.reduce((sum, emp) => {
-    return sum + Number(emp.totalHoras || 0);
-  }, 0);
+    const salida = await workbook.xlsx.writeBuffer();
 
-  doc.render({
-    OFICIO: numeroOficio.value || "",
-    FECHA_OFICIO: formatearFechaLarga(fechaOficio.value),
-    DIRIGIDO_A: dirigidoA.value || "",
-    PERIODO: obtenerPeriodoTexto(),
-    ADSCRIPCION: adscripcion.value || "DIRECCION DE TALLERES",
-    NUM_EMPLEADOS: empleadosAgregados.length,
-    TOTAL_HORAS: totalHoras
-  });
+    descargarArchivo(
+      salida,
+      `Generador_${empleado.numEmpleado || empleado.numero}_${empleado.nombre || "empleado"}.xlsx`,
+      "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+    );
+  }
 
-  const salida = doc.getZip().generate({
-    type: "blob",
-    mimeType: "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
-  });
+  async function generarRelacionSemanal() {
+    if (!empleadosAgregados.length) {
+      alert("Agrega empleados antes de generar la relacion semanal.");
+      return;
+    }
 
-  zip.file("Oficio_Tiempo_Extra.docx", salida);
-}
+    const buffer = await cargarArchivoComoArrayBuffer("../templates/RELACION_SEMANAL_TIEMPO_EXTRA.xlsx");
+    const workbook = new ExcelJS.Workbook();
+    await workbook.xlsx.load(buffer);
+
+    const sheet = workbook.getWorksheet("relacion semanal") || workbook.worksheets[0];
+
+    sheet.getCell("D7").value = obtenerPeriodoTexto();
+    sheet.getCell("C8").value = empleadosAgregados.length;
+    sheet.getCell("C9").value = obtenerTotalHoras();
+
+    for (let i = 0; i < 19; i++) {
+      const fila = 12 + i;
+      ["B", "C", "D", "E"].forEach((col) => {
+        sheet.getCell(`${col}${fila}`).value = "";
+      });
+    }
+
+    empleadosAgregados.forEach((emp, index) => {
+      const fila = 12 + index;
+
+      sheet.getCell(`B${fila}`).value = emp.numEmpleado || emp.numero || "";
+      sheet.getCell(`C${fila}`).value = Number(emp.totalHoras || 0);
+      sheet.getCell(`D${fila}`).value = emp.nombre || "";
+      sheet.getCell(`E${fila}`).value = emp.coste || "";
+    });
+
+    const salida = await workbook.xlsx.writeBuffer();
+
+    descargarArchivo(
+      salida,
+      `Relacion_Semanal_Tiempo_Extra_${$("periodoInicio").value || "periodo"}.xlsx`,
+      "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+    );
+  }
+
+  async function generarOficioWord() {
+    if (!empleadosAgregados.length) {
+      alert("Agrega empleados antes de generar el oficio.");
+      return;
+    }
+
+    const buffer = await cargarArchivoComoArrayBuffer("../templates/OFICIO_TIEMPO_EXTRA.docx");
+    const zip = new PizZip(buffer);
+    const doc = new window.docxtemplater(zip, {
+      paragraphLoop: true,
+      linebreaks: true
+    });
+
+    doc.render({
+      OFICIO: $("numeroOficio").value || "",
+      FECHA_OFICIO: formatearFechaLarga($("fechaOficio").value),
+      DIRIGIDO_A: $("dirigidoA").value || "",
+      PERIODO: obtenerPeriodoTexto(),
+      ADSCRIPCION: $("adscripcion").value || "DIRECCION DE TALLERES",
+      NUM_EMPLEADOS: empleadosAgregados.length,
+      TOTAL_HORAS: obtenerTotalHoras()
+    });
+
+    const salida = doc.getZip().generate({
+      type: "blob",
+      mimeType: "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+    });
+
+    saveAs(salida, `Oficio_Tiempo_Extra_${$("numeroOficio").value || "sin_oficio"}.docx`);
+  }
+
+  async function generarPaqueteFormatos() {
+    if (!empleadosAgregados.length) {
+      alert("Agrega al menos un empleado.");
+      return;
+    }
+
+    try {
+      const generarGeneradores = Boolean($("chkGeneradores")?.checked);
+      const generarResumen = Boolean($("chkResumen")?.checked);
+      const generarOficio = Boolean($("chkOficio")?.checked);
+      const generarCaratula = Boolean($("chkCaratula")?.checked);
+
+      if (!generarGeneradores && !generarResumen && !generarOficio && !generarCaratula) {
+        alert("Selecciona al menos un documento para generar.");
+        return;
+      }
+
+      const zip = new JSZip();
+
+      if (generarResumen) await agregarRelacionSemanalAlZip(zip);
+      if (generarOficio) await agregarOficioAlZip(zip);
+
+      if (generarGeneradores) {
+        const carpetaGeneradores = zip.folder("Generadores");
+        for (const emp of empleadosAgregados) {
+          await agregarGeneradorAlZip(carpetaGeneradores, emp);
+        }
+      }
+
+      if (generarCaratula) {
+        zip.file("Vista_Previa_Tiempo_Extra.html", construirHTMLVistaPrevia());
+      }
+
+      const contenido = await zip.generateAsync({ type: "blob" });
+      saveAs(contenido, `Tiempo_Extra_${$("periodoInicio").value || "periodo"}.zip`);
+    } catch (err) {
+      console.error("Error al generar paquete:", err);
+      alert("No se pudo generar el paquete de documentos.");
+    }
+  }
+
+  async function agregarGeneradorAlZip(zip, empleado) {
+    const buffer = await cargarArchivoComoArrayBuffer("../templates/GENERADOR_DE_TIEMPO_XTRA.xlsx");
+    const workbook = new ExcelJS.Workbook();
+    await workbook.xlsx.load(buffer);
+
+    const sheet = obtenerHojaGenerador(workbook);
+    sheet.name = texto(empleado.nombre, "Empleado").substring(0, 31);
+    activarHojaGenerador(workbook, sheet);
+
+    const inicio = $("periodoInicio").value ? new Date($("periodoInicio").value + "T00:00:00") : null;
+    const fin = $("periodoFin").value ? new Date($("periodoFin").value + "T00:00:00") : null;
+
+    sheet.getCell("D2").value = inicio ? inicio.getDate() : "";
+    sheet.getCell("F2").value = fin ? fin.getDate() : "";
+    sheet.getCell("H2").value = obtenerMesPeriodo();
+    sheet.getCell("J2").value = obtenerAnioPeriodo();
+    sheet.getCell("C4").value = empleado.direccion || "DIRECCION DE TALLERES";
+    sheet.getCell("C5").value = empleado.departamento || "";
+    sheet.getCell("C6").value = empleado.nombre || "";
+    sheet.getCell("C7").value = empleado.numEmpleado || empleado.numero || "";
+    sheet.getCell("G7").value = empleado.puesto || "";
+
+    escribirDiasEnGenerador(sheet, empleado);
+
+    const salida = await workbook.xlsx.writeBuffer();
+    zip.file(`Generador_${empleado.numEmpleado || empleado.numero}_${empleado.nombre || "empleado"}.xlsx`, salida);
+  }
+
+  async function agregarRelacionSemanalAlZip(zip) {
+    const buffer = await cargarArchivoComoArrayBuffer("../templates/RELACION_SEMANAL_TIEMPO_EXTRA.xlsx");
+    const workbook = new ExcelJS.Workbook();
+    await workbook.xlsx.load(buffer);
+
+    const sheet = workbook.getWorksheet("relacion semanal") || workbook.worksheets[0];
+
+    sheet.getCell("D7").value = obtenerPeriodoTexto();
+    sheet.getCell("C8").value = empleadosAgregados.length;
+    sheet.getCell("C9").value = obtenerTotalHoras();
+
+    empleadosAgregados.forEach((emp, index) => {
+      const fila = 12 + index;
+      sheet.getCell(`B${fila}`).value = emp.numEmpleado || emp.numero || "";
+      sheet.getCell(`C${fila}`).value = Number(emp.totalHoras || 0);
+      sheet.getCell(`D${fila}`).value = emp.nombre || "";
+      sheet.getCell(`E${fila}`).value = emp.coste || "";
+    });
+
+    const salida = await workbook.xlsx.writeBuffer();
+    zip.file("Relacion_Semanal_Tiempo_Extra.xlsx", salida);
+  }
+
+  async function agregarOficioAlZip(zip) {
+    const buffer = await cargarArchivoComoArrayBuffer("../templates/OFICIO_TIEMPO_EXTRA.docx");
+    const docZip = new PizZip(buffer);
+    const doc = new window.docxtemplater(docZip, {
+      paragraphLoop: true,
+      linebreaks: true
+    });
+
+    doc.render({
+      OFICIO: $("numeroOficio").value || "",
+      FECHA_OFICIO: formatearFechaLarga($("fechaOficio").value),
+      DIRIGIDO_A: $("dirigidoA").value || "",
+      PERIODO: obtenerPeriodoTexto(),
+      ADSCRIPCION: $("adscripcion").value || "DIRECCION DE TALLERES",
+      NUM_EMPLEADOS: empleadosAgregados.length,
+      TOTAL_HORAS: obtenerTotalHoras()
+    });
+
+    const salida = doc.getZip().generate({
+      type: "blob",
+      mimeType: "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+    });
+
+    zip.file("Oficio_Tiempo_Extra.docx", salida);
+  }
 
   async function guardarPeriodoTemporal() {
-  const inicio = $("periodoInicio").value;
-  const fin = $("periodoFin").value;
-  const numeroOficio = $("numeroOficio").value.trim();
-  const fechaOficio = $("fechaOficio").value;
-  const adscripcion = $("adscripcion").value.trim();
-  const destinatario = $("dirigidoA").value.trim();
+    const inicio = $("periodoInicio").value;
+    const fin = $("periodoFin").value;
 
-  if (!inicio || !fin) {
-    alert("Captura el periodo de inicio y fin.");
-    return;
-  }
+    if (!inicio || !fin) {
+      alert("Captura el periodo de inicio y fin.");
+      return;
+    }
 
-  const semana = obtenerSemanaISO(inicio);
-  const anio = new Date(inicio + "T00:00:00").getFullYear();
+    const empleadoSinJustificacion = empleadosAgregados.find((emp) => !validarEmpleadoSilencioso(emp));
+    if (empleadoSinJustificacion) {
+      alert(`El empleado ${empleadoSinJustificacion.nombre || empleadoSinJustificacion.numEmpleado} tiene dias con horas sin justificacion.`);
+      return;
+    }
 
-  const client = getSupabaseClient();
-  if (!client) {
-    alert("No se pudo conectar con Supabase.");
-    return;
-  }
+    const client = getSupabaseClient();
+    if (!client) {
+      alert("No se pudo conectar con Supabase.");
+      return;
+    }
 
-  try {
-    const { data, error } = await client
-      .from("periodos_tiempo_extra")
-      .insert({
+    try {
+      const payload = {
         fecha_inicio: inicio,
         fecha_fin: fin,
-        semana: semana,
-        anio: anio,
-        numero_oficio: numeroOficio,
-        fecha_oficio: fechaOficio || null,
-        adscripcion: adscripcion,
-        destinatario: destinatario,
+        semana: obtenerSemanaISO(inicio),
+        anio: new Date(inicio + "T00:00:00").getFullYear(),
+        numero_oficio: $("numeroOficio").value.trim(),
+        fecha_oficio: $("fechaOficio").value || null,
+        adscripcion: $("adscripcion").value.trim(),
+        destinatario: $("dirigidoA").value.trim(),
+        total_empleados: empleadosAgregados.length,
+        total_horas: obtenerTotalHoras(),
         estatus: "borrador"
-      })
-      .select()
-      .single();
+      };
 
-    if (error) throw error;
+      let data;
+      if (periodoActual?.id) {
+        const res = await client
+          .from("periodos_tiempo_extra")
+          .update(payload)
+          .eq("id", periodoActual.id)
+          .select()
+          .single();
+        if (res.error) throw res.error;
+        data = res.data;
+      } else {
+        const res = await client
+          .from("periodos_tiempo_extra")
+          .insert(payload)
+          .select()
+          .single();
+        if (res.error) throw res.error;
+        data = res.data;
+      }
 
-    periodoActual = data;
-
-    llenarFechasSemana(inicio, fin);
-    actualizarResumenDocumentos();
-
-    alert("Periodo guardado correctamente.");
-
-    cambiarTab("captura");
-
-  } catch (err) {
-    console.error("Error al guardar periodo:", err);
-    alert("No se pudo guardar el periodo.");
-  }
-}
-
-function obtenerSemanaISO(fechaTexto) {
-  const fecha = new Date(fechaTexto + "T00:00:00");
-  const temp = new Date(Date.UTC(fecha.getFullYear(), fecha.getMonth(), fecha.getDate()));
-  const dia = temp.getUTCDay() || 7;
-
-  temp.setUTCDate(temp.getUTCDate() + 4 - dia);
-
-  const inicioAnio = new Date(Date.UTC(temp.getUTCFullYear(), 0, 1));
-  return Math.ceil((((temp - inicioAnio) / 86400000) + 1) / 7);
-}
-
-function llenarFechasSemana(inicio, fin) {
-  const fechaInicio = new Date(inicio + "T00:00:00");
-  const fechaFin = new Date(fin + "T00:00:00");
-  const filas = document.querySelectorAll("#tablaDias tr");
-
-  let fechaActual = new Date(fechaInicio);
-
-  filas.forEach(function (fila) {
-    const inputs = fila.querySelectorAll("input");
-    if (!inputs.length) return;
-
-    if (fechaActual <= fechaFin) {
-      inputs[0].value = fechaActual.toISOString().split("T")[0];
-      fechaActual.setDate(fechaActual.getDate() + 1);
-    } else {
-      inputs[0].value = "";
+      periodoActual = data;
+      await guardarEmpleadosPeriodo(client, periodoActual.id);
+      llenarFechasSemana(inicio, fin);
+      actualizarResumenDocumentos();
+      alert("Periodo guardado correctamente.");
+      cambiarTab("captura");
+    } catch (err) {
+      console.error("Error al guardar periodo:", err);
+      alert("No se pudo guardar el periodo. Verifica que las tablas de tiempo extra esten actualizadas.");
     }
-  });
-}
+  }
 
-function cambiarTab(tab) {
-  document.querySelectorAll(".tab-btn").forEach(function (btn) {
-    btn.classList.remove("active");
-  });
+  function validarEmpleadoSilencioso(emp) {
+    return obtenerDiasEmpleado(emp).every((dia) => Number(dia.horas || 0) <= 0 || texto(dia.justificacion));
+  }
 
-  document.querySelectorAll(".tab-panel").forEach(function (panel) {
-    panel.classList.remove("active");
-  });
+  async function guardarEmpleadosPeriodo(client, periodoId) {
+    const detallesEliminados = await client.from("tiempo_extra_detalles").delete().eq("periodo_id", periodoId);
+    if (detallesEliminados.error) throw detallesEliminados.error;
 
-  const btnActivo = document.querySelector(`[data-tab="${tab}"]`);
-  const panelActivo = $("tab-" + tab);
+    const empleadosEliminados = await client.from("tiempo_extra_empleados").delete().eq("periodo_id", periodoId);
+    if (empleadosEliminados.error) throw empleadosEliminados.error;
 
-  if (btnActivo) btnActivo.classList.add("active");
-  if (panelActivo) panelActivo.classList.add("active");
-}
+    for (const emp of empleadosAgregados) {
+      const empleadoRes = await client.from("tiempo_extra_empleados").insert({
+        periodo_id: periodoId,
+        empleado_id: emp.empleadoId || null,
+        num_empleado: emp.numEmpleado || emp.numero,
+        nombre: emp.nombre,
+        direccion: emp.direccion,
+        departamento: emp.departamento,
+        puesto: emp.puesto,
+        total_horas: Number(emp.totalHoras || 0)
+      }).select().single();
+
+      if (empleadoRes.error) throw empleadoRes.error;
+
+      const detalleRows = obtenerDiasEmpleado(emp)
+        .filter((dia) => Number(dia.horas || 0) > 0 || dia.fecha || dia.entrada || dia.salida || dia.justificacion)
+        .map((dia, index) => ({
+          periodo_id: periodoId,
+          tiempo_extra_empleado_id: empleadoRes.data.id,
+          dia_semana: dia.dia || DIAS_SEMANA[index],
+          fecha: dia.fecha || null,
+          entrada: dia.entrada || null,
+          salida: dia.salida || null,
+          horas: Number(dia.horas || 0),
+          justificacion: dia.justificacion || ""
+        }));
+
+      if (detalleRows.length) {
+        const detalleRes = await client.from("tiempo_extra_detalles").insert(detalleRows);
+        if (detalleRes.error) throw detalleRes.error;
+      }
+    }
+  }
+
+  function obtenerSemanaISO(fechaTexto) {
+    const fecha = new Date(fechaTexto + "T00:00:00");
+    const temp = new Date(Date.UTC(fecha.getFullYear(), fecha.getMonth(), fecha.getDate()));
+    const dia = temp.getUTCDay() || 7;
+
+    temp.setUTCDate(temp.getUTCDate() + 4 - dia);
+
+    const inicioAnio = new Date(Date.UTC(temp.getUTCFullYear(), 0, 1));
+    return Math.ceil((((temp - inicioAnio) / 86400000) + 1) / 7);
+  }
+
+  function llenarFechasSemana(inicio, fin) {
+    const fechaInicio = new Date(inicio + "T00:00:00");
+    const fechaFin = new Date(fin + "T00:00:00");
+    const filas = document.querySelectorAll("#tablaDias tr");
+    let fechaActual = new Date(fechaInicio);
+
+    filas.forEach(function (fila) {
+      const inputFecha = fila.querySelector('input[type="date"]');
+      if (!inputFecha) return;
+
+      if (fechaActual <= fechaFin) {
+        inputFecha.value = fechaActual.toISOString().split("T")[0];
+        fechaActual.setDate(fechaActual.getDate() + 1);
+      } else {
+        inputFecha.value = "";
+      }
+    });
+  }
+
+  function cambiarTab(tab) {
+    document.querySelectorAll(".tab-btn").forEach(function (btn) {
+      btn.classList.toggle("active", btn.dataset.tab === tab);
+    });
+
+    document.querySelectorAll(".tab-panel").forEach(function (panel) {
+      panel.classList.toggle("active", panel.id === "tab-" + tab);
+    });
+  }
+
+  function construirHTMLVistaPrevia() {
+    const empleadosHTML = empleadosAgregados.map(function (emp) {
+      const diasHTML = obtenerDiasEmpleado(emp)
+        .filter((dia) => Number(dia.horas || 0) > 0)
+        .map((dia) => `
+          <tr>
+            <td>${escapeHTML(dia.dia)}</td>
+            <td>${escapeHTML(dia.fecha)}</td>
+            <td>${escapeHTML(dia.entrada)}</td>
+            <td>${escapeHTML(dia.salida)}</td>
+            <td>${Number(dia.horas || 0)}</td>
+            <td>${escapeHTML(dia.justificacion)}</td>
+          </tr>
+        `).join("");
+
+      return `
+        <section class="preview-empleado">
+          <h4>${escapeHTML(emp.numEmpleado || emp.numero)} - ${escapeHTML(emp.nombre || "Sin nombre")}</h4>
+          <p><strong>Departamento:</strong> ${escapeHTML(emp.departamento || "-")} | <strong>Puesto:</strong> ${escapeHTML(emp.puesto || "-")} | <strong>Total:</strong> ${Number(emp.totalHoras || 0)} horas</p>
+          <table>
+            <thead>
+              <tr><th>Dia</th><th>Fecha</th><th>Entrada</th><th>Salida</th><th>Horas</th><th>Justificacion</th></tr>
+            </thead>
+            <tbody>${diasHTML || '<tr><td colspan="6">Sin dias capturados.</td></tr>'}</tbody>
+          </table>
+        </section>
+      `;
+    }).join("");
+
+    return `
+      <article class="preview-documento">
+        <h3>Tiempo Extra</h3>
+        <p><strong>Periodo:</strong> ${escapeHTML(obtenerPeriodoTexto())}</p>
+        <p><strong>Oficio:</strong> ${escapeHTML($("numeroOficio")?.value || "Sin oficio")}</p>
+        <p><strong>Empleados:</strong> ${empleadosAgregados.length} | <strong>Total horas:</strong> ${obtenerTotalHoras()}</p>
+        ${empleadosHTML || '<p class="empty-state">Sin empleados agregados.</p>'}
+      </article>
+    `;
+  }
 
   function vistaPrevia() {
     actualizarResumenDocumentos();
-    alert("Aquí irá la vista previa del paquete: generadores, resumen y oficio.");
+    const preview = $("vistaPreviaTiempoExtra");
+    if (!preview) return;
+    preview.innerHTML = construirHTMLVistaPrevia();
+    preview.hidden = false;
   }
 
-function generarPDF() {
-  generarPaqueteFormatos();
-}
+  function generarPDF() {
+    if (!empleadosAgregados.length) {
+      alert("Agrega empleados antes de generar el PDF.");
+      return;
+    }
 
-    alert("Aquí generaremos el PDF completo.");
+    const ventana = window.open("", "_blank");
+    if (!ventana) {
+      alert("Permite ventanas emergentes para generar el PDF.");
+      return;
+    }
+
+    ventana.document.write(`
+      <!DOCTYPE html>
+      <html lang="es">
+      <head>
+        <meta charset="UTF-8">
+        <title>Tiempo Extra</title>
+        <style>
+          body { font-family: Arial, sans-serif; color: #111827; margin: 28px; }
+          h3, h4 { margin-bottom: 8px; }
+          table { border-collapse: collapse; width: 100%; margin: 12px 0 22px; }
+          th, td { border: 1px solid #d1d5db; padding: 7px; text-align: left; vertical-align: top; }
+          th { background: #f3f4f6; font-size: 12px; text-transform: uppercase; }
+          .preview-empleado { break-inside: avoid; page-break-inside: avoid; }
+        </style>
+      </head>
+      <body>${construirHTMLVistaPrevia()}</body>
+      </html>
+    `);
+    ventana.document.close();
+    ventana.focus();
+    ventana.print();
   }
 
-  function buscarHistorial() {
-    alert("Aquí consultaremos reportes históricos desde Supabase.");
+  async function buscarHistorial() {
+    const client = getSupabaseClient();
+    if (!client) {
+      alert("No se pudo conectar con Supabase.");
+      return;
+    }
+
+    try {
+      let query = client
+        .from("periodos_tiempo_extra")
+        .select("*")
+        .order("fecha_inicio", { ascending: false });
+
+      const desde = $("historialDesde")?.value;
+      const hasta = $("historialHasta")?.value;
+      const anio = $("historialAnio")?.value;
+      const empleadoFiltro = texto($("buscarEmpleadoHistorial")?.value).toLowerCase();
+
+      if (desde) query = query.gte("fecha_inicio", desde);
+      if (hasta) query = query.lte("fecha_fin", hasta);
+      if (anio) query = query.eq("anio", Number(anio));
+
+      const { data, error } = await query;
+      if (error) throw error;
+
+      let periodos = data || [];
+
+      if (empleadoFiltro) {
+        const empleadosRes = await client
+          .from("tiempo_extra_empleados")
+          .select("periodo_id,num_empleado,nombre");
+        if (empleadosRes.error) throw empleadosRes.error;
+
+        const periodosCoincidentes = new Set(
+          (empleadosRes.data || [])
+            .filter((emp) => {
+              const numero = texto(emp.num_empleado).toLowerCase();
+              const nombre = texto(emp.nombre).toLowerCase();
+              return numero.includes(empleadoFiltro) || nombre.includes(empleadoFiltro);
+            })
+            .map((emp) => emp.periodo_id)
+        );
+
+        periodos = periodos.filter((periodo) => periodosCoincidentes.has(periodo.id));
+      }
+
+      renderHistorial(periodos);
+    } catch (err) {
+      console.error("Error al consultar historial:", err);
+      alert("No se pudo consultar el historial.");
+    }
+  }
+
+  function renderHistorial(periodos) {
+    const tbody = $("tablaHistorial");
+    if (!tbody) return;
+
+    if (!periodos.length) {
+      tbody.innerHTML = '<tr><td colspan="5" class="empty-state">Sin resultados.</td></tr>';
+      return;
+    }
+
+    tbody.innerHTML = periodos.map(function (periodo) {
+      return `
+        <tr>
+          <td>${escapeHTML(periodo.fecha_inicio || "")} al ${escapeHTML(periodo.fecha_fin || "")}</td>
+          <td>${escapeHTML(periodo.numero_oficio || "Sin oficio")}</td>
+          <td>${Number(periodo.total_empleados || 0)}</td>
+          <td>${Number(periodo.total_horas || 0)}</td>
+          <td><button class="btn btn-secondary btn-sm" type="button" data-periodo-id="${escapeHTML(periodo.id)}">Cargar</button></td>
+        </tr>
+      `;
+    }).join("");
+
+    tbody.querySelectorAll("button[data-periodo-id]").forEach(function (btn) {
+      btn.addEventListener("click", function () {
+        cargarPeriodo(btn.dataset.periodoId);
+      });
+    });
+  }
+
+  async function cargarPeriodo(periodoId) {
+    const client = getSupabaseClient();
+    if (!client || !periodoId) return;
+
+    try {
+      const periodoRes = await client
+        .from("periodos_tiempo_extra")
+        .select("*")
+        .eq("id", periodoId)
+        .single();
+      if (periodoRes.error) throw periodoRes.error;
+
+      const empleadosRes = await client
+        .from("tiempo_extra_empleados")
+        .select("*")
+        .eq("periodo_id", periodoId)
+        .order("created_at", { ascending: true });
+      if (empleadosRes.error) throw empleadosRes.error;
+
+      const detallesRes = await client
+        .from("tiempo_extra_detalles")
+        .select("*")
+        .eq("periodo_id", periodoId)
+        .order("fecha", { ascending: true });
+      if (detallesRes.error) throw detallesRes.error;
+
+      periodoActual = periodoRes.data;
+      $("periodoInicio").value = periodoActual.fecha_inicio || "";
+      $("periodoFin").value = periodoActual.fecha_fin || "";
+      $("numeroOficio").value = periodoActual.numero_oficio || "";
+      $("fechaOficio").value = periodoActual.fecha_oficio || "";
+      $("adscripcion").value = periodoActual.adscripcion || "";
+      $("dirigidoA").value = periodoActual.destinatario || "";
+
+      empleadosAgregados = (empleadosRes.data || []).map(function (emp) {
+        const detalleDias = (detallesRes.data || [])
+          .filter((dia) => dia.tiempo_extra_empleado_id === emp.id)
+          .map((dia) => normalizarDia({
+            dia: dia.dia_semana,
+            fecha: dia.fecha,
+            entrada: dia.entrada,
+            salida: dia.salida,
+            horas: dia.horas,
+            justificacion: dia.justificacion
+          }));
+
+        return normalizarEmpleado({
+          id: emp.id,
+          empleadoId: emp.empleado_id,
+          numEmpleado: emp.num_empleado,
+          nombre: emp.nombre,
+          direccion: emp.direccion,
+          departamento: emp.departamento,
+          puesto: emp.puesto,
+          totalHoras: emp.total_horas,
+          detalleDias
+        });
+      });
+
+      renderTablaEmpleados();
+      limpiarCapturaEmpleado();
+      actualizarResumen();
+      actualizarResumenDocumentos();
+      cambiarTab("captura");
+    } catch (err) {
+      console.error("Error al cargar periodo:", err);
+      alert("No se pudo cargar el reporte seleccionado.");
+    }
   }
 
   window.TiempoExtra = {
-    eliminarEmpleado
+    eliminarEmpleado,
+    editarEmpleado,
+    generarGeneradorIndividual,
+    generarRelacionSemanal,
+    generarOficioWord,
+    generarPaqueteFormatos
   };
 })();

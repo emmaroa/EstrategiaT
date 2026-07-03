@@ -67,6 +67,10 @@
     "Administrador del Sistema": Object.values(MODULOS),
     jefe: Object.values(MODULOS),
     Jefe: Object.values(MODULOS),
+    "Moderador de Acuerdos": [
+      MODULOS.DASHBOARD,
+      MODULOS.ACUERDOS
+    ],
     "Director": [
       MODULOS.DASHBOARD, 
       MODULOS.PARQUE, 
@@ -184,9 +188,12 @@
     if (!rol) return "";
     const valor = String(rol).trim();
     const clave = valor.toLowerCase();
-    if (clave === "superadmin") return "SuperAdmin";
+    if (clave === "superadmin" || clave === "super admin" || clave === "super_admin") return "SuperAdmin";
     if (clave === "admin") return "Admin";
     if (clave === "jefe") return "jefe";
+    if (clave === "moderador de acuerdos" || clave === "moderador acuerdos" || clave === "moderador_acuerdos" || clave === "moderador-acuerdos") {
+      return "Moderador de Acuerdos";
+    }
     return valor;
   }
 
@@ -207,6 +214,8 @@
             let permisoFinal = "none";
             if (permiso === "ver" || permiso === "vista" || permiso === "view" || permiso === "solo vista") {
               permisoFinal = "ver";
+            } else if (permiso === "moderar" || permiso === "moderador" || permiso === "moderate") {
+              permisoFinal = "moderar";
             } else if (permiso === "editar" || permiso === "edit" || permiso === "write" || permiso === "modificar") {
               permisoFinal = "editar";
             }
@@ -288,7 +297,7 @@
 
   function puedeVerModulo(usuario, modulo) {
     const permiso = obtenerPermisoModuloUsuario(usuario, modulo);
-    return permiso === "ver" || permiso === "editar";
+    return permiso === "ver" || permiso === "editar" || permiso === "moderar";
   }
 
   function puedeEditarModulo(usuario, modulo) {

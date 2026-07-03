@@ -2,6 +2,40 @@
    Tiempo Extra | EstrategiaT
 ================================ */
 
+.app-shell {
+  display: flex;
+  min-height: 100vh;
+  width: 100%;
+}
+
+.app-shell .sidebar {
+  flex: 0 0 280px;
+}
+
+.app-shell .main-content {
+  min-width: 0;
+}
+
+.brand {
+  margin-bottom: 40px;
+}
+
+.brand h2 {
+  font-size: 24px;
+  margin-bottom: 6px;
+}
+
+.brand span {
+  color: var(--text-muted);
+  font-size: 13px;
+}
+
+.sidebar-footer {
+  margin-top: auto;
+  display: grid;
+  gap: 12px;
+}
+
 .tab-panel {
   display: none;
 }
@@ -177,6 +211,10 @@ input[readonly] {
   margin-top: 14px;
 }
 
+.table-wrapper-wide table {
+  min-width: 980px;
+}
+
 table {
   width: 100%;
   border-collapse: collapse;
@@ -206,6 +244,18 @@ td input {
   min-width: 120px;
 }
 
+td textarea {
+  min-width: 260px;
+  min-height: 62px;
+  resize: vertical;
+}
+
+.acciones-tabla {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
 .empty-state {
   text-align: center;
   padding: 26px;
@@ -223,6 +273,45 @@ td input {
 
 .summary-box h3 {
   margin-top: 0;
+}
+
+.quick-employee-box {
+  border: 1px solid #bae6fd;
+  border-radius: 18px;
+  background: #f0f9ff;
+  color: #0c4a6e;
+  margin-top: 18px;
+  padding: 16px;
+}
+
+.quick-employee-box p {
+  margin: 0;
+  font-weight: 700;
+}
+
+.preview-box {
+  border: 1px solid var(--border-color, #e5e7eb);
+  border-radius: 18px;
+  margin-top: 20px;
+  padding: 18px;
+  background: var(--card-bg, #fff);
+}
+
+.preview-documento h3 {
+  margin-top: 0;
+}
+
+.preview-empleado {
+  margin-top: 18px;
+}
+
+.preview-empleado table {
+  font-size: 13px;
+}
+
+.preview-empleado td,
+.preview-empleado th {
+  vertical-align: top;
 }
 
 .document-options {
@@ -285,7 +374,24 @@ body.dark th {
 }
 
 body.dark .summary-box,
-body.dark .document-options label {
+body.dark .document-options label,
+body.dark .preview-box,
+body.dark .quick-employee-box {
   background: #111827;
   border-color: #334155;
+}
+
+body.dark .quick-employee-box {
+  color: #bae6fd;
+}
+
+@media(max-width: 1000px) {
+  .app-shell {
+    flex-direction: column;
+  }
+
+  .app-shell .sidebar {
+    flex-basis: auto;
+    width: 100%;
+  }
 }

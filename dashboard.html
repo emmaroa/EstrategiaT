@@ -276,7 +276,7 @@
 
       const modulosCards = document.getElementById("modulosCards");
       if (modulosCards && window.ETPermissions) {
-      const permitidos = (ETPermissions.PERMISOS[usuarioActivo.rol] || [])
+      const permitidos = (ETPermissions.obtenerModulosUsuario(usuarioActivo) || [])
         .filter(function (m) { return m !== "Dashboard" && ETLayout.MODULOS_IMPLEMENTADOS.indexOf(m) >= 0; });
       modulosCards.innerHTML = permitidos.map(function (modulo) {
         return '<div class="module-card" data-href="' + ETPermissions.obtenerRutaModulo(modulo, false) + '">' +
