@@ -703,8 +703,8 @@
     const sheet = workbook.getWorksheet("relacion semanal") || workbook.worksheets[0];
 
     sheet.getCell("D7").value = obtenerPeriodoTexto();
-    sheet.getCell("C8").value = empleadosAgregados.length;
-    sheet.getCell("C9").value = obtenerTotalHoras();
+    sheet.getCell("D8").value = empleadosAgregados.length;
+    sheet.getCell("D9").value = obtenerTotalHoras();
 
     for (let i = 0; i < 19; i++) {
       const fila = 12 + i;
@@ -839,8 +839,8 @@
     const sheet = workbook.getWorksheet("relacion semanal") || workbook.worksheets[0];
 
     sheet.getCell("D7").value = obtenerPeriodoTexto();
-    sheet.getCell("C8").value = empleadosAgregados.length;
-    sheet.getCell("C9").value = obtenerTotalHoras();
+    sheet.getCell("D8").value = empleadosAgregados.length;
+    sheet.getCell("D9").value = obtenerTotalHoras();
 
     empleadosAgregados.forEach((emp, index) => {
       const fila = 12 + index;
