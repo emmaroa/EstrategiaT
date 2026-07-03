@@ -148,6 +148,7 @@ async function cargarUsuarios() {
 
   usuarios = data || [];
   renderUsuariosTurnar();
+  if (acuerdos.length) renderizarAcuerdos();
 }
 
 function renderUsuariosTurnar() {
@@ -228,7 +229,8 @@ function renderizarAcuerdos() {
       (acuerdo.descripcion || "").toLowerCase().includes(texto) ||
       (acuerdo.categoria || "").toLowerCase().includes(texto) ||
       (acuerdo.prioridad || "").toLowerCase().includes(texto) ||
-      (acuerdo.estado || "").toLowerCase().includes(texto);
+      (acuerdo.estado || "").toLowerCase().includes(texto) ||
+      obtenerTextoEstadoAcuerdo(acuerdo).toLowerCase().includes(texto);
 
     const coincideEstado = estado === "" || acuerdo.estado === estado;
     const coincidePrioridad = prioridad === "" || acuerdo.prioridad === prioridad;
@@ -268,6 +270,7 @@ function pintarTarjeta(acuerdo) {
   card.className = "acuerdo-card " + obtenerClasePrioridad(acuerdo.prioridad);
 
   const soloLectura = typeof esSoloLectura === "function" && esSoloLectura();
+  const estadoTexto = obtenerTextoEstadoAcuerdo(acuerdo);
 
   card.innerHTML = `
     <div class="acuerdo-top">
@@ -281,7 +284,7 @@ function pintarTarjeta(acuerdo) {
     <div class="acuerdo-meta">
       <small><strong>Categoría:</strong> ${escapar(acuerdo.categoria || "Sin categoría")}</small>
       <small><strong>Vence:</strong> ${formatearFecha(acuerdo.fecha_compromiso) || "Sin fecha"}</small>
-      <small><strong>Estado:</strong> ${escapar(acuerdo.estado || "Nuevo")}</small>
+      <small><strong>Estado:</strong> ${escapar(estadoTexto)}</small>
     </div>
 
     <div class="acuerdo-acciones">
@@ -313,6 +316,28 @@ function botonesEstado(acuerdo) {
     <button type="button" class="action-btn" onclick="cambiarEstado('${acuerdo.id}', 'Para revisión')">Revisión</button>
     <button type="button" class="action-btn edit" onclick="cambiarEstado('${acuerdo.id}', 'Concluido')">Concluir</button>
   `;
+}
+
+function obtenerUsuarioPorId(id) {
+  if (!id) return null;
+  return usuarios.find(function (usuario) {
+    return usuario.id === id;
+  }) || null;
+}
+
+function obtenerNombreUsuario(usuario) {
+  if (!usuario) return "";
+  return usuario.nombre || usuario.usuario || "";
+}
+
+function obtenerTextoEstadoAcuerdo(acuerdo) {
+  const estado = acuerdo.estado || "Nuevo";
+  if (estado !== "Turnado") return estado;
+
+  const usuarioAsignado = obtenerUsuarioPorId(acuerdo.asignado_a);
+  const nombreAsignado = obtenerNombreUsuario(usuarioAsignado);
+
+  return nombreAsignado ? `Turnado a ${nombreAsignado}` : "Turnado";
 }
 
 async function guardarAcuerdo() {
@@ -497,7 +522,7 @@ function verAcuerdo(id) {
     "\nDescripción: " + (acuerdo.descripcion || "Sin descripción") +
     "\nCategoría: " + (acuerdo.categoria || "Sin categoría") +
     "\nPrioridad: " + (acuerdo.prioridad || "Media") +
-    "\nEstado: " + (acuerdo.estado || "Nuevo") +
+    "\nEstado: " + obtenerTextoEstadoAcuerdo(acuerdo) +
     "\nFecha compromiso: " + (formatearFecha(acuerdo.fecha_compromiso) || "Sin fecha")
   );
 }
