@@ -432,6 +432,13 @@
 
     let parque = [];
     let idEditandoUnidad = null;
+    let counts = {
+      total: 0,
+      activas: 0,
+      gasolina: 0,
+      electricas: 0
+    };
+    let totalParque = 0;
 
     function obtenerUnidadPorId(id) {
       return parque.find(function (u) { return u.id === id; });
@@ -511,11 +518,11 @@
         return;
       }
 
-      let data, error;
+      let data, count, error;
       try {
-        ({ data, error } = await supabaseClient
+        ({ data, count, error } = await supabaseClient
           .from("parque_vehicular")
-          .select("*")
+          .select("*", { count: "exact" })
           .order("numero_consecutivo", {
             ascending: true
           }));
@@ -530,6 +537,7 @@
       }
 
       parque = data || [];
+      totalParque = count ?? parque.length;
 
       renderizarTabla();
     }
@@ -584,11 +592,27 @@
       actualizarKPIs();
     }
 
+    function actualizarCounts() {
+      const total = totalParque || parque.length;
+      counts = parque.reduce(function (acumulado, u) {
+        if (u.estatus === "ACTIVO") acumulado.activas += 1;
+        if (u.combustible === "GASOLINA") acumulado.gasolina += 1;
+        if (u.combustible === "ELECTRICO") acumulado.electricas += 1;
+        return acumulado;
+      }, {
+        total: total,
+        activas: 0,
+        gasolina: 0,
+        electricas: 0
+      });
+    }
+
     function actualizarKPIs() {
-      if (kpiTotal) kpiTotal.textContent = parque.length;
-      if (kpiActivas) kpiActivas.textContent = parque.filter(u => u.estatus === "ACTIVO").length;
-      if (kpiGasolina) kpiGasolina.textContent = parque.filter(u => u.combustible === "GASOLINA").length;
-      if (kpiElectricas) kpiElectricas.textContent = parque.filter(u => u.combustible === "ELECTRICO").length;
+      actualizarCounts();
+      if (kpiTotal) kpiTotal.textContent = counts.total;
+      if (kpiActivas) kpiActivas.textContent = counts.activas;
+      if (kpiGasolina) kpiGasolina.textContent = counts.gasolina;
+      if (kpiElectricas) kpiElectricas.textContent = counts.electricas;
     }
 
     async function guardarUnidad() {

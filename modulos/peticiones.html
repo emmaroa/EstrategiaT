@@ -205,6 +205,13 @@
 
     let peticiones = [];
     let idEditando = null;
+    let counts = {
+      total: 0,
+      pendientes: 0,
+      proceso: 0,
+      solventadas: 0
+    };
+    let totalPeticiones = 0;
     const URL_SHEETS = "https://script.google.com/macros/s/AKfycbw8EfQqixNLLkRinVKJeOjqPla3CYwj-kY1OaARSuXk5c_x_k2N4j6i9raYhaPZS-1Xrw/exec";
     const tablaPeticiones = document.getElementById("tablaPeticiones");
     const buscarPeticion = document.getElementById("buscarPeticion");
@@ -235,13 +242,14 @@
     }
 
     async function recargarPeticiones() {
-      const { data, error } = await ETPeticiones.listar();
+      const { data, count, error } = await ETPeticiones.listar();
       if (error) {
         console.error("Error cargando peticiones:", error);
         alert("No se pudieron cargar las peticiones. Verifique la conexión con Supabase.");
         return;
       }
       peticiones = data || [];
+      totalPeticiones = count ?? peticiones.length;
       renderizarPeticiones();
     }
 
@@ -295,14 +303,27 @@
       actualizarKPIs();
     }
 
-
-
+    function actualizarCounts() {
+      const total = totalPeticiones || peticiones.length;
+      counts = peticiones.reduce(function (acumulado, p) {
+        if (p.estatus === "Pendiente") acumulado.pendientes += 1;
+        if (p.estatus === "En proceso") acumulado.proceso += 1;
+        if (p.estatus === "Solventado") acumulado.solventadas += 1;
+        return acumulado;
+      }, {
+        total: total,
+        pendientes: 0,
+        proceso: 0,
+        solventadas: 0
+      });
+    }
 
     function actualizarKPIs() {
-      if (kpiTotal) kpiTotal.textContent = peticiones.length;
-      if (kpiPendientes) kpiPendientes.textContent = peticiones.filter(p => p.estatus === "Pendiente").length;
-      if (kpiProceso) kpiProceso.textContent = peticiones.filter(p => p.estatus === "En proceso").length;
-      if (kpiSolventadas) kpiSolventadas.textContent = peticiones.filter(p => p.estatus === "Solventado").length;
+      actualizarCounts();
+      if (kpiTotal) kpiTotal.textContent = counts.total;
+      if (kpiPendientes) kpiPendientes.textContent = counts.pendientes;
+      if (kpiProceso) kpiProceso.textContent = counts.proceso;
+      if (kpiSolventadas) kpiSolventadas.textContent = counts.solventadas;
     }
 
     function abrirModal() {
@@ -335,10 +356,34 @@
       }
     });
 
+    function normalizarTextoPeticion(valor) {
+      return String(valor || "")
+        .trim()
+        .normalize("NFD")
+        .replace(/[\u0300-\u036f]/g, "")
+        .toLowerCase();
+    }
+
+    function esPeticionStock(valor) {
+      const texto = normalizarTextoPeticion(valor);
+      const compacto = texto.replace(/[^a-z0-9]/g, "");
+
+      return texto === "0" ||
+        compacto === "0" ||
+        compacto.includes("stock") ||
+        compacto.includes("stoc") ||
+        compacto.includes("stok") ||
+        compacto === "stk";
+    }
+
+    function obtenerUnidadPeticion(valor) {
+      return esPeticionStock(valor) ? "STOCK" : String(valor || "").trim();
+    }
+
     async function guardarPeticion() {
       const nuevaPeticion = {
         fecha: fechaInput.value,
-        unidad: unidadInput.value.trim(),
+        unidad: obtenerUnidadPeticion(unidadInput.value),
         peticion: peticionInput.value.trim(),
         solicitante: solicitanteInput.value.trim(),
         area: areaSelect.value,
@@ -485,6 +530,17 @@
 
     unidadInput.addEventListener("blur", async function () {
       const valor = this.value.trim();
+
+      if (!valor) {
+        infoUnidadPeticion.textContent = "";
+        return;
+      }
+
+      if (esPeticionStock(valor)) {
+        infoUnidadPeticion.textContent = "Petición para stock.";
+        return;
+      }
+
       const unidad = await ETPeticiones.buscarUnidadParque(valor);
 
       console.log("Unidad encontrada:", unidad);

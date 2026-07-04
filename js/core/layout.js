@@ -38,13 +38,14 @@
     const nav = document.getElementById("etNav");
     if (nav) {
 let permitidos = global.ETPermissions.obtenerModulosUsuario(usuario) || [];
+const desdeModulo = global.location.pathname.includes("/modulos/");
 
 permitidos = permitidos.filter(function (m) {
   return MODULOS_IMPLEMENTADOS.indexOf(m) >= 0;
 });
 
       nav.innerHTML = permitidos.map(function (m) {
-        const ruta = global.ETPermissions.obtenerRutaModulo(m, true);
+        const ruta = global.ETPermissions.obtenerRutaModulo(m, desdeModulo);
         const active = m === moduloActivo ? " active" : "";
         return '<a href="' + ruta + '" class="nav-item' + active + '">' + m + "</a>";
       }).join("");

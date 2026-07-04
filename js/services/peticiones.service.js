@@ -12,7 +12,7 @@
 
     return client
       .from("peticiones")
-      .select("*")
+      .select("*", { count: "exact" })
       .order("created_at", { ascending: false });
   }
 

@@ -290,8 +290,11 @@ PROCEDIMIENTO EN PORTAL WEB DE COMPRAS: T26-00
       const botones = document.querySelectorAll("[data-copy]");
       const buscador = document.getElementById("buscarTexto");
       const tarjetas = document.querySelectorAll("[data-section]");
+      const counts = {
+        total: botones.length
+      };
 
-      document.getElementById("kpiTotalTextos").textContent = botones.length;
+      document.getElementById("kpiTotalTextos").textContent = counts.total;
 
       botones.forEach(function (boton) {
         boton.addEventListener("click", function () {

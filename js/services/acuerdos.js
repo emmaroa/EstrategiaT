@@ -528,11 +528,26 @@ function verAcuerdo(id) {
 }
 
 function actualizarKPIs(lista) {
-  document.getElementById("kpiTotal").textContent = lista.length;
-  document.getElementById("kpiNuevos").textContent = lista.filter(a => a.estado === "Nuevo").length;
-  document.getElementById("kpiSinConcluir").textContent = lista.filter(a => a.estado !== "Concluido").length;
-  document.getElementById("kpiProceso").textContent = lista.filter(a => a.estado === "En proceso").length;
-  document.getElementById("kpiConcluidos").textContent = lista.filter(a => a.estado === "Concluido").length;
+  const counts = lista.reduce(function (acumulado, acuerdo) {
+    acumulado.total += 1;
+    if (acuerdo.estado === "Nuevo") acumulado.nuevos += 1;
+    if (acuerdo.estado !== "Concluido") acumulado.sinConcluir += 1;
+    if (acuerdo.estado === "En proceso") acumulado.proceso += 1;
+    if (acuerdo.estado === "Concluido") acumulado.concluidos += 1;
+    return acumulado;
+  }, {
+    total: 0,
+    nuevos: 0,
+    sinConcluir: 0,
+    proceso: 0,
+    concluidos: 0
+  });
+
+  document.getElementById("kpiTotal").textContent = counts.total;
+  document.getElementById("kpiNuevos").textContent = counts.nuevos;
+  document.getElementById("kpiSinConcluir").textContent = counts.sinConcluir;
+  document.getElementById("kpiProceso").textContent = counts.proceso;
+  document.getElementById("kpiConcluidos").textContent = counts.concluidos;
 }
 
 function actualizarContadores(lista) {
