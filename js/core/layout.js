@@ -28,6 +28,10 @@
     });
   }
 
+  function esRutaDeModulo(pathname) {
+    return /(\/modulos\/|\/modules\/)/.test(pathname || "");
+  }
+
   function inicializar(moduloActivo) {
     const usuario = JSON.parse(localStorage.getItem("usuarioActivo") || "null");
     if (!usuario || !global.ETPermissions) return;
@@ -38,7 +42,7 @@
     const nav = document.getElementById("etNav");
     if (nav) {
 let permitidos = global.ETPermissions.obtenerModulosUsuario(usuario) || [];
-const desdeModulo = global.location.pathname.includes("/modulos/");
+const desdeModulo = esRutaDeModulo(global.location.pathname);
 
 permitidos = permitidos.filter(function (m) {
   return MODULOS_IMPLEMENTADOS.indexOf(m) >= 0;

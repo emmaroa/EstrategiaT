@@ -243,9 +243,13 @@
     return rutas[modulo] || "#";
   }
 
+  function esRutaDeModulo(pathname) {
+    return /(\/modulos\/|\/modules\/)/.test(pathname || "");
+  }
+
   function resolverRutaLogin() {
     const path = window.location.pathname;
-    if (path.includes("/modulos/")) return "../index.html";
+    if (esRutaDeModulo(path)) return "../index.html";
     return "index.html";
   }
 
@@ -290,7 +294,7 @@
     const usuarioActivo = obtenerUsuarioActivo();
 
     if (!usuarioActivo) {
-      window.location.href = window.location.pathname.includes("/modulos/")
+      window.location.href = esRutaDeModulo(window.location.pathname)
         ? "../index.html"
         : "index.html";
       return false;
@@ -303,7 +307,7 @@
 
     if (!modulosPermitidos.includes(modulo)) {
       alert("No tienes permiso para acceder a este módulo.");
-      window.location.href = window.location.pathname.includes("/modulos/")
+      window.location.href = esRutaDeModulo(window.location.pathname)
         ? "../dashboard.html"
         : "dashboard.html";
       return false;

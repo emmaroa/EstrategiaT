@@ -312,7 +312,9 @@
   function obtenerRutaModulo(modulo, desdeModulo) {
     const ruta = RUTAS[modulo] || "#";
     if (!desdeModulo) return ruta;
-    return ruta.startsWith("modulos/") ? ruta.replace("modulos/", "") : "../" + ruta;
+    return ruta.startsWith("modulos/") || ruta.startsWith("modules/")
+      ? ruta.replace(/^(modulos|modules)\//, "")
+      : "../" + ruta;
   }
 
   global.ETPermissions = {
