@@ -19,7 +19,7 @@
 
     const result = await client
       .from("requisiciones")
-      .select("*")
+      .select("*", { count: "exact" })
       .order("created_at", { ascending: false });
 
     if (result.data) {

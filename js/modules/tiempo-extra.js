@@ -517,9 +517,20 @@
     }, 0);
   }
 
+  function obtenerCounts() {
+    return {
+      empleados: empleadosAgregados.reduce(function (total, emp) {
+        return total + (Number(emp.totalHoras || 0) > 0 ? 1 : 0);
+      }, 0),
+      horas: obtenerTotalHoras()
+    };
+  }
+
   function actualizarResumen() {
+    const counts = obtenerCounts();
+
     if ($("resumenPeriodo")) {
-      $("resumenPeriodo").textContent = `${empleadosAgregados.length} empleados | ${obtenerTotalHoras()} horas`;
+      $("resumenPeriodo").textContent = `${counts.empleados} empleados | ${counts.horas} horas`;
     }
   }
 
@@ -527,11 +538,12 @@
     const inicio = $("periodoInicio")?.value || "";
     const fin = $("periodoFin")?.value || "";
     const oficio = $("numeroOficio")?.value || "";
+    const counts = obtenerCounts();
 
     if ($("docPeriodo")) $("docPeriodo").textContent = inicio && fin ? `${inicio} al ${fin}` : "Sin periodo";
     if ($("docOficio")) $("docOficio").textContent = oficio || "Sin oficio";
-    if ($("docEmpleados")) $("docEmpleados").textContent = empleadosAgregados.length;
-    if ($("docHoras")) $("docHoras").textContent = obtenerTotalHoras();
+    if ($("docEmpleados")) $("docEmpleados").textContent = counts.empleados;
+    if ($("docHoras")) $("docHoras").textContent = counts.horas;
   }
 
   async function cargarArchivoComoArrayBuffer(ruta) {
@@ -701,10 +713,11 @@
     await workbook.xlsx.load(buffer);
 
     const sheet = workbook.getWorksheet("relacion semanal") || workbook.worksheets[0];
+    const counts = obtenerCounts();
 
     sheet.getCell("D7").value = obtenerPeriodoTexto();
-    sheet.getCell("D8").value = empleadosAgregados.length;
-    sheet.getCell("D9").value = obtenerTotalHoras();
+    sheet.getCell("D8").value = counts.empleados;
+    sheet.getCell("D9").value = counts.horas;
 
     for (let i = 0; i < 19; i++) {
       const fila = 12 + i;
@@ -737,6 +750,7 @@
       return;
     }
 
+    const counts = obtenerCounts();
     const buffer = await cargarArchivoComoArrayBuffer("../templates/OFICIO_TIEMPO_EXTRA.docx");
     const zip = new PizZip(buffer);
     const doc = new window.docxtemplater(zip, {
@@ -750,8 +764,8 @@
       DIRIGIDO_A: $("dirigidoA").value || "",
       PERIODO: obtenerPeriodoTexto(),
       ADSCRIPCION: $("adscripcion").value || "DIRECCION DE TALLERES",
-      NUM_EMPLEADOS: empleadosAgregados.length,
-      TOTAL_HORAS: obtenerTotalHoras()
+      NUM_EMPLEADOS: counts.empleados,
+      TOTAL_HORAS: counts.horas
     });
 
     const salida = doc.getZip().generate({
@@ -837,10 +851,11 @@
     await workbook.xlsx.load(buffer);
 
     const sheet = workbook.getWorksheet("relacion semanal") || workbook.worksheets[0];
+    const counts = obtenerCounts();
 
     sheet.getCell("D7").value = obtenerPeriodoTexto();
-    sheet.getCell("D8").value = empleadosAgregados.length;
-    sheet.getCell("D9").value = obtenerTotalHoras();
+    sheet.getCell("D8").value = counts.empleados;
+    sheet.getCell("D9").value = counts.horas;
 
     empleadosAgregados.forEach((emp, index) => {
       const fila = 12 + index;
@@ -861,6 +876,7 @@
       paragraphLoop: true,
       linebreaks: true
     });
+    const counts = obtenerCounts();
 
     doc.render({
       OFICIO: $("numeroOficio").value || "",
@@ -868,8 +884,8 @@
       DIRIGIDO_A: $("dirigidoA").value || "",
       PERIODO: obtenerPeriodoTexto(),
       ADSCRIPCION: $("adscripcion").value || "DIRECCION DE TALLERES",
-      NUM_EMPLEADOS: empleadosAgregados.length,
-      TOTAL_HORAS: obtenerTotalHoras()
+      NUM_EMPLEADOS: counts.empleados,
+      TOTAL_HORAS: counts.horas
     });
 
     const salida = doc.getZip().generate({
@@ -902,6 +918,7 @@
     }
 
     try {
+      const counts = obtenerCounts();
       const payload = {
         fecha_inicio: inicio,
         fecha_fin: fin,
@@ -911,8 +928,8 @@
         fecha_oficio: $("fechaOficio").value || null,
         adscripcion: $("adscripcion").value.trim(),
         destinatario: $("dirigidoA").value.trim(),
-        total_empleados: empleadosAgregados.length,
-        total_horas: obtenerTotalHoras(),
+        total_empleados: counts.empleados,
+        total_horas: counts.horas,
         estatus: "borrador"
       };
 
@@ -1034,6 +1051,7 @@
   }
 
   function construirHTMLVistaPrevia() {
+    const counts = obtenerCounts();
     const empleadosHTML = empleadosAgregados.map(function (emp) {
       const diasHTML = obtenerDiasEmpleado(emp)
         .filter((dia) => Number(dia.horas || 0) > 0)
@@ -1067,7 +1085,7 @@
         <h3>Tiempo Extra</h3>
         <p><strong>Periodo:</strong> ${escapeHTML(obtenerPeriodoTexto())}</p>
         <p><strong>Oficio:</strong> ${escapeHTML($("numeroOficio")?.value || "Sin oficio")}</p>
-        <p><strong>Empleados:</strong> ${empleadosAgregados.length} | <strong>Total horas:</strong> ${obtenerTotalHoras()}</p>
+        <p><strong>Empleados:</strong> ${counts.empleados} | <strong>Total horas:</strong> ${counts.horas}</p>
         ${empleadosHTML || '<p class="empty-state">Sin empleados agregados.</p>'}
       </article>
     `;

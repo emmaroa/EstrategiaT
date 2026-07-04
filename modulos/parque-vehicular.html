@@ -439,6 +439,31 @@
       electricas: 0
     };
     let totalParque = 0;
+    const DEPENDENCIAS = [
+      "SINDICATURA",
+      "PRESIDENCIA",
+      "CONTRALOR\u00cdA",
+      "COMUNICACI\u00d3N SOCIAL",
+      "SECRETAR\u00cdA",
+      "TESORER\u00cdA",
+      "SEGURIDAD P\u00daBLICA",
+      "DIRECCION GENERAL DE DESARROLLO DE INFRAESTRUCTURA",
+      "SERVICIOS P\u00daBLICOS",
+      "OFICIAL\u00cdA MAYOR",
+      "DIRECCI\u00d3N GENERAL DE PARTICIPACI\u00d3N CIUDADANA",
+      "ASUNTOS JUR\u00cdDICOS",
+      "BAH\u00cdA DE KINO",
+      "POBLADO MIGUEL ALEM\u00c1N",
+      "ATENCION A LA MUJER",
+      "SALUD PUBLICA",
+      "UNIDAD DE CIUDAD INTELIGENTE",
+      "INSPECCION Y VIGILANCIA",
+      "DIRECCION GRAL DE ORDENAMIENTO Y DESARROLLO URBANO",
+      "COORDINACION MUNICIPAL DE PROTECCION CIVIL",
+      "DEPARTAMENTO DE BOMBERAS Y BOMBEROS",
+      "PROTECCION Y BIENESTAR ANIMAL",
+      "INSTITUTO MUNICIPAL DE LA JUVENTUD"
+    ];
 
     function obtenerUnidadPorId(id) {
       return parque.find(function (u) { return u.id === id; });
@@ -468,6 +493,20 @@
     const kpiActivas = document.getElementById("kpiActivas");
     const kpiGasolina = document.getElementById("kpiGasolina");
     const kpiElectricas = document.getElementById("kpiElectricas");
+
+    poblarDependencias(filtroDependencia, "Todas las dependencias");
+    poblarDependencias(dependenciaUnidad, "Selecciona dependencia");
+
+    function poblarDependencias(select, placeholder) {
+      if (!select) return;
+      const valorActual = select.value;
+      select.innerHTML = "";
+      select.add(new Option(placeholder, ""));
+      DEPENDENCIAS.forEach(function (dependencia) {
+        select.add(new Option(dependencia, dependencia));
+      });
+      select.value = DEPENDENCIAS.includes(valorActual) ? valorActual : "";
+    }
 
     function claseEstatusParque(estatus) {
       switch ((estatus || "").toUpperCase()) {
@@ -537,7 +576,7 @@
       }
 
       parque = data || [];
-      totalParque = count ?? parque.length;
+      totalParque = count ?? 0;
 
       renderizarTabla();
     }
@@ -593,14 +632,13 @@
     }
 
     function actualizarCounts() {
-      const total = totalParque || parque.length;
       counts = parque.reduce(function (acumulado, u) {
         if (u.estatus === "ACTIVO") acumulado.activas += 1;
         if (u.combustible === "GASOLINA") acumulado.gasolina += 1;
         if (u.combustible === "ELECTRICO") acumulado.electricas += 1;
         return acumulado;
       }, {
-        total: total,
+        total: totalParque,
         activas: 0,
         gasolina: 0,
         electricas: 0

@@ -237,6 +237,38 @@
     let requisiciones = [];
     let idEditando = null;
     let prefillPeticionId = null;
+    let counts = {
+      total: 0,
+      porAutorizar: 0,
+      enProceso: 0,
+      monto: 0
+    };
+    let totalRequisiciones = 0;
+    const DEPENDENCIAS = [
+      "SINDICATURA",
+      "PRESIDENCIA",
+      "CONTRALOR\u00cdA",
+      "COMUNICACI\u00d3N SOCIAL",
+      "SECRETAR\u00cdA",
+      "TESORER\u00cdA",
+      "SEGURIDAD P\u00daBLICA",
+      "DIRECCION GENERAL DE DESARROLLO DE INFRAESTRUCTURA",
+      "SERVICIOS P\u00daBLICOS",
+      "OFICIAL\u00cdA MAYOR",
+      "DIRECCI\u00d3N GENERAL DE PARTICIPACI\u00d3N CIUDADANA",
+      "ASUNTOS JUR\u00cdDICOS",
+      "BAH\u00cdA DE KINO",
+      "POBLADO MIGUEL ALEM\u00c1N",
+      "ATENCION A LA MUJER",
+      "SALUD PUBLICA",
+      "UNIDAD DE CIUDAD INTELIGENTE",
+      "INSPECCION Y VIGILANCIA",
+      "DIRECCION GRAL DE ORDENAMIENTO Y DESARROLLO URBANO",
+      "COORDINACION MUNICIPAL DE PROTECCION CIVIL",
+      "DEPARTAMENTO DE BOMBERAS Y BOMBEROS",
+      "PROTECCION Y BIENESTAR ANIMAL",
+      "INSTITUTO MUNICIPAL DE LA JUVENTUD"
+    ];
 
     const tablaRequisiciones = document.getElementById("tablaRequisiciones");
     const buscarRequisicion = document.getElementById("buscarRequisicion");
@@ -257,6 +289,24 @@
     const conceptoReqInput = document.getElementById("conceptoReq");
     const observacionesReqInput = document.getElementById("observacionesReq");
     const infoUnidadReq = document.getElementById("infoUnidadReq");
+    const kpiReqTotal = document.getElementById("kpiReqTotal");
+    const kpiPorAutorizar = document.getElementById("kpiPorAutorizar");
+    const kpiEnProceso = document.getElementById("kpiEnProceso");
+    const kpiMonto = document.getElementById("kpiMonto");
+
+    poblarDependencias(filtroDependencia, "Todas las dependencias");
+    poblarDependencias(dependenciaReqSelect, "Selecciona dependencia");
+
+    function poblarDependencias(select, placeholder) {
+      if (!select) return;
+      const valorActual = select.value;
+      select.innerHTML = "";
+      select.add(new Option(placeholder, ""));
+      DEPENDENCIAS.forEach(function (dependencia) {
+        select.add(new Option(dependencia, dependencia));
+      });
+      select.value = DEPENDENCIAS.includes(valorActual) ? valorActual : "";
+    }
 
     async function inicializarRequisiciones() {
       const migracion = await ETRequisiciones.migrarDesdeLocalStorage();
@@ -268,13 +318,14 @@
     }
 
     async function recargarRequisiciones() {
-      const { data, error } = await ETRequisiciones.listar();
+      const { data, count, error } = await ETRequisiciones.listar();
       if (error) {
         console.error("Error cargando requisiciones:", error);
         alert("No se pudieron cargar las requisiciones. Verifique la conexión con Supabase.");
         return;
       }
       requisiciones = data || [];
+      totalRequisiciones = count ?? 0;
       renderizarRequisiciones();
     }
 
@@ -378,19 +429,25 @@
     }
 
     function actualizarKPIsReq() {
-      document.getElementById("kpiReqTotal").textContent = requisiciones.length;
+      actualizarCountsReq();
+      if (kpiReqTotal) kpiReqTotal.textContent = counts.total;
+      if (kpiPorAutorizar) kpiPorAutorizar.textContent = counts.porAutorizar;
+      if (kpiEnProceso) kpiEnProceso.textContent = counts.enProceso;
+      if (kpiMonto) kpiMonto.textContent = formatoMoneda(counts.monto);
+    }
 
-      document.getElementById("kpiPorAutorizar").textContent =
-        requisiciones.filter(r => r.estatus === "Por autorizar").length;
-
-      document.getElementById("kpiEnProceso").textContent =
-        requisiciones.filter(r =>
-          r.estatus !== "Enviado" &&
-          r.estatus !== "Por autorizar"
-        ).length;
-
-      const total = requisiciones.reduce((suma, r) => suma + Number(r.monto || 0), 0);
-      document.getElementById("kpiMonto").textContent = formatoMoneda(total);
+    function actualizarCountsReq() {
+      counts = requisiciones.reduce(function (acumulado, r) {
+        if (r.estatus === "Por autorizar") acumulado.porAutorizar += 1;
+        if (r.estatus !== "Enviado" && r.estatus !== "Por autorizar") acumulado.enProceso += 1;
+        acumulado.monto += Number(r.monto || 0);
+        return acumulado;
+      }, {
+        total: totalRequisiciones,
+        porAutorizar: 0,
+        enProceso: 0,
+        monto: 0
+      });
     }
 
     async function abrirModalRequisicion() {

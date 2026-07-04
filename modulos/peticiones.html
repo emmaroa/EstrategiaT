@@ -61,9 +61,9 @@
       </div>
 
       <div class="kpi-card">
-        <span>Solventadas</span>
+        <span>Entregadas</span>
         <h2 id="kpiSolventadas">0</h2>
-        <p>Finalizadas</p>
+        <p>Entregadas</p>
       </div>
     </section>
 
@@ -209,9 +209,34 @@
       total: 0,
       pendientes: 0,
       proceso: 0,
-      solventadas: 0
+      entregadas: 0
     };
     let totalPeticiones = 0;
+    const DEPENDENCIAS = [
+      "SINDICATURA",
+      "PRESIDENCIA",
+      "CONTRALOR\u00cdA",
+      "COMUNICACI\u00d3N SOCIAL",
+      "SECRETAR\u00cdA",
+      "TESORER\u00cdA",
+      "SEGURIDAD P\u00daBLICA",
+      "DIRECCION GENERAL DE DESARROLLO DE INFRAESTRUCTURA",
+      "SERVICIOS P\u00daBLICOS",
+      "OFICIAL\u00cdA MAYOR",
+      "DIRECCI\u00d3N GENERAL DE PARTICIPACI\u00d3N CIUDADANA",
+      "ASUNTOS JUR\u00cdDICOS",
+      "BAH\u00cdA DE KINO",
+      "POBLADO MIGUEL ALEM\u00c1N",
+      "ATENCION A LA MUJER",
+      "SALUD PUBLICA",
+      "UNIDAD DE CIUDAD INTELIGENTE",
+      "INSPECCION Y VIGILANCIA",
+      "DIRECCION GRAL DE ORDENAMIENTO Y DESARROLLO URBANO",
+      "COORDINACION MUNICIPAL DE PROTECCION CIVIL",
+      "DEPARTAMENTO DE BOMBERAS Y BOMBEROS",
+      "PROTECCION Y BIENESTAR ANIMAL",
+      "INSTITUTO MUNICIPAL DE LA JUVENTUD"
+    ];
     const URL_SHEETS = "https://script.google.com/macros/s/AKfycbw8EfQqixNLLkRinVKJeOjqPla3CYwj-kY1OaARSuXk5c_x_k2N4j6i9raYhaPZS-1Xrw/exec";
     const tablaPeticiones = document.getElementById("tablaPeticiones");
     const buscarPeticion = document.getElementById("buscarPeticion");
@@ -232,6 +257,35 @@
     const kpiPendientes = document.getElementById("kpiPendientes");
     const kpiProceso = document.getElementById("kpiProceso");
     const kpiSolventadas = document.getElementById("kpiSolventadas");
+
+    poblarDependencias(filtroArea, "Todas las areas");
+    poblarDependencias(areaSelect, "Selecciona area");
+
+    function poblarDependencias(select, placeholder) {
+      if (!select) return;
+      const valorActual = select.value;
+      select.innerHTML = "";
+      select.add(new Option(placeholder, ""));
+      DEPENDENCIAS.forEach(function (dependencia) {
+        select.add(new Option(dependencia, dependencia));
+      });
+      select.value = DEPENDENCIAS.includes(valorActual) ? valorActual : "";
+    }
+
+    function obtenerUsuarioActivoPeticion() {
+      try {
+        return JSON.parse(localStorage.getItem("usuarioActivo") || "null");
+      } catch (_) {
+        return null;
+      }
+    }
+
+    function puedeCopiarTextoPedido() {
+      const usuarioActivo = obtenerUsuarioActivoPeticion();
+      const usuario = String(usuarioActivo?.usuario || "").trim().toLowerCase();
+      const nombre = String(usuarioActivo?.nombre || "").trim().toLowerCase();
+      return usuario === "emma" || nombre.includes("emma");
+    }
    
     async function inicializarPeticiones() {
       const migracion = await ETPeticiones.migrarDesdeLocalStorage();
@@ -249,7 +303,7 @@
         return;
       }
       peticiones = data || [];
-      totalPeticiones = count ?? peticiones.length;
+      totalPeticiones = count ?? 0;
       renderizarPeticiones();
     }
 
@@ -277,6 +331,7 @@
       if (!filtradas.length) {
         tablaPeticiones.innerHTML = '<tr><td colspan="8">No hay peticiones registradas.</td></tr>';
       } else {
+        const mostrarTextoPedido = puedeCopiarTextoPedido();
         filtradas.forEach(function (p) {
           const fila = document.createElement("tr");
           const soloLectura = typeof esSoloLectura === "function" && esSoloLectura();
@@ -290,6 +345,7 @@
             '<td><span class="badge ' + obtenerClaseEstatusPeticion(p.estatus) + '">' + p.estatus + "</span></td>" +
             "<td>" +
               '<button type="button" class="action-btn" onclick="verPeticion(\'' + p.id + '\')">Ver</button>' +
+              (mostrarTextoPedido ? '<button type="button" class="action-btn" onclick="copiarTextoPedido(\'' + p.id + '\')">Texto pedido</button>' : "") +
               (soloLectura ? "" :
                 '<button type="button" class="action-btn edit" onclick="editarPeticion(\'' + p.id + '\')">Editar</button>' +
                 '<button type="button" class="action-btn red-btn" onclick="eliminarPeticion(\'' + p.id + '\')">Eliminar</button>' +
@@ -304,17 +360,16 @@
     }
 
     function actualizarCounts() {
-      const total = totalPeticiones || peticiones.length;
       counts = peticiones.reduce(function (acumulado, p) {
         if (p.estatus === "Pendiente") acumulado.pendientes += 1;
         if (p.estatus === "En proceso") acumulado.proceso += 1;
-        if (p.estatus === "Solventado") acumulado.solventadas += 1;
+        if (p.estatus === "Entregado") acumulado.entregadas += 1;
         return acumulado;
       }, {
-        total: total,
+        total: totalPeticiones,
         pendientes: 0,
         proceso: 0,
-        solventadas: 0
+        entregadas: 0
       });
     }
 
@@ -323,7 +378,7 @@
       if (kpiTotal) kpiTotal.textContent = counts.total;
       if (kpiPendientes) kpiPendientes.textContent = counts.pendientes;
       if (kpiProceso) kpiProceso.textContent = counts.proceso;
-      if (kpiSolventadas) kpiSolventadas.textContent = counts.solventadas;
+      if (kpiSolventadas) kpiSolventadas.textContent = counts.entregadas;
     }
 
     function abrirModal() {
@@ -458,6 +513,56 @@
         "\nEstatus: " + p.estatus +
         "\nObservaciones: " + (p.observaciones || "Sin observaciones")
       );
+    }
+
+    async function copiarAlPortapapeles(texto) {
+      if (navigator.clipboard && window.isSecureContext) {
+        await navigator.clipboard.writeText(texto);
+        return;
+      }
+
+      const textarea = document.createElement("textarea");
+      textarea.value = texto;
+      textarea.setAttribute("readonly", "");
+      textarea.style.position = "fixed";
+      textarea.style.left = "-9999px";
+      document.body.appendChild(textarea);
+      textarea.select();
+      document.execCommand("copy");
+      document.body.removeChild(textarea);
+    }
+
+    function construirTextoPedido(p, unidad) {
+      const numeroInventario = unidad?.numero_inventario || p.unidad || "SIN INVENTARIO";
+      const descripcion = unidad?.descripcion || p.unidad || "SIN DESCRIPCION";
+      const placas = unidad?.placa || "SIN PLACAS";
+      const serie = unidad?.serie || "SIN SERIE";
+      const dependencia = unidad?.dependencia || p.area || "SIN DEPENDENCIA";
+      const pedido = p.peticion || "SIN PEDIDO";
+
+      return numeroInventario + ", " +
+        descripcion + " con placas " + placas +
+        ", serie " + serie +
+        " y dependencia " + dependencia +
+        ", " + pedido;
+    }
+
+    async function copiarTextoPedido(id) {
+      if (!puedeCopiarTextoPedido()) return;
+
+      const p = obtenerPeticionPorId(id);
+      if (!p) return;
+
+      const unidad = await ETPeticiones.buscarUnidadParque(p.unidad);
+      const texto = construirTextoPedido(p, unidad);
+
+      try {
+        await copiarAlPortapapeles(texto);
+        alert("Texto pedido copiado.");
+      } catch (error) {
+        console.error("No se pudo copiar el texto pedido:", error);
+        alert(texto);
+      }
     }
 
     function obtenerClaseEstatusPeticion(estatus) {
