@@ -94,10 +94,6 @@
 
         <select id="filtroArea" aria-label="Filtrar por área">
           <option value="">Todas las áreas</option>
-          <option value="Talleres">Talleres</option>
-          <option value="Infraestructura">Infraestructura</option>
-          <option value="Servicios Públicos">Servicios Públicos</option>
-          <option value="Parques y Jardines">Parques y Jardines</option>
         </select>
       </div>
 
@@ -110,6 +106,7 @@
               <th>Petición</th>
               <th>Solicitante</th>
               <th>Área</th>
+              <th>Dependencia</th>
               <th>Proveedor</th>
               <th>Estatus</th>
               <th>Acciones</th>
@@ -154,11 +151,12 @@
           <label for="area">Área</label>
           <select id="area">
             <option value="">Selecciona área</option>
-            <option value="Talleres">Talleres</option>
-            <option value="Infraestructura">Infraestructura</option>
-            <option value="Servicios Públicos">Servicios Públicos</option>
-            <option value="Parques y Jardines">Parques y Jardines</option>
           </select>
+        </div>
+
+        <div class="input-group">
+          <label for="dependencia">Dependencia</label>
+          <input type="text" id="dependencia" placeholder="Se llena con la unidad" readonly>
         </div>
 
         <div class="input-group">
@@ -216,31 +214,14 @@
       entregadas: 0
     };
     let totalPeticiones = 0;
-    const DEPENDENCIAS = [
-      "SINDICATURA",
-      "PRESIDENCIA",
-      "CONTRALOR\u00cdA",
-      "COMUNICACI\u00d3N SOCIAL",
-      "SECRETAR\u00cdA",
-      "TESORER\u00cdA",
-      "SEGURIDAD P\u00daBLICA",
-      "DIRECCION GENERAL DE DESARROLLO DE INFRAESTRUCTURA",
-      "SERVICIOS P\u00daBLICOS",
-      "OFICIAL\u00cdA MAYOR",
-      "DIRECCI\u00d3N GENERAL DE PARTICIPACI\u00d3N CIUDADANA",
-      "ASUNTOS JUR\u00cdDICOS",
-      "BAH\u00cdA DE KINO",
-      "POBLADO MIGUEL ALEM\u00c1N",
-      "ATENCION A LA MUJER",
-      "SALUD PUBLICA",
-      "UNIDAD DE CIUDAD INTELIGENTE",
-      "INSPECCION Y VIGILANCIA",
-      "DIRECCION GRAL DE ORDENAMIENTO Y DESARROLLO URBANO",
-      "COORDINACION MUNICIPAL DE PROTECCION CIVIL",
-      "DEPARTAMENTO DE BOMBERAS Y BOMBEROS",
-      "PROTECCION Y BIENESTAR ANIMAL",
-      "INSTITUTO MUNICIPAL DE LA JUVENTUD"
+    const AREAS_PETICION = [
+      "Gasolina",
+      "Electricas",
+      "Maquinaria Pesada",
+      "Colectores",
+      "Motocicletas"
     ];
+    const DEPENDENCIA_STOCK = "Stock de almacen";
     const URL_SHEETS = "https://script.google.com/macros/s/AKfycbw8EfQqixNLLkRinVKJeOjqPla3CYwj-kY1OaARSuXk5c_x_k2N4j6i9raYhaPZS-1Xrw/exec";
     const tablaPeticiones = document.getElementById("tablaPeticiones");
     const buscarPeticion = document.getElementById("buscarPeticion");
@@ -252,6 +233,7 @@
     const unidadInput = document.getElementById("unidad");
     const solicitanteInput = document.getElementById("solicitante");
     const areaSelect = document.getElementById("area");
+    const dependenciaInput = document.getElementById("dependencia");
     const proveedorInput = document.getElementById("proveedor");
     const estatusSelect = document.getElementById("estatus");
     const fechaInput = document.getElementById("fecha");
@@ -269,18 +251,18 @@
       "Cancelado": "CANCELADO"
     };
 
-    poblarDependencias(filtroArea, "Todas las areas");
-    poblarDependencias(areaSelect, "Selecciona area");
+    poblarAreasPeticion(filtroArea, "Todas las areas");
+    poblarAreasPeticion(areaSelect, "Selecciona area");
 
-    function poblarDependencias(select, placeholder) {
+    function poblarAreasPeticion(select, placeholder) {
       if (!select) return;
       const valorActual = select.value;
       select.innerHTML = "";
       select.add(new Option(placeholder, ""));
-      DEPENDENCIAS.forEach(function (dependencia) {
-        select.add(new Option(dependencia, dependencia));
+      AREAS_PETICION.forEach(function (area) {
+        select.add(new Option(area, area));
       });
-      select.value = DEPENDENCIAS.includes(valorActual) ? valorActual : "";
+      select.value = AREAS_PETICION.includes(valorActual) ? valorActual : "";
     }
 
     function obtenerUsuarioActivoPeticion() {
@@ -327,9 +309,21 @@
       return ESTATUS_PETICION_LEGACY[valor] || valor || "Pendiente";
     }
 
+    function normalizarAreaPeticion(area) {
+      return AREAS_PETICION.includes(area) ? area : "";
+    }
+
+    function obtenerDependenciaPeticion(peticion) {
+      if (peticion?.dependencia) return peticion.dependencia;
+      if (esPeticionStock(peticion?.unidad)) return DEPENDENCIA_STOCK;
+      return AREAS_PETICION.includes(peticion?.area) ? "" : (peticion?.area || "");
+    }
+
     function normalizarPeticion(peticion) {
       return Object.assign({}, peticion, {
-        estatus: normalizarEstatusPeticion(peticion?.estatus)
+        estatus: normalizarEstatusPeticion(peticion?.estatus),
+        area: normalizarAreaPeticion(peticion?.area),
+        dependencia: obtenerDependenciaPeticion(peticion)
       });
     }
    
@@ -387,6 +381,7 @@
           (p.peticion || "").toLowerCase().includes(texto) ||
           (p.solicitante || "").toLowerCase().includes(texto) ||
           (p.area || "").toLowerCase().includes(texto) ||
+          (p.dependencia || "").toLowerCase().includes(texto) ||
           (p.proveedor || "").toLowerCase().includes(texto);
 
         const coincideEstatus = estatus === "" || p.estatus === estatus;
@@ -397,7 +392,7 @@
       });
 
       if (!filtradas.length) {
-        tablaPeticiones.innerHTML = '<tr><td colspan="8">No hay peticiones registradas.</td></tr>';
+        tablaPeticiones.innerHTML = '<tr><td colspan="9">No hay peticiones registradas.</td></tr>';
       } else {
         const mostrarTextoPedido = puedeCopiarTextoPedido();
         const mostrarGenerarRequisicion = puedeGenerarRequisicion();
@@ -411,6 +406,7 @@
             "<td>" + p.peticion + "</td>" +
             "<td>" + p.solicitante + "</td>" +
             "<td>" + p.area + "</td>" +
+            "<td>" + (p.dependencia || "Sin dependencia") + "</td>" +
             "<td>" + (p.proveedor || "Sin asignar") + "</td>" +
             '<td><span class="badge status-badge ' + obtenerClaseEstatusPeticion(p.estatus) + '">' + p.estatus + "</span></td>" +
             '<td><div class="action-grid">' +
@@ -509,12 +505,22 @@
     async function guardarPeticion() {
       if (!idEditando && !puedeAccionPeticion("crear")) return;
       if (idEditando && !puedeAccionPeticion("editar")) return;
+      const unidadCapturada = unidadInput.value.trim();
+      if (esPeticionStock(unidadCapturada)) {
+        unidadInput.value = "STOCK";
+        dependenciaInput.value = DEPENDENCIA_STOCK;
+      } else if (unidadCapturada && !dependenciaInput.value.trim()) {
+        const unidadEncontrada = await ETPeticiones.buscarUnidadParque(unidadCapturada);
+        if (unidadEncontrada) dependenciaInput.value = unidadEncontrada.dependencia || "";
+      }
+
       const nuevaPeticion = {
         fecha: fechaInput.value,
         unidad: obtenerUnidadPeticion(unidadInput.value),
         peticion: peticionInput.value.trim(),
         solicitante: solicitanteInput.value.trim(),
         area: areaSelect.value,
+        dependencia: dependenciaInput.value.trim() || null,
         proveedor: proveedorInput.value.trim() || null,
         estatus: estatusSelect.value,
         observaciones: observacionesInput.value.trim() || null
@@ -572,6 +578,7 @@
       peticionInput.value = "";
       solicitanteInput.value = "";
       areaSelect.value = "";
+      dependenciaInput.value = "";
       proveedorInput.value = "";
       estatusSelect.value = "Pendiente";
       observacionesInput.value = "";
@@ -591,6 +598,7 @@
         "\nPetición: " + p.peticion +
         "\nSolicitante: " + p.solicitante +
         "\nÁrea: " + p.area +
+        "\nDependencia: " + (p.dependencia || "Sin dependencia") +
         "\nProveedor: " + (p.proveedor || "Sin asignar") +
         "\nEstatus: " + p.estatus +
         "\nObservaciones: " + (p.observaciones || "Sin observaciones")
@@ -679,7 +687,7 @@
       const descripcion = unidad?.descripcion || p.unidad || "SIN DESCRIPCION";
       const placas = unidad?.placa || "SIN PLACAS";
       const serie = unidad?.serie || "SIN SERIE";
-      const dependencia = unidad?.dependencia || p.area || "SIN DEPENDENCIA";
+      const dependencia = unidad?.dependencia || p.dependencia || "SIN DEPENDENCIA";
       const pedido = p.peticion || "SIN PEDIDO";
 
       return numeroInventario + ", " +
@@ -750,6 +758,7 @@
       peticionInput.value = p.peticion;
       solicitanteInput.value = p.solicitante;
       areaSelect.value = p.area;
+      dependenciaInput.value = p.dependencia || "";
       proveedorInput.value = p.proveedor || "";
       estatusSelect.value = p.estatus;
       observacionesInput.value = p.observaciones || "";
@@ -790,7 +799,7 @@
         peticion_id: p.id,
         unidad: p.unidad,
         concepto: p.peticion,
-        dependencia: p.area,
+        dependencia: p.dependencia || p.area,
         proveedor: p.proveedor,
         observaciones: "Generada desde petición de " + p.solicitante
       }));
@@ -809,43 +818,33 @@
 
       if (!valor) {
         infoUnidadPeticion.textContent = "";
+        dependenciaInput.value = "";
         return;
       }
 
       if (esPeticionStock(valor)) {
-        infoUnidadPeticion.textContent = "Petición para stock.";
+        unidadInput.value = "STOCK";
+        dependenciaInput.value = DEPENDENCIA_STOCK;
+        infoUnidadPeticion.textContent = "Peticion para stock de almacen.";
         return;
       }
 
       const unidad = await ETPeticiones.buscarUnidadParque(valor);
 
-      console.log("Unidad encontrada:", unidad);
-
       if (!unidad) {
+        dependenciaInput.value = "";
         infoUnidadPeticion.textContent = "Unidad no encontrada.";
         return;
       }
 
       const dependencia = unidad.dependencia || "";
-      let existe = false;
-
-      Array.from(areaSelect.options).forEach(option => {
-        if (option.value.toUpperCase() === dependencia.toUpperCase()) {
-          areaSelect.value = option.value;
-          existe = true;
-        }
-      });
-
-      if (!existe && dependencia) {
-        const nueva = document.createElement("option");
-        nueva.value = dependencia;
-        nueva.textContent = dependencia;
-        areaSelect.appendChild(nueva);
-        areaSelect.value = dependencia;
-      }
+      dependenciaInput.value = dependencia;
 
       infoUnidadPeticion.textContent =
-        (unidad.descripcion || "") + " | Placa: " + (unidad.placa || "") + " | " + (unidad.combustible || "");
+        "Dependencia: " + (dependencia || "Sin dependencia") +
+        " | " + (unidad.descripcion || "") +
+        " | Placa: " + (unidad.placa || "") +
+        " | " + (unidad.combustible || "");
     });
 
     inicializarPeticiones();

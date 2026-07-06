@@ -136,7 +136,7 @@
       peticion_id: data.id,
       unidad: data.unidad,
       concepto: data.peticion,
-      dependencia: data.area,
+      dependencia: data.dependencia || data.area,
       proveedor: data.proveedor,
       observaciones: "Generada desde petición de " + data.solicitante
     };

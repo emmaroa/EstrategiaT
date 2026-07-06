@@ -8,6 +8,7 @@ CREATE TABLE IF NOT EXISTS peticiones (
   peticion TEXT NOT NULL,
   solicitante VARCHAR(150) NOT NULL,
   area VARCHAR(100) NOT NULL,
+  dependencia VARCHAR(150),
   proveedor VARCHAR(150),
   estatus VARCHAR(50) DEFAULT 'Pendiente',
   observaciones TEXT,
@@ -20,6 +21,7 @@ ALTER TABLE peticiones ADD COLUMN IF NOT EXISTS unidad VARCHAR(50);
 ALTER TABLE peticiones ADD COLUMN IF NOT EXISTS peticion TEXT;
 ALTER TABLE peticiones ADD COLUMN IF NOT EXISTS solicitante VARCHAR(150);
 ALTER TABLE peticiones ADD COLUMN IF NOT EXISTS area VARCHAR(100);
+ALTER TABLE peticiones ADD COLUMN IF NOT EXISTS dependencia VARCHAR(150);
 ALTER TABLE peticiones ADD COLUMN IF NOT EXISTS proveedor VARCHAR(150);
 ALTER TABLE peticiones ADD COLUMN IF NOT EXISTS estatus VARCHAR(50) DEFAULT 'Pendiente';
 ALTER TABLE peticiones ADD COLUMN IF NOT EXISTS observaciones TEXT;

@@ -50,13 +50,17 @@
     const client = getClient();
     if (!client || !valorUnidad) return null;
 
-    const ultimos4 = valorUnidad.trim().slice(-4);
+    const limpio = String(valorUnidad || "").trim();
+    const digitos = limpio.replace(/\D/g, "");
+    const sufijo = (digitos || limpio).slice(-4);
     const { data, error } = await client.from("parque_vehicular").select("*");
 
     if (error || !data) return null;
 
     return data.find(function (u) {
-      return (u.numero_inventario || "").toString().endsWith(ultimos4);
+      const inventario = String(u.numero_inventario || "");
+      const patrulla = String(u.unidad_patrulla || "");
+      return inventario.endsWith(sufijo) || patrulla.endsWith(sufijo);
     }) || null;
   }
 
@@ -79,6 +83,7 @@
         peticion: p.peticion,
         solicitante: p.solicitante,
         area: p.area,
+        dependencia: p.dependencia || null,
         proveedor: p.proveedor || null,
         estatus: p.estatus || "Pendiente",
         observaciones: p.observaciones || null
