@@ -10,10 +10,36 @@
       : str;
   }
 
+  function formatearFechaCSV(valor) {
+    if (!valor) return "";
+    const fecha = String(valor).split("T")[0];
+    if (fecha.includes("/")) {
+      const partesSlash = fecha.split("/");
+      if (partesSlash.length === 3) {
+        const primero = Number(partesSlash[0]);
+        const segundo = Number(partesSlash[1]);
+        if (primero > 12) return partesSlash[0].padStart(2, "0") + "/" + partesSlash[1].padStart(2, "0") + "/" + partesSlash[2];
+        if (segundo > 12 || primero <= 12) return partesSlash[1].padStart(2, "0") + "/" + partesSlash[0].padStart(2, "0") + "/" + partesSlash[2];
+      }
+    }
+    const partes = fecha.split("-");
+    if (partes.length !== 3) return valor;
+    return partes[2] + "/" + partes[1] + "/" + partes[0];
+  }
+
+  function obtenerValorCSV(fila, columna) {
+    const valor = fila[columna.key];
+    const key = String(columna.key || "").toLowerCase();
+    if (key === "fecha" || key.startsWith("fecha_")) {
+      return formatearFechaCSV(valor);
+    }
+    return valor;
+  }
+
   function exportarCSV(nombreArchivo, columnas, filas) {
     const header = columnas.map(function (c) { return escapeCSV(c.label); }).join(",");
     const body = filas.map(function (fila) {
-      return columnas.map(function (c) { return escapeCSV(fila[c.key]); }).join(",");
+      return columnas.map(function (c) { return escapeCSV(obtenerValorCSV(fila, c)); }).join(",");
     }).join("\n");
 
     const bom = "\uFEFF";

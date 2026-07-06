@@ -499,10 +499,24 @@ tbody tr:hover {
 }
 
 .badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
   padding: 7px 11px;
   border-radius: 999px;
   font-size: 12px;
   font-weight: 700;
+  line-height: 1.25;
+  text-align: center;
+  vertical-align: middle;
+}
+
+.status-badge {
+  width: max-content;
+  max-width: 150px;
+  min-height: 32px;
+  white-space: normal;
+  overflow-wrap: anywhere;
 }
 
 .badge.green {
@@ -538,6 +552,40 @@ tbody tr:hover {
   cursor: pointer;
   font-weight: 600;
   margin-right: 6px;
+}
+
+.action-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 36px);
+  gap: 6px;
+  justify-content: start;
+  align-items: center;
+  width: max-content;
+  max-width: 120px;
+}
+
+.action-grid .action-btn {
+  margin-right: 0;
+}
+
+.action-btn.icon-only {
+  width: 36px;
+  height: 36px;
+  padding: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  vertical-align: middle;
+}
+
+.action-btn.icon-only svg {
+  width: 18px;
+  height: 18px;
+  stroke: currentColor;
+  fill: none;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
 }
 
 .action-btn.edit {

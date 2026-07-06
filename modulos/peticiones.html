@@ -83,6 +83,7 @@
           <option value="">Todos los estatus</option>
           <option value="Pendiente">Pendiente</option>
           <option value="Revisado por almacen">Revisado por almacen</option>
+          <option value="Pedido a proveedor">Pedido a proveedor</option>
           <option value="Recibido en Almacen">Recibido en Almacen</option>
           <option value="CANCELADO">CANCELADO</option>
         </select>
@@ -170,6 +171,7 @@
           <select id="estatus">
             <option value="Pendiente">Pendiente</option>
             <option value="Revisado por almacen">Revisado por almacen</option>
+            <option value="Pedido a proveedor">Pedido a proveedor</option>
             <option value="Recibido en Almacen">Recibido en Almacen</option>
             <option value="CANCELADO">CANCELADO</option>
           </select>
@@ -305,12 +307,24 @@
 
     function puedeGenerarRequisicion() {
       const usuarioActivo = obtenerUsuarioActivoPeticion();
+      if (window.ETPermissions && typeof ETPermissions.puedeAccion === "function") {
+        return ETPermissions.puedeAccion(usuarioActivo, "Peticiones", "generar_requisicion");
+      }
       const rol = normalizarRolPeticion(usuarioActivo?.rol || usuarioActivo?.rol_original);
       return ["superadmin", "admin", "compras"].includes(rol);
     }
 
+    function puedeAccionPeticion(accion) {
+      const usuarioActivo = obtenerUsuarioActivoPeticion();
+      if (window.ETPermissions && typeof ETPermissions.puedeAccion === "function") {
+        return ETPermissions.puedeAccion(usuarioActivo, "Peticiones", accion);
+      }
+      return !(typeof esSoloLectura === "function" && esSoloLectura());
+    }
+
     function normalizarEstatusPeticion(estatus) {
-      return ESTATUS_PETICION_LEGACY[estatus] || estatus || "Pendiente";
+      const valor = String(estatus || "").replace(/pro{2}veedor/g, "proveedor");
+      return ESTATUS_PETICION_LEGACY[valor] || valor || "Pendiente";
     }
 
     function normalizarPeticion(peticion) {
@@ -389,7 +403,8 @@
         const mostrarGenerarRequisicion = puedeGenerarRequisicion();
         filtradas.forEach(function (p) {
           const fila = document.createElement("tr");
-          const soloLectura = typeof esSoloLectura === "function" && esSoloLectura();
+          const puedeEditar = puedeAccionPeticion("editar");
+          const puedeEliminar = puedeAccionPeticion("eliminar");
           fila.innerHTML =
             "<td>" + formatearFecha(p.fecha) + "</td>" +
             "<td><strong>" + p.unidad + "</strong></td>" +
@@ -397,16 +412,15 @@
             "<td>" + p.solicitante + "</td>" +
             "<td>" + p.area + "</td>" +
             "<td>" + (p.proveedor || "Sin asignar") + "</td>" +
-            '<td><span class="badge ' + obtenerClaseEstatusPeticion(p.estatus) + '">' + p.estatus + "</span></td>" +
-            "<td>" +
-              '<button type="button" class="action-btn" onclick="verPeticion(\'' + p.id + '\')">Ver</button>' +
-              (mostrarTextoPedido ? '<button type="button" class="action-btn" onclick="copiarTextoPedido(\'' + p.id + '\')">Texto pedido</button>' : "") +
-              (soloLectura ? "" :
-                '<button type="button" class="action-btn edit" onclick="editarPeticion(\'' + p.id + '\')">Editar</button>' +
-                '<button type="button" class="action-btn red-btn" onclick="eliminarPeticion(\'' + p.id + '\')">Eliminar</button>' +
-                (mostrarGenerarRequisicion ? '<button type="button" class="action-btn orange" onclick="generarRequisicion(\'' + p.id + '\')">Generar req.</button>' : "")
-              ) +
-            "</td>";
+            '<td><span class="badge status-badge ' + obtenerClaseEstatusPeticion(p.estatus) + '">' + p.estatus + "</span></td>" +
+            '<td><div class="action-grid">' +
+              ETLayout.iconButton("ver", "Ver peticion", "verPeticion('" + p.id + "')") +
+              ETLayout.iconButton("historial", "Ver historial", "verHistorialPeticion('" + p.id + "')") +
+              (mostrarTextoPedido ? ETLayout.iconButton("copiar", "Copiar texto pedido", "copiarTextoPedido('" + p.id + "')") : "") +
+              (puedeEditar ? ETLayout.iconButton("editar", "Editar peticion", "editarPeticion('" + p.id + "')", "edit") : "") +
+              (puedeEliminar ? ETLayout.iconButton("eliminar", "Eliminar peticion", "eliminarPeticion('" + p.id + "')", "red-btn") : "") +
+              (mostrarGenerarRequisicion ? ETLayout.iconButton("requisicion", "Generar requisicion", "generarRequisicion('" + p.id + "')", "orange") : "") +
+            "</div></td>";
           tablaPeticiones.appendChild(fila);
         });
       }
@@ -418,6 +432,7 @@
       counts = peticiones.reduce(function (acumulado, p) {
         if (p.estatus === "Pendiente") acumulado.pendientes += 1;
         if (p.estatus === "Revisado por almacen") acumulado.proceso += 1;
+        if (p.estatus === "Pedido a proveedor") acumulado.proceso += 1;
         if (p.estatus === "Recibido en Almacen") acumulado.entregadas += 1;
         return acumulado;
       }, {
@@ -437,7 +452,8 @@
     }
 
     function abrirModal() {
-      if (typeof esSoloLectura === "function" && esSoloLectura()) return;
+      if (!idEditando && !puedeAccionPeticion("crear")) return;
+      if (idEditando && !puedeAccionPeticion("editar")) return;
       modalPeticion?.classList.add("show");
       modalPeticion?.setAttribute("aria-hidden", "false");
       modalPeticionTitulo.textContent = idEditando ? "Editar petición" : "Nueva petición";
@@ -491,6 +507,8 @@
     }
 
     async function guardarPeticion() {
+      if (!idEditando && !puedeAccionPeticion("crear")) return;
+      if (idEditando && !puedeAccionPeticion("editar")) return;
       const nuevaPeticion = {
         fecha: fechaInput.value,
         unidad: obtenerUnidadPeticion(unidadInput.value),
@@ -509,14 +527,23 @@
 
       let resultado;
       if (idEditando) {
+        const anterior = obtenerPeticionPorId(idEditando);
         resultado = await ETPeticiones.actualizar(idEditando, nuevaPeticion);
         if (!resultado.error && typeof registrarAuditoria === "function") {
-          registrarAuditoria("Peticiones", "Editó petición", "Unidad " + nuevaPeticion.unidad);
+          registrarAuditoria("Peticiones", "Edito peticion", "Unidad " + nuevaPeticion.unidad, {
+            entidad_tipo: "peticiones",
+            entidad_id: idEditando,
+            metadata: { antes: anterior || null, despues: resultado.data || nuevaPeticion }
+          });
         }
       } else {
         resultado = await ETPeticiones.crear(nuevaPeticion);
         if (!resultado.error && typeof registrarAuditoria === "function") {
-          registrarAuditoria("Peticiones", "Creó nueva petición", "Unidad " + nuevaPeticion.unidad);
+          registrarAuditoria("Peticiones", "Creo nueva peticion", "Unidad " + nuevaPeticion.unidad, {
+            entidad_tipo: "peticiones",
+            entidad_id: resultado.data?.id || null,
+            metadata: { despues: resultado.data || nuevaPeticion }
+          });
         }
       }
 
@@ -568,6 +595,66 @@
         "\nEstatus: " + p.estatus +
         "\nObservaciones: " + (p.observaciones || "Sin observaciones")
       );
+    }
+
+    async function verHistorialPeticion(id) {
+      const p = obtenerPeticionPorId(id);
+      if (!p) return;
+      const movimientos = await obtenerHistorialEntidad("peticiones", id);
+      if (!movimientos.length) {
+        alert("Sin historial para esta peticion.");
+        return;
+      }
+      alert(
+        "Historial de peticion: " + (p.unidad || "") + "\n\n" +
+        movimientos.map(function (m) {
+          return (m.fecha || m.created_at || "") + " | " +
+            (m.usuario || m.usuario_nombre || "Usuario") + " | " +
+            (m.accion || "") + "\n" +
+            (m.detalle || "");
+        }).join("\n\n")
+      );
+    }
+
+    async function obtenerHistorialEntidad(tipo, id) {
+      const client = window.supabaseClient || null;
+      if (client) {
+        const { data, error } = await client
+          .from("auditoria")
+          .select("created_at,usuario_nombre,accion,detalle")
+          .eq("entidad_tipo", tipo)
+          .eq("entidad_id", id)
+          .order("created_at", { ascending: false });
+        if (!error) {
+          return (data || []).map(function (item) {
+            return {
+              fecha: formatearFechaHoraHistorial(item.created_at),
+              usuario: item.usuario_nombre,
+              accion: item.accion,
+              detalle: item.detalle
+            };
+          });
+        }
+      }
+
+      try {
+        return (JSON.parse(localStorage.getItem("auditoria") || "[]") || []).filter(function (item) {
+          return item.entidad_tipo === tipo && item.entidad_id === id;
+        });
+      } catch (_) {
+        return [];
+      }
+    }
+
+    function formatearFechaHoraHistorial(fecha) {
+      if (!fecha) return "";
+      const date = new Date(fecha);
+      if (Number.isNaN(date.getTime())) return fecha;
+      return String(date.getDate()).padStart(2, "0") + "/" +
+        String(date.getMonth() + 1).padStart(2, "0") + "/" +
+        date.getFullYear() + " " +
+        String(date.getHours()).padStart(2, "0") + ":" +
+        String(date.getMinutes()).padStart(2, "0");
     }
 
     async function copiarAlPortapapeles(texto) {
@@ -623,6 +710,7 @@
     function obtenerClaseEstatusPeticion(estatus) {
       if (estatus === "Pendiente") return "amber";
       if (estatus === "Revisado por almacen") return "blue";
+      if (estatus === "Pedido a proveedor") return "blue";
       if (estatus === "Recibido en Almacen") return "green";
       if (estatus === "CANCELADO") return "red";
       return "gray";
@@ -630,8 +718,19 @@
 
     function formatearFecha(fecha) {
       if (!fecha) return "";
+      const valor = String(fecha).split("T")[0];
+      if (valor.includes("/")) {
+        const partesSlash = valor.split("/");
+        if (partesSlash.length === 3) {
+          const primero = Number(partesSlash[0]);
+          const segundo = Number(partesSlash[1]);
+          if (primero > 12) return partesSlash[0].padStart(2, "0") + "/" + partesSlash[1].padStart(2, "0") + "/" + partesSlash[2];
+          if (segundo > 12 || primero <= 12) return partesSlash[1].padStart(2, "0") + "/" + partesSlash[0].padStart(2, "0") + "/" + partesSlash[2];
+        }
+      }
 
-      const partes = fecha.split("-");
+      const partes = valor.split("-");
+      if (partes.length !== 3) return fecha;
       return partes[2] + "/" + partes[1] + "/" + partes[0];
     }
 
@@ -641,6 +740,7 @@
     filtroArea?.addEventListener("change", renderizarPeticiones);
 
     function editarPeticion(id) {
+      if (!puedeAccionPeticion("editar")) return;
       const p = obtenerPeticionPorId(id);
       if (!p) return;
       idEditando = id;
@@ -656,6 +756,7 @@
     }
 
     async function eliminarPeticion(id) {
+      if (!puedeAccionPeticion("eliminar")) return;
       const p = obtenerPeticionPorId(id);
       if (!p) return;
       if (!confirm("¿Seguro que deseas eliminar la petición de la unidad " + p.unidad + "?")) return;
@@ -667,7 +768,11 @@
       }
 
       if (typeof registrarAuditoria === "function") {
-        registrarAuditoria("Peticiones", "Eliminó petición", "Unidad " + p.unidad + " - " + p.peticion);
+        registrarAuditoria("Peticiones", "Elimino peticion", "Unidad " + p.unidad + " - " + p.peticion, {
+          entidad_tipo: "peticiones",
+          entidad_id: p.id,
+          metadata: { antes: p }
+        });
       }
 
       await recargarPeticiones();
@@ -689,6 +794,13 @@
         proveedor: p.proveedor,
         observaciones: "Generada desde petición de " + p.solicitante
       }));
+      if (typeof registrarAuditoria === "function") {
+        registrarAuditoria("Peticiones", "Genero requisicion", "Unidad " + p.unidad + " - " + p.peticion, {
+          entidad_tipo: "peticiones",
+          entidad_id: p.id,
+          metadata: { peticion: p }
+        });
+      }
       window.location.href = "requisiciones.html?desde_peticion=" + p.id;
     }
 

@@ -142,15 +142,21 @@
 }
 
 .acuerdo-acciones {
-  display: flex;
-  flex-wrap: wrap;
+  display: grid;
+  grid-template-columns: repeat(3, 36px);
   gap: 6px;
+  justify-content: start;
   margin-top: 10px;
 }
 
 .acuerdo-acciones .action-btn {
   font-size: 11px;
   padding: 6px 8px;
+  margin-right: 0;
+}
+
+.acuerdo-acciones .action-btn.icon-only {
+  padding: 0;
 }
 
 .badge.prioridad-alta,

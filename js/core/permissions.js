@@ -183,6 +183,14 @@
   };
 
   const ACCIONES_LECTURA = ["ver", "consultar", "exportar", "imprimir"];
+  const ACCIONES_POR_ROL = {
+    SuperAdmin: ["ver", "crear", "editar", "eliminar", "cambiar_estatus", "generar_requisicion", "auditar", "exportar", "imprimir"],
+    Admin: ["ver", "crear", "editar", "eliminar", "cambiar_estatus", "generar_requisicion", "auditar", "exportar", "imprimir"],
+    Compras: ["ver", "crear", "editar", "cambiar_estatus", "generar_requisicion", "exportar", "imprimir"],
+    Almacen: ["ver", "crear", "editar", "cambiar_estatus", "exportar", "imprimir"],
+    Consulta: ["ver", "consultar", "exportar", "imprimir"],
+    "Solo Lectura": ["ver", "consultar", "exportar", "imprimir"]
+  };
 
   function normalizarRol(rol) {
     if (!rol) return "";
@@ -304,6 +312,21 @@
     return obtenerPermisoModuloUsuario(usuario, modulo) === "editar";
   }
 
+  function puedeAccion(usuario, modulo, accion) {
+    const accionNormalizada = String(accion || "").trim().toLowerCase();
+    if (!accionNormalizada) return false;
+    if (ACCIONES_LECTURA.includes(accionNormalizada)) {
+      return puedeVerModulo(usuario, modulo);
+    }
+
+    const permisoModulo = obtenerPermisoModuloUsuario(usuario, modulo);
+    if (permisoModulo !== "editar" && permisoModulo !== "moderar") return false;
+
+    const rol = normalizarRol((usuario || {}).rol || (usuario || {}).cargo || (usuario || {}).tipo || "");
+    const acciones = ACCIONES_POR_ROL[rol] || ["ver", "crear", "editar", "cambiar_estatus", "exportar", "imprimir"];
+    return acciones.includes(accionNormalizada);
+  }
+
   function esSoloLectura(rolOUsuario) {
     const rol = typeof rolOUsuario === "object" ? (rolOUsuario.rol || "") : rolOUsuario;
     return normalizarRol(rol) === "Solo Lectura" || normalizarRol(rol) === "Consulta";
@@ -328,8 +351,10 @@
     puedeAcceder,
     puedeVerModulo,
     puedeEditarModulo,
+    puedeAccion,
     esSoloLectura,
     obtenerRutaModulo,
-    ACCIONES_LECTURA
+    ACCIONES_LECTURA,
+    ACCIONES_POR_ROL
   };
 })(window);

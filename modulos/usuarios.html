@@ -276,18 +276,16 @@
             <span class="badge blue">${u.rol || ""}</span>
           </td>
           <td>
-            <span class="badge ${u.activo ? "green" : "red"}">
+            <span class="badge status-badge ${u.activo ? "green" : "red"}">
               ${u.activo ? "Activo" : "Inactivo"}
             </span>
           </td>
           <td>${formatearFechaUsuario(u.created_at)}</td>
-          <td>
-            <button type="button" class="action-btn edit" onclick="editarUsuario(${index})">Editar</button>
-            <button type="button" class="action-btn orange" onclick="toggleUsuario(${index})">
-              ${u.activo ? "Inactivar" : "Activar"}
-            </button>
-            <button type="button" class="action-btn red-btn" onclick="eliminarUsuario(${index})">Eliminar</button>
-          </td>
+          <td><div class="action-grid">
+            ${ETLayout.iconButton("editar", "Editar usuario", "editarUsuario(" + index + ")", "edit")}
+            ${ETLayout.iconButton(u.activo ? "inactivar" : "activar", u.activo ? "Inactivar usuario" : "Activar usuario", "toggleUsuario(" + index + ")", "orange")}
+            ${ETLayout.iconButton("eliminar", "Eliminar usuario", "eliminarUsuario(" + index + ")", "red-btn")}
+          </div></td>
         `;
 
         tablaUsuarios.appendChild(fila);
@@ -553,12 +551,15 @@
       if (!fecha) return "";
 
       const f = new Date(fecha);
+      if (Number.isNaN(f.getTime())) return fecha;
 
-      return f.toLocaleDateString("es-MX") + " " +
-        f.toLocaleTimeString("es-MX", {
-          hour: "2-digit",
-          minute: "2-digit"
-        });
+      const dia = String(f.getDate()).padStart(2, "0");
+      const mes = String(f.getMonth() + 1).padStart(2, "0");
+      const anio = f.getFullYear();
+      const hora = String(f.getHours()).padStart(2, "0");
+      const minuto = String(f.getMinutes()).padStart(2, "0");
+
+      return dia + "/" + mes + "/" + anio + " " + hora + ":" + minuto;
     }
 
     buscarUsuario.addEventListener("input", renderizarUsuarios);

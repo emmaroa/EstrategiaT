@@ -567,14 +567,24 @@
 
   function formatearFechaLarga(fechaISO) {
     if (!fechaISO) return "";
+    return formatearFechaCorta(fechaISO);
+  }
 
-    const fecha = new Date(fechaISO + "T00:00:00");
-
-    return fecha.toLocaleDateString("es-MX", {
-      day: "numeric",
-      month: "long",
-      year: "numeric"
-    }).toUpperCase();
+  function formatearFechaCorta(fechaISO) {
+    if (!fechaISO) return "";
+    const valor = String(fechaISO).split("T")[0];
+    if (valor.includes("/")) {
+      const partesSlash = valor.split("/");
+      if (partesSlash.length === 3) {
+        const primero = Number(partesSlash[0]);
+        const segundo = Number(partesSlash[1]);
+        if (primero > 12) return partesSlash[0].padStart(2, "0") + "/" + partesSlash[1].padStart(2, "0") + "/" + partesSlash[2];
+        if (segundo > 12 || primero <= 12) return partesSlash[1].padStart(2, "0") + "/" + partesSlash[0].padStart(2, "0") + "/" + partesSlash[2];
+      }
+    }
+    const partes = valor.split("-");
+    if (partes.length !== 3) return fechaISO;
+    return partes[2] + "/" + partes[1] + "/" + partes[0];
   }
 
   function obtenerMesPeriodo() {
@@ -1058,7 +1068,7 @@
         .map((dia) => `
           <tr>
             <td>${escapeHTML(dia.dia)}</td>
-            <td>${escapeHTML(dia.fecha)}</td>
+            <td>${escapeHTML(formatearFechaCorta(dia.fecha))}</td>
             <td>${escapeHTML(dia.entrada)}</td>
             <td>${escapeHTML(dia.salida)}</td>
             <td>${Number(dia.horas || 0)}</td>
@@ -1199,7 +1209,7 @@
     tbody.innerHTML = periodos.map(function (periodo) {
       return `
         <tr>
-          <td>${escapeHTML(periodo.fecha_inicio || "")} al ${escapeHTML(periodo.fecha_fin || "")}</td>
+          <td>${escapeHTML(formatearFechaCorta(periodo.fecha_inicio))} al ${escapeHTML(formatearFechaCorta(periodo.fecha_fin))}</td>
           <td>${escapeHTML(periodo.numero_oficio || "Sin oficio")}</td>
           <td>${Number(periodo.total_empleados || 0)}</td>
           <td>${Number(periodo.total_horas || 0)}</td>

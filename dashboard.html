@@ -158,6 +158,22 @@
             <p>Unidades en taller</p>
           </div>
         </div>
+
+        <div class="alert-card red">
+          <div class="alert-icon">!</div>
+          <div>
+            <h3 id="alertPeticionesVencidas">0</h3>
+            <p>Peticiones con mas de 7 dias</p>
+          </div>
+        </div>
+
+        <div class="alert-card amber">
+          <div class="alert-icon">?</div>
+          <div>
+            <h3 id="alertPeticionesSinProveedor">0</h3>
+            <p>Peticiones sin proveedor</p>
+          </div>
+        </div>
       </div>
     </section>
 
@@ -473,6 +489,22 @@ function renderizarDashboard() {
   document.getElementById("alertFacturas").textContent = kpis.facturasPendientes;
   document.getElementById("alertVales").textContent = kpis.valesPendientes;
   document.getElementById("alertTaller").textContent = kpis.unidadesTaller;
+  const hoyAlertas = new Date();
+  const peticionesVencidas = peticiones.filter(function (p) {
+    if (!p.fecha || p.estatus === "Recibido en Almacen" || p.estatus === "CANCELADO") return false;
+    const fecha = new Date(p.fecha + "T00:00:00");
+    if (Number.isNaN(fecha.getTime())) return false;
+    return Math.floor((hoyAlertas - fecha) / 86400000) > 7;
+  }).length;
+  const peticionesSinProveedor = peticiones.filter(function (p) {
+    return p.estatus !== "Recibido en Almacen" &&
+      p.estatus !== "CANCELADO" &&
+      !String(p.proveedor || "").trim();
+  }).length;
+  const alertPeticionesVencidas = document.getElementById("alertPeticionesVencidas");
+  const alertPeticionesSinProveedor = document.getElementById("alertPeticionesSinProveedor");
+  if (alertPeticionesVencidas) alertPeticionesVencidas.textContent = peticionesVencidas;
+  if (alertPeticionesSinProveedor) alertPeticionesSinProveedor.textContent = peticionesSinProveedor;
 
   document.getElementById("rankingReparaciones").innerHTML =
     kpis.reparacionesCostosas.map(function (r, i) {

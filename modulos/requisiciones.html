@@ -302,6 +302,22 @@
     poblarDependencias(filtroDependencia, "Todas las dependencias");
     poblarDependencias(dependenciaReqSelect, "Selecciona dependencia");
 
+    function obtenerUsuarioActivoRequisicion() {
+      try {
+        return JSON.parse(localStorage.getItem("usuarioActivo") || "null");
+      } catch (_) {
+        return null;
+      }
+    }
+
+    function puedeAccionRequisicion(accion) {
+      const usuarioActivo = obtenerUsuarioActivoRequisicion();
+      if (window.ETPermissions && typeof ETPermissions.puedeAccion === "function") {
+        return ETPermissions.puedeAccion(usuarioActivo, "Requisiciones", accion);
+      }
+      return !(typeof esSoloLectura === "function" && esSoloLectura());
+    }
+
     function poblarDependencias(select, placeholder) {
       if (!select) return;
       const valorActual = select.value;
@@ -427,7 +443,9 @@
       } else {
         filtradas.forEach(function (r) {
           const fila = document.createElement("tr");
-          const soloLectura = typeof esSoloLectura === "function" && esSoloLectura();
+          const puedeEditar = puedeAccionRequisicion("editar");
+          const puedeCambiarEstatus = puedeAccionRequisicion("cambiar_estatus");
+          const puedeEliminar = puedeAccionRequisicion("eliminar");
           fila.innerHTML =
             "<td>" + formatearFechaReq(r.fecha) + "</td>" +
             "<td><strong>" + r.numero + "</strong></td>" +
@@ -437,15 +455,14 @@
             "<td>" + (r.oc || "Pendiente") + "</td>" +
             "<td>" + (r.factura || "Pendiente") + "</td>" +
             "<td>" + formatoMoneda(r.monto) + "</td>" +
-            '<td><span style="white-space: nowrap;" class="badge ' + obtenerClaseEstatusReq(r.estatus) + '">' + r.estatus + "</span></td>" +
-            "<td>" +
-              '<button type="button" class="action-btn" onclick="verRequisicion(\'' + r.id + '\')">Ver</button>' +
-              (soloLectura ? "" :
-                '<button type="button" class="action-btn edit" onclick="editarRequisicion(\'' + r.id + '\')">Editar</button>' +
-                '<button type="button" class="action-btn" onclick="cambiarEstatusReq(\'' + r.id + '\')">Estatus</button>' +
-                '<button type="button" class="action-btn red-btn" onclick="eliminarRequisicion(\'' + r.id + '\')">Eliminar</button>'
-              ) +
-            "</td>";
+            '<td><span class="badge status-badge ' + obtenerClaseEstatusReq(r.estatus) + '">' + r.estatus + "</span></td>" +
+            '<td><div class="action-grid">' +
+              ETLayout.iconButton("ver", "Ver requisicion", "verRequisicion('" + r.id + "')") +
+              ETLayout.iconButton("historial", "Ver historial", "verHistorialRequisicion('" + r.id + "')") +
+              (puedeEditar ? ETLayout.iconButton("editar", "Editar requisicion", "editarRequisicion('" + r.id + "')", "edit") : "") +
+              (puedeCambiarEstatus ? ETLayout.iconButton("estatus", "Cambiar estatus", "cambiarEstatusReq('" + r.id + "')") : "") +
+              (puedeEliminar ? ETLayout.iconButton("eliminar", "Eliminar requisicion", "eliminarRequisicion('" + r.id + "')", "red-btn") : "") +
+            "</div></td>";
           tablaRequisiciones.appendChild(fila);
         });
       }
@@ -476,7 +493,8 @@
     }
 
     async function abrirModalRequisicion() {
-      if (typeof esSoloLectura === "function" && esSoloLectura()) return;
+      if (!idEditando && !puedeAccionRequisicion("crear")) return;
+      if (idEditando && !puedeAccionRequisicion("editar")) return;
       modalRequisicion.classList.add("show");
       modalRequisicion.setAttribute("aria-hidden", "false");
       modalRequisicionTitulo.textContent = idEditando ? "Editar requisición" : "Nueva requisición";
@@ -511,6 +529,8 @@
     });
 
     async function guardarRequisicion() {
+      if (!idEditando && !puedeAccionRequisicion("crear")) return;
+      if (idEditando && !puedeAccionRequisicion("editar")) return;
       const nueva = {
         fecha: fechaReqInput.value,
         numero: numeroReqInput.value.trim(),
@@ -534,14 +554,23 @@
 
       let resultado;
       if (idEditando) {
+        const anterior = obtenerRequisicionPorId(idEditando);
         resultado = await ETRequisiciones.actualizar(idEditando, nueva);
         if (!resultado.error) {
-          registrarAuditoria("Requisiciones", "Editó requisición", nueva.numero + " - Unidad " + nueva.unidad);
+          registrarAuditoria("Requisiciones", "Edito requisicion", nueva.numero + " - Unidad " + nueva.unidad, {
+            entidad_tipo: "requisiciones",
+            entidad_id: idEditando,
+            metadata: { antes: anterior || null, despues: resultado.data || nueva }
+          });
         }
       } else {
         resultado = await ETRequisiciones.crear(nueva);
         if (!resultado.error) {
-          registrarAuditoria("Requisiciones", "Creó nueva requisición", (resultado.data?.numero || nueva.numero) + " - Unidad " + nueva.unidad);
+          registrarAuditoria("Requisiciones", "Creo nueva requisicion", (resultado.data?.numero || nueva.numero) + " - Unidad " + nueva.unidad, {
+            entidad_tipo: "requisiciones",
+            entidad_id: resultado.data?.id || null,
+            metadata: { despues: resultado.data || nueva }
+          });
         }
       }
 
@@ -575,6 +604,7 @@
     }
 
     async function cambiarEstatusReq(id) {
+      if (!puedeAccionRequisicion("cambiar_estatus")) return;
       const req = obtenerRequisicionPorId(id);
       if (!req) return;
 
@@ -602,11 +632,16 @@
         return;
       }
 
-      registrarAuditoria("Requisiciones", "Cambió estatus", req.numero + ": " + req.estatus + " → " + nuevoEstatus);
+      registrarAuditoria("Requisiciones", "Cambio estatus", req.numero + ": " + req.estatus + " -> " + nuevoEstatus, {
+        entidad_tipo: "requisiciones",
+        entidad_id: req.id,
+        metadata: { antes: { estatus: req.estatus }, despues: { estatus: nuevoEstatus } }
+      });
       await recargarRequisiciones();
     }
 
     function editarRequisicion(id) {
+      if (!puedeAccionRequisicion("editar")) return;
       const r = obtenerRequisicionPorId(id);
       if (!r) return;
       idEditando = id;
@@ -626,6 +661,7 @@
     }
 
     async function eliminarRequisicion(id) {
+      if (!puedeAccionRequisicion("eliminar")) return;
       const r = obtenerRequisicionPorId(id);
       if (!r) return;
       if (!confirm("¿Eliminar la requisición " + r.numero + "?")) return;
@@ -636,7 +672,11 @@
         return;
       }
 
-      registrarAuditoria("Requisiciones", "Eliminó requisición", r.numero);
+      registrarAuditoria("Requisiciones", "Elimino requisicion", r.numero, {
+        entidad_tipo: "requisiciones",
+        entidad_id: r.id,
+        metadata: { antes: r }
+      });
       await recargarRequisiciones();
     }
 
@@ -658,6 +698,66 @@
         "\nEstatus: " + r.estatus +
         "\nObservaciones: " + (r.observaciones || "Sin observaciones")
       );
+    }
+
+    async function verHistorialRequisicion(id) {
+      const r = obtenerRequisicionPorId(id);
+      if (!r) return;
+      const movimientos = await obtenerHistorialEntidadReq("requisiciones", id);
+      if (!movimientos.length) {
+        alert("Sin historial para esta requisicion.");
+        return;
+      }
+      alert(
+        "Historial de requisicion: " + (r.numero || "") + "\n\n" +
+        movimientos.map(function (m) {
+          return (m.fecha || m.created_at || "") + " | " +
+            (m.usuario || m.usuario_nombre || "Usuario") + " | " +
+            (m.accion || "") + "\n" +
+            (m.detalle || "");
+        }).join("\n\n")
+      );
+    }
+
+    async function obtenerHistorialEntidadReq(tipo, id) {
+      const client = window.supabaseClient || null;
+      if (client) {
+        const { data, error } = await client
+          .from("auditoria")
+          .select("created_at,usuario_nombre,accion,detalle")
+          .eq("entidad_tipo", tipo)
+          .eq("entidad_id", id)
+          .order("created_at", { ascending: false });
+        if (!error) {
+          return (data || []).map(function (item) {
+            return {
+              fecha: formatearFechaHoraHistorialReq(item.created_at),
+              usuario: item.usuario_nombre,
+              accion: item.accion,
+              detalle: item.detalle
+            };
+          });
+        }
+      }
+
+      try {
+        return (JSON.parse(localStorage.getItem("auditoria") || "[]") || []).filter(function (item) {
+          return item.entidad_tipo === tipo && item.entidad_id === id;
+        });
+      } catch (_) {
+        return [];
+      }
+    }
+
+    function formatearFechaHoraHistorialReq(fecha) {
+      if (!fecha) return "";
+      const date = new Date(fecha);
+      if (Number.isNaN(date.getTime())) return fecha;
+      return String(date.getDate()).padStart(2, "0") + "/" +
+        String(date.getMonth() + 1).padStart(2, "0") + "/" +
+        date.getFullYear() + " " +
+        String(date.getHours()).padStart(2, "0") + ":" +
+        String(date.getMinutes()).padStart(2, "0");
     }
 
     function obtenerClaseEstatusReq(estatus) {
@@ -682,7 +782,18 @@
 
     function formatearFechaReq(fecha) {
       if (!fecha) return "";
-      const partes = fecha.split("-");
+      const valor = String(fecha).split("T")[0];
+      if (valor.includes("/")) {
+        const partesSlash = valor.split("/");
+        if (partesSlash.length === 3) {
+          const primero = Number(partesSlash[0]);
+          const segundo = Number(partesSlash[1]);
+          if (primero > 12) return partesSlash[0].padStart(2, "0") + "/" + partesSlash[1].padStart(2, "0") + "/" + partesSlash[2];
+          if (segundo > 12 || primero <= 12) return partesSlash[1].padStart(2, "0") + "/" + partesSlash[0].padStart(2, "0") + "/" + partesSlash[2];
+        }
+      }
+      const partes = valor.split("-");
+      if (partes.length !== 3) return fecha;
       return partes[2] + "/" + partes[1] + "/" + partes[0];
     }
 

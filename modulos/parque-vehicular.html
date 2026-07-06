@@ -617,13 +617,13 @@
             "<td>" + (u.modelo || "") + "</td>" +
             "<td>" + (u.placa || "") + "</td>" +
             "<td>" + (u.combustible || "") + "</td>" +
-            '<td><span class="badge ' + claseEstatusParque(u.estatus) + '">' + (u.estatus || "") + "</span></td>" +
-            "<td>" +
+            '<td><span class="badge status-badge ' + claseEstatusParque(u.estatus) + '">' + (u.estatus || "") + "</span></td>" +
+            '<td><div class="action-grid">' +
               (soloLectura ? "—" :
-                '<button type="button" class="action-btn" onclick="editarUnidad(\'' + u.id + '\')">Editar</button>' +
-                '<button type="button" class="action-btn red-btn" onclick="eliminarUnidad(\'' + u.id + '\')">Eliminar</button>'
+                ETLayout.iconButton("editar", "Editar unidad", "editarUnidad('" + u.id + "')", "edit") +
+                ETLayout.iconButton("eliminar", "Eliminar unidad", "eliminarUnidad('" + u.id + "')", "red-btn")
               ) +
-            "</td>";
+            "</div></td>";
           tablaParque.appendChild(fila);
         });
       }

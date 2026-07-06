@@ -288,12 +288,19 @@ function pintarTarjeta(acuerdo) {
     </div>
 
     <div class="acuerdo-acciones">
-      <button type="button" class="action-btn" onclick="verAcuerdo('${acuerdo.id}')">Ver</button>
+      ${botonIconoAcuerdo("ver", "Ver acuerdo", "verAcuerdo('" + acuerdo.id + "')")}
       ${soloLectura ? "" : botonesEstado(acuerdo)}
     </div>
   `;
 
   contenedor.appendChild(card);
+}
+
+function botonIconoAcuerdo(icono, etiqueta, onclick, clase) {
+  if (window.ETLayout && typeof ETLayout.iconButton === "function") {
+    return ETLayout.iconButton(icono, etiqueta, onclick, clase);
+  }
+  return `<button type="button" class="action-btn ${clase || ""}" title="${etiqueta}" aria-label="${etiqueta}" onclick="${onclick}">${etiqueta}</button>`;
 }
 
 function botonesEstado(acuerdo) {
@@ -306,15 +313,15 @@ function botonesEstado(acuerdo) {
   }
 
   if (!puedeModificarEstado && puedeTurnar) {
-    return `<button type="button" class="action-btn orange" onclick="abrirTurnarModal('${acuerdo.id}')">Turnar</button>`;
+    return botonIconoAcuerdo("turnar", "Turnar acuerdo", "abrirTurnarModal('" + acuerdo.id + "')", "orange");
   }
 
   return `
-    <button type="button" class="action-btn blue" onclick="cambiarEstado('${acuerdo.id}', 'En proceso')">En proceso</button>
-    <button type="button" class="action-btn" onclick="cambiarEstado('${acuerdo.id}', 'En espera')">En espera</button>
-    <button type="button" class="action-btn orange" onclick="abrirTurnarModal('${acuerdo.id}')">Turnar</button>
-    <button type="button" class="action-btn" onclick="cambiarEstado('${acuerdo.id}', 'Para revisión')">Revisión</button>
-    <button type="button" class="action-btn edit" onclick="cambiarEstado('${acuerdo.id}', 'Concluido')">Concluir</button>
+    ${botonIconoAcuerdo("proceso", "Marcar en proceso", "cambiarEstado('" + acuerdo.id + "', 'En proceso')", "blue")}
+    ${botonIconoAcuerdo("espera", "Marcar en espera", "cambiarEstado('" + acuerdo.id + "', 'En espera')")}
+    ${botonIconoAcuerdo("turnar", "Turnar acuerdo", "abrirTurnarModal('" + acuerdo.id + "')", "orange")}
+    ${botonIconoAcuerdo("revision", "Enviar a revision", "cambiarEstado('" + acuerdo.id + "', 'Para revisión')")}
+    ${botonIconoAcuerdo("concluir", "Concluir acuerdo", "cambiarEstado('" + acuerdo.id + "', 'Concluido')", "edit")}
   `;
 }
 
@@ -582,7 +589,17 @@ function obtenerBadgePrioridad(prioridad) {
 
 function formatearFecha(fecha) {
   if (!fecha) return "";
-  const partes = fecha.split("-");
+  const valor = String(fecha).split("T")[0];
+  if (valor.includes("/")) {
+    const partesSlash = valor.split("/");
+    if (partesSlash.length === 3) {
+      const primero = Number(partesSlash[0]);
+      const segundo = Number(partesSlash[1]);
+      if (primero > 12) return partesSlash[0].padStart(2, "0") + "/" + partesSlash[1].padStart(2, "0") + "/" + partesSlash[2];
+      if (segundo > 12 || primero <= 12) return partesSlash[1].padStart(2, "0") + "/" + partesSlash[0].padStart(2, "0") + "/" + partesSlash[2];
+    }
+  }
+  const partes = valor.split("-");
   if (partes.length !== 3) return fecha;
   return partes[2] + "/" + partes[1] + "/" + partes[0];
 }

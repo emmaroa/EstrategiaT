@@ -76,6 +76,17 @@
     return parseJSON(localStorage.getItem("usuarioActivo"));
   }
 
+  function formatearFechaHoraAuditoria(fecha) {
+    const f = fecha || new Date();
+    const dia = String(f.getDate()).padStart(2, "0");
+    const mes = String(f.getMonth() + 1).padStart(2, "0");
+    const anio = f.getFullYear();
+    const hora = String(f.getHours()).padStart(2, "0");
+    const minuto = String(f.getMinutes()).padStart(2, "0");
+    const segundo = String(f.getSeconds()).padStart(2, "0");
+    return dia + "/" + mes + "/" + anio + " " + hora + ":" + minuto + ":" + segundo;
+  }
+
   function mostrarError(mensaje) {
     const mensajeError = document.getElementById("mensajeError");
     if (mensajeError) {
@@ -262,17 +273,21 @@
     window.location.href = resolverRutaLogin();
   };
 
-  window.registrarAuditoria = function (modulo, accion, detalle) {
+  window.registrarAuditoria = function (modulo, accion, detalle, opciones) {
     const usuarioActivo = obtenerUsuarioActivo();
     let auditoria = parseJSON(localStorage.getItem("auditoria")) || [];
+    const extra = opciones || {};
 
     const registro = {
-      fecha: new Date().toLocaleString("es-MX"),
+      fecha: formatearFechaHoraAuditoria(new Date()),
       usuario: usuarioActivo ? usuarioActivo.nombre : "Usuario no identificado",
       rol: usuarioActivo ? usuarioActivo.rol : "Sin rol",
       modulo: modulo,
       accion: accion,
-      detalle: detalle
+      detalle: detalle,
+      entidad_tipo: extra.entidad_tipo || extra.entidadTipo || null,
+      entidad_id: extra.entidad_id || extra.entidadId || null,
+      metadata: extra.metadata || {}
     };
 
     auditoria.unshift(registro);
@@ -281,9 +296,14 @@
     if (loginSupabaseClient) {
       loginSupabaseClient.from("auditoria").insert({
         usuario_id: usuarioActivo ? usuarioActivo.id : null,
+        usuario_nombre: usuarioActivo ? usuarioActivo.nombre : "Usuario no identificado",
+        usuario_rol: usuarioActivo ? usuarioActivo.rol : "Sin rol",
         modulo: modulo,
         accion: accion,
-        detalle: detalle
+        detalle: detalle,
+        entidad_tipo: registro.entidad_tipo,
+        entidad_id: registro.entidad_id,
+        metadata: registro.metadata
       }).then(function (result) {
         if (result && result.error) {
           console.error("Auditoria Supabase error:", result.error);

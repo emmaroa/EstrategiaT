@@ -5,12 +5,23 @@
 CREATE TABLE IF NOT EXISTS auditoria (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   usuario_id UUID REFERENCES usuarios(id) ON DELETE SET NULL,
+  usuario_nombre VARCHAR(150),
+  usuario_rol VARCHAR(80),
   modulo VARCHAR(100) NOT NULL,
   accion VARCHAR(100) NOT NULL,
   detalle TEXT,
+  entidad_tipo VARCHAR(80),
+  entidad_id UUID,
+  metadata JSONB DEFAULT '{}'::jsonb,
   ip_address INET,
   created_at TIMESTAMPTZ DEFAULT now()
 );
+
+ALTER TABLE auditoria ADD COLUMN IF NOT EXISTS usuario_nombre VARCHAR(150);
+ALTER TABLE auditoria ADD COLUMN IF NOT EXISTS usuario_rol VARCHAR(80);
+ALTER TABLE auditoria ADD COLUMN IF NOT EXISTS entidad_tipo VARCHAR(80);
+ALTER TABLE auditoria ADD COLUMN IF NOT EXISTS entidad_id UUID;
+ALTER TABLE auditoria ADD COLUMN IF NOT EXISTS metadata JSONB DEFAULT '{}'::jsonb;
 
 ALTER TABLE auditoria ENABLE ROW LEVEL SECURITY;
 
@@ -22,6 +33,9 @@ CREATE INDEX IF NOT EXISTS idx_auditoria_usuario
 
 CREATE INDEX IF NOT EXISTS idx_auditoria_modulo
   ON auditoria(modulo);
+
+CREATE INDEX IF NOT EXISTS idx_auditoria_entidad
+  ON auditoria(entidad_tipo, entidad_id);
 
 DO $$
 BEGIN

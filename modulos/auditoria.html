@@ -161,7 +161,13 @@
       if (!fecha) return "";
       const date = new Date(fecha);
       if (Number.isNaN(date.getTime())) return fecha;
-      return date.toLocaleString("es-MX");
+      const dia = String(date.getDate()).padStart(2, "0");
+      const mes = String(date.getMonth() + 1).padStart(2, "0");
+      const anio = date.getFullYear();
+      const hora = String(date.getHours()).padStart(2, "0");
+      const minuto = String(date.getMinutes()).padStart(2, "0");
+      const segundo = String(date.getSeconds()).padStart(2, "0");
+      return dia + "/" + mes + "/" + anio + " " + hora + ":" + minuto + ":" + segundo;
     }
 
     async function cargarAuditoriaSupabase() {
@@ -171,7 +177,7 @@
       const usuarioActivo = obtenerUsuarioActivoAuditoria();
       let query = client
         .from("auditoria")
-        .select("id,usuario_id,modulo,accion,detalle,created_at")
+        .select("id,usuario_id,usuario_nombre,usuario_rol,modulo,accion,detalle,entidad_tipo,entidad_id,metadata,created_at")
         .order("created_at", { ascending: false })
         .limit(1000);
 
@@ -208,11 +214,14 @@
         const usuario = usuariosPorId[registro.usuario_id] || {};
         return {
           fecha: formatearFechaAuditoria(registro.created_at),
-          usuario: usuario.nombre || usuario.usuario || "Usuario no identificado",
-          rol: usuario.rol || "Sin rol",
+          usuario: registro.usuario_nombre || usuario.nombre || usuario.usuario || "Usuario no identificado",
+          rol: registro.usuario_rol || usuario.rol || "Sin rol",
           modulo: registro.modulo,
           accion: registro.accion,
-          detalle: registro.detalle || ""
+          detalle: registro.detalle || "",
+          entidad_tipo: registro.entidad_tipo || "",
+          entidad_id: registro.entidad_id || "",
+          metadata: registro.metadata || {}
         };
       });
 
