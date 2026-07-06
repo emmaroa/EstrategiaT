@@ -55,15 +55,15 @@
       </div>
 
       <div class="kpi-card">
-        <span>En proceso</span>
+        <span>Revisadas por almacen</span>
         <h2 id="kpiProceso">0</h2>
         <p>En seguimiento</p>
       </div>
 
       <div class="kpi-card">
-        <span>Entregadas</span>
+        <span>Recibidas en Almacen</span>
         <h2 id="kpiSolventadas">0</h2>
-        <p>Entregadas</p>
+        <p>Recibidas</p>
       </div>
     </section>
 
@@ -82,10 +82,13 @@
         <select id="filtroEstatus" aria-label="Filtrar por estatus">
           <option value="">Todos los estatus</option>
           <option value="Pendiente">Pendiente</option>
-          <option value="En proceso">En proceso</option>
-          <option value="Entregado">Entregado</option>
-          <option value="Solventado">Solventado</option>
-          <option value="Cancelado">Cancelado</option>
+          <option value="Revisado por almacen">Revisado por almacen</option>
+          <option value="Recibido en Almacen">Recibido en Almacen</option>
+          <option value="CANCELADO">CANCELADO</option>
+        </select>
+
+        <select id="filtroProveedor" aria-label="Filtrar por proveedor">
+          <option value="">Todos los proveedores</option>
         </select>
 
         <select id="filtroArea" aria-label="Filtrar por área">
@@ -166,10 +169,9 @@
           <label for="estatus">Estatus</label>
           <select id="estatus">
             <option value="Pendiente">Pendiente</option>
-            <option value="En proceso">En proceso</option>
-            <option value="Entregado">Entregado</option>
-            <option value="Solventado">Solventado</option>
-            <option value="Cancelado">Cancelado</option>
+            <option value="Revisado por almacen">Revisado por almacen</option>
+            <option value="Recibido en Almacen">Recibido en Almacen</option>
+            <option value="CANCELADO">CANCELADO</option>
           </select>
         </div>
 
@@ -241,6 +243,7 @@
     const tablaPeticiones = document.getElementById("tablaPeticiones");
     const buscarPeticion = document.getElementById("buscarPeticion");
     const filtroEstatus = document.getElementById("filtroEstatus");
+    const filtroProveedor = document.getElementById("filtroProveedor");
     const filtroArea = document.getElementById("filtroArea");
     const modalPeticion = document.getElementById("modalPeticion");
     const modalPeticionTitulo = document.getElementById("modalPeticionTitulo");
@@ -257,6 +260,12 @@
     const kpiPendientes = document.getElementById("kpiPendientes");
     const kpiProceso = document.getElementById("kpiProceso");
     const kpiSolventadas = document.getElementById("kpiSolventadas");
+    const ESTATUS_PETICION_LEGACY = {
+      "En proceso": "Revisado por almacen",
+      "Entregado": "Recibido en Almacen",
+      "Solventado": "Recibido en Almacen",
+      "Cancelado": "CANCELADO"
+    };
 
     poblarDependencias(filtroArea, "Todas las areas");
     poblarDependencias(areaSelect, "Selecciona area");
@@ -286,6 +295,29 @@
       const nombre = String(usuarioActivo?.nombre || "").trim().toLowerCase();
       return usuario === "emma" || nombre.includes("emma");
     }
+
+    function normalizarRolPeticion(rol) {
+      return String(rol || "")
+        .trim()
+        .toLowerCase()
+        .replace(/[\s_-]+/g, "");
+    }
+
+    function puedeGenerarRequisicion() {
+      const usuarioActivo = obtenerUsuarioActivoPeticion();
+      const rol = normalizarRolPeticion(usuarioActivo?.rol || usuarioActivo?.rol_original);
+      return ["superadmin", "admin", "compras"].includes(rol);
+    }
+
+    function normalizarEstatusPeticion(estatus) {
+      return ESTATUS_PETICION_LEGACY[estatus] || estatus || "Pendiente";
+    }
+
+    function normalizarPeticion(peticion) {
+      return Object.assign({}, peticion, {
+        estatus: normalizarEstatusPeticion(peticion?.estatus)
+      });
+    }
    
     async function inicializarPeticiones() {
       const migracion = await ETPeticiones.migrarDesdeLocalStorage();
@@ -302,19 +334,40 @@
         alert("No se pudieron cargar las peticiones. Verifique la conexión con Supabase.");
         return;
       }
-      peticiones = data || [];
+      peticiones = (data || []).map(normalizarPeticion);
       totalPeticiones = count ?? 0;
+      poblarFiltroProveedorPeticiones();
       renderizarPeticiones();
+    }
+
+    function poblarFiltroProveedorPeticiones() {
+      if (!filtroProveedor) return;
+      const valorActual = filtroProveedor.value;
+      const proveedores = Array.from(new Set(
+        peticiones
+          .map(function (p) { return String(p.proveedor || "").trim(); })
+          .filter(Boolean)
+      )).sort(function (a, b) { return a.localeCompare(b, "es"); });
+
+      filtroProveedor.innerHTML = "";
+      filtroProveedor.add(new Option("Todos los proveedores", ""));
+      proveedores.forEach(function (proveedor) {
+        filtroProveedor.add(new Option(proveedor, proveedor));
+      });
+      filtroProveedor.value = proveedores.includes(valorActual) ? valorActual : "";
     }
 
     function renderizarPeticiones() {
       const texto = String(buscarPeticion?.value || "").toLowerCase();
       const estatus = String(filtroEstatus?.value || "");
+      const proveedor = String(filtroProveedor?.value || "");
       const area = String(filtroArea?.value || "");
 
       if (tablaPeticiones) tablaPeticiones.innerHTML = "";
 
-      const filtradas = peticiones.filter(function (p) {
+      const filtradas = peticiones.slice().sort(function (a, b) {
+        return new Date(b.created_at || b.fecha || 0) - new Date(a.created_at || a.fecha || 0);
+      }).filter(function (p) {
         const coincideTexto =
           (p.unidad || "").toLowerCase().includes(texto) ||
           (p.peticion || "").toLowerCase().includes(texto) ||
@@ -323,15 +376,17 @@
           (p.proveedor || "").toLowerCase().includes(texto);
 
         const coincideEstatus = estatus === "" || p.estatus === estatus;
+        const coincideProveedor = proveedor === "" || p.proveedor === proveedor;
         const coincideArea = area === "" || p.area === area;
 
-        return coincideTexto && coincideEstatus && coincideArea;
+        return coincideTexto && coincideEstatus && coincideProveedor && coincideArea;
       });
 
       if (!filtradas.length) {
         tablaPeticiones.innerHTML = '<tr><td colspan="8">No hay peticiones registradas.</td></tr>';
       } else {
         const mostrarTextoPedido = puedeCopiarTextoPedido();
+        const mostrarGenerarRequisicion = puedeGenerarRequisicion();
         filtradas.forEach(function (p) {
           const fila = document.createElement("tr");
           const soloLectura = typeof esSoloLectura === "function" && esSoloLectura();
@@ -349,7 +404,7 @@
               (soloLectura ? "" :
                 '<button type="button" class="action-btn edit" onclick="editarPeticion(\'' + p.id + '\')">Editar</button>' +
                 '<button type="button" class="action-btn red-btn" onclick="eliminarPeticion(\'' + p.id + '\')">Eliminar</button>' +
-                '<button type="button" class="action-btn orange" onclick="generarRequisicion(\'' + p.id + '\')">Generar req.</button>'
+                (mostrarGenerarRequisicion ? '<button type="button" class="action-btn orange" onclick="generarRequisicion(\'' + p.id + '\')">Generar req.</button>' : "")
               ) +
             "</td>";
           tablaPeticiones.appendChild(fila);
@@ -362,8 +417,8 @@
     function actualizarCounts() {
       counts = peticiones.reduce(function (acumulado, p) {
         if (p.estatus === "Pendiente") acumulado.pendientes += 1;
-        if (p.estatus === "En proceso") acumulado.proceso += 1;
-        if (p.estatus === "Entregado") acumulado.entregadas += 1;
+        if (p.estatus === "Revisado por almacen") acumulado.proceso += 1;
+        if (p.estatus === "Recibido en Almacen") acumulado.entregadas += 1;
         return acumulado;
       }, {
         total: totalPeticiones,
@@ -567,10 +622,9 @@
 
     function obtenerClaseEstatusPeticion(estatus) {
       if (estatus === "Pendiente") return "amber";
-      if (estatus === "En proceso") return "blue";
-      if (estatus === "Entregado") return "green";
-      if (estatus === "Solventado") return "green";
-      if (estatus === "Cancelado") return "red";
+      if (estatus === "Revisado por almacen") return "blue";
+      if (estatus === "Recibido en Almacen") return "green";
+      if (estatus === "CANCELADO") return "red";
       return "gray";
     }
 
@@ -583,6 +637,7 @@
 
     buscarPeticion?.addEventListener("input", renderizarPeticiones);
     filtroEstatus?.addEventListener("change", renderizarPeticiones);
+    filtroProveedor?.addEventListener("change", renderizarPeticiones);
     filtroArea?.addEventListener("change", renderizarPeticiones);
 
     function editarPeticion(id) {
@@ -620,6 +675,10 @@
     }
 
     function generarRequisicion(id) {
+      if (!puedeGenerarRequisicion()) {
+        alert("No tienes permiso para generar requisiciones.");
+        return;
+      }
       const p = obtenerPeticionPorId(id);
       if (!p) return;
       sessionStorage.setItem("prefillRequisicion", JSON.stringify({

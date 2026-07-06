@@ -5,6 +5,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Administración de Talleres | Auditoría</title>
   <link rel="stylesheet" href="../css/style.css">
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="../js/core/supabase.js"></script>
   <script src="../js/core/permissions.js"></script>
   <script src="../js/core/theme.js"></script>
   <script src="../js/core/layout.js"></script>
@@ -135,6 +137,93 @@
     const filtroModuloAuditoria = document.getElementById("filtroModuloAuditoria");
     const filtroAccionAuditoria = document.getElementById("filtroAccionAuditoria");
 
+    function obtenerUsuarioActivoAuditoria() {
+      try {
+        return JSON.parse(localStorage.getItem("usuarioActivo") || "null");
+      } catch (_) {
+        return null;
+      }
+    }
+
+    function normalizarRolAuditoria(rol) {
+      return String(rol || "")
+        .trim()
+        .toLowerCase()
+        .replace(/[\s_-]+/g, "");
+    }
+
+    function esSuperAdminAuditoria() {
+      const usuarioActivo = obtenerUsuarioActivoAuditoria();
+      return normalizarRolAuditoria(usuarioActivo?.rol || usuarioActivo?.rol_original) === "superadmin";
+    }
+
+    function formatearFechaAuditoria(fecha) {
+      if (!fecha) return "";
+      const date = new Date(fecha);
+      if (Number.isNaN(date.getTime())) return fecha;
+      return date.toLocaleString("es-MX");
+    }
+
+    async function cargarAuditoriaSupabase() {
+      const client = window.supabaseClient || null;
+      if (!client) return false;
+
+      const usuarioActivo = obtenerUsuarioActivoAuditoria();
+      let query = client
+        .from("auditoria")
+        .select("id,usuario_id,modulo,accion,detalle,created_at")
+        .order("created_at", { ascending: false })
+        .limit(1000);
+
+      if (!esSuperAdminAuditoria() && usuarioActivo?.id) {
+        query = query.eq("usuario_id", usuarioActivo.id);
+      }
+
+      const { data, error } = await query;
+      if (error) {
+        console.warn("No se pudo cargar auditoria desde Supabase:", error);
+        return false;
+      }
+
+      const registros = data || [];
+      const usuariosPorId = {};
+      const usuariosIds = Array.from(new Set(
+        registros.map(function (registro) { return registro.usuario_id; }).filter(Boolean)
+      ));
+
+      if (usuariosIds.length) {
+        const usuariosResult = await client
+          .from("usuarios")
+          .select("id,nombre,usuario,rol")
+          .in("id", usuariosIds);
+
+        if (!usuariosResult.error) {
+          (usuariosResult.data || []).forEach(function (usuario) {
+            usuariosPorId[usuario.id] = usuario;
+          });
+        }
+      }
+
+      auditoria = registros.map(function (registro) {
+        const usuario = usuariosPorId[registro.usuario_id] || {};
+        return {
+          fecha: formatearFechaAuditoria(registro.created_at),
+          usuario: usuario.nombre || usuario.usuario || "Usuario no identificado",
+          rol: usuario.rol || "Sin rol",
+          modulo: registro.modulo,
+          accion: registro.accion,
+          detalle: registro.detalle || ""
+        };
+      });
+
+      return true;
+    }
+
+    async function inicializarAuditoria() {
+      await cargarAuditoriaSupabase();
+      cargarAuditoria();
+    }
+
     function cargarAuditoria() {
       const texto = buscarAuditoria.value.toLowerCase();
       const modulo = filtroModuloAuditoria.value;
@@ -204,7 +293,7 @@
     filtroModuloAuditoria.addEventListener("change", cargarAuditoria);
     filtroAccionAuditoria.addEventListener("change", cargarAuditoria);
 
-    cargarAuditoria();
+    inicializarAuditoria();
 
   </script>
 

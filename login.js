@@ -284,7 +284,11 @@
         modulo: modulo,
         accion: accion,
         detalle: detalle
-      }).then(function () {}).catch(function (err) {
+      }).then(function (result) {
+        if (result && result.error) {
+          console.error("Auditoria Supabase error:", result.error);
+        }
+      }).catch(function (err) {
         console.error("Auditoría error:", err);
       });
     }

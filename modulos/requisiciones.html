@@ -92,6 +92,10 @@
           <option value="Enviado">Enviado</option>
         </select>
 
+        <select id="filtroReqProveedor" aria-label="Filtrar por proveedor">
+          <option value="">Todos los proveedores</option>
+        </select>
+
         <select id="filtroDependencia" aria-label="Filtrar por dependencia">
           <option value="">Todas las dependencias</option>
           <option value="Talleres">Talleres</option>
@@ -273,6 +277,7 @@
     const tablaRequisiciones = document.getElementById("tablaRequisiciones");
     const buscarRequisicion = document.getElementById("buscarRequisicion");
     const filtroReqEstatus = document.getElementById("filtroReqEstatus");
+    const filtroReqProveedor = document.getElementById("filtroReqProveedor");
     const filtroDependencia = document.getElementById("filtroDependencia");
     const modalRequisicion = document.getElementById("modalRequisicion");
     const modalRequisicionTitulo = document.getElementById("modalRequisicionTitulo");
@@ -326,7 +331,25 @@
       }
       requisiciones = data || [];
       totalRequisiciones = count ?? 0;
+      poblarFiltroProveedorRequisiciones();
       renderizarRequisiciones();
+    }
+
+    function poblarFiltroProveedorRequisiciones() {
+      if (!filtroReqProveedor) return;
+      const valorActual = filtroReqProveedor.value;
+      const proveedores = Array.from(new Set(
+        requisiciones
+          .map(function (r) { return String(r.proveedor || "").trim(); })
+          .filter(Boolean)
+      )).sort(function (a, b) { return a.localeCompare(b, "es"); });
+
+      filtroReqProveedor.innerHTML = "";
+      filtroReqProveedor.add(new Option("Todos los proveedores", ""));
+      proveedores.forEach(function (proveedor) {
+        filtroReqProveedor.add(new Option(proveedor, proveedor));
+      });
+      filtroReqProveedor.value = proveedores.includes(valorActual) ? valorActual : "";
     }
 
     async function revisarPrefillDesdePeticion() {
@@ -377,6 +400,7 @@
     function renderizarRequisiciones() {
       const texto = buscarRequisicion.value.toLowerCase();
       const estatus = filtroReqEstatus.value;
+      const proveedor = filtroReqProveedor ? filtroReqProveedor.value : "";
       const dependencia = filtroDependencia.value;
 
       tablaRequisiciones.innerHTML = "";
@@ -392,9 +416,10 @@
           (r.estatus || "").toLowerCase().includes(texto);
 
         const coincideEstatus = estatus === "" || r.estatus === estatus;
+        const coincideProveedor = proveedor === "" || r.proveedor === proveedor;
         const coincideDependencia = dependencia === "" || r.dependencia === dependencia;
 
-        return coincideTexto && coincideEstatus && coincideDependencia;
+        return coincideTexto && coincideEstatus && coincideProveedor && coincideDependencia;
       });
 
       if (!filtradas.length) {
@@ -663,6 +688,7 @@
 
     buscarRequisicion.addEventListener("input", renderizarRequisiciones);
     filtroReqEstatus.addEventListener("change", renderizarRequisiciones);
+    filtroReqProveedor?.addEventListener("change", renderizarRequisiciones);
     filtroDependencia.addEventListener("change", renderizarRequisiciones);
 
     inicializarRequisiciones();
