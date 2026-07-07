@@ -15,14 +15,14 @@
   const permisos = window.ETPermissions
     ? window.ETPermissions.PERMISOS
     : {
-        SuperAdmin: ["Dashboard", "Parque Vehicular", "Acuerdos", "Peticiones", "Requisiciones", "Vales", "Usuarios", "Auditoría", "Tiempo Extra"],
-        Admin: ["Dashboard", "Parque Vehicular", "Acuerdos", "Peticiones", "Requisiciones", "Vales", "Auditoría", "Tiempo Extra"],
+        SuperAdmin: ["Dashboard", "Parque Vehicular", "Acuerdos", "Peticiones", "Requisiciones", "Vales", "Usuarios", "Auditoría", "Tiempo Extra", "Generar Textos"],
+        Admin: ["Dashboard", "Parque Vehicular", "Acuerdos", "Peticiones", "Requisiciones", "Vales", "Auditoría", "Tiempo Extra", "Generar Textos"],
         "Moderador de Acuerdos": ["Dashboard", "Acuerdos"],
-        Compras: ["Dashboard", "Peticiones", "Requisiciones"],
+        Compras: ["Dashboard", "Peticiones", "Requisiciones", "Generar Textos"],
         Almacen: ["Dashboard", "Peticiones", "Vales"],
         Consulta: ["Dashboard", "Parque Vehicular", "Peticiones", "Requisiciones", "Vales"],
         Coordinador: ["Dashboard", "Seguimiento Peticiones"],
-        "Capturista Administrativo": ["Dashboard", "Tramites Administrativos"],
+        "Capturista Administrativo": ["Dashboard", "Tramites Administrativos", "Generar Textos"],
         CapturistaPV: ["Dashboard", "Parque Vehicular"]
       };
 
@@ -34,6 +34,7 @@
         "Peticiones": "Seguimiento de solicitudes al almacén.",
         "Seguimiento Peticiones": "Consulta de peticiones por area para coordinadores.",
         "Tramites Administrativos": "Registro y reportes de permisos, vacaciones, dias economicos e incapacidades.",
+        "Generar Textos": "Generador de descripciones para solicitudes de pago.",
         "Requisiciones": "Control de requisiciones, órdenes y pagos.",
         "Vales": "Registro y consulta de vales de salida.",
         "Usuarios": "Administración de usuarios, roles y permisos.",
@@ -255,6 +256,7 @@
       "Requisiciones": "modulos/requisiciones.html",
       "Vales": "modulos/vales.html",
       "Usuarios": "modulos/usuarios.html",
+      "Generar Textos": "modulos/generar-textos.html",
       "Auditoría": "modulos/auditoria.html"
     };
 

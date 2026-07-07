@@ -1,0 +1,547 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Administracion de Talleres | Generar Textos</title>
+
+  <link rel="stylesheet" href="../css/styletexto.css">
+
+  <style>
+    .generator-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      align-items: center;
+    }
+
+    .generator-actions button {
+      border: none;
+      border-radius: 14px;
+      padding: 12px 16px;
+      cursor: pointer;
+      font-weight: 800;
+      color: #fff;
+      background: linear-gradient(135deg, var(--primary), var(--primary-2));
+      box-shadow: 0 10px 22px rgba(252,113,43,.22);
+      transition: .2s ease;
+    }
+
+    .generator-actions button.secondary {
+      background: linear-gradient(135deg, var(--teal-dark), var(--teal));
+      box-shadow: 0 10px 22px rgba(7,177,188,.18);
+    }
+
+    .generator-actions button:hover {
+      transform: translateY(-2px);
+      box-shadow: var(--shadow-md);
+    }
+
+    .module-stack {
+      display: grid;
+      gap: 22px;
+    }
+
+    .table-container {
+      width: 100%;
+      overflow-x: auto;
+      border: 1px solid var(--border);
+      border-radius: 18px;
+      background: var(--card-bg);
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    th,
+    td {
+      padding: 10px;
+      border-bottom: 1px solid var(--border);
+      text-align: left;
+      vertical-align: top;
+    }
+
+    .generator-table {
+      min-width: 980px;
+    }
+
+    .generator-table th {
+      white-space: nowrap;
+      background: #243033;
+      color: #fff;
+      font-size: 13px;
+    }
+
+    .generator-table input {
+      width: 100%;
+      min-width: 110px;
+      border: 1px solid transparent;
+      border-radius: 10px;
+      padding: 10px 11px;
+      background: #fffaf6;
+      color: var(--text);
+      outline: none;
+    }
+
+    .generator-table input:focus {
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(252,113,43,.14);
+      background: #fff;
+    }
+
+    .result-grid {
+      display: grid;
+      gap: 14px;
+    }
+
+    .result-card {
+      background: #fff;
+      border: 1px solid var(--border);
+      border-left: 5px solid var(--teal);
+      border-radius: 18px;
+      padding: 16px;
+      box-shadow: var(--shadow-sm);
+      color: #374151;
+      line-height: 1.55;
+    }
+
+    .result-card strong {
+      color: var(--teal-dark);
+    }
+
+    .empty-result {
+      color: var(--muted);
+      padding: 16px;
+      border: 1px dashed var(--border);
+      border-radius: 16px;
+      background: rgba(255,255,255,.56);
+    }
+
+    .library-toolbar {
+      display: flex;
+      gap: 12px;
+      align-items: center;
+      flex-wrap: wrap;
+      margin-bottom: 18px;
+    }
+
+    .library-toolbar .search-box {
+      margin: 0;
+    }
+
+    [data-theme="dark"] .generator-table input,
+    [data-theme="dark"] .result-card,
+    [data-theme="dark"] .empty-result {
+      background: rgba(255,255,255,.06);
+      border-color: rgba(255,255,255,.1);
+      color: #f9fafb;
+    }
+
+    @media (max-width: 900px) {
+      .panel-header {
+        align-items: flex-start;
+        flex-direction: column;
+      }
+    }
+  </style>
+</head>
+
+<body class="dashboard-body">
+
+  <aside class="sidebar">
+    <div class="sidebar-logo">
+      <div class="mini-logo">E</div>
+      <div>
+        <h3>Administracion de Talleres</h3>
+        <small id="etModuleName">Generar Textos</small>
+      </div>
+    </div>
+
+    <nav id="etNav"></nav>
+
+    <button class="logout" id="etLogout">Cerrar sesion</button>
+  </aside>
+
+  <main class="main-content">
+
+    <header class="topbar">
+      <div>
+        <h1>Generar Textos</h1>
+        <p>Biblioteca de textos frecuentes y generador de descripciones para solicitudes de pago.</p>
+      </div>
+
+      <div style="display:flex;gap:12px;align-items:center;">
+        <span id="etTemaContainer"></span>
+      </div>
+    </header>
+
+    <section class="kpi-grid">
+      <div class="kpi-card">
+        <span>Filas capturadas</span>
+        <h2 id="kpiFilas">5</h2>
+        <p>Disponibles para generar</p>
+      </div>
+
+      <div class="kpi-card">
+        <span>Textos generados</span>
+        <h2 id="kpiGenerados">0</h2>
+        <p>Con unidad capturada</p>
+      </div>
+
+      <div class="kpi-card">
+        <span>Formato</span>
+        <h2>T26</h2>
+        <p>Portal web de compras</p>
+      </div>
+
+      <div class="kpi-card">
+        <span>Textos frecuentes</span>
+        <h2 id="kpiTotalTextos">0</h2>
+        <p>Listos para copiar</p>
+      </div>
+    </section>
+
+    <div class="module-stack">
+      <section class="panel">
+        <div class="panel-header">
+          <div>
+            <h2>Textos frecuentes</h2>
+            <p>Haz clic en cualquier tarjeta para copiar el texto al portapapeles.</p>
+          </div>
+        </div>
+
+        <div class="library-toolbar">
+          <input
+            class="search-box"
+            type="text"
+            id="buscarTexto"
+            placeholder="Buscar texto..."
+            aria-label="Buscar texto frecuente"
+          >
+        </div>
+
+        <div class="copy-grid" id="contenedorTextos">
+          <div class="copy-card" data-section>
+            <div class="copy-card-header">
+              <h3>Para requisiciones</h3>
+              <p>Datos usados en captura de requisiciones.</p>
+            </div>
+
+            <div class="copy-list">
+              <button class="copy-item" type="button" data-copy="TALLERES, REFACCIONES PARA UNIDAD">TALLERES, REFACCIONES PARA UNIDAD</button>
+              <button class="copy-item" type="button" data-copy="ALMACEN DE TALLERES">ALMACEN DE TALLERES</button>
+              <button class="copy-item" type="button" data-copy="CHRISTIAN DOLORES MENDOZA MARQUEZ">CHRISTIAN DOLORES MENDOZA MARQUEZ</button>
+              <button class="copy-item" type="button" data-copy="6625110233">6625110233</button>
+            </div>
+          </div>
+
+          <div class="copy-card" data-section>
+            <div class="copy-card-header">
+              <h3>Seguimiento</h3>
+              <p>Texto para procedimientos.</p>
+            </div>
+
+            <div class="copy-list">
+              <button class="copy-item" type="button" data-copy="SEGUIMIENTO DE PROCEDIMIENTO DE COMPRAS-TALLERES">SEGUIMIENTO DE PROCEDIMIENTO</button>
+            </div>
+          </div>
+
+          <div class="copy-card" data-section>
+            <div class="copy-card-header">
+              <h3>Ordenes de compra</h3>
+              <p>Firmantes y cargos frecuentes.</p>
+            </div>
+
+            <div class="copy-list">
+              <button class="copy-item" type="button" data-copy="SUBDIRECTOR ADMINISTRATIVO TALLERES">SUBDIRECTOR ADMINISTRATIVO TALLERES</button>
+              <button class="copy-item" type="button" data-copy="ING. VICTOR EMMANUEL ZARATE IBARRA">ING. VICTOR EMMANUEL ZARATE IBARRA</button>
+              <button class="copy-item" type="button" data-copy="DIRECTOR DE TALLERES">DIRECTOR DE TALLERES</button>
+              <button class="copy-item" type="button" data-copy="ING. HECTOR MANUEL DIAZ YOUNG">ING. HECTOR MANUEL DIAZ YOUNG</button>
+            </div>
+          </div>
+
+          <div class="copy-card" data-section>
+            <div class="copy-card-header">
+              <h3>Portal web</h3>
+              <p>Ubicacion frecuente.</p>
+            </div>
+
+            <div class="copy-list">
+              <button class="copy-item" type="button" data-copy="HERMOSILLO, SONORA.">HERMOSILLO, SONORA.</button>
+            </div>
+          </div>
+
+          <div class="copy-card" data-section>
+            <div class="copy-card-header">
+              <h3>Solicitud de pago</h3>
+              <p>Formato completo para copiar en bloque.</p>
+            </div>
+
+            <div class="copy-list">
+              <button class="copy-item copy-textarea" type="button" data-copy="XXXX: PAGO DE FACTURA XXX POR ADQUISICION DE XXX PARA UNIDAD XXX DE XXX.&#10;OC XXX REQ XXX EA-000&#10;PROCEDIMIENTO EN PORTAL WEB DE COMPRAS: T26-00">XXXX: PAGO DE FACTURA XXX POR ADQUISICION DE XXX PARA UNIDAD XXX DE XXX.
+OC XXX REQ XXX EA-000
+PROCEDIMIENTO EN PORTAL WEB DE COMPRAS: T26-00</button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="panel">
+        <div class="panel-header">
+          <div>
+            <h2>Datos para generar</h2>
+            <p>Captura una fila por unidad. Las filas sin unidad se omiten.</p>
+          </div>
+
+          <div class="generator-actions">
+            <button type="button" class="secondary" onclick="agregarFila()">Agregar fila</button>
+            <button type="button" onclick="generar()">Generar textos</button>
+          </div>
+        </div>
+
+        <div class="table-container">
+          <table id="tabla" class="generator-table">
+            <thead>
+              <tr>
+                <th>Unidad</th>
+                <th>No. Factura</th>
+                <th>Descripcion</th>
+                <th>Dependencia</th>
+                <th>OC</th>
+                <th>Requisicion</th>
+                <th>Entrada Almacen</th>
+                <th>Folio Web</th>
+              </tr>
+            </thead>
+
+            <tbody>
+              <tr>
+                <td><input aria-label="Unidad"></td>
+                <td><input aria-label="No. Factura"></td>
+                <td><input aria-label="Descripcion"></td>
+                <td><input aria-label="Dependencia"></td>
+                <td><input aria-label="OC"></td>
+                <td><input aria-label="Requisicion"></td>
+                <td><input aria-label="Entrada Almacen"></td>
+                <td><input aria-label="Folio Web"></td>
+              </tr>
+              <tr>
+                <td><input aria-label="Unidad"></td>
+                <td><input aria-label="No. Factura"></td>
+                <td><input aria-label="Descripcion"></td>
+                <td><input aria-label="Dependencia"></td>
+                <td><input aria-label="OC"></td>
+                <td><input aria-label="Requisicion"></td>
+                <td><input aria-label="Entrada Almacen"></td>
+                <td><input aria-label="Folio Web"></td>
+              </tr>
+              <tr>
+                <td><input aria-label="Unidad"></td>
+                <td><input aria-label="No. Factura"></td>
+                <td><input aria-label="Descripcion"></td>
+                <td><input aria-label="Dependencia"></td>
+                <td><input aria-label="OC"></td>
+                <td><input aria-label="Requisicion"></td>
+                <td><input aria-label="Entrada Almacen"></td>
+                <td><input aria-label="Folio Web"></td>
+              </tr>
+              <tr>
+                <td><input aria-label="Unidad"></td>
+                <td><input aria-label="No. Factura"></td>
+                <td><input aria-label="Descripcion"></td>
+                <td><input aria-label="Dependencia"></td>
+                <td><input aria-label="OC"></td>
+                <td><input aria-label="Requisicion"></td>
+                <td><input aria-label="Entrada Almacen"></td>
+                <td><input aria-label="Folio Web"></td>
+              </tr>
+              <tr>
+                <td><input aria-label="Unidad"></td>
+                <td><input aria-label="No. Factura"></td>
+                <td><input aria-label="Descripcion"></td>
+                <td><input aria-label="Dependencia"></td>
+                <td><input aria-label="OC"></td>
+                <td><input aria-label="Requisicion"></td>
+                <td><input aria-label="Entrada Almacen"></td>
+                <td><input aria-label="Folio Web"></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <section class="panel">
+        <div class="panel-header">
+          <div>
+            <h2>Resultado</h2>
+            <p>Texto listo para copiar en solicitudes de pago.</p>
+          </div>
+        </div>
+
+        <div id="resultado" class="result-grid">
+          <div class="empty-result">Captura al menos una unidad y presiona Generar textos.</div>
+        </div>
+      </section>
+    </div>
+
+  </main>
+
+  <div id="toast" class="toast">Copiado al portapapeles</div>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="../js/core/supabase.js"></script>
+  <script src="../js/core/permissions.js"></script>
+  <script src="../js/core/theme.js"></script>
+  <script src="../js/core/layout.js"></script>
+  <script src="../login.js"></script>
+
+  <script>
+    document.addEventListener("DOMContentLoaded", function () {
+      if (typeof validarPermiso === "function") {
+        validarPermiso("Generar Textos");
+      }
+
+      if (window.ETLayout && typeof ETLayout.inicializar === "function") {
+        ETLayout.inicializar("Generar Textos");
+      }
+
+      actualizarKpis();
+      inicializarBiblioteca();
+    });
+
+    function inicializarBiblioteca() {
+      const botones = document.querySelectorAll("[data-copy]");
+      const buscador = document.getElementById("buscarTexto");
+      const tarjetas = document.querySelectorAll("[data-section]");
+
+      document.getElementById("kpiTotalTextos").textContent = botones.length;
+
+      botones.forEach(function (boton) {
+        boton.addEventListener("click", function () {
+          copiarTexto(this.dataset.copy);
+        });
+      });
+
+      if (buscador) {
+        buscador.addEventListener("input", function () {
+          const texto = this.value.toLowerCase().trim();
+
+          tarjetas.forEach(function (tarjeta) {
+            const contenido = tarjeta.textContent.toLowerCase();
+            tarjeta.style.display = contenido.includes(texto) ? "" : "none";
+          });
+        });
+      }
+    }
+
+    function agregarFila() {
+      const tbody = document.querySelector("#tabla tbody");
+      const fila = document.createElement("tr");
+      const etiquetas = [
+        "Unidad",
+        "No. Factura",
+        "Descripcion",
+        "Dependencia",
+        "OC",
+        "Requisicion",
+        "Entrada Almacen",
+        "Folio Web"
+      ];
+
+      etiquetas.forEach(function (etiqueta) {
+        const td = document.createElement("td");
+        const input = document.createElement("input");
+        input.setAttribute("aria-label", etiqueta);
+        td.appendChild(input);
+        fila.appendChild(td);
+      });
+
+      tbody.appendChild(fila);
+      actualizarKpis();
+    }
+
+    function generar() {
+      const filas = document.querySelectorAll("#tabla tbody tr");
+      const resultado = document.getElementById("resultado");
+      let generados = 0;
+      let salida = "";
+
+      filas.forEach(function (fila, index) {
+        const c = fila.querySelectorAll("input");
+        const unidad = c[0].value.trim();
+
+        if (unidad === "") return;
+
+        const factura = c[1].value.trim();
+        const descripcion = c[2].value.trim();
+        const dependencia = c[3].value.trim();
+        const oc = c[4].value.trim();
+        const req = c[5].value.trim();
+        const ea = c[6].value.trim();
+        const folio = c[7].value.trim();
+
+        generados += 1;
+        salida +=
+          '<div class="result-card">' +
+            '<strong>' + (index + 1) + '.</strong><br><br>' +
+            escaparHtml(unidad) + ': PAGO DE FACTURA ' + escaparHtml(factura) +
+            ' POR ADQUISICION DE ' + escaparHtml(descripcion) +
+            ' PARA UNIDAD ' + escaparHtml(unidad) +
+            ' DE ' + escaparHtml(dependencia) + '.<br><br>' +
+            'OC ' + escaparHtml(oc) + ' REQ ' + escaparHtml(req) + ' EA-' + escaparHtml(ea) + '<br>' +
+            'PROCEDIMIENTO EN PORTAL WEB DE COMPRAS: T26-' + escaparHtml(folio) +
+          '</div>';
+      });
+
+      resultado.innerHTML = salida || '<div class="empty-result">No hay filas con unidad capturada.</div>';
+      document.getElementById("kpiGenerados").textContent = generados;
+      actualizarKpis();
+    }
+
+    function actualizarKpis() {
+      document.getElementById("kpiFilas").textContent = document.querySelectorAll("#tabla tbody tr").length;
+    }
+
+    function escaparHtml(valor) {
+      return String(valor || "")
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
+    }
+
+    async function copiarTexto(texto) {
+      try {
+        await navigator.clipboard.writeText(texto);
+        mostrarToast("Copiado al portapapeles");
+      } catch (error) {
+        copiarFallback(texto);
+      }
+    }
+
+    function copiarFallback(texto) {
+      const temporal = document.createElement("textarea");
+      temporal.value = texto;
+      document.body.appendChild(temporal);
+      temporal.select();
+      document.execCommand("copy");
+      document.body.removeChild(temporal);
+      mostrarToast("Copiado al portapapeles");
+    }
+
+    function mostrarToast(mensaje) {
+      const toast = document.getElementById("toast");
+      toast.textContent = mensaje;
+      toast.classList.add("show");
+
+      setTimeout(function () {
+        toast.classList.remove("show");
+      }, 1800);
+    }
+  </script>
+
+</body>
+</html>

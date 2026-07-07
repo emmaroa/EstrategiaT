@@ -16,6 +16,7 @@
       ORDENES_TRABAJO: "Órdenes de Trabajo",
       TIEMPO_EXTRA: "Tiempo Extra",
       TRAMITES_ADMINISTRATIVOS: "Tramites Administrativos",
+      GENERAR_TEXTOS: "Generar Textos",
       INVENTARIO: "Inventario",
       COMPRAS: "Compras",
       PROVEEDORES: "Proveedores",
@@ -38,6 +39,7 @@
     [MODULOS.ORDENES_TRABAJO]: "modulos/ordenes-trabajo.html",
     [MODULOS.TIEMPO_EXTRA]: "modulos/tiempo-extra.html",
     [MODULOS.TRAMITES_ADMINISTRATIVOS]: "modulos/tramites-administrativos.html",
+    [MODULOS.GENERAR_TEXTOS]: "modulos/generar-textos.html",
     [MODULOS.INVENTARIO]: "modulos/inventario.html",
     [MODULOS.COMPRAS]: "modulos/compras.html",
     [MODULOS.PROVEEDORES]: "modulos/proveedores.html",
@@ -66,7 +68,8 @@
     [MODULOS.DOCUMENTOS]: "Gestión documental centralizada.",
     [MODULOS.BI]: "Análisis avanzado y mantenimiento predictivo.",
     [MODULOS.TIEMPO_EXTRA]: "Gestión de solicitudes y autorizaciones de tiempo extra.",
-    [MODULOS.TRAMITES_ADMINISTRATIVOS]: "Registro y reportes de permisos, vacaciones, dias economicos e incapacidades."
+    [MODULOS.TRAMITES_ADMINISTRATIVOS]: "Registro y reportes de permisos, vacaciones, dias economicos e incapacidades.",
+    [MODULOS.GENERAR_TEXTOS]: "Generador de descripciones para solicitudes de pago."
   };
 
   const PERMISOS = {
@@ -94,7 +97,8 @@
       MODULOS.DOCUMENTOS, 
       MODULOS.BI, 
       MODULOS.TIEMPO_EXTRA,
-      MODULOS.TRAMITES_ADMINISTRATIVOS
+      MODULOS.TRAMITES_ADMINISTRATIVOS,
+      MODULOS.GENERAR_TEXTOS
     ],
     "Coordinador": [
       MODULOS.DASHBOARD, 
@@ -109,7 +113,8 @@
       MODULOS.COMPRAS, 
       MODULOS.REPORTES, 
       MODULOS.NOTIFICACIONES,
-      MODULOS.TRAMITES_ADMINISTRATIVOS
+      MODULOS.TRAMITES_ADMINISTRATIVOS,
+      MODULOS.GENERAR_TEXTOS
     ],
     "Encargado de Almacén": [
       MODULOS.DASHBOARD, 
@@ -136,11 +141,13 @@
       MODULOS.VALES, 
       MODULOS.REPORTES, 
       MODULOS.TIEMPO_EXTRA,
-      MODULOS.TRAMITES_ADMINISTRATIVOS
+      MODULOS.TRAMITES_ADMINISTRATIVOS,
+      MODULOS.GENERAR_TEXTOS
     ],
     "Capturista Administrativo": [
       MODULOS.DASHBOARD,
-      MODULOS.TRAMITES_ADMINISTRATIVOS
+      MODULOS.TRAMITES_ADMINISTRATIVOS,
+      MODULOS.GENERAR_TEXTOS
     ],
     SuperAdmin: Object.values(MODULOS),
     Admin: [
@@ -161,14 +168,16 @@
       MODULOS.DOCUMENTOS, 
       MODULOS.BI, 
       MODULOS.TIEMPO_EXTRA,
-      MODULOS.TRAMITES_ADMINISTRATIVOS
+      MODULOS.TRAMITES_ADMINISTRATIVOS,
+      MODULOS.GENERAR_TEXTOS
     ],
     Compras: 
     [
       MODULOS.DASHBOARD, 
       MODULOS.PETICIONES, 
       MODULOS.REQUISICIONES, 
-      MODULOS.COMPRAS, 
+      MODULOS.COMPRAS,
+      MODULOS.GENERAR_TEXTOS, 
       MODULOS.PARQUE
     ],
 
@@ -247,6 +256,21 @@
       "Jefe",
       "Director",
       "Coordinador",
+      "Capturista Administrativo",
+      "Solo Lectura"
+    ].includes(normalizarRol(rol));
+  }
+
+  function rolVeGenerarTextos(rol) {
+    return [
+      "SuperAdmin",
+      "Administrador del Sistema",
+      "Admin",
+      "jefe",
+      "Jefe",
+      "Director",
+      "Coordinador",
+      "Compras",
       "Capturista Administrativo",
       "Solo Lectura"
     ].includes(normalizarRol(rol));
@@ -333,6 +357,9 @@
       if (rolVeTramitesAdministrativos(rol)) {
         modulosFinales = agregarModuloSiFalta(modulosFinales, MODULOS.TRAMITES_ADMINISTRATIVOS);
       }
+      if (rolVeGenerarTextos(rol)) {
+        modulosFinales = agregarModuloSiFalta(modulosFinales, MODULOS.GENERAR_TEXTOS);
+      }
       return modulosFinales;
     }
 
@@ -358,6 +385,10 @@
       return rol === "Capturista Administrativo" || ["super_admin", "SuperAdmin", "Administrador del Sistema", "Admin", "admin", "jefe", "Jefe"].includes(rol)
         ? "editar"
         : "ver";
+    }
+
+    if (modulo === MODULOS.GENERAR_TEXTOS && rolVeGenerarTextos(rol)) {
+      return rol === "Solo Lectura" ? "ver" : "editar";
     }
 
     if (["super_admin", "SuperAdmin", "Administrador del Sistema", "Admin", "admin", "jefe", "Jefe"].includes(rol)) {
