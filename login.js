@@ -22,6 +22,7 @@
         Almacen: ["Dashboard", "Peticiones", "Vales"],
         Consulta: ["Dashboard", "Parque Vehicular", "Peticiones", "Requisiciones", "Vales"],
         Coordinador: ["Dashboard", "Seguimiento Peticiones"],
+        "Capturista Administrativo": ["Dashboard", "Tramites Administrativos"],
         CapturistaPV: ["Dashboard", "Parque Vehicular"]
       };
 
@@ -32,6 +33,7 @@
         "Parque Vehicular": "Consulta y control de unidades registradas.",
         "Peticiones": "Seguimiento de solicitudes al almacén.",
         "Seguimiento Peticiones": "Consulta de peticiones por area para coordinadores.",
+        "Tramites Administrativos": "Registro y reportes de permisos, vacaciones, dias economicos e incapacidades.",
         "Requisiciones": "Control de requisiciones, órdenes y pagos.",
         "Vales": "Registro y consulta de vales de salida.",
         "Usuarios": "Administración de usuarios, roles y permisos.",
@@ -102,6 +104,7 @@
     if (clave === "admin") return "Admin";
     if (clave === "jefe") return "jefe";
     if (clave === "coordinador") return "Coordinador";
+    if (clave === "capturista_administrativo") return "Capturista Administrativo";
     if (clave === "moderador_de_acuerdos" || clave === "moderador_acuerdos") return "Moderador de Acuerdos";
     return String(rol || "").trim();
   }

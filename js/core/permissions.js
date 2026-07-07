@@ -15,6 +15,7 @@
       AUDITORIA: "Auditoría",
       ORDENES_TRABAJO: "Órdenes de Trabajo",
       TIEMPO_EXTRA: "Tiempo Extra",
+      TRAMITES_ADMINISTRATIVOS: "Tramites Administrativos",
       INVENTARIO: "Inventario",
       COMPRAS: "Compras",
       PROVEEDORES: "Proveedores",
@@ -36,6 +37,7 @@
     [MODULOS.AUDITORIA]: "modulos/auditoria.html",
     [MODULOS.ORDENES_TRABAJO]: "modulos/ordenes-trabajo.html",
     [MODULOS.TIEMPO_EXTRA]: "modulos/tiempo-extra.html",
+    [MODULOS.TRAMITES_ADMINISTRATIVOS]: "modulos/tramites-administrativos.html",
     [MODULOS.INVENTARIO]: "modulos/inventario.html",
     [MODULOS.COMPRAS]: "modulos/compras.html",
     [MODULOS.PROVEEDORES]: "modulos/proveedores.html",
@@ -63,7 +65,8 @@
     [MODULOS.NOTIFICACIONES]: "Alertas, recordatorios y aprobaciones.",
     [MODULOS.DOCUMENTOS]: "Gestión documental centralizada.",
     [MODULOS.BI]: "Análisis avanzado y mantenimiento predictivo.",
-    [MODULOS.TIEMPO_EXTRA]: "Gestión de solicitudes y autorizaciones de tiempo extra."
+    [MODULOS.TIEMPO_EXTRA]: "Gestión de solicitudes y autorizaciones de tiempo extra.",
+    [MODULOS.TRAMITES_ADMINISTRATIVOS]: "Registro y reportes de permisos, vacaciones, dias economicos e incapacidades."
   };
 
   const PERMISOS = {
@@ -90,7 +93,8 @@
       MODULOS.NOTIFICACIONES, 
       MODULOS.DOCUMENTOS, 
       MODULOS.BI, 
-      MODULOS.TIEMPO_EXTRA
+      MODULOS.TIEMPO_EXTRA,
+      MODULOS.TRAMITES_ADMINISTRATIVOS
     ],
     "Coordinador": [
       MODULOS.DASHBOARD, 
@@ -104,7 +108,8 @@
       MODULOS.INVENTARIO, 
       MODULOS.COMPRAS, 
       MODULOS.REPORTES, 
-      MODULOS.NOTIFICACIONES
+      MODULOS.NOTIFICACIONES,
+      MODULOS.TRAMITES_ADMINISTRATIVOS
     ],
     "Encargado de Almacén": [
       MODULOS.DASHBOARD, 
@@ -130,7 +135,12 @@
       MODULOS.REQUISICIONES, 
       MODULOS.VALES, 
       MODULOS.REPORTES, 
-      MODULOS.TIEMPO_EXTRA
+      MODULOS.TIEMPO_EXTRA,
+      MODULOS.TRAMITES_ADMINISTRATIVOS
+    ],
+    "Capturista Administrativo": [
+      MODULOS.DASHBOARD,
+      MODULOS.TRAMITES_ADMINISTRATIVOS
     ],
     SuperAdmin: Object.values(MODULOS),
     Admin: [
@@ -150,7 +160,8 @@
       MODULOS.NOTIFICACIONES, 
       MODULOS.DOCUMENTOS, 
       MODULOS.BI, 
-      MODULOS.TIEMPO_EXTRA
+      MODULOS.TIEMPO_EXTRA,
+      MODULOS.TRAMITES_ADMINISTRATIVOS
     ],
     Compras: 
     [
@@ -192,6 +203,7 @@
   const ACCIONES_POR_ROL = {
     SuperAdmin: ["ver", "crear", "editar", "eliminar", "cambiar_estatus", "generar_requisicion", "auditar", "exportar", "imprimir"],
     Admin: ["ver", "crear", "editar", "eliminar", "cambiar_estatus", "generar_requisicion", "auditar", "exportar", "imprimir"],
+    "Capturista Administrativo": ["ver", "crear", "editar", "eliminar", "exportar", "imprimir"],
     Compras: ["ver", "crear", "editar", "cambiar_estatus", "generar_requisicion", "exportar", "imprimir"],
     Almacen: ["ver", "crear", "editar", "cambiar_estatus", "exportar", "imprimir"],
     Consulta: ["ver", "consultar", "exportar", "imprimir"],
@@ -207,6 +219,7 @@
     if (clave === "admin") return "Admin";
     if (clave === "jefe") return "jefe";
     if (clave === "coordinador") return "Coordinador";
+    if (clave === "capturista administrativo" || clave === "capturista_administrativo" || clave === "capturista-administrativo") return "Capturista Administrativo";
     if (clave === "moderador de acuerdos" || clave === "moderador acuerdos" || clave === "moderador_acuerdos" || clave === "moderador-acuerdos") {
       return "Moderador de Acuerdos";
     }
@@ -222,6 +235,20 @@
       "Jefe",
       "Director",
       "Coordinador"
+    ].includes(normalizarRol(rol));
+  }
+
+  function rolVeTramitesAdministrativos(rol) {
+    return [
+      "SuperAdmin",
+      "Administrador del Sistema",
+      "Admin",
+      "jefe",
+      "Jefe",
+      "Director",
+      "Coordinador",
+      "Capturista Administrativo",
+      "Solo Lectura"
     ].includes(normalizarRol(rol));
   }
 
@@ -299,9 +326,14 @@
         .filter(function (modulo) {
           return Object.values(MODULOS).includes(modulo);
         });
-      return rolVeSeguimientoPeticiones(rol)
-        ? agregarModuloSiFalta(modulos, MODULOS.SEGUIMIENTO_PETICIONES)
-        : modulos;
+      let modulosFinales = modulos;
+      if (rolVeSeguimientoPeticiones(rol)) {
+        modulosFinales = agregarModuloSiFalta(modulosFinales, MODULOS.SEGUIMIENTO_PETICIONES);
+      }
+      if (rolVeTramitesAdministrativos(rol)) {
+        modulosFinales = agregarModuloSiFalta(modulosFinales, MODULOS.TRAMITES_ADMINISTRATIVOS);
+      }
+      return modulosFinales;
     }
 
     return PERMISOS[rol] || [];
@@ -320,6 +352,12 @@
     const rol = normalizarRol((usuario || {}).rol || (usuario || {}).cargo || (usuario || {}).tipo || "");
     if (modulo === MODULOS.SEGUIMIENTO_PETICIONES && rolVeSeguimientoPeticiones(rol)) {
       return "ver";
+    }
+
+    if (modulo === MODULOS.TRAMITES_ADMINISTRATIVOS && rolVeTramitesAdministrativos(rol)) {
+      return rol === "Capturista Administrativo" || ["super_admin", "SuperAdmin", "Administrador del Sistema", "Admin", "admin", "jefe", "Jefe"].includes(rol)
+        ? "editar"
+        : "ver";
     }
 
     if (["super_admin", "SuperAdmin", "Administrador del Sistema", "Admin", "admin", "jefe", "Jefe"].includes(rol)) {

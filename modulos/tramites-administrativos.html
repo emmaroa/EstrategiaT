@@ -1,0 +1,702 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Administracion de Talleres | Tramites Administrativos</title>
+  <link rel="stylesheet" href="../css/style.css">
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="../js/core/supabase.js"></script>
+  <script src="../js/core/permissions.js"></script>
+  <script src="../js/core/theme.js"></script>
+  <script src="../js/core/layout.js"></script>
+  <script src="../js/services/export.service.js"></script>
+  <script src="../js/services/tramites-administrativos.service.js"></script>
+  <script src="../login.js"></script>
+</head>
+<body class="dashboard-body">
+
+  <aside class="sidebar">
+    <div class="sidebar-logo">
+      <div class="mini-logo">E</div>
+      <div>
+        <h3>Administracion de Talleres</h3>
+        <small id="etModuleName">Tramites Administrativos</small>
+      </div>
+    </div>
+    <nav id="etNav"></nav>
+    <button type="button" class="logout" id="etLogout">Cerrar sesion</button>
+  </aside>
+
+  <main class="main-content">
+    <header class="topbar">
+      <div>
+        <h1>Tramites Administrativos</h1>
+        <p>Registro autorizado de dias economicos, permisos especiales, vacaciones e incapacidades.</p>
+      </div>
+      <div style="display:flex;gap:12px;align-items:center;">
+        <span id="etTemaContainer"></span>
+        <button type="button" class="btn-small" id="btnNuevoTramite" onclick="abrirModalTramite()">+ Nuevo tramite</button>
+      </div>
+    </header>
+
+    <section class="kpi-grid">
+      <div class="kpi-card">
+        <span>Total tramites</span>
+        <h2 id="kpiTotal">0</h2>
+        <p>Segun filtros</p>
+      </div>
+      <div class="kpi-card">
+        <span>Dias economicos</span>
+        <h2 id="kpiEconomicos">0</h2>
+        <p>Dias habiles tomados</p>
+      </div>
+      <div class="kpi-card">
+        <span>Vacaciones</span>
+        <h2 id="kpiVacaciones">0</h2>
+        <p>Dias habiles tomados</p>
+      </div>
+      <div class="kpi-card">
+        <span>Incapacidades</span>
+        <h2 id="kpiIncapacidades">0</h2>
+        <p>Dias habiles registrados</p>
+      </div>
+    </section>
+
+    <section class="panel">
+      <div class="panel-header">
+        <div>
+          <h2>Reporte de tramites</h2>
+          <p>Filtra por empleado, periodo, tipo, subtipo y rango de fechas.</p>
+        </div>
+        <button type="button" class="btn-secondary" onclick="exportarReporteTramites()">Exportar CSV</button>
+      </div>
+
+      <div class="filters">
+        <input type="text" id="buscarTramite" placeholder="Empleado, numero, departamento..." aria-label="Buscar tramite">
+        <select id="filtroTipo" aria-label="Filtrar por tipo">
+          <option value="">Todos los tipos</option>
+          <option value="Dias economicos">Dias economicos</option>
+          <option value="Permiso especial">Permiso especial</option>
+          <option value="Vacaciones">Vacaciones</option>
+          <option value="Incapacidad">Incapacidad</option>
+        </select>
+        <select id="filtroSubtipo" aria-label="Filtrar por subtipo">
+          <option value="">Todos los subtipos</option>
+          <option value="Incapacidad general">Incapacidad general</option>
+          <option value="Incapacidad por riesgo de trabajo">Incapacidad por riesgo de trabajo</option>
+        </select>
+        <input type="number" id="filtroAnio" placeholder="Periodo/anio" aria-label="Filtrar por periodo">
+        <input type="date" id="filtroDesde" aria-label="Fecha desde">
+        <input type="date" id="filtroHasta" aria-label="Fecha hasta">
+      </div>
+
+      <div class="table-container">
+        <table>
+          <thead>
+            <tr>
+              <th>Empleado</th>
+              <th>Departamento</th>
+              <th>Tipo</th>
+              <th>Subtipo</th>
+              <th>Periodo</th>
+              <th>Fechas</th>
+              <th>Dias</th>
+              <th>Folio</th>
+              <th>Acciones</th>
+            </tr>
+          </thead>
+          <tbody id="tablaTramites"></tbody>
+        </table>
+      </div>
+    </section>
+
+    <section class="panel" style="margin-top:20px;">
+      <div class="panel-header">
+        <div>
+          <h2>Feriados administrativos</h2>
+          <p>Se excluyen del conteo de dias habiles junto con sabados y domingos.</p>
+        </div>
+      </div>
+
+      <div class="filters">
+        <input type="date" id="feriadoFecha" aria-label="Fecha feriado">
+        <input type="text" id="feriadoNombre" placeholder="Nombre del feriado" aria-label="Nombre feriado">
+        <button type="button" class="btn-small" id="btnAgregarFeriado" onclick="guardarFeriado()">Agregar feriado</button>
+      </div>
+
+      <div class="table-container">
+        <table>
+          <thead>
+            <tr>
+              <th>Fecha</th>
+              <th>Feriado</th>
+              <th>Acciones</th>
+            </tr>
+          </thead>
+          <tbody id="tablaFeriados"></tbody>
+        </table>
+      </div>
+    </section>
+  </main>
+
+  <div class="modal" id="modalTramite" role="dialog" aria-modal="true" aria-labelledby="tituloModalTramite" aria-hidden="true">
+    <div class="modal-card">
+      <div class="modal-header">
+        <div>
+          <h2 id="tituloModalTramite">Nuevo tramite</h2>
+          <p>Captura un tramite ya autorizado.</p>
+        </div>
+        <button type="button" class="close-btn" aria-label="Cerrar dialogo" onclick="cerrarModalTramite()">x</button>
+      </div>
+
+      <div class="form-grid">
+        <div class="input-group">
+          <label for="numEmpleado">Numero de empleado</label>
+          <input type="text" id="numEmpleado" placeholder="Ej. 13556">
+          <small id="infoEmpleado" class="helper-text"></small>
+        </div>
+        <div class="input-group">
+          <label for="empleadoNombre">Empleado</label>
+          <input type="text" id="empleadoNombre" readonly>
+        </div>
+        <div class="input-group">
+          <label for="departamentoEmpleado">Departamento</label>
+          <input type="text" id="departamentoEmpleado" readonly>
+        </div>
+        <div class="input-group">
+          <label for="puestoEmpleado">Puesto</label>
+          <input type="text" id="puestoEmpleado" readonly>
+        </div>
+        <div class="input-group">
+          <label for="tipoTramite">Tipo</label>
+          <select id="tipoTramite">
+            <option value="Dias economicos">Dias economicos</option>
+            <option value="Permiso especial">Permiso especial</option>
+            <option value="Vacaciones">Vacaciones</option>
+            <option value="Incapacidad">Incapacidad</option>
+          </select>
+        </div>
+        <div class="input-group" id="grupoSubtipoIncapacidad">
+          <label for="subtipoIncapacidad">Subtipo incapacidad</label>
+          <select id="subtipoIncapacidad">
+            <option value="">Selecciona subtipo</option>
+            <option value="Incapacidad general">Incapacidad general</option>
+            <option value="Incapacidad por riesgo de trabajo">Incapacidad por riesgo de trabajo</option>
+          </select>
+        </div>
+        <div class="input-group">
+          <label for="fechaInicio">Fecha inicio</label>
+          <input type="date" id="fechaInicio">
+        </div>
+        <div class="input-group">
+          <label for="fechaFin">Fecha fin</label>
+          <input type="date" id="fechaFin">
+        </div>
+        <div class="input-group">
+          <label for="diasHabiles">Dias habiles</label>
+          <input type="number" id="diasHabiles" readonly>
+          <small id="saldoDiasEconomicos" class="helper-text"></small>
+        </div>
+        <div class="input-group">
+          <label for="folioDocumento">Folio/documento</label>
+          <input type="text" id="folioDocumento" placeholder="Opcional">
+        </div>
+        <div class="input-group full">
+          <label for="motivo">Motivo</label>
+          <textarea id="motivo" placeholder="Motivo o descripcion del tramite"></textarea>
+        </div>
+        <div class="input-group full">
+          <label for="observaciones">Observaciones</label>
+          <textarea id="observaciones" placeholder="Notas adicionales"></textarea>
+        </div>
+      </div>
+
+      <div class="modal-actions">
+        <button type="button" class="btn-secondary" onclick="cerrarModalTramite()">Cancelar</button>
+        <button type="button" class="btn-small" onclick="guardarTramite()">Guardar tramite</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    validarPermiso("Tramites Administrativos");
+    ETLayout.inicializar("Tramites Administrativos");
+    ETLayout.ocultarSiSoloLectura("#btnNuevoTramite");
+
+    let tramites = [];
+    let feriados = [];
+    let empleadoActual = null;
+    let idEditando = null;
+
+    const $ = function (id) { return document.getElementById(id); };
+    const camposFiltro = ["buscarTramite", "filtroTipo", "filtroSubtipo", "filtroAnio", "filtroDesde", "filtroHasta"];
+
+    function usuarioActivo() {
+      try { return JSON.parse(localStorage.getItem("usuarioActivo") || "null"); } catch (_) { return null; }
+    }
+
+    function puedeAccion(accion) {
+      return window.ETPermissions && ETPermissions.puedeAccion(usuarioActivo(), "Tramites Administrativos", accion);
+    }
+
+    function aplicarPermisosUI() {
+      if (!puedeAccion("crear")) {
+        ["btnNuevoTramite", "btnAgregarFeriado"].forEach(function (id) {
+          if ($(id)) $(id).style.display = "none";
+        });
+      }
+    }
+
+    function escapar(valor) {
+      return String(valor == null ? "" : valor)
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
+    }
+
+    function formatearFecha(fecha) {
+      if (!fecha) return "";
+      const partes = String(fecha).split("T")[0].split("-");
+      if (partes.length !== 3) return fecha;
+      return partes[2] + "/" + partes[1] + "/" + partes[0];
+    }
+
+    async function inicializarTramites() {
+      aplicarPermisosUI();
+      await Promise.all([recargarTramites(), recargarFeriados()]);
+      configurarEventos();
+    }
+
+    function configurarEventos() {
+      camposFiltro.forEach(function (id) {
+        $(id)?.addEventListener("input", renderizarTramites);
+        $(id)?.addEventListener("change", renderizarTramites);
+      });
+      $("numEmpleado")?.addEventListener("blur", buscarEmpleado);
+      $("numEmpleado")?.addEventListener("keydown", function (event) {
+        if (event.key === "Enter") {
+          event.preventDefault();
+          buscarEmpleado();
+        }
+      });
+      ["tipoTramite", "fechaInicio", "fechaFin"].forEach(function (id) {
+        $(id)?.addEventListener("change", actualizarCalculosFormulario);
+      });
+    }
+
+    async function recargarTramites() {
+      const { data, error } = await ETTramitesAdministrativos.listarTramites();
+      if (error) {
+        console.error("Error tramites:", error);
+        alert("No se pudieron cargar los tramites.");
+        return;
+      }
+      tramites = data || [];
+      renderizarTramites();
+    }
+
+    async function recargarFeriados() {
+      const { data, error } = await ETTramitesAdministrativos.listarFeriados();
+      if (error) {
+        console.error("Error feriados:", error);
+        alert("No se pudieron cargar los feriados.");
+        return;
+      }
+      feriados = data || [];
+      renderizarFeriados();
+      actualizarCalculosFormulario();
+    }
+
+    function obtenerTramitesFiltrados() {
+      const texto = String($("buscarTramite")?.value || "").toLowerCase();
+      const tipo = $("filtroTipo")?.value || "";
+      const subtipo = $("filtroSubtipo")?.value || "";
+      const anio = $("filtroAnio")?.value || "";
+      const desde = $("filtroDesde")?.value || "";
+      const hasta = $("filtroHasta")?.value || "";
+
+      return tramites.filter(function (t) {
+        const coincideTexto =
+          String(t.num_empleado || "").toLowerCase().includes(texto) ||
+          String(t.empleado_nombre || "").toLowerCase().includes(texto) ||
+          String(t.departamento || "").toLowerCase().includes(texto) ||
+          String(t.puesto || "").toLowerCase().includes(texto);
+
+        if (!coincideTexto) return false;
+        if (tipo && t.tipo_tramite !== tipo) return false;
+        if (subtipo && t.subtipo_incapacidad !== subtipo) return false;
+        if (anio && Number(t.periodo_anio || 0) !== Number(anio)) return false;
+        if (desde && t.fecha_fin < desde) return false;
+        if (hasta && t.fecha_inicio > hasta) return false;
+        return true;
+      });
+    }
+
+    function renderizarTramites() {
+      const tbody = $("tablaTramites");
+      if (!tbody) return;
+      const filtrados = obtenerTramitesFiltrados();
+
+      if (!filtrados.length) {
+        tbody.innerHTML = '<tr><td colspan="9">Sin tramites registrados.</td></tr>';
+      } else {
+        tbody.innerHTML = filtrados.map(function (t) {
+          const acciones =
+            ETLayout.iconButton("ver", "Ver tramite", "verTramite('" + t.id + "')") +
+            (puedeAccion("editar") ? ETLayout.iconButton("editar", "Editar tramite", "editarTramite('" + t.id + "')", "edit") : "") +
+            (puedeAccion("eliminar") ? ETLayout.iconButton("eliminar", "Eliminar tramite", "eliminarTramite('" + t.id + "')", "red-btn") : "");
+
+          return "<tr>" +
+            "<td><strong>" + escapar(t.num_empleado) + "</strong><br>" + escapar(t.empleado_nombre) + "</td>" +
+            "<td>" + escapar(t.departamento || "-") + "</td>" +
+            '<td><span class="badge blue">' + escapar(t.tipo_tramite) + "</span></td>" +
+            "<td>" + escapar(t.subtipo_incapacidad || "-") + "</td>" +
+            "<td>" + escapar(t.periodo_anio) + "</td>" +
+            "<td>" + formatearFecha(t.fecha_inicio) + " al " + formatearFecha(t.fecha_fin) + "</td>" +
+            "<td><strong>" + Number(t.dias_habiles || 0) + "</strong></td>" +
+            "<td>" + escapar(t.folio_documento || "-") + "</td>" +
+            '<td><div class="action-grid">' + acciones + "</div></td>" +
+          "</tr>";
+        }).join("");
+      }
+
+      actualizarKPIs(filtrados);
+    }
+
+    function actualizarKPIs(datos) {
+      const sumTipo = function (tipo) {
+        return datos.filter(function (t) { return t.tipo_tramite === tipo; })
+          .reduce(function (total, t) { return total + Number(t.dias_habiles || 0); }, 0);
+      };
+
+      $("kpiTotal").textContent = datos.length;
+      $("kpiEconomicos").textContent = sumTipo("Dias economicos");
+      $("kpiVacaciones").textContent = sumTipo("Vacaciones");
+      $("kpiIncapacidades").textContent = sumTipo("Incapacidad");
+    }
+
+    function renderizarFeriados() {
+      const tbody = $("tablaFeriados");
+      if (!tbody) return;
+
+      if (!feriados.length) {
+        tbody.innerHTML = '<tr><td colspan="3">Sin feriados capturados.</td></tr>';
+        return;
+      }
+
+      tbody.innerHTML = feriados.map(function (f) {
+        return "<tr>" +
+          "<td>" + formatearFecha(f.fecha) + "</td>" +
+          "<td>" + escapar(f.nombre) + "</td>" +
+          '<td><div class="action-grid">' +
+            (puedeAccion("eliminar") ? ETLayout.iconButton("eliminar", "Eliminar feriado", "eliminarFeriado('" + f.id + "')", "red-btn") : "") +
+          "</div></td>" +
+        "</tr>";
+      }).join("");
+    }
+
+    function abrirModalTramite() {
+      if (!idEditando && !puedeAccion("crear")) return;
+      limpiarFormulario();
+      $("tituloModalTramite").textContent = "Nuevo tramite";
+      $("modalTramite").classList.add("show");
+      $("modalTramite").setAttribute("aria-hidden", "false");
+      actualizarVistaSubtipo();
+      $("numEmpleado").focus();
+    }
+
+    function cerrarModalTramite() {
+      $("modalTramite").classList.remove("show");
+      $("modalTramite").setAttribute("aria-hidden", "true");
+      limpiarFormulario();
+    }
+
+    function limpiarFormulario() {
+      idEditando = null;
+      empleadoActual = null;
+      ["numEmpleado", "empleadoNombre", "departamentoEmpleado", "puestoEmpleado", "fechaInicio", "fechaFin", "diasHabiles", "folioDocumento", "motivo", "observaciones", "subtipoIncapacidad"].forEach(function (id) {
+        if ($(id)) $(id).value = "";
+      });
+      $("tipoTramite").value = "Dias economicos";
+      $("infoEmpleado").textContent = "";
+      $("saldoDiasEconomicos").textContent = "";
+      actualizarVistaSubtipo();
+    }
+
+    async function buscarEmpleado() {
+      const num = $("numEmpleado").value.trim();
+      if (!num) return;
+
+      const { data, error } = await ETTramitesAdministrativos.buscarEmpleado(num);
+      if (error || !data) {
+        empleadoActual = null;
+        $("empleadoNombre").value = "";
+        $("departamentoEmpleado").value = "";
+        $("puestoEmpleado").value = "";
+        $("infoEmpleado").textContent = "Empleado no encontrado en el catalogo.";
+        return;
+      }
+
+      empleadoActual = data;
+      $("empleadoNombre").value = data.nombre_completo || data.nombre || "";
+      $("departamentoEmpleado").value = data.departamento || "";
+      $("puestoEmpleado").value = data.puesto || "";
+      $("infoEmpleado").textContent = "Empleado cargado.";
+      actualizarCalculosFormulario();
+    }
+
+    function actualizarVistaSubtipo() {
+      const esIncapacidad = $("tipoTramite").value === "Incapacidad";
+      $("grupoSubtipoIncapacidad").style.display = esIncapacidad ? "" : "none";
+      if (!esIncapacidad) $("subtipoIncapacidad").value = "";
+    }
+
+    function actualizarCalculosFormulario() {
+      actualizarVistaSubtipo();
+      const inicio = $("fechaInicio")?.value || "";
+      const fin = $("fechaFin")?.value || "";
+      const dias = ETTramitesAdministrativos.calcularDiasHabiles(inicio, fin, feriados);
+      if ($("diasHabiles")) $("diasHabiles").value = dias || "";
+
+      const numEmpleado = $("numEmpleado")?.value || "";
+      const anio = ETTramitesAdministrativos.obtenerAnio(inicio || fin);
+      const saldo = ETTramitesAdministrativos.obtenerSaldoDiasEconomicos(tramites.filter(function (t) {
+        return t.id !== idEditando;
+      }), numEmpleado, anio);
+      $("saldoDiasEconomicos").textContent = $("tipoTramite").value === "Dias economicos"
+        ? "Disponibles del periodo " + anio + ": " + saldo.disponibles + " de 10"
+        : "";
+    }
+
+    function obtenerPayload() {
+      const usuario = usuarioActivo();
+      const inicio = $("fechaInicio").value;
+      const fin = $("fechaFin").value;
+      const tipo = $("tipoTramite").value;
+
+      return {
+        empleado_id: empleadoActual?.id || null,
+        num_empleado: $("numEmpleado").value.trim(),
+        empleado_nombre: $("empleadoNombre").value.trim(),
+        direccion: empleadoActual?.direccion || null,
+        departamento: $("departamentoEmpleado").value.trim() || null,
+        puesto: $("puestoEmpleado").value.trim() || null,
+        tipo_tramite: tipo,
+        subtipo_incapacidad: tipo === "Incapacidad" ? ($("subtipoIncapacidad").value || null) : null,
+        fecha_inicio: inicio,
+        fecha_fin: fin,
+        dias_habiles: Number($("diasHabiles").value || 0),
+        periodo_anio: ETTramitesAdministrativos.obtenerAnio(inicio),
+        motivo: $("motivo").value.trim() || null,
+        observaciones: $("observaciones").value.trim() || null,
+        folio_documento: $("folioDocumento").value.trim() || null,
+        estatus: "Autorizado",
+        capturado_por: usuario?.id || null,
+        capturado_por_nombre: usuario?.nombre || usuario?.usuario || null
+      };
+    }
+
+    function validarPayload(payload) {
+      if (!payload.num_empleado || !payload.empleado_nombre) {
+        alert("Carga un empleado valido.");
+        return false;
+      }
+      if (!payload.fecha_inicio || !payload.fecha_fin) {
+        alert("Captura fecha inicio y fecha fin.");
+        return false;
+      }
+      if (payload.fecha_fin < payload.fecha_inicio) {
+        alert("La fecha fin no puede ser menor que la fecha inicio.");
+        return false;
+      }
+      if (payload.dias_habiles <= 0) {
+        alert("El tramite debe tener al menos un dia habil.");
+        return false;
+      }
+      if (payload.tipo_tramite === "Incapacidad" && !payload.subtipo_incapacidad) {
+        alert("Selecciona el subtipo de incapacidad.");
+        return false;
+      }
+      return true;
+    }
+
+    async function guardarTramite() {
+      if (!idEditando && !puedeAccion("crear")) return;
+      if (idEditando && !puedeAccion("editar")) return;
+
+      const payload = obtenerPayload();
+      if (!validarPayload(payload)) return;
+
+      const saldo = ETTramitesAdministrativos.obtenerSaldoDiasEconomicos(tramites.filter(function (t) {
+        return t.id !== idEditando;
+      }), payload.num_empleado, payload.periodo_anio);
+      if (payload.tipo_tramite === "Dias economicos" && Number(payload.dias_habiles) > saldo.disponibles) {
+        if (!confirm("Este registro supera los 10 dias economicos del periodo. Deseas guardarlo de todos modos?")) return;
+      }
+
+      const resultado = idEditando
+        ? await ETTramitesAdministrativos.actualizarTramite(idEditando, payload)
+        : await ETTramitesAdministrativos.crearTramite(payload);
+
+      if (resultado.error) {
+        alert("No se pudo guardar: " + resultado.error.message);
+        return;
+      }
+
+      if (typeof registrarAuditoria === "function") {
+        registrarAuditoria("Tramites Administrativos", idEditando ? "Edito tramite" : "Creo tramite", payload.num_empleado + " - " + payload.tipo_tramite, {
+          entidad_tipo: "tramites_administrativos",
+          entidad_id: resultado.data?.id || idEditando,
+          metadata: { despues: resultado.data || payload }
+        });
+      }
+
+      await recargarTramites();
+      cerrarModalTramite();
+      alert("Tramite guardado correctamente.");
+    }
+
+    async function editarTramite(id) {
+      if (!puedeAccion("editar")) return;
+      const t = tramites.find(function (item) { return item.id === id; });
+      if (!t) return;
+
+      idEditando = id;
+      const empleadoRes = await ETTramitesAdministrativos.buscarEmpleado(t.num_empleado);
+      empleadoActual = empleadoRes.data || {
+        id: t.empleado_id,
+        direccion: t.direccion,
+        departamento: t.departamento,
+        puesto: t.puesto
+      };
+
+      $("tituloModalTramite").textContent = "Editar tramite";
+      $("numEmpleado").value = t.num_empleado || "";
+      $("empleadoNombre").value = t.empleado_nombre || "";
+      $("departamentoEmpleado").value = t.departamento || "";
+      $("puestoEmpleado").value = t.puesto || "";
+      $("tipoTramite").value = t.tipo_tramite || "Dias economicos";
+      $("subtipoIncapacidad").value = t.subtipo_incapacidad || "";
+      $("fechaInicio").value = t.fecha_inicio || "";
+      $("fechaFin").value = t.fecha_fin || "";
+      $("folioDocumento").value = t.folio_documento || "";
+      $("motivo").value = t.motivo || "";
+      $("observaciones").value = t.observaciones || "";
+      $("modalTramite").classList.add("show");
+      $("modalTramite").setAttribute("aria-hidden", "false");
+      actualizarCalculosFormulario();
+    }
+
+    function verTramite(id) {
+      const t = tramites.find(function (item) { return item.id === id; });
+      if (!t) return;
+      alert(
+        "Empleado: " + t.num_empleado + " - " + t.empleado_nombre +
+        "\nDepartamento: " + (t.departamento || "-") +
+        "\nTipo: " + t.tipo_tramite +
+        "\nSubtipo: " + (t.subtipo_incapacidad || "-") +
+        "\nFechas: " + formatearFecha(t.fecha_inicio) + " al " + formatearFecha(t.fecha_fin) +
+        "\nDias habiles: " + Number(t.dias_habiles || 0) +
+        "\nFolio: " + (t.folio_documento || "-") +
+        "\nMotivo: " + (t.motivo || "-") +
+        "\nObservaciones: " + (t.observaciones || "-")
+      );
+    }
+
+    async function eliminarTramite(id) {
+      if (!puedeAccion("eliminar")) return;
+      const t = tramites.find(function (item) { return item.id === id; });
+      if (!t) return;
+      if (!confirm("Eliminar tramite de " + t.empleado_nombre + "?")) return;
+
+      const { error } = await ETTramitesAdministrativos.eliminarTramite(id);
+      if (error) {
+        alert("No se pudo eliminar: " + error.message);
+        return;
+      }
+      await recargarTramites();
+    }
+
+    async function guardarFeriado() {
+      if (!puedeAccion("crear")) return;
+      const fecha = $("feriadoFecha").value;
+      const nombre = $("feriadoNombre").value.trim();
+      if (!fecha || !nombre) {
+        alert("Captura fecha y nombre del feriado.");
+        return;
+      }
+
+      const { error } = await ETTramitesAdministrativos.crearFeriado({ fecha, nombre, activo: true });
+      if (error) {
+        alert("No se pudo guardar el feriado: " + error.message);
+        return;
+      }
+      $("feriadoFecha").value = "";
+      $("feriadoNombre").value = "";
+      await recargarFeriados();
+    }
+
+    async function eliminarFeriado(id) {
+      if (!puedeAccion("eliminar")) return;
+      if (!confirm("Eliminar feriado?")) return;
+      const { error } = await ETTramitesAdministrativos.eliminarFeriado(id);
+      if (error) {
+        alert("No se pudo eliminar el feriado: " + error.message);
+        return;
+      }
+      await recargarFeriados();
+    }
+
+    function exportarReporteTramites() {
+      const filas = obtenerTramitesFiltrados().map(function (t) {
+        return {
+          num_empleado: t.num_empleado,
+          empleado_nombre: t.empleado_nombre,
+          departamento: t.departamento,
+          puesto: t.puesto,
+          tipo_tramite: t.tipo_tramite,
+          subtipo_incapacidad: t.subtipo_incapacidad,
+          fecha_inicio: t.fecha_inicio,
+          fecha_fin: t.fecha_fin,
+          dias_habiles: t.dias_habiles,
+          periodo_anio: t.periodo_anio,
+          folio_documento: t.folio_documento,
+          motivo: t.motivo,
+          observaciones: t.observaciones
+        };
+      });
+
+      ETExport.exportarCSV("tramites_administrativos", [
+        { key: "num_empleado", label: "Numero empleado" },
+        { key: "empleado_nombre", label: "Empleado" },
+        { key: "departamento", label: "Departamento" },
+        { key: "puesto", label: "Puesto" },
+        { key: "tipo_tramite", label: "Tipo" },
+        { key: "subtipo_incapacidad", label: "Subtipo" },
+        { key: "fecha_inicio", label: "Fecha inicio" },
+        { key: "fecha_fin", label: "Fecha fin" },
+        { key: "dias_habiles", label: "Dias habiles" },
+        { key: "periodo_anio", label: "Periodo" },
+        { key: "folio_documento", label: "Folio" },
+        { key: "motivo", label: "Motivo" },
+        { key: "observaciones", label: "Observaciones" }
+      ], filas);
+    }
+
+    window.abrirModalTramite = abrirModalTramite;
+    window.cerrarModalTramite = cerrarModalTramite;
+    window.guardarTramite = guardarTramite;
+    window.editarTramite = editarTramite;
+    window.verTramite = verTramite;
+    window.eliminarTramite = eliminarTramite;
+    window.guardarFeriado = guardarFeriado;
+    window.eliminarFeriado = eliminarFeriado;
+    window.exportarReporteTramites = exportarReporteTramites;
+
+    inicializarTramites();
+  </script>
+</body>
+</html>

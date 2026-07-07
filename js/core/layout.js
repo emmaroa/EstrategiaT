@@ -10,7 +10,8 @@
     "Usuarios",
     "Auditoría",
     "Órdenes de Trabajo",
-    "Tiempo Extra"
+    "Tiempo Extra",
+    "Tramites Administrativos"
     
   ];
 
