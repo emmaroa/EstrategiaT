@@ -115,7 +115,7 @@
       <div class="panel-header">
         <div>
           <h2>Feriados administrativos</h2>
-          <p>Se excluyen del conteo de dias habiles junto con sabados y domingos.</p>
+          <p>Se excluyen del conteo de dias habiles. Sabado solo cuenta cuando el empleado lo trabaja.</p>
         </div>
       </div>
 
@@ -197,6 +197,13 @@
           <label for="diasHabiles">Dias habiles</label>
           <input type="number" id="diasHabiles" readonly>
           <small id="saldoDiasEconomicos" class="helper-text"></small>
+        </div>
+        <div class="input-group">
+          <label for="trabajaSabado">Jornada especial</label>
+          <label style="display:flex;gap:10px;align-items:center;margin-top:13px;color:var(--text-secondary);">
+            <input type="checkbox" id="trabajaSabado" style="width:auto;">
+            Tambien trabaja sabado
+          </label>
         </div>
         <div class="input-group">
           <label for="folioDocumento">Folio/documento</label>
@@ -282,7 +289,7 @@
           buscarEmpleado();
         }
       });
-      ["tipoTramite", "fechaInicio", "fechaFin"].forEach(function (id) {
+      ["tipoTramite", "fechaInicio", "fechaFin", "trabajaSabado"].forEach(function (id) {
         $(id)?.addEventListener("change", actualizarCalculosFormulario);
       });
     }
@@ -421,6 +428,7 @@
         if ($(id)) $(id).value = "";
       });
       $("tipoTramite").value = "Dias economicos";
+      $("trabajaSabado").checked = false;
       $("infoEmpleado").textContent = "";
       $("saldoDiasEconomicos").textContent = "";
       actualizarVistaSubtipo();
@@ -458,7 +466,8 @@
       actualizarVistaSubtipo();
       const inicio = $("fechaInicio")?.value || "";
       const fin = $("fechaFin")?.value || "";
-      const dias = ETTramitesAdministrativos.calcularDiasHabiles(inicio, fin, feriados);
+      const trabajaSabado = Boolean($("trabajaSabado")?.checked);
+      const dias = ETTramitesAdministrativos.calcularDiasHabiles(inicio, fin, feriados, { contarSabado: trabajaSabado });
       if ($("diasHabiles")) $("diasHabiles").value = dias || "";
 
       const numEmpleado = $("numEmpleado")?.value || "";
@@ -495,7 +504,10 @@
         folio_documento: $("folioDocumento").value.trim() || null,
         estatus: "Autorizado",
         capturado_por: usuario?.id || null,
-        capturado_por_nombre: usuario?.nombre || usuario?.usuario || null
+        capturado_por_nombre: usuario?.nombre || usuario?.usuario || null,
+        metadata: {
+          trabaja_sabado: Boolean($("trabajaSabado")?.checked)
+        }
       };
     }
 
@@ -582,6 +594,7 @@
       $("subtipoIncapacidad").value = t.subtipo_incapacidad || "";
       $("fechaInicio").value = t.fecha_inicio || "";
       $("fechaFin").value = t.fecha_fin || "";
+      $("trabajaSabado").checked = Boolean(t.metadata?.trabaja_sabado || t.metadata?.trabajaSabado);
       $("folioDocumento").value = t.folio_documento || "";
       $("motivo").value = t.motivo || "";
       $("observaciones").value = t.observaciones || "";
@@ -600,6 +613,7 @@
         "\nSubtipo: " + (t.subtipo_incapacidad || "-") +
         "\nFechas: " + formatearFecha(t.fecha_inicio) + " al " + formatearFecha(t.fecha_fin) +
         "\nDias habiles: " + Number(t.dias_habiles || 0) +
+        "\nTrabaja sabado: " + (t.metadata?.trabaja_sabado ? "Si" : "No") +
         "\nFolio: " + (t.folio_documento || "-") +
         "\nMotivo: " + (t.motivo || "-") +
         "\nObservaciones: " + (t.observaciones || "-")
@@ -662,6 +676,7 @@
           fecha_inicio: t.fecha_inicio,
           fecha_fin: t.fecha_fin,
           dias_habiles: t.dias_habiles,
+          trabaja_sabado: t.metadata?.trabaja_sabado ? "Si" : "No",
           periodo_anio: t.periodo_anio,
           folio_documento: t.folio_documento,
           motivo: t.motivo,
@@ -679,6 +694,7 @@
         { key: "fecha_inicio", label: "Fecha inicio" },
         { key: "fecha_fin", label: "Fecha fin" },
         { key: "dias_habiles", label: "Dias habiles" },
+        { key: "trabaja_sabado", label: "Trabaja sabado" },
         { key: "periodo_anio", label: "Periodo" },
         { key: "folio_documento", label: "Folio" },
         { key: "motivo", label: "Motivo" },

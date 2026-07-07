@@ -114,7 +114,7 @@
       .eq("id", id);
   }
 
-  function calcularDiasHabiles(inicio, fin, feriados) {
+  function calcularDiasHabiles(inicio, fin, feriados, opciones) {
     if (!inicio || !fin) return 0;
 
     const start = new Date(inicio + "T00:00:00");
@@ -126,11 +126,13 @@
       .map(function (f) { return String(f.fecha || "").slice(0, 10); }));
 
     let total = 0;
+    const contarSabado = Boolean(opciones?.contarSabado || opciones?.trabajaSabado);
     const cursor = new Date(start);
     while (cursor <= end) {
       const dia = cursor.getDay();
       const iso = fechaISO(cursor);
-      if (dia !== 0 && dia !== 6 && !feriadosActivos.has(iso)) total += 1;
+      const esFinDeSemanaNoLaborable = dia === 0 || (dia === 6 && !contarSabado);
+      if (!esFinDeSemanaNoLaborable && !feriadosActivos.has(iso)) total += 1;
       cursor.setDate(cursor.getDate() + 1);
     }
     return total;

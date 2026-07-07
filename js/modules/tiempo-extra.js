@@ -1,5 +1,7 @@
 (function () {
-  const DIAS_SEMANA = ["Lunes", "Martes", "Miercoles", "Jueves", "Viernes", "Sabado", "Domingo"];
+  const DIAS_SEMANA = ["Viernes", "Sabado", "Domingo", "Lunes", "Martes", "Miercoles", "Jueves"];
+  const DIA_VIERNES = 5;
+  const DIAS_PERIODO = 6;
 
   let empleadosAgregados = [];
   let periodoActual = null;
@@ -111,8 +113,16 @@
     $("btnGenerarPDF")?.addEventListener("click", generarPaqueteFormatos);
     $("btnGuardarPeriodo")?.addEventListener("click", guardarPeriodoTemporal);
     $("btnBuscarHistorial")?.addEventListener("click", buscarHistorial);
+    $("periodoInicio")?.addEventListener("change", sincronizarPeriodoViernesJueves);
+    $("periodoFin")?.addEventListener("change", sincronizarPeriodoViernesJueves);
 
     $("numEmpleado")?.addEventListener("blur", buscarEmpleado);
+    $("numEmpleado")?.addEventListener("input", function () {
+      if (indiceEdicion == null) {
+        limpiarDatosEmpleado();
+        limpiarDetalleSemanal(true);
+      }
+    });
     $("numEmpleado")?.addEventListener("keydown", function (e) {
       if (e.key === "Enter") {
         e.preventDefault();
@@ -174,6 +184,7 @@
     if (modoAltaEmpleado && $("numEmpleado")?.dataset.altaNum === num) return;
 
     limpiarDatosEmpleado();
+    limpiarDetalleSemanal(true);
 
     const client = getSupabaseClient();
     if (!client) {
@@ -502,13 +513,30 @@
     $("numEmpleado").value = "";
     limpiarDatosEmpleado();
 
-    document.querySelectorAll("#tablaDias input, #tablaDias textarea").forEach(function (input) {
-      input.value = "";
-    });
+    limpiarDetalleSemanal(true);
 
     $("btnAgregarEmpleado").textContent = "Agregar empleado";
     $("btnCancelarEdicion").hidden = true;
     $("totalHorasEmpleado").textContent = "0";
+  }
+
+  function limpiarDetalleSemanal(mantenerFechasPeriodo = false) {
+    document.querySelectorAll("#tablaDias tr").forEach(function (fila) {
+      const inputs = fila.querySelectorAll("input");
+      const justificacion = fila.querySelector(".justificacion-dia");
+
+      inputs.forEach(function (input) {
+        input.value = "";
+      });
+
+      if (justificacion) justificacion.value = "";
+    });
+
+    $("totalHorasEmpleado").textContent = "0";
+
+    if (mantenerFechasPeriodo) {
+      llenarFechasDelPeriodoActual();
+    }
   }
 
   function obtenerTotalHoras() {
@@ -600,6 +628,61 @@
   function obtenerAnioPeriodo() {
     if (!$("periodoInicio")?.value) return "";
     return new Date($("periodoInicio").value + "T00:00:00").getFullYear();
+  }
+
+  function crearFechaLocal(fechaTexto) {
+    return fechaTexto ? new Date(fechaTexto + "T00:00:00") : null;
+  }
+
+  function formatearISOFecha(fecha) {
+    const anio = fecha.getFullYear();
+    const mes = String(fecha.getMonth() + 1).padStart(2, "0");
+    const dia = String(fecha.getDate()).padStart(2, "0");
+    return `${anio}-${mes}-${dia}`;
+  }
+
+  function obtenerViernesPeriodo(fechaTexto) {
+    const fecha = crearFechaLocal(fechaTexto);
+    if (!fecha) return "";
+
+    const diferencia = (fecha.getDay() - DIA_VIERNES + 7) % 7;
+    fecha.setDate(fecha.getDate() - diferencia);
+
+    return formatearISOFecha(fecha);
+  }
+
+  function obtenerJuevesPeriodo(viernesTexto) {
+    const fecha = crearFechaLocal(viernesTexto);
+    if (!fecha) return "";
+
+    fecha.setDate(fecha.getDate() + DIAS_PERIODO);
+    return formatearISOFecha(fecha);
+  }
+
+  function sincronizarPeriodoViernesJueves() {
+    const inicioInput = $("periodoInicio");
+    const finInput = $("periodoFin");
+    if (!inicioInput || !finInput) return true;
+
+    if (!inicioInput.value) {
+      finInput.value = "";
+      limpiarDetalleSemanal(false);
+      actualizarResumenDocumentos();
+      return false;
+    }
+
+    const viernes = obtenerViernesPeriodo(inicioInput.value);
+    const jueves = obtenerJuevesPeriodo(viernes);
+
+    inicioInput.value = viernes;
+    finInput.value = jueves;
+    llenarFechasSemana(viernes, jueves);
+    actualizarResumenDocumentos();
+    return true;
+  }
+
+  function validarPeriodoViernesJueves(inicio, fin) {
+    return inicio === obtenerViernesPeriodo(inicio) && fin === obtenerJuevesPeriodo(inicio);
   }
 
   function descargarArchivo(buffer, nombre, tipo) {
@@ -907,11 +990,17 @@
   }
 
   async function guardarPeriodoTemporal() {
+    sincronizarPeriodoViernesJueves();
     const inicio = $("periodoInicio").value;
     const fin = $("periodoFin").value;
 
     if (!inicio || !fin) {
       alert("Captura el periodo de inicio y fin.");
+      return;
+    }
+
+    if (!validarPeriodoViernesJueves(inicio, fin)) {
+      alert("El periodo debe iniciar en viernes y terminar el jueves siguiente.");
       return;
     }
 
@@ -1048,6 +1137,15 @@
         inputFecha.value = "";
       }
     });
+  }
+
+  function llenarFechasDelPeriodoActual() {
+    const inicio = $("periodoInicio")?.value;
+    const fin = $("periodoFin")?.value;
+
+    if (inicio && fin) {
+      llenarFechasSemana(inicio, fin);
+    }
   }
 
   function cambiarTab(tab) {

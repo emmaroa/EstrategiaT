@@ -15,6 +15,17 @@
   --shadow-md: 0 14px 35px rgba(36, 48, 51, .14);
 }
 
+[data-theme="dark"] {
+  --bg: #0f172a;
+  --card-bg: rgba(255,255,255,.06);
+  --text: #ffffff;
+  --muted: #94a3b8;
+  --border: rgba(255,255,255,.1);
+  --border-color: var(--border);
+  --shadow-sm: 0 6px 18px rgba(0,0,0,.22);
+  --shadow-md: 0 14px 35px rgba(0,0,0,.28);
+}
+
 * {
   box-sizing: border-box;
 }

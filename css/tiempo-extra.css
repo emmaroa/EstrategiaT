@@ -346,42 +346,43 @@ hr {
 }
 
 /* Modo oscuro básico */
-body.dark .card,
-body.dark table,
-body.dark .tab-btn {
+[data-theme="dark"] .card,
+[data-theme="dark"] table,
+[data-theme="dark"] .tab-btn {
   background: #111827;
   color: #f9fafb;
 }
 
-body.dark input,
-body.dark textarea,
-body.dark select {
+[data-theme="dark"] input,
+[data-theme="dark"] textarea,
+[data-theme="dark"] select {
   background: #0f172a;
   color: #f9fafb;
   border-color: #334155;
 }
 
-body.dark input[readonly] {
+[data-theme="dark"] input[readonly] {
   background: #1e293b;
 }
 
-body.dark thead {
+[data-theme="dark"] thead {
   background: #1f2937;
 }
 
-body.dark th {
+[data-theme="dark"] th {
   color: #FECD5A;
 }
 
-body.dark .summary-box,
-body.dark .document-options label,
-body.dark .preview-box,
-body.dark .quick-employee-box {
+[data-theme="dark"] .summary-box,
+[data-theme="dark"] .document-options label,
+[data-theme="dark"] .preview-box,
+[data-theme="dark"] .quick-employee-box {
   background: #111827;
   border-color: #334155;
+  color: #f9fafb;
 }
 
-body.dark .quick-employee-box {
+[data-theme="dark"] .quick-employee-box {
   color: #bae6fd;
 }
 
