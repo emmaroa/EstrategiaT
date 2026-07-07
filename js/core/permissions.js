@@ -7,6 +7,7 @@
       DASHBOARD: "Dashboard",
       PARQUE: "Parque Vehicular",
       PETICIONES: "Peticiones",
+      SEGUIMIENTO_PETICIONES: "Seguimiento Peticiones",
       REQUISICIONES: "Requisiciones",
       ACUERDOS: "Acuerdos",
       VALES: "Vales",
@@ -27,6 +28,7 @@
     [MODULOS.DASHBOARD]: "dashboard.html",
     [MODULOS.PARQUE]: "modulos/parque-vehicular.html",
     [MODULOS.PETICIONES]: "modulos/peticiones.html",
+    [MODULOS.SEGUIMIENTO_PETICIONES]: "modulos/seguimiento-peticiones.html",
     [MODULOS.REQUISICIONES]: "modulos/requisiciones.html",
     [MODULOS.ACUERDOS]: "modulos/acuerdos.html",
     [MODULOS.VALES]: "modulos/vales.html",
@@ -47,6 +49,7 @@
     [MODULOS.DASHBOARD]: "Indicadores ejecutivos y KPIs operativos.",
     [MODULOS.PARQUE]: "Expediente digital de unidades y seguimiento de flota.",
     [MODULOS.PETICIONES]: "Solicitudes de refacciones al almacén.",
+    [MODULOS.SEGUIMIENTO_PETICIONES]: "Consulta de peticiones por area para coordinadores.",
     [MODULOS.REQUISICIONES]: "Requisiciones, órdenes de compra y pagos.",
     [MODULOS.ACUERDOS]: "Seguimiento de acuerdos, compromisos y plazos.",
     [MODULOS.VALES]: "Vales de salida con folio, firma y trazabilidad.",
@@ -75,6 +78,7 @@
       MODULOS.DASHBOARD, 
       MODULOS.PARQUE, 
       MODULOS.PETICIONES,
+      MODULOS.SEGUIMIENTO_PETICIONES,
       MODULOS.REQUISICIONES, 
       MODULOS.ACUERDOS, 
       MODULOS.VALES, 
@@ -92,6 +96,7 @@
       MODULOS.DASHBOARD, 
       MODULOS.PARQUE, 
       MODULOS.PETICIONES,
+      MODULOS.SEGUIMIENTO_PETICIONES,
       MODULOS.REQUISICIONES, 
       MODULOS.ACUERDOS, 
       MODULOS.VALES, 
@@ -132,6 +137,7 @@
       MODULOS.DASHBOARD, 
       MODULOS.PARQUE, 
       MODULOS.PETICIONES, 
+      MODULOS.SEGUIMIENTO_PETICIONES,
       MODULOS.ACUERDOS,
       MODULOS.REQUISICIONES, 
       MODULOS.VALES, 
@@ -189,6 +195,7 @@
     Compras: ["ver", "crear", "editar", "cambiar_estatus", "generar_requisicion", "exportar", "imprimir"],
     Almacen: ["ver", "crear", "editar", "cambiar_estatus", "exportar", "imprimir"],
     Consulta: ["ver", "consultar", "exportar", "imprimir"],
+    "Coordinador": ["ver", "crear", "editar", "cambiar_estatus", "exportar", "imprimir"],
     "Solo Lectura": ["ver", "consultar", "exportar", "imprimir"]
   };
 
@@ -199,10 +206,29 @@
     if (clave === "superadmin" || clave === "super admin" || clave === "super_admin") return "SuperAdmin";
     if (clave === "admin") return "Admin";
     if (clave === "jefe") return "jefe";
+    if (clave === "coordinador") return "Coordinador";
     if (clave === "moderador de acuerdos" || clave === "moderador acuerdos" || clave === "moderador_acuerdos" || clave === "moderador-acuerdos") {
       return "Moderador de Acuerdos";
     }
     return valor;
+  }
+
+  function rolVeSeguimientoPeticiones(rol) {
+    return [
+      "SuperAdmin",
+      "Administrador del Sistema",
+      "Admin",
+      "jefe",
+      "Jefe",
+      "Director",
+      "Coordinador"
+    ].includes(normalizarRol(rol));
+  }
+
+  function agregarModuloSiFalta(modulos, modulo) {
+    const salida = Array.isArray(modulos) ? modulos.slice() : [];
+    if (!salida.includes(modulo)) salida.push(modulo);
+    return salida;
   }
 
   function obtenerPermisosModulosDesdeValor(valor) {
@@ -264,17 +290,20 @@
 
   function obtenerModulosUsuario(usuario) {
     const permisosModulos = obtenerPermisosModulosUsuario(usuario);
+    const rol = normalizarRol((usuario || {}).rol || (usuario || {}).cargo || (usuario || {}).tipo || "");
 
     if (permisosModulos.length) {
-      return permisosModulos
+      const modulos = permisosModulos
         .filter(function (item) { return item.permiso !== "none"; })
         .map(function (item) { return item.modulo; })
         .filter(function (modulo) {
           return Object.values(MODULOS).includes(modulo);
         });
+      return rolVeSeguimientoPeticiones(rol)
+        ? agregarModuloSiFalta(modulos, MODULOS.SEGUIMIENTO_PETICIONES)
+        : modulos;
     }
 
-    const rol = normalizarRol((usuario || {}).rol || (usuario || {}).cargo || (usuario || {}).tipo || "");
     return PERMISOS[rol] || [];
   }
 
@@ -289,6 +318,10 @@
     }
 
     const rol = normalizarRol((usuario || {}).rol || (usuario || {}).cargo || (usuario || {}).tipo || "");
+    if (modulo === MODULOS.SEGUIMIENTO_PETICIONES && rolVeSeguimientoPeticiones(rol)) {
+      return "ver";
+    }
+
     if (["super_admin", "SuperAdmin", "Administrador del Sistema", "Admin", "admin", "jefe", "Jefe"].includes(rol)) {
       return "editar";
     }

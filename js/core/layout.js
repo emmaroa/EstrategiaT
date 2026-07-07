@@ -4,6 +4,7 @@
     "Parque Vehicular",
     "Acuerdos",
     "Peticiones",
+    "Seguimiento Peticiones",
     "Requisiciones",
     "Vales",
     "Usuarios",

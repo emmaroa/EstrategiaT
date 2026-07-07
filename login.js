@@ -21,6 +21,7 @@
         Compras: ["Dashboard", "Peticiones", "Requisiciones"],
         Almacen: ["Dashboard", "Peticiones", "Vales"],
         Consulta: ["Dashboard", "Parque Vehicular", "Peticiones", "Requisiciones", "Vales"],
+        Coordinador: ["Dashboard", "Seguimiento Peticiones"],
         CapturistaPV: ["Dashboard", "Parque Vehicular"]
       };
 
@@ -30,6 +31,7 @@
         "Dashboard": "Indicadores generales del sistema.",
         "Parque Vehicular": "Consulta y control de unidades registradas.",
         "Peticiones": "Seguimiento de solicitudes al almacén.",
+        "Seguimiento Peticiones": "Consulta de peticiones por area para coordinadores.",
         "Requisiciones": "Control de requisiciones, órdenes y pagos.",
         "Vales": "Registro y consulta de vales de salida.",
         "Usuarios": "Administración de usuarios, roles y permisos.",
@@ -99,6 +101,7 @@
     if (clave === "superadmin" || clave === "super_admin") return "SuperAdmin";
     if (clave === "admin") return "Admin";
     if (clave === "jefe") return "jefe";
+    if (clave === "coordinador") return "Coordinador";
     if (clave === "moderador_de_acuerdos" || clave === "moderador_acuerdos") return "Moderador de Acuerdos";
     return String(rol || "").trim();
   }
@@ -173,6 +176,7 @@
       rol: rolNormalizado,
       rol_original: data.rol,
       modulos_permitidos: data.modulos_permitidos || [],
+      areas_permitidas: data.areas_permitidas || [],
       modulos: obtenerModulosUsuario(data)
     };
 

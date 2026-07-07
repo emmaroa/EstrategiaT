@@ -16,6 +16,25 @@
       .order("created_at", { ascending: false });
   }
 
+  async function listarPorAreas(areas) {
+    const client = getClient();
+    if (!client) return { data: [], count: 0, error: { message: "Sin conexiÃ³n" } };
+
+    const areasValidas = Array.isArray(areas)
+      ? areas.map(function (area) { return String(area || "").trim(); }).filter(Boolean)
+      : [];
+
+    if (!areasValidas.length) {
+      return { data: [], count: 0, error: null };
+    }
+
+    return client
+      .from("peticiones")
+      .select("*", { count: "exact" })
+      .in("area", areasValidas)
+      .order("created_at", { ascending: false });
+  }
+
   async function crear(payload) {
     const client = getClient();
     if (!client) return { data: null, error: { message: "Sin conexión" } };
@@ -100,6 +119,7 @@
 
   global.ETPeticiones = {
     listar,
+    listarPorAreas,
     crear,
     actualizar,
     eliminar,

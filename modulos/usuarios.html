@@ -180,6 +180,11 @@
         </div>
 
         <div class="input-group full">
+          <label>Areas para seguimiento</label>
+          <div id="areasPermitidasContainer" style="display:grid; grid-template-columns:repeat(auto-fit,minmax(180px,1fr)); gap:10px;"></div>
+        </div>
+
+        <div class="input-group full">
           <label>Permisos de módulos</label>
           <div id="permisosModulosContainer" style="display:grid; gap:10px;"></div>
         </div>
@@ -203,11 +208,21 @@
 
     const tablaUsuarios = document.getElementById("tablaUsuarios");
     const permisosModulosContainer = document.getElementById("permisosModulosContainer");
+    const areasPermitidasContainer = document.getElementById("areasPermitidasContainer");
+    const areasSeguimientoDisponibles = [
+      "Electricas",
+      "Maquinaria Pesada",
+      "Barredoras",
+      "Gasolina",
+      "Motocicletas",
+      "Colectores"
+    ];
     const modulosDisponibles = [
       "Dashboard",
       "Parque Vehicular",
       "Acuerdos",
       "Peticiones",
+      "Seguimiento Peticiones",
       "Requisiciones",
       "Vales",
       "Usuarios",
@@ -321,6 +336,37 @@
       return [];
     }
 
+    function parsearListaJSON(valor) {
+      if (!valor) return [];
+      if (Array.isArray(valor)) return valor;
+      if (typeof valor === "string") {
+        try {
+          const parseado = JSON.parse(valor);
+          return Array.isArray(parseado) ? parseado : [];
+        } catch (_) {
+          return valor.split(",").map(function (item) { return item.trim(); }).filter(Boolean);
+        }
+      }
+      return [];
+    }
+
+    function renderAreasPermitidas(usuario) {
+      if (!areasPermitidasContainer) return;
+      const actuales = parsearListaJSON(usuario && usuario.areas_permitidas);
+      areasPermitidasContainer.innerHTML = areasSeguimientoDisponibles.map(function (area) {
+        const checked = actuales.includes(area) ? " checked" : "";
+        return '<label style="display:flex;align-items:center;gap:8px;padding:8px 10px;border:1px solid #e5e7eb;border-radius:10px;">' +
+          '<input type="checkbox" value="' + area + '"' + checked + '> ' + area +
+          "</label>";
+      }).join("");
+    }
+
+    function obtenerAreasPermitidasDesdeFormulario() {
+      if (!areasPermitidasContainer) return [];
+      return Array.from(areasPermitidasContainer.querySelectorAll("input[type='checkbox']:checked"))
+        .map(function (input) { return input.value; });
+    }
+
     function renderPermisosModulos(usuario) {
       if (!permisosModulosContainer) return;
 
@@ -381,6 +427,7 @@
       document.getElementById("tituloModalUsuario").textContent = "Nuevo usuario";
       limpiarFormularioUsuario();
       renderPermisosModulos(null);
+      renderAreasPermitidas(null);
       document.getElementById("modalUsuario").classList.add("show");
     }
 
@@ -397,6 +444,7 @@
         password: document.getElementById("passwordUsuario").value.trim(),
         rol: document.getElementById("rolUsuarioForm").value,
         activo: document.getElementById("activoUsuario").value === "true",
+        areas_permitidas: obtenerAreasPermitidasDesdeFormulario(),
         modulos_permitidos: obtenerPermisosModulosDesdeFormulario()
       };
 
@@ -431,6 +479,7 @@
           usuario: nuevo.usuario,
           rol: nuevo.rol,
           activo: nuevo.activo,
+          areas_permitidas: nuevo.areas_permitidas,
           modulos_permitidos: nuevo.modulos_permitidos
         };
 
@@ -472,6 +521,7 @@
       document.getElementById("rolUsuarioForm").value = u.rol || "";
       document.getElementById("activoUsuario").value = String(u.activo);
       renderPermisosModulos(u);
+      renderAreasPermitidas(u);
     }
 
     async function toggleUsuario(index) {

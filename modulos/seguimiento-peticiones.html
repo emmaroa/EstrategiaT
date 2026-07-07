@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Administracion de Talleres | Seguimiento Peticiones</title>
+  <link rel="stylesheet" href="../css/style.css">
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="../js/core/supabase.js"></script>
+  <script src="../js/core/permissions.js"></script>
+  <script src="../js/core/theme.js"></script>
+  <script src="../js/core/layout.js"></script>
+  <script src="../js/services/peticiones.service.js"></script>
+  <script src="../login.js"></script>
+</head>
+<body class="dashboard-body">
+
+  <aside class="sidebar">
+    <div class="sidebar-logo">
+      <div class="mini-logo">E</div>
+      <div>
+        <h3>Administracion de Talleres</h3>
+        <small id="etModuleName">Seguimiento Peticiones</small>
+      </div>
+    </div>
+    <nav id="etNav"></nav>
+    <button type="button" class="logout" id="etLogout">Cerrar sesion</button>
+  </aside>
+
+  <main class="main-content">
+    <header class="topbar">
+      <div>
+        <h1>Seguimiento de peticiones</h1>
+        <p id="descripcionAreas">Consulta de peticiones asignadas por area.</p>
+      </div>
+
+      <div style="display:flex;gap:12px;align-items:center;">
+        <span id="etTemaContainer"></span>
+      </div>
+    </header>
+
+    <section class="kpi-grid">
+      <div class="kpi-card">
+        <span>Total asignadas</span>
+        <h2 id="kpiTotal">0</h2>
+        <p>Segun areas permitidas</p>
+      </div>
+      <div class="kpi-card">
+        <span>Pendientes</span>
+        <h2 id="kpiPendientes">0</h2>
+        <p>Sin atender</p>
+      </div>
+      <div class="kpi-card">
+        <span>En proceso</span>
+        <h2 id="kpiProceso">0</h2>
+        <p>Revisadas o pedidas</p>
+      </div>
+      <div class="kpi-card">
+        <span>Recibidas</span>
+        <h2 id="kpiRecibidas">0</h2>
+        <p>Recibidas en almacen</p>
+      </div>
+    </section>
+
+    <section class="panel">
+      <div class="panel-header">
+        <div>
+          <h2>Peticiones de mis areas</h2>
+          <p>Busca por unidad, solicitante, proveedor, dependencia o descripcion.</p>
+        </div>
+      </div>
+
+      <div class="filters">
+        <input type="text" id="buscarPeticion" placeholder="Buscar peticion..." aria-label="Buscar peticion">
+        <select id="filtroEstatus" aria-label="Filtrar por estatus">
+          <option value="">Todos los estatus</option>
+          <option value="Pendiente">Pendiente</option>
+          <option value="Revisado por almacen">Revisado por almacen</option>
+          <option value="Pedido a proveedor">Pedido a proveedor</option>
+          <option value="Recibido en Almacen">Recibido en Almacen</option>
+          <option value="CANCELADO">CANCELADO</option>
+        </select>
+        <select id="filtroArea" aria-label="Filtrar por area">
+          <option value="">Todas mis areas</option>
+        </select>
+      </div>
+
+      <div class="table-container">
+        <table>
+          <thead>
+            <tr>
+              <th>Fecha</th>
+              <th>Unidad</th>
+              <th>Peticion</th>
+              <th>Solicitante</th>
+              <th>Area</th>
+              <th>Dependencia</th>
+              <th>Proveedor</th>
+              <th>Estatus</th>
+              <th>Acciones</th>
+            </tr>
+          </thead>
+          <tbody id="tablaPeticiones"></tbody>
+        </table>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    validarPermiso("Seguimiento Peticiones");
+    ETLayout.inicializar("Seguimiento Peticiones");
+
+    const ESTATUS_LEGACY = {
+      "En proceso": "Revisado por almacen",
+      "Entregado": "Recibido en Almacen",
+      "Solventado": "Recibido en Almacen",
+      "Cancelado": "CANCELADO"
+    };
+
+    let peticiones = [];
+    let totalPeticiones = 0;
+
+    const usuarioActivo = obtenerUsuarioActivoSeguimiento();
+    const areasPermitidas = obtenerAreasPermitidas(usuarioActivo);
+    const descripcionAreas = document.getElementById("descripcionAreas");
+    const tablaPeticiones = document.getElementById("tablaPeticiones");
+    const buscarPeticion = document.getElementById("buscarPeticion");
+    const filtroEstatus = document.getElementById("filtroEstatus");
+    const filtroArea = document.getElementById("filtroArea");
+
+    function obtenerUsuarioActivoSeguimiento() {
+      try {
+        return JSON.parse(localStorage.getItem("usuarioActivo") || "null");
+      } catch (_) {
+        return null;
+      }
+    }
+
+    function obtenerAreasPermitidas(usuario) {
+      const valor = usuario && usuario.areas_permitidas;
+      if (Array.isArray(valor)) return valor.filter(Boolean);
+      if (typeof valor === "string") {
+        try {
+          const parseado = JSON.parse(valor);
+          return Array.isArray(parseado) ? parseado.filter(Boolean) : [];
+        } catch (_) {
+          return valor.split(",").map(function (item) { return item.trim(); }).filter(Boolean);
+        }
+      }
+      return [];
+    }
+
+    function escapar(valor) {
+      return String(valor || "")
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
+    }
+
+    function normalizarEstatus(estatus) {
+      const valor = String(estatus || "").replace(/pro{2}veedor/g, "proveedor");
+      return ESTATUS_LEGACY[valor] || valor || "Pendiente";
+    }
+
+    function normalizarPeticion(peticion) {
+      return Object.assign({}, peticion, {
+        estatus: normalizarEstatus(peticion && peticion.estatus)
+      });
+    }
+
+    function poblarAreas() {
+      if (descripcionAreas) {
+        descripcionAreas.textContent = areasPermitidas.length
+          ? "Areas asignadas: " + areasPermitidas.join(", ")
+          : "No tienes areas asignadas para seguimiento.";
+      }
+
+      if (!filtroArea) return;
+      filtroArea.innerHTML = '<option value="">Todas mis areas</option>';
+      areasPermitidas.forEach(function (area) {
+        filtroArea.add(new Option(area, area));
+      });
+    }
+
+    async function cargarPeticiones() {
+      poblarAreas();
+
+      if (!areasPermitidas.length) {
+        peticiones = [];
+        totalPeticiones = 0;
+        renderizarPeticiones();
+        return;
+      }
+
+      const { data, count, error } = await ETPeticiones.listarPorAreas(areasPermitidas);
+      if (error) {
+        console.error("Error cargando seguimiento:", error);
+        alert("No se pudieron cargar las peticiones asignadas.");
+        return;
+      }
+
+      peticiones = (data || []).map(normalizarPeticion);
+      totalPeticiones = count || peticiones.length;
+      renderizarPeticiones();
+    }
+
+    function renderizarPeticiones() {
+      const texto = String(buscarPeticion.value || "").toLowerCase();
+      const estatus = filtroEstatus.value;
+      const area = filtroArea.value;
+
+      const filtradas = peticiones.filter(function (p) {
+        const coincideTexto =
+          String(p.unidad || "").toLowerCase().includes(texto) ||
+          String(p.peticion || "").toLowerCase().includes(texto) ||
+          String(p.solicitante || "").toLowerCase().includes(texto) ||
+          String(p.area || "").toLowerCase().includes(texto) ||
+          String(p.dependencia || "").toLowerCase().includes(texto) ||
+          String(p.proveedor || "").toLowerCase().includes(texto);
+
+        return coincideTexto &&
+          (!estatus || p.estatus === estatus) &&
+          (!area || p.area === area);
+      });
+
+      if (!filtradas.length) {
+        tablaPeticiones.innerHTML = '<tr><td colspan="9">No hay peticiones para las areas asignadas.</td></tr>';
+      } else {
+        tablaPeticiones.innerHTML = filtradas.map(function (p) {
+          return "<tr>" +
+            "<td>" + formatearFecha(p.fecha) + "</td>" +
+            "<td><strong>" + escapar(p.unidad) + "</strong></td>" +
+            "<td>" + escapar(p.peticion) + "</td>" +
+            "<td>" + escapar(p.solicitante) + "</td>" +
+            "<td>" + escapar(p.area) + "</td>" +
+            "<td>" + escapar(p.dependencia || "Sin dependencia") + "</td>" +
+            "<td>" + escapar(p.proveedor || "Sin asignar") + "</td>" +
+            '<td><span class="badge status-badge ' + obtenerClaseEstatus(p.estatus) + '">' + escapar(p.estatus) + "</span></td>" +
+            '<td><div class="action-grid">' +
+              ETLayout.iconButton("ver", "Ver peticion", "verPeticion('" + p.id + "')") +
+            "</div></td>" +
+          "</tr>";
+        }).join("");
+      }
+
+      actualizarKPIs();
+    }
+
+    function actualizarKPIs() {
+      const counts = peticiones.reduce(function (acc, p) {
+        if (p.estatus === "Pendiente") acc.pendientes += 1;
+        if (p.estatus === "Revisado por almacen" || p.estatus === "Pedido a proveedor") acc.proceso += 1;
+        if (p.estatus === "Recibido en Almacen") acc.recibidas += 1;
+        return acc;
+      }, { pendientes: 0, proceso: 0, recibidas: 0 });
+
+      document.getElementById("kpiTotal").textContent = totalPeticiones;
+      document.getElementById("kpiPendientes").textContent = counts.pendientes;
+      document.getElementById("kpiProceso").textContent = counts.proceso;
+      document.getElementById("kpiRecibidas").textContent = counts.recibidas;
+    }
+
+    function obtenerPeticionPorId(id) {
+      return peticiones.find(function (p) { return p.id === id; });
+    }
+
+    function verPeticion(id) {
+      const p = obtenerPeticionPorId(id);
+      if (!p) return;
+
+      alert(
+        "Unidad: " + (p.unidad || "") +
+        "\nPeticion: " + (p.peticion || "") +
+        "\nSolicitante: " + (p.solicitante || "") +
+        "\nArea: " + (p.area || "") +
+        "\nDependencia: " + (p.dependencia || "Sin dependencia") +
+        "\nProveedor: " + (p.proveedor || "Sin asignar") +
+        "\nEstatus: " + (p.estatus || "") +
+        "\nObservaciones: " + (p.observaciones || "Sin observaciones")
+      );
+    }
+
+    function obtenerClaseEstatus(estatus) {
+      if (estatus === "Pendiente") return "amber";
+      if (estatus === "Revisado por almacen") return "blue";
+      if (estatus === "Pedido a proveedor") return "blue";
+      if (estatus === "Recibido en Almacen") return "green";
+      if (estatus === "CANCELADO") return "red";
+      return "gray";
+    }
+
+    function formatearFecha(fecha) {
+      if (!fecha) return "";
+      const partes = String(fecha).split("T")[0].split("-");
+      if (partes.length !== 3) return escapar(fecha);
+      return partes[2] + "/" + partes[1] + "/" + partes[0];
+    }
+
+    buscarPeticion.addEventListener("input", renderizarPeticiones);
+    filtroEstatus.addEventListener("change", renderizarPeticiones);
+    filtroArea.addEventListener("change", renderizarPeticiones);
+
+    cargarPeticiones();
+  </script>
+</body>
+</html>
