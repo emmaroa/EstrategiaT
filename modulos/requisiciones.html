@@ -126,6 +126,15 @@
         </table>
       </div>
 
+      <div class="pagination-bar" style="display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;margin-top:16px;">
+        <span id="infoPaginacionReq" style="color:var(--muted);font-weight:700;">Mostrando 0 registros</span>
+        <div style="display:flex;gap:8px;align-items:center;">
+          <button type="button" class="btn-secondary" id="btnReqAnterior">Anterior</button>
+          <span id="paginaReqActual" style="font-weight:800;">Pagina 1 de 1</span>
+          <button type="button" class="btn-secondary" id="btnReqSiguiente">Siguiente</button>
+        </div>
+      </div>
+
     </section>
 
   </main>
@@ -164,13 +173,14 @@
 
         <div class="input-group">
           <label>Dependencia</label>
-          <select id="dependenciaReq">
+          <input type="text" id="dependenciaReq" list="dependenciasReqList" placeholder="Captura o selecciona dependencia">
+          <datalist id="dependenciasReqList">
             <option value="">Selecciona dependencia</option>
             <option value="Talleres">Talleres</option>
             <option value="Infraestructura">Infraestructura</option>
             <option value="Servicios Públicos">Servicios Públicos</option>
             <option value="Parques y Jardines">Parques y Jardines</option>
-          </select>
+          </datalist>
         </div>
 
         <div class="input-group">
@@ -248,6 +258,8 @@
       monto: 0
     };
     let totalRequisiciones = 0;
+    let paginaRequisiciones = 1;
+    const REGISTROS_POR_PAGINA_REQ = 30;
     const DEPENDENCIAS = [
       "SINDICATURA",
       "PRESIDENCIA",
@@ -285,6 +297,7 @@
     const numeroReqInput = document.getElementById("numeroReq");
     const unidadReqInput = document.getElementById("unidadReq");
     const dependenciaReqSelect = document.getElementById("dependenciaReq");
+    const dependenciasReqList = document.getElementById("dependenciasReqList");
     const proveedorReqInput = document.getElementById("proveedorReq");
     const montoReqInput = document.getElementById("montoReq");
     const ocReqInput = document.getElementById("ocReq");
@@ -298,9 +311,13 @@
     const kpiPorAutorizar = document.getElementById("kpiPorAutorizar");
     const kpiEnProceso = document.getElementById("kpiEnProceso");
     const kpiMonto = document.getElementById("kpiMonto");
+    const infoPaginacionReq = document.getElementById("infoPaginacionReq");
+    const paginaReqActual = document.getElementById("paginaReqActual");
+    const btnReqAnterior = document.getElementById("btnReqAnterior");
+    const btnReqSiguiente = document.getElementById("btnReqSiguiente");
 
     poblarDependencias(filtroDependencia, "Todas las dependencias");
-    poblarDependencias(dependenciaReqSelect, "Selecciona dependencia");
+    poblarDependenciasFormulario();
 
     function obtenerUsuarioActivoRequisicion() {
       try {
@@ -327,6 +344,16 @@
         select.add(new Option(dependencia, dependencia));
       });
       select.value = DEPENDENCIAS.includes(valorActual) ? valorActual : "";
+    }
+
+    function poblarDependenciasFormulario() {
+      if (!dependenciasReqList) return;
+      dependenciasReqList.innerHTML = "";
+      DEPENDENCIAS.forEach(function (dependencia) {
+        const option = document.createElement("option");
+        option.value = dependencia;
+        dependenciasReqList.appendChild(option);
+      });
     }
 
     async function inicializarRequisiciones() {
@@ -398,8 +425,19 @@
       numeroReqInput.value = numero;
     }
 
-    unidadReqInput.addEventListener("blur", async function () {
-      const valor = this.value.trim();
+    async function actualizarDependenciaDesdeUnidad() {
+      const valor = unidadReqInput.value.trim();
+
+      if (!valor) {
+        infoUnidadReq.textContent = "";
+        return;
+      }
+
+      if (valor.toLowerCase() === "stock") {
+        infoUnidadReq.textContent = "Solicitud para stock: captura la dependencia manualmente.";
+        return;
+      }
+
       const unidad = await ETRequisiciones.buscarUnidadParque(valor);
 
       if (!unidad) {
@@ -407,11 +445,14 @@
         return;
       }
 
-      dependenciaReqSelect.value = unidad.dependencia || "";
+      dependenciaReqSelect.value = unidad.dependencia || unidad.area || "";
       infoUnidadReq.textContent =
         (unidad.descripcion || "") + " | Placa: " + (unidad.placa || "Sin placa") +
         " | Combustible: " + (unidad.combustible || "Sin dato");
-    });
+    }
+
+    unidadReqInput.addEventListener("blur", actualizarDependenciaDesdeUnidad);
+    unidadReqInput.addEventListener("change", actualizarDependenciaDesdeUnidad);
 
     function renderizarRequisiciones() {
       const texto = buscarRequisicion.value.toLowerCase();
@@ -438,10 +479,18 @@
         return coincideTexto && coincideEstatus && coincideProveedor && coincideDependencia;
       });
 
-      if (!filtradas.length) {
+      const filtradasOrdenadas = filtradas.slice().sort(compararRequisicionesRecientes);
+      const totalPaginas = Math.max(1, Math.ceil(filtradasOrdenadas.length / REGISTROS_POR_PAGINA_REQ));
+      if (paginaRequisiciones > totalPaginas) paginaRequisiciones = totalPaginas;
+      if (paginaRequisiciones < 1) paginaRequisiciones = 1;
+
+      const inicio = (paginaRequisiciones - 1) * REGISTROS_POR_PAGINA_REQ;
+      const paginaActual = filtradasOrdenadas.slice(inicio, inicio + REGISTROS_POR_PAGINA_REQ);
+
+      if (!filtradasOrdenadas.length) {
         tablaRequisiciones.innerHTML = '<tr><td colspan="10">No hay requisiciones registradas.</td></tr>';
       } else {
-        filtradas.forEach(function (r) {
+        paginaActual.forEach(function (r) {
           const fila = document.createElement("tr");
           const puedeEditar = puedeAccionRequisicion("editar");
           const puedeCambiarEstatus = puedeAccionRequisicion("cambiar_estatus");
@@ -467,7 +516,39 @@
         });
       }
 
+      actualizarPaginacionReq(filtradasOrdenadas.length, totalPaginas, inicio, paginaActual.length);
       actualizarKPIsReq();
+    }
+
+    function compararRequisicionesRecientes(a, b) {
+      return obtenerTiempoRequisicion(b) - obtenerTiempoRequisicion(a);
+    }
+
+    function obtenerTiempoRequisicion(req) {
+      const candidatos = [req.fecha, req.created_at, req.updated_at];
+      for (let i = 0; i < candidatos.length; i++) {
+        if (!candidatos[i]) continue;
+        const tiempo = new Date(candidatos[i]).getTime();
+        if (!Number.isNaN(tiempo)) return tiempo;
+      }
+      return 0;
+    }
+
+    function actualizarPaginacionReq(totalFiltradas, totalPaginas, inicio, cantidadPagina) {
+      if (infoPaginacionReq) {
+        if (!totalFiltradas) {
+          infoPaginacionReq.textContent = "Mostrando 0 registros";
+        } else {
+          infoPaginacionReq.textContent =
+            "Mostrando " + (inicio + 1) + "-" + (inicio + cantidadPagina) +
+            " de " + totalFiltradas + " registros";
+        }
+      }
+      if (paginaReqActual) {
+        paginaReqActual.textContent = "Pagina " + paginaRequisiciones + " de " + totalPaginas;
+      }
+      if (btnReqAnterior) btnReqAnterior.disabled = paginaRequisiciones <= 1;
+      if (btnReqSiguiente) btnReqSiguiente.disabled = paginaRequisiciones >= totalPaginas;
     }
 
     function actualizarKPIsReq() {
@@ -797,10 +878,26 @@
       return partes[2] + "/" + partes[1] + "/" + partes[0];
     }
 
-    buscarRequisicion.addEventListener("input", renderizarRequisiciones);
-    filtroReqEstatus.addEventListener("change", renderizarRequisiciones);
-    filtroReqProveedor?.addEventListener("change", renderizarRequisiciones);
-    filtroDependencia.addEventListener("change", renderizarRequisiciones);
+    function reiniciarPaginaYRenderizarReq() {
+      paginaRequisiciones = 1;
+      renderizarRequisiciones();
+    }
+
+    buscarRequisicion.addEventListener("input", reiniciarPaginaYRenderizarReq);
+    filtroReqEstatus.addEventListener("change", reiniciarPaginaYRenderizarReq);
+    filtroReqProveedor?.addEventListener("change", reiniciarPaginaYRenderizarReq);
+    filtroDependencia.addEventListener("change", reiniciarPaginaYRenderizarReq);
+
+    btnReqAnterior?.addEventListener("click", function () {
+      if (paginaRequisiciones <= 1) return;
+      paginaRequisiciones -= 1;
+      renderizarRequisiciones();
+    });
+
+    btnReqSiguiente?.addEventListener("click", function () {
+      paginaRequisiciones += 1;
+      renderizarRequisiciones();
+    });
 
     inicializarRequisiciones();
   </script>
