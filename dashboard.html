@@ -41,25 +41,30 @@
         <p id="bienvenida">Bienvenido al sistema</p>
       </div>
 
-      <div class="filter-bar">
-        <label>
-          Año
-          <select id="filtroAnioDashboard" class="dashboard-select" aria-label="Filtrar por año">
-            <option value="">Todos</option>
-          </select>
-        </label>
-        <label>
-          Desde
-          <input type="date" id="filtroDesde" class="dashboard-select" aria-label="Fecha desde">
-        </label>
-        <label>
-          Hasta
-          <input type="date" id="filtroHasta" class="dashboard-select" aria-label="Fecha hasta">
-        </label>
-        <button type="button" class="btn-small" onclick="exportarDashboardCSV()">Exportar Excel</button>
-        <button type="button" class="btn-small" onclick="imprimirDashboard()">Exportar PDF</button>
-        <span id="etTemaContainer"></span>
-        <div class="user-badge" id="rolUsuario"></div>
+      <div class="dashboard-toolbar">
+        <div class="filter-bar dashboard-filter-group" aria-label="Filtros del dashboard">
+          <label>
+            Año
+            <select id="filtroAnioDashboard" class="dashboard-select" aria-label="Filtrar por año">
+              <option value="">Todos</option>
+            </select>
+          </label>
+          <label>
+            Desde
+            <input type="date" id="filtroDesde" class="dashboard-select" aria-label="Fecha desde">
+          </label>
+          <label>
+            Hasta
+            <input type="date" id="filtroHasta" class="dashboard-select" aria-label="Fecha hasta">
+          </label>
+        </div>
+        <div class="dashboard-actions" aria-label="Acciones del dashboard">
+          <button type="button" class="btn-small" onclick="exportarDashboardCSV()">Excel</button>
+          <button type="button" class="btn-small" onclick="imprimirDashboard()">PDF</button>
+          <span id="etTemaContainer"></span>
+          <div class="user-badge" id="rolUsuario"></div>
+          <button type="button" class="topbar-logout" onclick="cerrarSesion()">Cerrar sesión</button>
+        </div>
       </div>
     </header>
 
@@ -118,14 +123,16 @@
       </div>
     </section>
 
-    <section class="panel">
+    <section class="panel collapsible-panel is-open" data-collapsible>
       <div class="panel-header">
         <div>
           <h2>Alertas del sistema</h2>
           <p>Seguimiento rápido de pendientes y situaciones importantes.</p>
         </div>
+        <button type="button" class="collapse-toggle" aria-expanded="true">Ocultar</button>
       </div>
 
+      <div class="panel-content">
       <div class="alerts-grid">
         <div class="alert-card amber">
           <div class="alert-icon">⚠️</div>
@@ -175,16 +182,19 @@
           </div>
         </div>
       </div>
+      </div>
     </section>
 
-    <section class="panel">
+    <section class="panel collapsible-panel is-open" data-collapsible>
       <div class="panel-header">
         <div>
           <h2>Actividad reciente</h2>
           <p>Últimos movimientos registrados.</p>
         </div>
+        <button type="button" class="collapse-toggle" aria-expanded="true">Ocultar</button>
       </div>
 
+      <div class="panel-content">
       <div class="recent-grid">
         <div class="recent-card">
           <h3>Últimas peticiones</h3>
@@ -199,15 +209,18 @@
           <div id="ultimasReq"></div>
         </div>
       </div>
+      </div>
     </section>
 
-    <section class="panel" id="seccionRankingsOperativos">
+    <section class="panel collapsible-panel is-open" id="seccionRankingsOperativos" data-collapsible>
       <div class="panel-header">
         <div>
           <h2>Rankings operativos</h2>
           <p>Reparaciones costosas, partes y servicios más frecuentes.</p>
         </div>
+        <button type="button" class="collapse-toggle" aria-expanded="true">Ocultar</button>
       </div>
+      <div class="panel-content">
       <div class="recent-grid">
         <div class="recent-card">
           <h3>Reparaciones más costosas</h3>
@@ -222,16 +235,19 @@
           <ul class="ranking-list" id="rankingServicios"></ul>
         </div>
       </div>
+      </div>
     </section>
 
-<section class="panel" id="seccionGraficasOperativas">
+<section class="panel collapsible-panel is-open" id="seccionGraficasOperativas" data-collapsible>
   <div class="panel-header">
     <div>
       <h2>Gráficas operativas</h2>
       <p>Resumen visual del comportamiento del sistema.</p>
     </div>
+    <button type="button" class="collapse-toggle" aria-expanded="true">Ocultar</button>
   </div>
 
+  <div class="panel-content">
   <div class="charts-grid">
 
   <div class="chart-card">
@@ -255,6 +271,43 @@
   </div>
 
 </div>
+</div>
+</section>
+
+<section class="panel collapsible-panel is-open" id="seccionGastoProveedor" data-collapsible>
+  <div class="panel-header">
+    <div>
+      <h2>Gasto por proveedor</h2>
+      <p>Total anual y gasto del mes en curso por proveedor.</p>
+    </div>
+    <button type="button" class="collapse-toggle" aria-expanded="true">Ocultar</button>
+  </div>
+
+  <div class="panel-content">
+  <div class="table-container proveedor-gasto-table">
+    <table>
+      <thead>
+        <tr>
+          <th><button type="button" class="table-sort" data-sort-proveedor="proveedor">Proveedor</button></th>
+          <th><button type="button" class="table-sort" data-sort-proveedor="anual">Gasto total anual</button></th>
+          <th><button type="button" class="table-sort" data-sort-proveedor="mensual">Gasto mes en curso</button></th>
+        </tr>
+      </thead>
+      <tbody id="tablaGastoProveedor">
+        <tr>
+          <td colspan="3">Sin datos en el periodo</td>
+        </tr>
+      </tbody>
+      <tfoot id="tablaGastoProveedorTotales">
+        <tr>
+          <td>Total general</td>
+          <td>$0.00</td>
+          <td>$0.00</td>
+        </tr>
+      </tfoot>
+    </table>
+  </div>
+  </div>
 </section>
 
     <section class="module-section">
@@ -454,12 +507,14 @@ function renderizarDashboard() {
   const costoMensualCard = document.getElementById("kpiCostoMensualCard");
   const rankingsOperativos = document.getElementById("seccionRankingsOperativos");
   const graficasOperativas = document.getElementById("seccionGraficasOperativas");
+  const gastoProveedor = document.getElementById("seccionGastoProveedor");
   const labelKpiVales = document.getElementById("labelKpiVales");
 
   if (costoAnualCard) costoAnualCard.style.display = puedeVerFinanciero ? "" : "none";
   if (costoMensualCard) costoMensualCard.style.display = puedeVerFinanciero ? "" : "none";
   if (rankingsOperativos) rankingsOperativos.style.display = puedeVerFinanciero ? "" : "none";
   if (graficasOperativas) graficasOperativas.style.display = puedeVerFinanciero ? "" : "none";
+  if (gastoProveedor) gastoProveedor.style.display = puedeVerFinanciero ? "" : "none";
 
   if (labelKpiVales) {
     labelKpiVales.textContent = puedeVerFinanciero ? "Vales emitidos" : "Vales activos";
@@ -550,12 +605,17 @@ function renderizarDashboard() {
   crearGraficaGastoDependencia(requisiciones);
   crearGraficaProveedor(requisiciones);
   crearGraficaUnidadesGasto(requisiciones);
+  renderizarTablaGastoProveedor(datosDashboard.requisiciones);
 }
 
 let graficaGastoMes = null;
 let graficaGastoDependencia = null;
 let graficaProveedor = null;
 let graficaUnidadesGasto = null;
+let ordenTablaProveedor = {
+  campo: "anual",
+  direccion: "desc"
+};
 
 function agruparSuma(datos, campo) {
   const acumulado = {};
@@ -574,6 +634,113 @@ function topN(objeto, limite = 10) {
   return Object.entries(objeto)
     .sort((a, b) => b[1] - a[1])
     .slice(0, limite);
+}
+
+function escaparHTML(valor) {
+  return String(valor || "")
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#039;");
+}
+
+function renderizarTablaGastoProveedor(requisiciones) {
+  const tbody = document.getElementById("tablaGastoProveedor");
+  const tfoot = document.getElementById("tablaGastoProveedorTotales");
+  if (!tbody) return;
+
+  const ahora = new Date();
+  const anioTabla = anioSeleccionadoDashboard || ahora.getFullYear().toString();
+  const mesActual =
+    ahora.getFullYear() + "-" + String(ahora.getMonth() + 1).padStart(2, "0");
+  const acumulado = {};
+  const totales = {
+    anual: 0,
+    mensual: 0
+  };
+
+  requisiciones.forEach(function (r) {
+    if (ETDashboard.obtenerAnio(r.fecha) !== anioTabla) return;
+    if (fechaDesdeDashboard && r.fecha < fechaDesdeDashboard) return;
+    if (fechaHastaDashboard && r.fecha > fechaHastaDashboard) return;
+
+    const proveedor = String(r.proveedor || "Sin dato").trim() || "Sin dato";
+    const monto = Number(r.monto || 0);
+
+    if (!acumulado[proveedor]) {
+      acumulado[proveedor] = {
+        anual: 0,
+        mensual: 0
+      };
+    }
+
+    acumulado[proveedor].anual += monto;
+    totales.anual += monto;
+    if (ETDashboard.obtenerMes(r.fecha) === mesActual) {
+      acumulado[proveedor].mensual += monto;
+      totales.mensual += monto;
+    }
+  });
+
+  const filas = Object.entries(acumulado)
+    .sort(function (a, b) {
+      const campo = ordenTablaProveedor.campo;
+      const direccion = ordenTablaProveedor.direccion === "asc" ? 1 : -1;
+
+      if (campo === "proveedor") {
+        return a[0].localeCompare(b[0], "es-MX") * direccion;
+      }
+
+      return (a[1][campo] - b[1][campo]) * direccion;
+    });
+
+  tbody.innerHTML = filas.map(function (fila) {
+    return "<tr>" +
+      "<td>" + escaparHTML(fila[0]) + "</td>" +
+      "<td>" + moneda(fila[1].anual) + "</td>" +
+      "<td>" + moneda(fila[1].mensual) + "</td>" +
+    "</tr>";
+  }).join("") || '<tr><td colspan="3">Sin datos en el periodo</td></tr>';
+
+  if (tfoot) {
+    tfoot.innerHTML = "<tr>" +
+      "<td>Total general</td>" +
+      "<td>" + moneda(totales.anual) + "</td>" +
+      "<td>" + moneda(totales.mensual) + "</td>" +
+    "</tr>";
+  }
+
+  actualizarBotonesOrdenProveedor();
+}
+
+function actualizarBotonesOrdenProveedor() {
+  document.querySelectorAll("[data-sort-proveedor]").forEach(function (boton) {
+    const campo = boton.dataset.sortProveedor;
+    const activo = campo === ordenTablaProveedor.campo;
+    boton.classList.toggle("is-active", activo);
+    boton.setAttribute("aria-sort", activo ? ordenTablaProveedor.direccion : "none");
+    boton.dataset.direction = activo ? ordenTablaProveedor.direccion : "";
+  });
+}
+
+function inicializarOrdenTablaProveedor() {
+  document.querySelectorAll("[data-sort-proveedor]").forEach(function (boton) {
+    if (boton.dataset.bound === "1") return;
+    boton.dataset.bound = "1";
+    boton.addEventListener("click", function () {
+      const campo = boton.dataset.sortProveedor;
+      const mismaColumna = ordenTablaProveedor.campo === campo;
+      ordenTablaProveedor = {
+        campo: campo,
+        direccion: mismaColumna
+          ? (ordenTablaProveedor.direccion === "desc" ? "asc" : "desc")
+          : (campo === "proveedor" ? "asc" : "desc")
+      };
+      renderizarTablaGastoProveedor(datosDashboard.requisiciones);
+    });
+  });
+  actualizarBotonesOrdenProveedor();
 }
 
 function crearGraficaGastoMes(requisiciones) {
@@ -781,6 +948,35 @@ function debounce(fn, delay) {
   };
 }
 
+function inicializarPanelesDesplegables() {
+  document.querySelectorAll("[data-collapsible]").forEach(function (panel) {
+    const boton = panel.querySelector(".collapse-toggle");
+    const contenido = panel.querySelector(".panel-content");
+    if (!boton || !contenido || boton.dataset.bound === "1") return;
+
+    function actualizarPanel(abierto) {
+      panel.classList.toggle("is-open", abierto);
+      panel.classList.toggle("is-collapsed", !abierto);
+      boton.setAttribute("aria-expanded", abierto ? "true" : "false");
+      boton.textContent = abierto ? "Ocultar" : "Mostrar";
+
+      if (abierto) {
+        setTimeout(function () {
+          [graficaGastoMes, graficaGastoDependencia, graficaProveedor, graficaUnidadesGasto]
+            .filter(Boolean)
+            .forEach(function (grafica) { grafica.resize(); });
+        }, 80);
+      }
+    }
+
+    boton.dataset.bound = "1";
+    actualizarPanel(panel.classList.contains("is-open"));
+    boton.addEventListener("click", function () {
+      actualizarPanel(!panel.classList.contains("is-open"));
+    });
+  });
+}
+
 const filtroAnioEl = document.getElementById("filtroAnioDashboard");
 if (filtroAnioEl) {
   filtroAnioEl.addEventListener("change", function () {
@@ -912,6 +1108,9 @@ if (consultaParqueInput) {
     this.value = this.value.replace(/\D/g, "").slice(0, 4);
   });
 }
+
+inicializarPanelesDesplegables();
+inicializarOrdenTablaProveedor();
 
     cargarDashboardReal();
   </script>

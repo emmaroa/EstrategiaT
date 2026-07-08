@@ -9,7 +9,6 @@
     "Vales",
     "Usuarios",
     "Auditoría",
-    "Órdenes de Trabajo",
     "Tiempo Extra",
     "Tramites Administrativos",
     "Generar Textos"

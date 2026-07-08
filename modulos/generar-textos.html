@@ -104,7 +104,15 @@
       padding: 16px;
       box-shadow: var(--shadow-sm);
       color: #374151;
+      cursor: pointer;
       line-height: 1.55;
+      transition: .2s ease;
+    }
+
+    .result-card:hover {
+      transform: translateY(-2px);
+      border-color: var(--teal);
+      box-shadow: var(--shadow-md);
     }
 
     .result-card strong {
@@ -134,9 +142,24 @@
     [data-theme="dark"] .generator-table input,
     [data-theme="dark"] .result-card,
     [data-theme="dark"] .empty-result {
-      background: rgba(255,255,255,.06);
-      border-color: rgba(255,255,255,.1);
+      background: rgba(30,41,59,.92);
+      border-color: rgba(148,163,184,.28);
       color: #f9fafb;
+    }
+
+    [data-theme="dark"] .generator-table input::placeholder {
+      color: #94a3b8;
+    }
+
+    [data-theme="dark"] .generator-table input:focus {
+      background: rgba(51,65,85,.96);
+      border-color: rgba(252,113,43,.72);
+      box-shadow: 0 0 0 3px rgba(252,113,43,.24);
+    }
+
+    [data-theme="dark"] .empty-result {
+      color: #cbd5e1;
+      border-style: dashed;
     }
 
     @media (max-width: 900px) {
@@ -176,32 +199,6 @@
         <span id="etTemaContainer"></span>
       </div>
     </header>
-
-    <section class="kpi-grid">
-      <div class="kpi-card">
-        <span>Filas capturadas</span>
-        <h2 id="kpiFilas">5</h2>
-        <p>Disponibles para generar</p>
-      </div>
-
-      <div class="kpi-card">
-        <span>Textos generados</span>
-        <h2 id="kpiGenerados">0</h2>
-        <p>Con unidad capturada</p>
-      </div>
-
-      <div class="kpi-card">
-        <span>Formato</span>
-        <h2>T26</h2>
-        <p>Portal web de compras</p>
-      </div>
-
-      <div class="kpi-card">
-        <span>Textos frecuentes</span>
-        <h2 id="kpiTotalTextos">0</h2>
-        <p>Listos para copiar</p>
-      </div>
-    </section>
 
     <div class="module-stack">
       <section class="panel">
@@ -407,7 +404,6 @@ PROCEDIMIENTO EN PORTAL WEB DE COMPRAS: T26-00</button>
         ETLayout.inicializar("Generar Textos");
       }
 
-      actualizarKpis();
       inicializarBiblioteca();
     });
 
@@ -415,8 +411,6 @@ PROCEDIMIENTO EN PORTAL WEB DE COMPRAS: T26-00</button>
       const botones = document.querySelectorAll("[data-copy]");
       const buscador = document.getElementById("buscarTexto");
       const tarjetas = document.querySelectorAll("[data-section]");
-
-      document.getElementById("kpiTotalTextos").textContent = botones.length;
 
       botones.forEach(function (boton) {
         boton.addEventListener("click", function () {
@@ -459,7 +453,6 @@ PROCEDIMIENTO EN PORTAL WEB DE COMPRAS: T26-00</button>
       });
 
       tbody.appendChild(fila);
-      actualizarKpis();
     }
 
     function generar() {
@@ -483,8 +476,16 @@ PROCEDIMIENTO EN PORTAL WEB DE COMPRAS: T26-00</button>
         const folio = c[7].value.trim();
 
         generados += 1;
+        const textoGenerado =
+          unidad + ': PAGO DE FACTURA ' + factura +
+          ' POR ADQUISICION DE ' + descripcion +
+          ' PARA UNIDAD ' + unidad +
+          ' DE ' + dependencia + '.\n\n' +
+          'OC ' + oc + ' REQ ' + req + ' EA-' + ea + '\n' +
+          'PROCEDIMIENTO EN PORTAL WEB DE COMPRAS: T26-' + folio;
+
         salida +=
-          '<div class="result-card">' +
+          '<div class="result-card" role="button" tabindex="0" data-copy-generated="' + escaparAtributo(textoGenerado) + '">' +
             '<strong>' + (index + 1) + '.</strong><br><br>' +
             escaparHtml(unidad) + ': PAGO DE FACTURA ' + escaparHtml(factura) +
             ' POR ADQUISICION DE ' + escaparHtml(descripcion) +
@@ -496,12 +497,23 @@ PROCEDIMIENTO EN PORTAL WEB DE COMPRAS: T26-00</button>
       });
 
       resultado.innerHTML = salida || '<div class="empty-result">No hay filas con unidad capturada.</div>';
-      document.getElementById("kpiGenerados").textContent = generados;
-      actualizarKpis();
+      inicializarResultadosCopiables();
     }
 
-    function actualizarKpis() {
-      document.getElementById("kpiFilas").textContent = document.querySelectorAll("#tabla tbody tr").length;
+    function inicializarResultadosCopiables() {
+      document.querySelectorAll("[data-copy-generated]").forEach(function (tarjeta) {
+        if (tarjeta.dataset.bound === "1") return;
+        tarjeta.dataset.bound = "1";
+        tarjeta.addEventListener("click", function () {
+          copiarTexto(tarjeta.dataset.copyGenerated);
+        });
+        tarjeta.addEventListener("keydown", function (event) {
+          if (event.key === "Enter" || event.key === " ") {
+            event.preventDefault();
+            copiarTexto(tarjeta.dataset.copyGenerated);
+          }
+        });
+      });
     }
 
     function escaparHtml(valor) {
@@ -511,6 +523,10 @@ PROCEDIMIENTO EN PORTAL WEB DE COMPRAS: T26-00</button>
         .replace(/>/g, "&gt;")
         .replace(/"/g, "&quot;")
         .replace(/'/g, "&#039;");
+    }
+
+    function escaparAtributo(valor) {
+      return escaparHtml(valor).replace(/\n/g, "&#10;");
     }
 
     async function copiarTexto(texto) {
