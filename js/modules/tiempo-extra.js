@@ -36,6 +36,44 @@
     return str || fallback;
   }
 
+  function normalizarHorasEnteras(valor) {
+    const horas = Number(valor || 0);
+    return Number.isFinite(horas) && horas > 0 ? Math.floor(horas) : 0;
+  }
+
+  function horaAMinutos(valor) {
+    const partes = String(valor || "").split(":");
+    if (partes.length < 2) return null;
+
+    const horas = Number(partes[0]);
+    const minutos = Number(partes[1]);
+    if (!Number.isInteger(horas) || !Number.isInteger(minutos) || horas < 0 || horas > 23 || minutos < 0 || minutos > 59) {
+      return null;
+    }
+
+    return horas * 60 + minutos;
+  }
+
+  function normalizarInputHora(input) {
+    if (!input?.value) return;
+
+    const partes = input.value.split(":");
+    if (!partes[0]) return;
+
+    input.value = `${partes[0].padStart(2, "0")}:00`;
+  }
+
+  function calcularHorasEntre(entrada, salida) {
+    const inicio = horaAMinutos(entrada);
+    const fin = horaAMinutos(salida);
+    if (inicio == null || fin == null) return "";
+
+    let diferencia = fin - inicio;
+    if (diferencia < 0) diferencia += 24 * 60;
+
+    return Math.floor(diferencia / 60);
+  }
+
   function normalizarNombreDia(dia) {
     return texto(dia)
       .normalize("NFD")
@@ -50,7 +88,7 @@
       fecha: texto(dia?.fecha),
       entrada: texto(dia?.entrada),
       salida: texto(dia?.salida),
-      horas: Number(dia?.horas || 0),
+      horas: normalizarHorasEnteras(dia?.horas),
       justificacion,
       actividad: justificacion
     };
@@ -98,9 +136,44 @@
   }
 
   function configurarHoras() {
-    document.querySelectorAll(".hora-dia").forEach(function (input) {
-      input.addEventListener("input", calcularTotalEmpleado);
+    document.querySelectorAll("#tablaDias tr").forEach(function (fila) {
+      const inputs = fila.querySelectorAll("input");
+      const fecha = inputs[0];
+      const entrada = inputs[1];
+      const salida = inputs[2];
+      const horas = inputs[3];
+      const celdaDia = fila.querySelector("td");
+
+      if (horas) {
+        horas.step = "1";
+        horas.readOnly = true;
+      }
+
+      fecha?.addEventListener("change", function () {
+        const diaSemana = celdaDia?.dataset.dia || celdaDia?.textContent || "";
+        if (celdaDia) celdaDia.textContent = formatearDiaConFecha(fecha.value, diaSemana);
+      });
+
+      [entrada, salida].forEach(function (input) {
+        input?.addEventListener("change", function () {
+          normalizarInputHora(input);
+          calcularHorasFila(fila);
+        });
+
+        input?.addEventListener("input", function () {
+          calcularHorasFila(fila);
+        });
+      });
     });
+  }
+
+  function calcularHorasFila(fila) {
+    const inputs = fila?.querySelectorAll("input");
+    if (!inputs || inputs.length < 4) return 0;
+
+    const horas = calcularHorasEntre(inputs[1].value, inputs[2].value);
+    inputs[3].value = horas === "" || horas <= 0 ? "" : String(horas);
+    return calcularTotalEmpleado();
   }
 
   function configurarBotones() {
@@ -135,7 +208,9 @@
     let total = 0;
 
     document.querySelectorAll(".hora-dia").forEach(function (input) {
-      total += Number(input.value || 0);
+      const horas = normalizarHorasEnteras(input.value);
+      input.value = horas > 0 ? String(horas) : "";
+      total += horas;
     });
 
     if ($("totalHorasEmpleado")) $("totalHorasEmpleado").textContent = total;
@@ -149,13 +224,20 @@
       const celdas = fila.querySelectorAll("td");
       const inputs = fila.querySelectorAll("input");
       const justificacion = fila.querySelector(".justificacion-dia");
+      normalizarInputHora(inputs[1]);
+      normalizarInputHora(inputs[2]);
+
+      const horasCalculadas = calcularHorasEntre(inputs[1]?.value, inputs[2]?.value);
+      if (inputs[3]) {
+        inputs[3].value = horasCalculadas === "" || horasCalculadas <= 0 ? "" : String(horasCalculadas);
+      }
 
       return normalizarDia({
-        dia: celdas[0]?.textContent || "",
+        dia: celdas[0]?.dataset.dia || celdas[0]?.textContent || "",
         fecha: inputs[0]?.value || "",
         entrada: inputs[1]?.value || "",
         salida: inputs[2]?.value || "",
-        horas: Number(inputs[3]?.value || 0),
+        horas: normalizarHorasEnteras(inputs[3]?.value),
         justificacion: justificacion?.value || ""
       });
     }).filter(function (item) {
@@ -479,13 +561,18 @@
     filas.forEach(function (fila) {
       const inputs = fila.querySelectorAll("input");
       const justificacion = fila.querySelector(".justificacion-dia");
-      const nombreDia = fila.querySelector("td")?.textContent || "";
+      const celdaDia = fila.querySelector("td");
+      const nombreDia = celdaDia?.dataset.dia || celdaDia?.textContent || "";
       const dia = obtenerDiaParaFila(emp, nombreDia) || {};
 
       inputs[0].value = dia.fecha || "";
       inputs[1].value = dia.entrada || "";
       inputs[2].value = dia.salida || "";
       inputs[3].value = dia.horas || "";
+      if (celdaDia) {
+        celdaDia.dataset.dia = nombreDia;
+        celdaDia.textContent = formatearDiaConFecha(dia.fecha, nombreDia);
+      }
       if (justificacion) justificacion.value = dia.justificacion || dia.actividad || "";
     });
 
@@ -521,9 +608,16 @@
   }
 
   function limpiarDetalleSemanal(mantenerFechasPeriodo = false) {
-    document.querySelectorAll("#tablaDias tr").forEach(function (fila) {
+    document.querySelectorAll("#tablaDias tr").forEach(function (fila, index) {
+      const celdaDia = fila.querySelector("td");
       const inputs = fila.querySelectorAll("input");
       const justificacion = fila.querySelector(".justificacion-dia");
+      const diaSemana = celdaDia?.dataset.dia || DIAS_SEMANA[index] || celdaDia?.textContent || "";
+
+      if (celdaDia) {
+        celdaDia.dataset.dia = diaSemana;
+        celdaDia.textContent = diaSemana;
+      }
 
       inputs.forEach(function (input) {
         input.value = "";
@@ -596,6 +690,20 @@
   function formatearFechaLarga(fechaISO) {
     if (!fechaISO) return "";
     return formatearFechaCorta(fechaISO);
+  }
+
+  function formatearDiaConFecha(fechaISO, diaFallback) {
+    if (!fechaISO) return diaFallback || "";
+
+    const fecha = new Date(fechaISO + "T00:00:00");
+    if (Number.isNaN(fecha.getTime())) return diaFallback || "";
+
+    return fecha.toLocaleDateString("es-MX", {
+      weekday: "long",
+      day: "numeric",
+      month: "long",
+      year: "numeric"
+    }).replace(/^\w/, (letra) => letra.toUpperCase());
   }
 
   function formatearFechaCorta(fechaISO) {
@@ -749,7 +857,7 @@
       const fila = 11 + i;
       const dia = dias[i] || {};
 
-      sheet.getCell(`B${fila}`).value = dia.dia || DIAS_SEMANA[i] || "";
+      sheet.getCell(`B${fila}`).value = formatearDiaConFecha(dia.fecha, dia.dia || DIAS_SEMANA[i] || "");
       sheet.getCell(`C${fila}`).value = dia.entrada || "";
       sheet.getCell(`D${fila}`).value = dia.salida || "";
       sheet.getCell(`E${fila}`).value = Number(dia.horas || 0) || "";
@@ -1126,15 +1234,25 @@
     const filas = document.querySelectorAll("#tablaDias tr");
     let fechaActual = new Date(fechaInicio);
 
-    filas.forEach(function (fila) {
+    filas.forEach(function (fila, index) {
+      const celdaDia = fila.querySelector("td");
       const inputFecha = fila.querySelector('input[type="date"]');
+      const diaSemana = DIAS_SEMANA[index] || celdaDia?.dataset.dia || celdaDia?.textContent || "";
+
+      if (celdaDia) {
+        celdaDia.dataset.dia = diaSemana;
+      }
+
       if (!inputFecha) return;
 
       if (fechaActual <= fechaFin) {
-        inputFecha.value = fechaActual.toISOString().split("T")[0];
+        const fechaISO = fechaActual.toISOString().split("T")[0];
+        inputFecha.value = fechaISO;
+        if (celdaDia) celdaDia.textContent = formatearDiaConFecha(fechaISO, diaSemana);
         fechaActual.setDate(fechaActual.getDate() + 1);
       } else {
         inputFecha.value = "";
+        if (celdaDia) celdaDia.textContent = diaSemana;
       }
     });
   }
@@ -1165,7 +1283,7 @@
         .filter((dia) => Number(dia.horas || 0) > 0)
         .map((dia) => `
           <tr>
-            <td>${escapeHTML(dia.dia)}</td>
+            <td>${escapeHTML(formatearDiaConFecha(dia.fecha, dia.dia))}</td>
             <td>${escapeHTML(formatearFechaCorta(dia.fecha))}</td>
             <td>${escapeHTML(dia.entrada)}</td>
             <td>${escapeHTML(dia.salida)}</td>
