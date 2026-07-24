@@ -40,6 +40,29 @@
       .order("nombre_completo", { ascending: true });
   }
 
+  async function crearEmpleado(payload) {
+    const client = getClient();
+    if (!client) return { data: null, error: { message: "Sin conexion" } };
+
+    const registro = {
+      num_empleado: texto(payload.num_empleado),
+      nombre_completo: texto(payload.nombre_completo || payload.nombre || ""),
+      nombre: texto(payload.nombre || payload.nombre_completo || ""),
+      direccion: texto(payload.direccion || ""),
+      departamento: texto(payload.departamento || ""),
+      puesto: texto(payload.puesto || ""),
+      activo: payload.activo !== false,
+      created_at: new Date().toISOString(),
+      updated_at: new Date().toISOString()
+    };
+
+    return client
+      .from("empleados")
+      .insert(registro)
+      .select()
+      .single();
+  }
+
   async function listarTramites() {
     const client = getClient();
     if (!client) return { data: [], error: { message: "Sin conexion" } };
@@ -156,6 +179,7 @@
   global.ETTramitesAdministrativos = {
     buscarEmpleado,
     listarEmpleados,
+    crearEmpleado,
     listarTramites,
     crearTramite,
     actualizarTramite,

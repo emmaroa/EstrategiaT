@@ -36,6 +36,7 @@
       </div>
       <div style="display:flex;gap:12px;align-items:center;">
         <span id="etTemaContainer"></span>
+        <button type="button" class="btn-small" id="btnNuevoEmpleado" onclick="abrirModalEmpleado()">+ Nuevo empleado</button>
         <button type="button" class="btn-small" id="btnNuevoTramite" onclick="abrirModalTramite()">+ Nuevo tramite</button>
       </div>
     </header>
@@ -44,22 +45,22 @@
       <div class="kpi-card">
         <span>Total tramites</span>
         <h2 id="kpiTotal">0</h2>
-        <p>Segun filtros</p>
+        <p>Registros mostrados</p>
       </div>
       <div class="kpi-card">
-        <span>Dias economicos</span>
+        <span>Tramites de dias economicos</span>
         <h2 id="kpiEconomicos">0</h2>
-        <p>Dias habiles tomados</p>
+        <p>Registros de este tipo</p>
       </div>
       <div class="kpi-card">
-        <span>Vacaciones</span>
+        <span>Tramites de vacaciones</span>
         <h2 id="kpiVacaciones">0</h2>
-        <p>Dias habiles tomados</p>
+        <p>Registros de este tipo</p>
       </div>
       <div class="kpi-card">
-        <span>Incapacidades</span>
+        <span>Tramites de incapacidades</span>
         <h2 id="kpiIncapacidades">0</h2>
-        <p>Dias habiles registrados</p>
+        <p>Registros de este tipo</p>
       </div>
     </section>
 
@@ -139,6 +140,46 @@
       </div>
     </section>
   </main>
+
+  <div class="modal" id="modalEmpleado" role="dialog" aria-modal="true" aria-labelledby="tituloModalEmpleado" aria-hidden="true">
+    <div class="modal-card">
+      <div class="modal-header">
+        <div>
+          <h2 id="tituloModalEmpleado">Nuevo empleado</h2>
+          <p>Registra un trabajador para usarlo en permisos, vacaciones y trámites.</p>
+        </div>
+        <button type="button" class="close-btn" aria-label="Cerrar dialogo" onclick="cerrarModalEmpleado()">x</button>
+      </div>
+
+      <div class="form-grid">
+        <div class="input-group">
+          <label for="altaNumEmpleado">Número de empleado</label>
+          <input type="text" id="altaNumEmpleado" placeholder="Ej. 13556">
+        </div>
+        <div class="input-group">
+          <label for="altaNombreEmpleado">Nombre completo</label>
+          <input type="text" id="altaNombreEmpleado" placeholder="Nombre completo">
+        </div>
+        <div class="input-group">
+          <label for="altaDepartamento">Departamento</label>
+          <input type="text" id="altaDepartamento" placeholder="Departamento">
+        </div>
+        <div class="input-group">
+          <label for="altaPuesto">Puesto</label>
+          <input type="text" id="altaPuesto" placeholder="Puesto">
+        </div>
+        <div class="input-group full">
+          <label for="altaDireccion">Dirección</label>
+          <input type="text" id="altaDireccion" placeholder="Dirección">
+        </div>
+      </div>
+
+      <div class="modal-actions">
+        <button type="button" class="btn-secondary" onclick="cerrarModalEmpleado()">Cancelar</button>
+        <button type="button" class="btn-small" onclick="guardarEmpleadoAlta()">Guardar empleado</button>
+      </div>
+    </div>
+  </div>
 
   <div class="modal" id="modalTramite" role="dialog" aria-modal="true" aria-labelledby="tituloModalTramite" aria-hidden="true">
     <div class="modal-card">
@@ -233,6 +274,7 @@
 
     let tramites = [];
     let feriados = [];
+    let empleadosCatalogo = [];
     let empleadoActual = null;
     let idEditando = null;
 
@@ -249,7 +291,7 @@
 
     function aplicarPermisosUI() {
       if (!puedeAccion("crear")) {
-        ["btnNuevoTramite", "btnAgregarFeriado"].forEach(function (id) {
+        ["btnNuevoEmpleado", "btnNuevoTramite", "btnAgregarFeriado"].forEach(function (id) {
           if ($(id)) $(id).style.display = "none";
         });
       }
@@ -273,7 +315,7 @@
 
     async function inicializarTramites() {
       aplicarPermisosUI();
-      await Promise.all([recargarTramites(), recargarFeriados()]);
+      await Promise.all([recargarTramites(), recargarFeriados(), recargarEmpleadosCatalogo()]);
       configurarEventos();
     }
 
@@ -315,6 +357,71 @@
       feriados = data || [];
       renderizarFeriados();
       actualizarCalculosFormulario();
+    }
+
+    async function recargarEmpleadosCatalogo() {
+      const { data, error } = await ETTramitesAdministrativos.listarEmpleados();
+      if (error) {
+        console.error("Error empleados:", error);
+        empleadosCatalogo = [];
+        return;
+      }
+      empleadosCatalogo = (data || []).filter(function (empleado) {
+        return empleado.activo !== false;
+      });
+    }
+
+    function abrirModalEmpleado() {
+      if (!puedeAccion("crear")) return;
+      $("modalEmpleado").classList.add("show");
+      $("modalEmpleado").setAttribute("aria-hidden", "false");
+      $("altaNumEmpleado").focus();
+    }
+
+    function cerrarModalEmpleado() {
+      $("modalEmpleado").classList.remove("show");
+      $("modalEmpleado").setAttribute("aria-hidden", "true");
+      ["altaNumEmpleado", "altaNombreEmpleado", "altaDepartamento", "altaPuesto", "altaDireccion"].forEach(function (id) {
+        if ($(id)) $(id).value = "";
+      });
+    }
+
+    async function guardarEmpleadoAlta() {
+      if (!puedeAccion("crear")) return;
+
+      const numEmpleado = $("altaNumEmpleado")?.value.trim() || "";
+      const nombre = $("altaNombreEmpleado")?.value.trim() || "";
+      if (!numEmpleado || !nombre) {
+        alert("Captura número y nombre del empleado.");
+        return;
+      }
+
+      const yaExiste = empleadosCatalogo.some(function (empleado) {
+        return String(empleado.num_empleado || "").trim().toLowerCase() === numEmpleado.toLowerCase();
+      });
+      if (yaExiste) {
+        alert("Ya existe un empleado con ese número.");
+        return;
+      }
+
+      const resultado = await ETTramitesAdministrativos.crearEmpleado({
+        num_empleado: numEmpleado,
+        nombre_completo: nombre,
+        nombre: nombre,
+        departamento: $("altaDepartamento")?.value.trim() || "",
+        puesto: $("altaPuesto")?.value.trim() || "",
+        direccion: $("altaDireccion")?.value.trim() || "",
+        activo: true
+      });
+
+      if (resultado.error) {
+        alert("No se pudo guardar el empleado: " + resultado.error.message);
+        return;
+      }
+
+      cerrarModalEmpleado();
+      await recargarEmpleadosCatalogo();
+      alert("Empleado registrado correctamente.");
     }
 
     function obtenerTramitesFiltrados() {
@@ -374,15 +481,14 @@
     }
 
     function actualizarKPIs(datos) {
-      const sumTipo = function (tipo) {
-        return datos.filter(function (t) { return t.tipo_tramite === tipo; })
-          .reduce(function (total, t) { return total + Number(t.dias_habiles || 0); }, 0);
+      const contarTipo = function (tipo) {
+        return datos.filter(function (t) { return t.tipo_tramite === tipo; }).length;
       };
 
       $("kpiTotal").textContent = datos.length;
-      $("kpiEconomicos").textContent = sumTipo("Dias economicos");
-      $("kpiVacaciones").textContent = sumTipo("Vacaciones");
-      $("kpiIncapacidades").textContent = sumTipo("Incapacidad");
+      $("kpiEconomicos").textContent = contarTipo("Dias economicos");
+      $("kpiVacaciones").textContent = contarTipo("Vacaciones");
+      $("kpiIncapacidades").textContent = contarTipo("Incapacidad");
     }
 
     function renderizarFeriados() {
@@ -702,9 +808,12 @@
       ], filas);
     }
 
+    window.abrirModalEmpleado = abrirModalEmpleado;
+    window.cerrarModalEmpleado = cerrarModalEmpleado;
     window.abrirModalTramite = abrirModalTramite;
     window.cerrarModalTramite = cerrarModalTramite;
     window.guardarTramite = guardarTramite;
+    window.guardarEmpleadoAlta = guardarEmpleadoAlta;
     window.editarTramite = editarTramite;
     window.verTramite = verTramite;
     window.eliminarTramite = eliminarTramite;

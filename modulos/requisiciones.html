@@ -43,27 +43,39 @@
 
     <section class="kpi-grid">
       <div class="kpi-card">
-        <span>Total requisiciones</span>
+        <span>Gasto de mes en curso</span>
+        <h2 id="kpiGastoMes">$0</h2>
+        <p>Acumulado del mes actual</p>
+      </div>
+
+      <div class="kpi-card">
+        <span>Gasto del año en curso</span>
+        <h2 id="kpiGastoAnio">$0</h2>
+        <p>Acumulado del año actual</p>
+      </div>
+
+      <div class="kpi-card">
+        <span>Requisiciones totales</span>
         <h2 id="kpiReqTotal">0</h2>
-        <p>Registradas</p>
+        <p>Registradas en el módulo</p>
+      </div>
+
+      <div class="kpi-card">
+        <span>Requisiciones enviadas</span>
+        <h2 id="kpiEnviadas">0</h2>
+        <p>Estatus enviado</p>
       </div>
 
       <div class="kpi-card">
         <span>Por autorizar</span>
         <h2 id="kpiPorAutorizar">0</h2>
-        <p>Pendientes de validación</p>
+        <p>Estatus por autorizar</p>
       </div>
 
       <div class="kpi-card">
         <span>En proceso</span>
         <h2 id="kpiEnProceso">0</h2>
-        <p>Trámite activo</p>
-      </div>
-
-      <div class="kpi-card">
-        <span>Monto total</span>
-        <h2 id="kpiMonto">$0</h2>
-        <p>Acumulado registrado</p>
+        <p>Inicio de procedimiento, cotización en portal, orden de compra, orden de compra autorizada, factura recibida y solicitud de pago</p>
       </div>
     </section>
 
@@ -253,9 +265,11 @@
     let prefillPeticionId = null;
     let counts = {
       total: 0,
+      gastoMes: 0,
+      gastoAnio: 0,
+      enviadas: 0,
       porAutorizar: 0,
-      enProceso: 0,
-      monto: 0
+      enProceso: 0
     };
     let totalRequisiciones = 0;
     let paginaRequisiciones = 1;
@@ -308,9 +322,11 @@
     const observacionesReqInput = document.getElementById("observacionesReq");
     const infoUnidadReq = document.getElementById("infoUnidadReq");
     const kpiReqTotal = document.getElementById("kpiReqTotal");
+    const kpiGastoMes = document.getElementById("kpiGastoMes");
+    const kpiGastoAnio = document.getElementById("kpiGastoAnio");
+    const kpiEnviadas = document.getElementById("kpiEnviadas");
     const kpiPorAutorizar = document.getElementById("kpiPorAutorizar");
     const kpiEnProceso = document.getElementById("kpiEnProceso");
-    const kpiMonto = document.getElementById("kpiMonto");
     const infoPaginacionReq = document.getElementById("infoPaginacionReq");
     const paginaReqActual = document.getElementById("paginaReqActual");
     const btnReqAnterior = document.getElementById("btnReqAnterior");
@@ -366,16 +382,27 @@
     }
 
     async function recargarRequisiciones() {
-      const { data, count, error } = await ETRequisiciones.listar();
-      if (error) {
-        console.error("Error cargando requisiciones:", error);
-        alert("No se pudieron cargar las requisiciones. Verifique la conexión con Supabase.");
-        return;
+      try {
+        const { data, count, error } = await ETRequisiciones.listar();
+        if (error) {
+          console.error("Error cargando requisiciones:", error);
+          requisiciones = [];
+          totalRequisiciones = 0;
+          poblarFiltroProveedorRequisiciones();
+          renderizarRequisiciones();
+          return;
+        }
+        requisiciones = data || [];
+        totalRequisiciones = count ?? requisiciones.length;
+        poblarFiltroProveedorRequisiciones();
+        renderizarRequisiciones();
+      } catch (error) {
+        console.error("Error inesperado cargando requisiciones:", error);
+        requisiciones = [];
+        totalRequisiciones = 0;
+        poblarFiltroProveedorRequisiciones();
+        renderizarRequisiciones();
       }
-      requisiciones = data || [];
-      totalRequisiciones = count ?? 0;
-      poblarFiltroProveedorRequisiciones();
-      renderizarRequisiciones();
     }
 
     function poblarFiltroProveedorRequisiciones() {
@@ -554,22 +581,51 @@
     function actualizarKPIsReq() {
       actualizarCountsReq();
       if (kpiReqTotal) kpiReqTotal.textContent = counts.total;
+      if (kpiGastoMes) kpiGastoMes.textContent = formatoMoneda(counts.gastoMes);
+      if (kpiGastoAnio) kpiGastoAnio.textContent = formatoMoneda(counts.gastoAnio);
+      if (kpiEnviadas) kpiEnviadas.textContent = counts.enviadas;
       if (kpiPorAutorizar) kpiPorAutorizar.textContent = counts.porAutorizar;
       if (kpiEnProceso) kpiEnProceso.textContent = counts.enProceso;
-      if (kpiMonto) kpiMonto.textContent = formatoMoneda(counts.monto);
+    }
+
+    function normalizarEstatusReq(estatus) {
+      return String(estatus || "").trim().toLowerCase();
     }
 
     function actualizarCountsReq() {
+      const hoy = new Date();
+      const mesActual = hoy.getMonth();
+      const anioActual = hoy.getFullYear();
+      const estatusEnProceso = [
+        "inicio de procedimiento",
+        "cotización en portal",
+        "orden de compra",
+        "orden de compra autorizada",
+        "factura recibida",
+        "solicitud de pago"
+      ];
+
       counts = requisiciones.reduce(function (acumulado, r) {
-        if (r.estatus === "Por autorizar") acumulado.porAutorizar += 1;
-        if (r.estatus !== "Enviado" && r.estatus !== "Por autorizar") acumulado.enProceso += 1;
-        acumulado.monto += Number(r.monto || 0);
+        const fechaValor = r.fecha || r.created_at || r.updated_at;
+        const fechaReq = fechaValor ? new Date(fechaValor) : null;
+        const esMesActual = fechaReq && fechaReq.getFullYear() === anioActual && fechaReq.getMonth() === mesActual;
+        const esAnioActual = fechaReq && fechaReq.getFullYear() === anioActual;
+        const estatusNormalizado = normalizarEstatusReq(r.estatus);
+
+        if (esMesActual) acumulado.gastoMes += Number(r.monto || 0);
+        if (esAnioActual) acumulado.gastoAnio += Number(r.monto || 0);
+        if (estatusNormalizado === "enviado") acumulado.enviadas += 1;
+        if (estatusNormalizado === "por autorizar") acumulado.porAutorizar += 1;
+        if (estatusEnProceso.includes(estatusNormalizado)) acumulado.enProceso += 1;
+
         return acumulado;
       }, {
         total: totalRequisiciones,
+        gastoMes: 0,
+        gastoAnio: 0,
+        enviadas: 0,
         porAutorizar: 0,
-        enProceso: 0,
-        monto: 0
+        enProceso: 0
       });
     }
 

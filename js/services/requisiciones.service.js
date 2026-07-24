@@ -2,54 +2,129 @@
  * Servicio CRUD — Requisiciones
  */
 (function (global) {
+  const TABLA_REQUISICIONES = "requisiciones_siif";
+
   function getClient() {
     return global.supabaseClient || null;
+  }
+
+  function getSupabaseRestUrl() {
+    const baseUrl = (global.ETConfig && global.ETConfig.SUPABASE_URL) || "https://knjuevjxfyohcxrsldpb.supabase.co";
+    return String(baseUrl).replace(/\/$/, "") + "/rest/v1/" + TABLA_REQUISICIONES;
+  }
+
+  function getSupabaseRestHeaders() {
+    const key = (global.ETConfig && global.ETConfig.SUPABASE_KEY) || "sb_publishable_f_1SKtetMWPSNmZ5eSRaOw_RYtHenaR";
+    return {
+      apikey: key,
+      Authorization: "Bearer " + key,
+      Accept: "application/json",
+      "Content-Type": "application/json"
+    };
+  }
+
+  function mapearRegistro(payload) {
+    return {
+      fecha_req: payload.fecha_req || payload.fecha || null,
+      numero_req: payload.numero_req || payload.numero || null,
+      fecha_oc: payload.fecha_oc || null,
+      numero_oc: payload.numero_oc || payload.oc || null,
+      fecha_sp: payload.fecha_sp || null,
+      numero_sp: payload.numero_sp || payload.solicitud_pago || payload.solicitudPago || null,
+      unidad: payload.unidad || null,
+      dependencia: payload.dependencia || null,
+      concepto: payload.concepto || payload.Concepto || null,
+      proveedor: payload.proveedor || null,
+      monto: Number(payload.monto || 0),
+      estatus: payload.estatus || "Por autorizar",
+      xml: payload.xml || payload.factura || null,
+      observaciones: payload.observaciones || null,
+      peticion_id: payload.peticion_id || null
+    };
   }
 
   function normalizar(row) {
     if (!row) return row;
     return Object.assign({}, row, {
-      solicitudPago: row.solicitud_pago || row.solicitudPago || ""
+      fecha: row.fecha_req || row.fecha || null,
+      numero: row.numero_req || row.numero || null,
+      oc: row.numero_oc || row.oc || null,
+      xml: row.xml || row.factura || null,
+      solicitudPago: row.numero_sp || row.solicitud_pago || row.solicitudPago || "",
+      concepto: row.concepto || row.Concepto || "",
+      unidad: row.unidad || "",
+      dependencia: row.dependencia || "",
+      estatus: row.estatus || "Por autorizar",
+      monto: Number(row.monto || 0),
+      proveedor: row.proveedor || null,
+      observaciones: row.observaciones || null,
+      peticion_id: row.peticion_id || null
     });
   }
 
   async function listar() {
     const client = getClient();
-    if (!client) return { data: [], error: { message: "Sin conexión" } };
 
-    const result = await client
-      .from("requisiciones")
-      .select("*", { count: "exact" })
-      .order("created_at", { ascending: false });
+    if (client) {
+      try {
+        const result = await client
+          .from(TABLA_REQUISICIONES)
+          .select("*", { count: "exact" });
 
-    if (result.data) {
-      result.data = result.data.map(normalizar);
+        if (!result.error) {
+          const data = Array.isArray(result.data) ? result.data : [];
+          return {
+            ...result,
+            data: data.map(normalizar),
+            count: typeof result.count === "number" ? result.count : data.length
+          };
+        }
+      } catch (error) {
+        console.warn("[ETRequisiciones] Falló la consulta por cliente Supabase, intentando REST directo:", error);
+      }
     }
-    return result;
+
+    try {
+      const response = await fetch(getSupabaseRestUrl() + "?select=*", {
+        method: "GET",
+        headers: getSupabaseRestHeaders()
+      });
+
+      const payload = await response.json();
+      if (!response.ok) {
+        throw new Error(payload && payload.message ? payload.message : "No se pudo consultar la tabla");
+      }
+
+      const data = Array.isArray(payload) ? payload : [];
+      return {
+        data: data.map(normalizar),
+        count: data.length,
+        error: null
+      };
+    } catch (error) {
+      console.error("[ETRequisiciones] Error cargando requisiciones desde REST:", error);
+      return { data: [], error: { message: error.message || "Sin conexión" } };
+    }
   }
 
   async function crear(payload) {
     const client = getClient();
     if (!client) return { data: null, error: { message: "Sin conexión" } };
 
-    const registro = {
-      fecha: payload.fecha,
-      numero: payload.numero || await generarNumero(),
-      unidad: payload.unidad,
-      dependencia: payload.dependencia,
-      concepto: payload.concepto,
-      proveedor: payload.proveedor || null,
-      monto: Number(payload.monto || 0),
-      estatus: payload.estatus || "Por autorizar",
-      oc: payload.oc || null,
-      factura: payload.factura || null,
-      solicitud_pago: payload.solicitud_pago || payload.solicitudPago || null,
-      observaciones: payload.observaciones || null,
-      peticion_id: payload.peticion_id || null
-    };
+    const registro = Object.assign({}, mapearRegistro(payload), {
+      numero_req: payload.numero_req || payload.numero || await generarNumero()
+    });
 
-    const result = await client.from("requisiciones").insert(registro).select().single();
-    if (result.data) result.data = normalizar(result.data);
+    const result = await client.from("requisiciones_siif").insert(registro).select().single();
+
+    if (result.error) {
+      return { data: null, error: result.error };
+    }
+
+    if (result.data) {
+      result.data = normalizar(result.data);
+    }
+
     return result;
   }
 
@@ -57,23 +132,25 @@
     const client = getClient();
     if (!client) return { data: null, error: { message: "Sin conexión" } };
 
-    const registro = Object.assign({}, payload, {
+    const registro = Object.assign({}, mapearRegistro(payload), {
       updated_at: new Date().toISOString()
     });
 
-    if (payload.solicitudPago !== undefined) {
-      registro.solicitud_pago = payload.solicitudPago;
-      delete registro.solicitudPago;
-    }
-
     const result = await client
-      .from("requisiciones")
+      .from("requisiciones_siif")
       .update(registro)
       .eq("id", id)
       .select()
       .single();
 
-    if (result.data) result.data = normalizar(result.data);
+    if (result.error) {
+      return { data: null, error: result.error };
+    }
+
+    if (result.data) {
+      result.data = normalizar(result.data);
+    }
+
     return result;
   }
 
@@ -81,7 +158,11 @@
     const client = getClient();
     if (!client) return { error: { message: "Sin conexión" } };
 
-    return client.from("requisiciones").delete().eq("id", id);
+    const result = await client.from("requisiciones_siif").delete().eq("id", id);
+    if (result.error) {
+      return { error: result.error };
+    }
+    return result;
   }
 
   async function generarNumero() {
@@ -91,14 +172,16 @@
 
     if (!client) return prefijo + "001";
 
-    const { data } = await client
-      .from("requisiciones")
-      .select("numero")
-      .like("numero", prefijo + "%");
+    const { data: registros } = await client
+      .from("requisiciones_siif")
+      .select("numero_req,numero")
+      .like("numero_req", prefijo + "%");
+
+    const data = registros || [];
 
     let max = 0;
     (data || []).forEach(function (r) {
-      const parte = parseInt((r.numero || "").replace(prefijo, ""), 10);
+      const parte = parseInt((r.numero_req || "").replace(prefijo, ""), 10);
       if (!isNaN(parte) && parte > max) max = parte;
     });
 
@@ -155,28 +238,17 @@
     if (!client) return { migrados: 0, error: "Sin conexión" };
 
     const registros = local.map(function (r) {
-      return {
-        fecha: r.fecha || new Date().toISOString().slice(0, 10),
-        numero: r.numero,
-        unidad: r.unidad,
-        dependencia: r.dependencia,
-        concepto: r.concepto,
-        proveedor: r.proveedor || null,
-        monto: Number(r.monto || 0),
-        estatus: r.estatus || "Por autorizar",
-        oc: r.oc || null,
-        factura: r.factura || null,
-        solicitud_pago: r.solicitud_pago || r.solicitudPago || null,
-        observaciones: r.observaciones || null
-      };
+      return Object.assign({}, mapearRegistro(r), {
+        fecha_req: r.fecha_req || r.fecha || new Date().toISOString().slice(0, 10),
+        numero_req: r.numero_req || r.numero
+      });
     });
 
-    const { error } = await client.from("requisiciones").insert(registros);
-    if (error) return { migrados: 0, error: error.message };
+    const { error } = await client.from("requisiciones_siif").insert(registros);
+    if (error) {
+      return { migrados: 0, error: error.message };
+    }
 
-    localStorage.removeItem("requisiciones");
-    localStorage.removeItem("datosParaRequisicion");
-    localStorage.setItem("migracion_requisiciones_v3", "true");
     return { migrados: registros.length };
   }
 
