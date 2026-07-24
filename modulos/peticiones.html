@@ -65,6 +65,12 @@
         <h2 id="kpiSolventadas">0</h2>
         <p>Recibidas</p>
       </div>
+
+      <div class="kpi-card">
+        <span>En cotización</span>
+        <h2 id="kpiCotizacion">0</h2>
+        <p>Estatus en cotización</p>
+      </div>
     </section>
 
     <section class="panel">
@@ -76,15 +82,23 @@
         </div>
       </div>
 
-      <div class="filters">
-        <input type="text" id="buscarPeticion" placeholder="Buscar petición..." aria-label="Buscar petición">
+      <div class="filters" style="display:flex;flex-wrap:nowrap;align-items:center;gap:8px;overflow-x:auto;">
+        <input type="text" id="buscarPeticion" placeholder="Buscar petición..." aria-label="Buscar petición" style="min-width:220px;flex:1 1 220px;">
 
-        <select id="filtroEstatus" aria-label="Filtrar por estatus">
+        <div style="display:flex;flex-wrap:nowrap;gap:6px;align-items:center;">
+          <button type="button" class="btn-small" id="btnFiltroProveedor" style="padding:6px 10px;font-size:12px;line-height:1;">Proveedor</button>
+          <button type="button" class="btn-small" id="btnFiltroPendientes" style="padding:6px 10px;font-size:12px;line-height:1;">Pend.</button>
+          <button type="button" class="btn-small" id="btnFiltroRevisado" style="padding:6px 10px;font-size:12px;line-height:1;">Revisado</button>
+          <button type="button" class="btn-small" id="btnFiltroCotizacion" style="padding:6px 10px;font-size:12px;line-height:1;">Cotización</button>
+        </div>
+
+        <select id="filtroEstatus" aria-label="Filtrar por estatus" style="min-width:150px;">
           <option value="">Todos los estatus</option>
           <option value="Pendiente">Pendiente</option>
           <option value="Revisado por almacen">Revisado por almacen</option>
           <option value="Pedido a proveedor">Pedido a proveedor</option>
           <option value="Recibido en Almacen">Recibido en Almacen</option>
+          <option value="En cotización">En cotización</option>
           <option value="CANCELADO">CANCELADO</option>
         </select>
 
@@ -115,6 +129,15 @@
 
           <tbody id="tablaPeticiones"></tbody>
         </table>
+      </div>
+
+      <div class="pagination-bar" style="display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;margin-top:16px;">
+        <span id="infoPaginacionPeticiones" style="color:var(--muted);font-weight:700;">Mostrando 0 registros</span>
+        <div style="display:flex;gap:8px;align-items:center;">
+          <button type="button" class="btn-secondary" id="btnPetAnterior">Anterior</button>
+          <span id="paginaPetActual" style="font-weight:800;">Pagina 1 de 1</span>
+          <button type="button" class="btn-secondary" id="btnPetSiguiente">Siguiente</button>
+        </div>
       </div>
 
     </section>
@@ -211,9 +234,12 @@
       total: 0,
       pendientes: 0,
       proceso: 0,
-      entregadas: 0
+      entregadas: 0,
+      cotizacion: 0
     };
     let totalPeticiones = 0;
+    let paginaPeticiones = 1;
+    const REGISTROS_POR_PAGINA_PET = 30;
     const AREAS_PETICION = [
       "Gasolina",
       "Electricas",
@@ -229,6 +255,10 @@
     const filtroEstatus = document.getElementById("filtroEstatus");
     const filtroProveedor = document.getElementById("filtroProveedor");
     const filtroArea = document.getElementById("filtroArea");
+    const btnFiltroProveedor = document.getElementById("btnFiltroProveedor");
+    const btnFiltroPendientes = document.getElementById("btnFiltroPendientes");
+    const btnFiltroRevisado = document.getElementById("btnFiltroRevisado");
+    const btnFiltroCotizacion = document.getElementById("btnFiltroCotizacion");
     const modalPeticion = document.getElementById("modalPeticion");
     const modalPeticionTitulo = document.getElementById("modalPeticionTitulo");
     const unidadInput = document.getElementById("unidad");
@@ -245,6 +275,11 @@
     const kpiPendientes = document.getElementById("kpiPendientes");
     const kpiProceso = document.getElementById("kpiProceso");
     const kpiSolventadas = document.getElementById("kpiSolventadas");
+    const kpiCotizacion = document.getElementById("kpiCotizacion");
+    const infoPaginacionPeticiones = document.getElementById("infoPaginacionPeticiones");
+    const paginaPetActual = document.getElementById("paginaPetActual");
+    const btnPetAnterior = document.getElementById("btnPetAnterior");
+    const btnPetSiguiente = document.getElementById("btnPetSiguiente");
     const ESTATUS_PETICION_LEGACY = {
       "En proceso": "Revisado por almacen",
       "Entregado": "Recibido en Almacen",
@@ -306,8 +341,19 @@
     }
 
     function normalizarEstatusPeticion(estatus) {
-      const valor = String(estatus || "").replace(/pro{2}veedor/g, "proveedor");
-      return ESTATUS_PETICION_LEGACY[valor] || valor || "Pendiente";
+      const valor = String(estatus || "").trim();
+      const valorNormalizado = valor
+        .normalize("NFD")
+        .replace(/[\u0300-\u036f]/g, "")
+        .toLowerCase();
+      const mapeo = {
+        "en proceso": "Revisado por almacen",
+        "entregado": "Recibido en Almacen",
+        "solventado": "Recibido en Almacen",
+        "cancelado": "CANCELADO",
+        "en cotizacion": "En cotización"
+      };
+      return ESTATUS_PETICION_LEGACY[valor] || mapeo[valorNormalizado] || valor || "Pendiente";
     }
 
     function normalizarAreaPeticion(area) {
@@ -371,33 +417,39 @@
       const estatus = String(filtroEstatus?.value || "");
       const proveedor = String(filtroProveedor?.value || "");
       const area = String(filtroArea?.value || "");
+      const estatusFiltro = obtenerValorCanonicoEstatusPeticion(estatus);
 
       if (tablaPeticiones) tablaPeticiones.innerHTML = "";
 
       const filtradas = peticiones.slice().sort(function (a, b) {
-        return new Date(b.created_at || b.fecha || 0) - new Date(a.created_at || a.fecha || 0);
+        const fechaA = obtenerFechaOrdenPeticion(a);
+        const fechaB = obtenerFechaOrdenPeticion(b);
+        return fechaB - fechaA;
       }).filter(function (p) {
-        const coincideTexto =
-          (p.unidad || "").toLowerCase().includes(texto) ||
-          (p.peticion || "").toLowerCase().includes(texto) ||
-          (p.solicitante || "").toLowerCase().includes(texto) ||
-          (p.area || "").toLowerCase().includes(texto) ||
-          (p.dependencia || "").toLowerCase().includes(texto) ||
-          (p.proveedor || "").toLowerCase().includes(texto);
+        const textoNormalizado = String(p.unidad || "").toLowerCase() + " " + String(p.peticion || "").toLowerCase() + " " + String(p.solicitante || "").toLowerCase() + " " + String(p.area || "").toLowerCase() + " " + String(p.dependencia || "").toLowerCase() + " " + String(p.proveedor || "").toLowerCase();
+        const coincideTexto = textoNormalizado.includes(texto);
 
-        const coincideEstatus = estatus === "" || p.estatus === estatus;
-        const coincideProveedor = proveedor === "" || p.proveedor === proveedor;
-        const coincideArea = area === "" || p.area === area;
+        const estatusNormalizado = normalizarTextoPeticion(p.estatus);
+        const coincideEstatus = estatusFiltro === "" || estatusNormalizado === normalizarTextoPeticion(estatusFiltro);
+        const coincideProveedor = proveedor === "" || String(p.proveedor || "") === proveedor;
+        const coincideArea = area === "" || String(p.area || "") === area;
 
         return coincideTexto && coincideEstatus && coincideProveedor && coincideArea;
       });
+
+      const totalPaginas = Math.max(1, Math.ceil(filtradas.length / REGISTROS_POR_PAGINA_PET));
+      if (paginaPeticiones > totalPaginas) paginaPeticiones = totalPaginas;
+      if (paginaPeticiones < 1) paginaPeticiones = 1;
+
+      const inicio = (paginaPeticiones - 1) * REGISTROS_POR_PAGINA_PET;
+      const paginaActual = filtradas.slice(inicio, inicio + REGISTROS_POR_PAGINA_PET);
 
       if (!filtradas.length) {
         tablaPeticiones.innerHTML = '<tr><td colspan="9">No hay peticiones registradas.</td></tr>';
       } else {
         const mostrarTextoPedido = puedeCopiarTextoPedido();
         const mostrarGenerarRequisicion = puedeGenerarRequisicion();
-        filtradas.forEach(function (p) {
+        paginaActual.forEach(function (p) {
           const fila = document.createElement("tr");
           const puedeEditar = puedeAccionPeticion("editar");
           const puedeEliminar = puedeAccionPeticion("eliminar");
@@ -422,21 +474,24 @@
         });
       }
 
+      actualizarPaginacionPeticiones(filtradas.length, totalPaginas, inicio, paginaActual.length);
       actualizarKPIs();
     }
 
     function actualizarCounts() {
       counts = peticiones.reduce(function (acumulado, p) {
-        if (p.estatus === "Pendiente") acumulado.pendientes += 1;
-        if (p.estatus === "Revisado por almacen") acumulado.proceso += 1;
-        if (p.estatus === "Pedido a proveedor") acumulado.proceso += 1;
-        if (p.estatus === "Recibido en Almacen") acumulado.entregadas += 1;
+        const estatus = normalizarTextoPeticion(p.estatus);
+        if (estatus === "pendiente") acumulado.pendientes += 1;
+        if (estatus === "revisado por almacen" || estatus === "pedido a proveedor") acumulado.proceso += 1;
+        if (estatus === "recibido en almacen") acumulado.entregadas += 1;
+        if (estatus === "en cotizacion") acumulado.cotizacion += 1;
         return acumulado;
       }, {
         total: totalPeticiones,
         pendientes: 0,
         proceso: 0,
-        entregadas: 0
+        entregadas: 0,
+        cotizacion: 0
       });
     }
 
@@ -446,6 +501,7 @@
       if (kpiPendientes) kpiPendientes.textContent = counts.pendientes;
       if (kpiProceso) kpiProceso.textContent = counts.proceso;
       if (kpiSolventadas) kpiSolventadas.textContent = counts.entregadas;
+      if (kpiCotizacion) kpiCotizacion.textContent = counts.cotizacion;
     }
 
     function abrirModal() {
@@ -485,6 +541,17 @@
         .normalize("NFD")
         .replace(/[\u0300-\u036f]/g, "")
         .toLowerCase();
+    }
+
+    function obtenerValorCanonicoEstatusPeticion(valor) {
+      const texto = normalizarTextoPeticion(valor);
+      if (texto === "revisado por almacen" || texto === "revisado" || texto === "revisado por almacen" || texto === "revisado por almacén") return "Revisado por almacen";
+      if (texto === "pedido a proveedor") return "Pedido a proveedor";
+      if (texto === "recibido en almacen" || texto === "recibido en almacén") return "Recibido en Almacen";
+      if (texto === "en cotizacion" || texto === "cotizacion") return "En cotización";
+      if (texto === "pendiente") return "Pendiente";
+      if (texto === "cancelado" || texto === "cancelada") return "CANCELADO";
+      return String(valor || "").trim();
     }
 
     function esPeticionStock(valor) {
@@ -743,10 +810,77 @@
       return partes[2] + "/" + partes[1] + "/" + partes[0];
     }
 
-    buscarPeticion?.addEventListener("input", renderizarPeticiones);
-    filtroEstatus?.addEventListener("change", renderizarPeticiones);
-    filtroProveedor?.addEventListener("change", renderizarPeticiones);
-    filtroArea?.addEventListener("change", renderizarPeticiones);
+    function obtenerFechaOrdenPeticion(peticion) {
+      const candidatos = [peticion?.fecha, peticion?.created_at, peticion?.updated_at];
+      for (let i = 0; i < candidatos.length; i++) {
+        const valor = candidatos[i];
+        if (!valor) continue;
+        const tiempo = new Date(valor).getTime();
+        if (!Number.isNaN(tiempo)) return tiempo;
+      }
+      return 0;
+    }
+
+    function actualizarPaginacionPeticiones(totalFiltradas, totalPaginas, inicio, cantidadPagina) {
+      if (infoPaginacionPeticiones) {
+        if (!totalFiltradas) {
+          infoPaginacionPeticiones.textContent = "Mostrando 0 registros";
+        } else {
+          infoPaginacionPeticiones.textContent = "Mostrando " + (inicio + 1) + "-" + (inicio + cantidadPagina) + " de " + totalFiltradas + " registros";
+        }
+      }
+      if (paginaPetActual) {
+        paginaPetActual.textContent = "Pagina " + paginaPeticiones + " de " + totalPaginas;
+      }
+      if (btnPetAnterior) btnPetAnterior.disabled = paginaPeticiones <= 1;
+      if (btnPetSiguiente) btnPetSiguiente.disabled = paginaPeticiones >= totalPaginas;
+    }
+
+    function resetearPaginaPeticiones() {
+      paginaPeticiones = 1;
+      renderizarPeticiones();
+    }
+
+    buscarPeticion?.addEventListener("input", resetearPaginaPeticiones);
+    filtroEstatus?.addEventListener("change", resetearPaginaPeticiones);
+    filtroProveedor?.addEventListener("change", resetearPaginaPeticiones);
+    filtroArea?.addEventListener("change", resetearPaginaPeticiones);
+
+    btnPetAnterior?.addEventListener("click", function () {
+      if (paginaPeticiones <= 1) return;
+      paginaPeticiones -= 1;
+      renderizarPeticiones();
+    });
+
+    btnPetSiguiente?.addEventListener("click", function () {
+      paginaPeticiones += 1;
+      renderizarPeticiones();
+    });
+
+    function aplicarFiltroRapido(valor) {
+      const valorCanonico = obtenerValorCanonicoEstatusPeticion(valor);
+      if (filtroEstatus) filtroEstatus.value = valorCanonico;
+      renderizarPeticiones();
+    }
+
+    btnFiltroProveedor?.addEventListener("click", function () {
+      const proveedores = peticiones.map(function (p) { return String(p.proveedor || "").trim(); }).filter(Boolean);
+      if (!proveedores.length) return;
+      if (filtroProveedor) filtroProveedor.value = proveedores[0];
+      renderizarPeticiones();
+    });
+
+    btnFiltroPendientes?.addEventListener("click", function () {
+      aplicarFiltroRapido("Pendiente");
+    });
+
+    btnFiltroRevisado?.addEventListener("click", function () {
+      aplicarFiltroRapido("Revisado por almacen");
+    });
+
+    btnFiltroCotizacion?.addEventListener("click", function () {
+      aplicarFiltroRapido("En cotización");
+    });
 
     function editarPeticion(id) {
       if (!puedeAccionPeticion("editar")) return;
