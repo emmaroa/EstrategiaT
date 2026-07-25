@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Administracion de Talleres | Tramites Administrativos</title>
   <link rel="stylesheet" href="../css/style.css">
+  <link rel="stylesheet" href="../css/design-system.css">
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="../js/core/supabase.js"></script>
   <script src="../js/core/permissions.js"></script>
@@ -123,7 +124,7 @@
       <div class="filters">
         <input type="date" id="feriadoFecha" aria-label="Fecha feriado">
         <input type="text" id="feriadoNombre" placeholder="Nombre del feriado" aria-label="Nombre feriado">
-        <button type="button" class="btn-small" id="btnAgregarFeriado" onclick="guardarFeriado()">Agregar feriado</button>
+        <button type="button" class="btn-small" id="btnAgregarFeriado" onclick="ETLoading.ejecutar(this, guardarFeriado)">Agregar feriado</button>
       </div>
 
       <div class="table-container">
@@ -176,7 +177,7 @@
 
       <div class="modal-actions">
         <button type="button" class="btn-secondary" onclick="cerrarModalEmpleado()">Cancelar</button>
-        <button type="button" class="btn-small" onclick="guardarEmpleadoAlta()">Guardar empleado</button>
+        <button type="button" class="btn-small" onclick="ETLoading.ejecutar(this, guardarEmpleadoAlta)">Guardar empleado</button>
       </div>
     </div>
   </div>
@@ -262,7 +263,7 @@
 
       <div class="modal-actions">
         <button type="button" class="btn-secondary" onclick="cerrarModalTramite()">Cancelar</button>
-        <button type="button" class="btn-small" onclick="guardarTramite()">Guardar tramite</button>
+        <button type="button" class="btn-small" onclick="ETLoading.ejecutar(this, guardarTramite)">Guardar tramite</button>
       </div>
     </div>
   </div>
@@ -652,7 +653,12 @@
         return t.id !== idEditando;
       }), payload.num_empleado, payload.periodo_anio);
       if (payload.tipo_tramite === "Dias economicos" && Number(payload.dias_habiles) > saldo.disponibles) {
-        if (!confirm("Este registro supera los 10 dias economicos del periodo. Deseas guardarlo de todos modos?")) return;
+        const confirmarExceso = await ETFeedback.confirmar({
+          title: "Días económicos excedidos",
+          message: "Este registro supera los 10 días económicos del periodo. ¿Deseas guardarlo de todos modos?",
+          confirmLabel: "Guardar de todos modos"
+        });
+        if (!confirmarExceso) return;
       }
 
       const resultado = idEditando
@@ -712,25 +718,72 @@
     function verTramite(id) {
       const t = tramites.find(function (item) { return item.id === id; });
       if (!t) return;
-      alert(
-        "Empleado: " + t.num_empleado + " - " + t.empleado_nombre +
-        "\nDepartamento: " + (t.departamento || "-") +
-        "\nTipo: " + t.tipo_tramite +
-        "\nSubtipo: " + (t.subtipo_incapacidad || "-") +
-        "\nFechas: " + formatearFecha(t.fecha_inicio) + " al " + formatearFecha(t.fecha_fin) +
-        "\nDias habiles: " + Number(t.dias_habiles || 0) +
-        "\nTrabaja sabado: " + (t.metadata?.trabaja_sabado ? "Si" : "No") +
-        "\nFolio: " + (t.folio_documento || "-") +
-        "\nMotivo: " + (t.motivo || "-") +
-        "\nObservaciones: " + (t.observaciones || "-")
-      );
+      const acciones = [];
+      if (puedeAccion("editar")) {
+        acciones.push({
+          label: "Editar trámite",
+          variant: "primary",
+          onClick: function () { editarTramite(id); }
+        });
+      }
+
+      ETLayout.abrirFichaDetalle({
+        eyebrow: "Trámite administrativo",
+        title: t.empleado_nombre || "Empleado",
+        subtitle: "Empleado " + (t.num_empleado || "sin número"),
+        status: {
+          label: t.tipo_tramite || "Sin tipo",
+          tone: t.tipo_tramite === "Incapacidad" ? "amber" : "blue"
+        },
+        sections: [
+          {
+            title: "Empleado",
+            fields: [
+              { label: "Número", value: t.num_empleado },
+              { label: "Nombre", value: t.empleado_nombre },
+              { label: "Departamento", value: t.departamento },
+              { label: "Puesto", value: t.puesto }
+            ]
+          },
+          {
+            title: "Periodo",
+            fields: [
+              { label: "Tipo", value: t.tipo_tramite },
+              { label: "Subtipo", value: t.subtipo_incapacidad },
+              { label: "Fecha de inicio", value: formatearFecha(t.fecha_inicio) },
+              { label: "Fecha de fin", value: formatearFecha(t.fecha_fin) },
+              { label: "Días hábiles", value: Number(t.dias_habiles || 0) },
+              {
+                label: "Jornada en sábado",
+                value: (t.metadata?.trabaja_sabado || t.metadata?.trabajaSabado) ? "Sí" : "No"
+              }
+            ]
+          },
+          {
+            title: "Documento y notas",
+            fields: [
+              { label: "Folio / documento", value: t.folio_documento },
+              { label: "Año", value: t.periodo_anio },
+              { label: "Motivo", value: t.motivo, wide: true },
+              { label: "Observaciones", value: t.observaciones, wide: true }
+            ]
+          }
+        ],
+        actions: acciones
+      });
     }
 
     async function eliminarTramite(id) {
       if (!puedeAccion("eliminar")) return;
       const t = tramites.find(function (item) { return item.id === id; });
       if (!t) return;
-      if (!confirm("Eliminar tramite de " + t.empleado_nombre + "?")) return;
+      const confirmar = await ETFeedback.confirmar({
+        title: "Eliminar trámite",
+        message: "Se eliminará el trámite de " + t.empleado_nombre + ".",
+        confirmLabel: "Eliminar",
+        danger: true
+      });
+      if (!confirmar) return;
 
       const { error } = await ETTramitesAdministrativos.eliminarTramite(id);
       if (error) {
@@ -761,7 +814,13 @@
 
     async function eliminarFeriado(id) {
       if (!puedeAccion("eliminar")) return;
-      if (!confirm("Eliminar feriado?")) return;
+      const confirmar = await ETFeedback.confirmar({
+        title: "Eliminar feriado",
+        message: "El feriado dejará de considerarse en el cálculo de días hábiles.",
+        confirmLabel: "Eliminar",
+        danger: true
+      });
+      if (!confirmar) return;
       const { error } = await ETTramitesAdministrativos.eliminarFeriado(id);
       if (error) {
         alert("No se pudo eliminar el feriado: " + error.message);

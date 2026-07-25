@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Administración de Talleres | Auditoría</title>
   <link rel="stylesheet" href="../css/style.css">
+  <link rel="stylesheet" href="../css/design-system.css">
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="../js/core/supabase.js"></script>
   <script src="../js/core/permissions.js"></script>
@@ -287,8 +288,13 @@
         auditoria.filter(a => a.modulo === "Vales").length;
     }
 
-    function limpiarAuditoria() {
-      const confirmar = confirm("¿Seguro que quieres limpiar el historial de auditoría?");
+    async function limpiarAuditoria() {
+      const confirmar = await ETFeedback.confirmar({
+        title: "Limpiar auditoría",
+        message: "Se eliminará el historial guardado en este dispositivo. Esta acción no se puede deshacer.",
+        confirmLabel: "Limpiar historial",
+        danger: true
+      });
 
       if (!confirmar) return;
 

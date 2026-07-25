@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Administración de Talleres | Usuarios</title>
   <link rel="stylesheet" href="../css/style.css"/>
+  <link rel="stylesheet" href="../css/design-system.css"/>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="../js/core/supabase.js"></script>
   <script src="../js/core/permissions.js"></script>
@@ -195,7 +196,7 @@
 
       <div class="modal-actions">
         <button type="button" class="btn-secondary" onclick="cerrarModalUsuario()">Cancelar</button>
-        <button type="button" class="btn-small" onclick="guardarUsuario()">Guardar usuario</button>
+        <button type="button" class="btn-small" onclick="ETLoading.ejecutar(this, guardarUsuario)">Guardar usuario</button>
       </div>
 
     </div>
@@ -532,9 +533,12 @@
 
       const nuevoEstado = !u.activo;
 
-      const confirmar = confirm(
-        `¿Seguro que deseas ${nuevoEstado ? "activar" : "inactivar"} a ${u.usuario}?`
-      );
+      const confirmar = await ETFeedback.confirmar({
+        title: nuevoEstado ? "Activar usuario" : "Inactivar usuario",
+        message: `${nuevoEstado ? "Se reactivará" : "Se bloqueará el acceso de"} ${u.usuario}.`,
+        confirmLabel: nuevoEstado ? "Activar" : "Inactivar",
+        danger: !nuevoEstado
+      });
 
       if (!confirmar) return;
 
@@ -560,9 +564,12 @@
     async function eliminarUsuario(index) {
       const u = usuariosSistema[index];
 
-      const confirmar = confirm(
-        "¿Seguro que deseas eliminar definitivamente al usuario " + u.usuario + "?"
-      );
+      const confirmar = await ETFeedback.confirmar({
+        title: "Eliminar usuario",
+        message: "Se eliminará definitivamente al usuario " + u.usuario + ".",
+        confirmLabel: "Eliminar",
+        danger: true
+      });
 
       if (!confirmar) return;
 

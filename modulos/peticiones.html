@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Administración de Talleres | Peticiones</title>
   <link rel="stylesheet" href="../css/style.css">
+  <link rel="stylesheet" href="../css/design-system.css">
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="../js/core/supabase.js"></script>
   <script src="../js/core/permissions.js"></script>
@@ -86,7 +87,6 @@
         <input type="text" id="buscarPeticion" placeholder="Buscar petición..." aria-label="Buscar petición" style="min-width:220px;flex:1 1 220px;">
 
         <div style="display:flex;flex-wrap:nowrap;gap:6px;align-items:center;">
-          <button type="button" class="btn-small" id="btnFiltroProveedor" style="padding:6px 10px;font-size:12px;line-height:1;">Proveedor</button>
           <button type="button" class="btn-small" id="btnFiltroPendientes" style="padding:6px 10px;font-size:12px;line-height:1;">Pend.</button>
           <button type="button" class="btn-small" id="btnFiltroRevisado" style="padding:6px 10px;font-size:12px;line-height:1;">Revisado</button>
           <button type="button" class="btn-small" id="btnFiltroCotizacion" style="padding:6px 10px;font-size:12px;line-height:1;">Cotización</button>
@@ -227,7 +227,7 @@
 
       <div class="modal-actions">
         <button type="button" class="btn-secondary" onclick="cerrarModal()">Cancelar</button>
-        <button type="button" class="btn-small" onclick="guardarPeticion()">Guardar petición</button>
+        <button type="button" class="btn-small" onclick="ETLoading.ejecutar(this, guardarPeticion)">Guardar petición</button>
       </div>
 
     </div>
@@ -252,7 +252,7 @@
 
       <div class="modal-actions">
         <button type="button" class="btn-secondary" onclick="cerrarModalProveedor()">Cancelar</button>
-        <button type="button" class="btn-small" onclick="guardarProveedor()">Guardar proveedor</button>
+        <button type="button" class="btn-small" onclick="ETLoading.ejecutar(this, guardarProveedor)">Guardar proveedor</button>
       </div>
     </div>
   </div>
@@ -867,16 +867,55 @@
       const p = obtenerPeticionPorId(id);
       if (!p) return;
 
-      alert(
-        "Unidad: " + p.unidad +
-        "\nPetición: " + p.peticion +
-        "\nSolicitante: " + p.solicitante +
-        "\nÁrea: " + p.area +
-        "\nDependencia: " + (p.dependencia || "Sin dependencia") +
-        "\nProveedor: " + (p.proveedor || "Sin asignar") +
-        "\nEstatus: " + p.estatus +
-        "\nObservaciones: " + (p.observaciones || "Sin observaciones")
-      );
+      const acciones = [
+        {
+          label: "Ver historial",
+          onClick: function () { verHistorialPeticion(id); }
+        }
+      ];
+      if (puedeAccionPeticion("editar")) {
+        acciones.push({
+          label: "Editar petición",
+          variant: "primary",
+          onClick: function () { editarPeticion(id); }
+        });
+      }
+
+      ETLayout.abrirFichaDetalle({
+        eyebrow: "Petición de almacén",
+        title: p.unidad || "Sin unidad",
+        subtitle: "Registrada el " + formatearFecha(p.fecha),
+        status: {
+          label: p.estatus || "Sin estatus",
+          tone: obtenerClaseEstatusPeticion(p.estatus)
+        },
+        sections: [
+          {
+            title: "Solicitud",
+            fields: [
+              { label: "Petición", value: p.peticion, wide: true },
+              { label: "Solicitante", value: p.solicitante },
+              { label: "Área", value: p.area },
+              { label: "Dependencia", value: p.dependencia },
+              { label: "Fecha", value: formatearFecha(p.fecha) }
+            ]
+          },
+          {
+            title: "Asignación",
+            fields: [
+              { label: "Proveedor", value: p.proveedor },
+              { label: "Estatus", value: p.estatus }
+            ]
+          },
+          {
+            title: "Notas",
+            fields: [
+              { label: "Observaciones", value: p.observaciones, wide: true }
+            ]
+          }
+        ],
+        actions: acciones
+      });
     }
 
     async function verHistorialPeticion(id) {
@@ -1109,7 +1148,13 @@
       if (!puedeAccionPeticion("eliminar")) return;
       const p = obtenerPeticionPorId(id);
       if (!p) return;
-      if (!confirm("¿Seguro que deseas eliminar la petición de la unidad " + p.unidad + "?")) return;
+      const confirmar = await ETFeedback.confirmar({
+        title: "Eliminar petición",
+        message: "Se eliminará la petición de la unidad " + p.unidad + ".",
+        confirmLabel: "Eliminar",
+        danger: true
+      });
+      if (!confirmar) return;
 
       const { error } = await ETPeticiones.eliminar(id);
       if (error) {

@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Administración de Talleres | Vales</title>
   <link rel="stylesheet" href="../css/style.css">
+  <link rel="stylesheet" href="../css/design-system.css">
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="../js/core/supabase.js"></script>
   <script src="../js/core/permissions.js"></script>
@@ -226,7 +227,7 @@
 
       <div class="modal-actions">
         <button type="button" class="btn-secondary" onclick="cerrarModalVale()">Cancelar</button>
-        <button type="button" class="btn-small" onclick="guardarVale()">Guardar vale</button>
+        <button type="button" class="btn-small" onclick="ETLoading.ejecutar(this, guardarVale)">Guardar vale</button>
       </div>
 
     </div>
@@ -536,19 +537,16 @@ unidadVale?.addEventListener("blur", async function () {
       if (!v) return;
       const actual = v.estatus;
 
-      const nuevoEstatus = prompt(
-        "Nuevo estatus: Pendiente, Entregado o Cancelado",
-        actual
-      );
-
-      if (!nuevoEstatus) return;
-
       const validos = ["Pendiente", "Entregado", "Cancelado"];
 
-      if (!validos.includes(nuevoEstatus)) {
-        alert("Estatus no válido.");
-        return;
-      }
+      const nuevoEstatus = await ETFeedback.seleccionar({
+        title: "Cambiar estatus",
+        message: "Selecciona el nuevo estatus del vale " + v.folio + ".",
+        options: validos,
+        value: actual,
+        confirmLabel: "Actualizar"
+      });
+      if (!nuevoEstatus) return;
 
       if (!window.supabaseClient) {
         console.error("Supabase no está inicializado.");
@@ -580,7 +578,12 @@ unidadVale?.addEventListener("blur", async function () {
       const v = obtenerValePorId(id);
       if (!v) return;
 
-      const confirmar = confirm("¿Seguro que deseas eliminar el vale " + v.folio + "?");
+      const confirmar = await ETFeedback.confirmar({
+        title: "Eliminar vale",
+        message: "Se eliminará el vale " + v.folio + ".",
+        confirmLabel: "Eliminar",
+        danger: true
+      });
 
       if (!confirmar) return;
 

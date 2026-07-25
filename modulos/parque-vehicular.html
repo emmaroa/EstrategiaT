@@ -7,6 +7,7 @@
 
   <title>Administración de Talleres | Parque Vehicular</title>
   <link rel="stylesheet" href="../css/style.css"/>
+  <link rel="stylesheet" href="../css/design-system.css"/>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="../js/core/supabase.js"></script>
   <script src="../js/core/permissions.js"></script>
@@ -419,7 +420,7 @@
         </button>
 
         <button type="button" class="btn-small"
-          onclick="guardarUnidad()">
+          onclick="ETLoading.ejecutar(this, guardarUnidad)">
           Guardar unidad
         </button>
 
@@ -768,7 +769,13 @@
       const u = obtenerUnidadPorId(id);
       if (!u) return;
 
-      if (!confirm("¿Eliminar la unidad " + (u.unidad_patrulla || u.numero_inventario) + "?")) return;
+      const confirmar = await ETFeedback.confirmar({
+        title: "Eliminar unidad",
+        message: "Se eliminará la unidad " + (u.unidad_patrulla || u.numero_inventario) + " del parque vehicular.",
+        confirmLabel: "Eliminar",
+        danger: true
+      });
+      if (!confirmar) return;
 
       const { error } = await supabaseClient
         .from("parque_vehicular")

@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Administración de Talleres | Requisiciones</title>
   <link rel="stylesheet" href="../css/style.css">
+  <link rel="stylesheet" href="../css/design-system.css">
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="../js/core/supabase.js"></script>
   <script src="../js/core/permissions.js"></script>
@@ -249,7 +250,7 @@
 
       <div class="modal-actions">
         <button type="button" class="btn-secondary" onclick="cerrarModalRequisicion()">Cancelar</button>
-        <button type="button" class="btn-small" onclick="guardarRequisicion()">Guardar requisición</button>
+        <button type="button" class="btn-small" onclick="ETLoading.ejecutar(this, guardarRequisicion)">Guardar requisición</button>
       </div>
 
     </div>
@@ -745,23 +746,20 @@
       const req = obtenerRequisicionPorId(id);
       if (!req) return;
 
-      const nuevoEstatus = prompt(
-        "Nuevo estatus:\nPor autorizar\nInicio de procedimiento\nCotización en portal\nOrden de compra\nOrden de compra autorizada\nFactura recibida\nSolicitud de pago\nEn firma final\nEnviado",
-        req.estatus
-      );
-
-      if (!nuevoEstatus) return;
-
       const validos = [
         "Por autorizar", "Inicio de procedimiento", "Cotización en portal",
         "Orden de compra", "Orden de compra autorizada", "Factura recibida",
         "Solicitud de pago", "En firma final", "Enviado"
       ];
 
-      if (!validos.includes(nuevoEstatus)) {
-        alert("Estatus no válido.");
-        return;
-      }
+      const nuevoEstatus = await ETFeedback.seleccionar({
+        title: "Cambiar estatus",
+        message: "Selecciona la etapa actual de la requisición " + req.numero + ".",
+        options: validos,
+        value: req.estatus,
+        confirmLabel: "Actualizar"
+      });
+      if (!nuevoEstatus) return;
 
       const { error } = await ETRequisiciones.actualizar(id, { estatus: nuevoEstatus });
       if (error) {
@@ -801,7 +799,13 @@
       if (!puedeAccionRequisicion("eliminar")) return;
       const r = obtenerRequisicionPorId(id);
       if (!r) return;
-      if (!confirm("¿Eliminar la requisición " + r.numero + "?")) return;
+      const confirmar = await ETFeedback.confirmar({
+        title: "Eliminar requisición",
+        message: "Se eliminará la requisición " + r.numero + ".",
+        confirmLabel: "Eliminar",
+        danger: true
+      });
+      if (!confirmar) return;
 
       const { error } = await ETRequisiciones.eliminar(id);
       if (error) {
@@ -821,20 +825,64 @@
       const r = obtenerRequisicionPorId(id);
       if (!r) return;
 
-      alert(
-        "Requisición: " + r.numero +
-        "\nFecha: " + formatearFechaReq(r.fecha) +
-        "\nUnidad: " + r.unidad +
-        "\nDependencia: " + r.dependencia +
-        "\nConcepto: " + r.concepto +
-        "\nProveedor: " + (r.proveedor || "Sin asignar") +
-        "\nOrden de compra: " + (r.oc || "Pendiente") +
-        "\nFactura: " + (r.factura || "Pendiente") +
-        "\nSolicitud de pago: " + (r.solicitudPago || "Pendiente") +
-        "\nMonto: " + formatoMoneda(r.monto) +
-        "\nEstatus: " + r.estatus +
-        "\nObservaciones: " + (r.observaciones || "Sin observaciones")
-      );
+      const acciones = [
+        {
+          label: "Ver historial",
+          onClick: function () { verHistorialRequisicion(id); }
+        }
+      ];
+      if (puedeAccionRequisicion("cambiar_estatus")) {
+        acciones.push({
+          label: "Cambiar estatus",
+          onClick: function () { cambiarEstatusReq(id); }
+        });
+      }
+      if (puedeAccionRequisicion("editar")) {
+        acciones.push({
+          label: "Editar requisición",
+          variant: "primary",
+          onClick: function () { editarRequisicion(id); }
+        });
+      }
+
+      ETLayout.abrirFichaDetalle({
+        eyebrow: "Requisición",
+        title: r.numero || "Sin número",
+        subtitle: (r.unidad || "Sin unidad") + " · " + formatearFechaReq(r.fecha),
+        status: {
+          label: r.estatus || "Sin estatus",
+          tone: obtenerClaseEstatusReq(r.estatus)
+        },
+        sections: [
+          {
+            title: "Información general",
+            fields: [
+              { label: "Concepto", value: r.concepto, wide: true },
+              { label: "Unidad", value: r.unidad },
+              { label: "Dependencia", value: r.dependencia },
+              { label: "Fecha", value: formatearFechaReq(r.fecha) },
+              { label: "Monto", value: formatoMoneda(r.monto) }
+            ]
+          },
+          {
+            title: "Proceso de compra",
+            fields: [
+              { label: "Proveedor", value: r.proveedor },
+              { label: "Orden de compra", value: r.oc },
+              { label: "Factura", value: r.factura },
+              { label: "Solicitud de pago", value: r.solicitudPago || r.solicitud_pago },
+              { label: "Estatus", value: r.estatus, wide: true }
+            ]
+          },
+          {
+            title: "Notas",
+            fields: [
+              { label: "Observaciones", value: r.observaciones, wide: true }
+            ]
+          }
+        ],
+        actions: acciones
+      });
     }
 
     async function verHistorialRequisicion(id) {

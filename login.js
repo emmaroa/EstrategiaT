@@ -46,7 +46,7 @@
   const passwordInput = document.getElementById("password");
 
   if (btnLogin) {
-    btnLogin.addEventListener("click", iniciarSesion);
+    btnLogin.addEventListener("click", ejecutarInicioSesion);
   }
 
   [usuarioInput, passwordInput].forEach(function (input) {
@@ -54,7 +54,7 @@
     input.addEventListener("keydown", function (event) {
       if (event.key === "Enter") {
         event.preventDefault();
-        iniciarSesion();
+        ejecutarInicioSesion();
       }
     });
   });
@@ -191,6 +191,25 @@
     }
 
     window.location.href = "dashboard.html";
+  }
+
+  function ejecutarInicioSesion() {
+    const boton = document.getElementById("btnLogin");
+    if (!boton || boton.dataset.etLoading === "1") return;
+    const contenidoOriginal = boton.innerHTML;
+    boton.dataset.etLoading = "1";
+    boton.disabled = true;
+    boton.setAttribute("aria-busy", "true");
+    boton.classList.add("et-button-loading");
+    boton.innerHTML = '<span class="et-spinner" aria-hidden="true"></span><span>Ingresando…</span>';
+
+    Promise.resolve(iniciarSesion()).finally(function () {
+      boton.innerHTML = contenidoOriginal;
+      boton.disabled = false;
+      boton.removeAttribute("aria-busy");
+      boton.classList.remove("et-button-loading");
+      delete boton.dataset.etLoading;
+    });
   }
 
   const menuModulos = document.getElementById("menuModulos");

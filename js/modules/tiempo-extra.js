@@ -179,13 +179,21 @@
   function configurarBotones() {
     $("btnAgregarEmpleado")?.addEventListener("click", agregarOActualizarEmpleado);
     $("btnCancelarEdicion")?.addEventListener("click", cancelarEdicion);
-    $("btnGuardarAltaEmpleado")?.addEventListener("click", guardarAltaEmpleado);
+    $("btnGuardarAltaEmpleado")?.addEventListener("click", function () {
+      ETLoading.ejecutar($("btnGuardarAltaEmpleado"), guardarAltaEmpleado);
+    });
     $("btnCancelarAltaEmpleado")?.addEventListener("click", cancelarAltaEmpleado);
     $("btnVistaPrevia")?.addEventListener("click", vistaPrevia);
     $("btnImprimirPDF")?.addEventListener("click", generarPDF);
-    $("btnGenerarPDF")?.addEventListener("click", generarPaqueteFormatos);
-    $("btnGuardarPeriodo")?.addEventListener("click", guardarPeriodoTemporal);
-    $("btnBuscarHistorial")?.addEventListener("click", buscarHistorial);
+    $("btnGenerarPDF")?.addEventListener("click", function () {
+      ETLoading.ejecutar($("btnGenerarPDF"), generarPaqueteFormatos, { label: "Generando…" });
+    });
+    $("btnGuardarPeriodo")?.addEventListener("click", function () {
+      ETLoading.ejecutar($("btnGuardarPeriodo"), guardarPeriodoTemporal);
+    });
+    $("btnBuscarHistorial")?.addEventListener("click", function () {
+      ETLoading.ejecutar($("btnBuscarHistorial"), buscarHistorial, { label: "Buscando…" });
+    });
     $("periodoInicio")?.addEventListener("change", sincronizarPeriodoViernesJueves);
     $("periodoFin")?.addEventListener("change", sincronizarPeriodoViernesJueves);
 

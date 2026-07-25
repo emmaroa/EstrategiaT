@@ -6,6 +6,8 @@
   <title>Administración de Talleres | Dashboard</title>
 
   <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/design-system.css">
+  <link rel="stylesheet" href="css/dashboard.css">
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <script src="js/core/supabase.js"></script>
@@ -36,32 +38,25 @@
 
   <main class="main-content">
 
-    <header class="topbar">
-      <div>
-        <h1>Dashboard</h1>
+    <header class="topbar dashboard-hero">
+      <div class="dashboard-hero-copy">
+        <span class="dashboard-eyebrow">Centro de control</span>
+        <h1 id="saludoDashboard">Dashboard</h1>
         <p id="bienvenida">Bienvenido al sistema</p>
+        <div class="dashboard-hero-meta">
+          <span id="fechaDashboard"></span>
+          <span id="ultimaActualizacion" aria-live="polite">Preparando información…</span>
+        </div>
       </div>
 
-      <div class="dashboard-toolbar">
-        <div class="filter-bar dashboard-filter-group" aria-label="Filtros del dashboard">
-          <label>
-            Año
-            <select id="filtroAnioDashboard" class="dashboard-select" aria-label="Filtrar por año">
-              <option value="">Todos</option>
-            </select>
-          </label>
-          <label>
-            Desde
-            <input type="date" id="filtroDesde" class="dashboard-select" aria-label="Fecha desde">
-          </label>
-          <label>
-            Hasta
-            <input type="date" id="filtroHasta" class="dashboard-select" aria-label="Fecha hasta">
-          </label>
+      <div class="dashboard-hero-side">
+        <div class="dashboard-attention" id="resumenAtencion" aria-live="polite">
+          <span class="dashboard-attention-dot"></span>
+          Calculando pendientes…
         </div>
         <div class="dashboard-actions" aria-label="Acciones del dashboard">
-          <button type="button" class="btn-small" onclick="exportarDashboardCSV()">Excel</button>
-          <button type="button" class="btn-small" onclick="imprimirDashboard()">PDF</button>
+          <button type="button" class="btn-secondary" onclick="exportarDashboardCSV()">Exportar Excel</button>
+          <button type="button" class="btn-secondary" onclick="imprimirDashboard()">Imprimir / PDF</button>
           <span id="etTemaContainer"></span>
           <div class="user-badge" id="rolUsuario"></div>
           <button type="button" class="topbar-logout" onclick="cerrarSesion()">Cerrar sesión</button>
@@ -69,48 +64,89 @@
       </div>
     </header>
 
-    <section class="kpi-grid">
-      <div class="kpi-card highlight-teal" id="kpiCostoAnualCard">
+    <section class="dashboard-command-bar" aria-label="Filtros y accesos rápidos">
+      <div class="dashboard-command-copy">
+        <strong>Resumen operativo</strong>
+        <span>Filtra la información sin perder el contexto.</span>
+      </div>
+      <div class="filter-bar dashboard-filter-group" aria-label="Filtros del dashboard">
+        <label>
+          Año
+          <select id="filtroAnioDashboard" class="dashboard-select" aria-label="Filtrar por año">
+            <option value="">Todos</option>
+          </select>
+        </label>
+        <label>
+          Desde
+          <input type="date" id="filtroDesde" class="dashboard-select" aria-label="Fecha desde">
+        </label>
+        <label>
+          Hasta
+          <input type="date" id="filtroHasta" class="dashboard-select" aria-label="Fecha hasta">
+        </label>
+        <button type="button" class="dashboard-clear-filters" id="limpiarFiltrosDashboard">Limpiar</button>
+      </div>
+    </section>
+
+    <div class="dashboard-section-heading">
+      <div>
+        <span class="dashboard-section-kicker">Resumen</span>
+        <h2>Estado general y pendientes</h2>
+      </div>
+      <p>Selecciona una tarjeta para abrir el módulo relacionado.</p>
+    </div>
+
+    <section class="kpi-grid dashboard-kpi-grid">
+      <div class="kpi-card highlight-teal dashboard-kpi-card financial" id="kpiCostoAnualCard">
+        <span class="dashboard-kpi-icon" aria-hidden="true">$</span>
         <span>Costo total anual</span>
         <h2 id="kpiCostoAnual">$0</h2>
         <p id="kpiCostoAnualDesc">Año en curso</p>
       </div>
-      <div class="kpi-card highlight" id="kpiCostoMensualCard">
+      <div class="kpi-card highlight dashboard-kpi-card financial" id="kpiCostoMensualCard">
+        <span class="dashboard-kpi-icon" aria-hidden="true">↗</span>
         <span>Costo mensual</span>
         <h2 id="kpiCostoMensual">$0</h2>
         <p id="kpiCostoMensualDesc">Mes en curso</p>
       </div>
-      <div class="kpi-card">
+      <div class="kpi-card dashboard-kpi-card dashboard-link-card priority" data-module="Peticiones" data-href="modulos/peticiones.html" role="link" tabindex="0">
+        <span class="dashboard-kpi-icon" aria-hidden="true">P</span>
         <span>Peticiones pendientes</span>
         <h2 id="kpiPeticiones">0</h2>
         <p>Sin atender</p>
       </div>
-      <div class="kpi-card">
+      <div class="kpi-card dashboard-kpi-card dashboard-link-card" data-module="Requisiciones" data-href="modulos/requisiciones.html" role="link" tabindex="0">
+        <span class="dashboard-kpi-icon" aria-hidden="true">R</span>
         <span>Requisiciones abiertas</span>
         <h2 id="kpiRequisiciones">0</h2>
         <p>Sin cerrar</p>
       </div>
-      <div class="kpi-card">
+      <div class="kpi-card dashboard-kpi-card dashboard-link-card priority" data-module="Requisiciones" data-href="modulos/requisiciones.html" role="link" tabindex="0">
+        <span class="dashboard-kpi-icon" aria-hidden="true">!</span>
         <span>Requisiciones por autorizar</span>
         <h2 id="kpiRequisicionesAutorizar">0</h2>
         <p>Por revisar</p>
       </div>
-      <div class="kpi-card">
+      <div class="kpi-card dashboard-kpi-card dashboard-link-card positive" data-module="Requisiciones" data-href="modulos/requisiciones.html" role="link" tabindex="0">
+        <span class="dashboard-kpi-icon" aria-hidden="true">✓</span>
         <span>Requisiciones con XML</span>
         <h2 id="kpiRequisicionesXml">0</h2>
         <p>Listas para trámite</p>
       </div>
-      <div class="kpi-card">
+      <div class="kpi-card dashboard-kpi-card dashboard-link-card" data-module="Vales" data-href="modulos/vales.html" role="link" tabindex="0">
+        <span class="dashboard-kpi-icon" aria-hidden="true">V</span>
         <span id="labelKpiVales">Vales emitidos</span>
         <h2 id="kpiValesEmitidos">0</h2>
         <p id="kpiValesEmitidosDesc">Del periodo</p>
       </div>
     </section>
 
-    <section class="panel">
+    <section class="dashboard-action-grid">
+    <article class="panel dashboard-vehicle-search">
       <div class="panel-header">
         <div>
-          <h2>Consulta rápida — Parque Vehicular</h2>
+          <span class="dashboard-section-kicker">Consulta rápida</span>
+          <h2>Localiza una unidad</h2>
           <p>Ingresa los últimos 4 dígitos del número económico para ver la ficha básica de la unidad.</p>
         </div>
       </div>
@@ -132,9 +168,22 @@
           <p class="consulta-parque-placeholder">Escribe 4 dígitos y presiona Buscar o Enter.</p>
         </div>
       </div>
+    </article>
+
+    <article class="panel dashboard-quick-panel">
+      <div class="panel-header">
+        <div>
+          <span class="dashboard-section-kicker">Atajos</span>
+          <h2>Acciones frecuentes</h2>
+          <p>Accede rápidamente a las herramientas permitidas para tu rol.</p>
+        </div>
+      </div>
+      <div class="dashboard-quick-actions" id="dashboardQuickActions"></div>
+    </article>
     </section>
 
-    <section class="panel collapsible-panel is-open" data-collapsible>
+    <section class="dashboard-priority-grid" id="dashboardPriorityGrid">
+    <section class="panel collapsible-panel is-open" id="dashboardAlertsPanel" data-collapsible>
       <div class="panel-header">
         <div>
           <h2>Alertas del sistema</h2>
@@ -145,7 +194,7 @@
 
       <div class="panel-content">
       <div class="alerts-grid">
-        <div class="alert-card amber">
+        <div class="alert-card amber dashboard-link-card" data-module="Requisiciones" data-href="modulos/requisiciones.html" role="link" tabindex="0">
           <div class="alert-icon">⚠️</div>
           <div>
             <h3 id="alertReqSinOC">0</h3>
@@ -153,7 +202,7 @@
           </div>
         </div>
 
-        <div class="alert-card red">
+        <div class="alert-card red dashboard-link-card" data-module="Requisiciones" data-href="modulos/requisiciones.html" role="link" tabindex="0">
           <div class="alert-icon">🧾</div>
           <div>
             <h3 id="alertFacturas">0</h3>
@@ -161,7 +210,7 @@
           </div>
         </div>
 
-        <div class="alert-card blue">
+        <div class="alert-card blue dashboard-link-card" data-module="Vales" data-href="modulos/vales.html" role="link" tabindex="0">
           <div class="alert-icon">📦</div>
           <div>
             <h3 id="alertVales">0</h3>
@@ -169,7 +218,7 @@
           </div>
         </div>
 
-        <div class="alert-card green">
+        <div class="alert-card green dashboard-link-card" data-module="Parque Vehicular" data-href="modulos/parque-vehicular.html" role="link" tabindex="0">
           <div class="alert-icon">🚗</div>
           <div>
             <h3 id="alertTaller">0</h3>
@@ -177,7 +226,7 @@
           </div>
         </div>
 
-        <div class="alert-card red">
+        <div class="alert-card red dashboard-link-card" data-module="Peticiones" data-href="modulos/peticiones.html" role="link" tabindex="0">
           <div class="alert-icon">!</div>
           <div>
             <h3 id="alertPeticionesVencidas">0</h3>
@@ -185,7 +234,7 @@
           </div>
         </div>
 
-        <div class="alert-card amber">
+        <div class="alert-card amber dashboard-link-card" data-module="Peticiones" data-href="modulos/peticiones.html" role="link" tabindex="0">
           <div class="alert-icon">?</div>
           <div>
             <h3 id="alertPeticionesSinProveedor">0</h3>
@@ -196,7 +245,7 @@
       </div>
     </section>
 
-    <section class="panel collapsible-panel is-open" data-collapsible>
+    <section class="panel collapsible-panel is-open" id="dashboardActivityPanel" data-collapsible>
       <div class="panel-header">
         <div>
           <h2>Actividad reciente</h2>
@@ -207,23 +256,32 @@
 
       <div class="panel-content">
       <div class="recent-grid">
-        <div class="recent-card">
+        <div class="recent-card" data-module="Peticiones">
           <h3>Últimas peticiones</h3>
           <div id="ultimasPeticiones"></div>
         </div>
-        <div class="recent-card">
+        <div class="recent-card" data-module="Vales">
           <h3>Últimos vales</h3>
           <div id="ultimosVales"></div>
         </div>
-        <div class="recent-card">
+        <div class="recent-card" data-module="Requisiciones">
           <h3>Últimas requisiciones</h3>
           <div id="ultimasReq"></div>
         </div>
       </div>
       </div>
     </section>
+    </section>
 
-    <section class="panel collapsible-panel is-open" id="seccionRankingsOperativos" data-collapsible>
+    <div class="dashboard-section-heading dashboard-analysis-heading" id="seccionAnalisisHeading">
+      <div>
+        <span class="dashboard-section-kicker">Análisis</span>
+        <h2>Explora tendencias y detalle</h2>
+      </div>
+      <p>Estas secciones inician contraídas para mantener el foco en la operación.</p>
+    </div>
+
+    <section class="panel collapsible-panel is-collapsed" id="seccionRankingsOperativos" data-collapsible>
       <div class="panel-header">
         <div>
           <h2>Rankings operativos</h2>
@@ -249,7 +307,7 @@
       </div>
     </section>
 
-<section class="panel collapsible-panel is-open" id="seccionGraficasOperativas" data-collapsible>
+<section class="panel collapsible-panel is-collapsed" id="seccionGraficasOperativas" data-collapsible>
   <div class="panel-header">
     <div>
       <h2>Gráficas operativas</h2>
@@ -285,7 +343,7 @@
 </div>
 </section>
 
-<section class="panel collapsible-panel is-open" id="seccionGastoProveedor" data-collapsible>
+<section class="panel collapsible-panel is-collapsed" id="seccionGastoProveedor" data-collapsible>
   <div class="panel-header">
     <div>
       <h2>Gasto por proveedor</h2>
@@ -321,9 +379,10 @@
   </div>
 </section>
 
-    <section class="module-section">
-      <h2>Módulos disponibles</h2>
-      <p>Estos módulos aparecen según el usuario que inició sesión.</p>
+    <section class="module-section dashboard-modules">
+      <span class="dashboard-section-kicker">Navegación</span>
+      <h2>Todos tus módulos</h2>
+      <p>Las opciones se muestran según los permisos de tu cuenta.</p>
 
       <div class="module-grid" id="modulosCards"></div>
     </section>
@@ -351,24 +410,106 @@
 
       const bienvenida = document.getElementById("bienvenida");
       const rolUsuario = document.getElementById("rolUsuario");
-      if (bienvenida) bienvenida.textContent = "Bienvenido, " + usuarioActivo.nombre;
+      const saludoDashboard = document.getElementById("saludoDashboard");
+      const fechaDashboard = document.getElementById("fechaDashboard");
+      const horaActual = new Date().getHours();
+      const saludo = horaActual < 12 ? "Buenos días" : (horaActual < 19 ? "Buenas tardes" : "Buenas noches");
+      if (saludoDashboard) saludoDashboard.textContent = saludo + ", " + (usuarioActivo.nombre || "Usuario");
+      if (bienvenida) bienvenida.textContent = "Aquí tienes el estado actual de la operación.";
+      if (fechaDashboard) {
+        fechaDashboard.textContent = new Date().toLocaleDateString("es-MX", {
+          weekday: "long",
+          day: "numeric",
+          month: "long",
+          year: "numeric"
+        });
+      }
       if (rolUsuario) rolUsuario.textContent = usuarioActivo.rol;
 
+      const permitidos = window.ETPermissions
+        ? (ETPermissions.obtenerModulosUsuario(usuarioActivo) || [])
+        : [];
       const modulosCards = document.getElementById("modulosCards");
       if (modulosCards && window.ETPermissions) {
-      const permitidos = (ETPermissions.obtenerModulosUsuario(usuarioActivo) || [])
+      const modulosVisibles = permitidos
         .filter(function (m) { return m !== "Dashboard" && ETLayout.MODULOS_IMPLEMENTADOS.indexOf(m) >= 0; });
-      modulosCards.innerHTML = permitidos.map(function (modulo) {
-        return '<div class="module-card" data-href="' + ETPermissions.obtenerRutaModulo(modulo, false) + '">' +
+      modulosCards.innerHTML = modulosVisibles.map(function (modulo) {
+        return '<div class="module-card" role="link" tabindex="0" data-href="' + ETPermissions.obtenerRutaModulo(modulo, false) + '">' +
           "<h3>" + modulo + "</h3>" +
           "<p>" + (ETPermissions.DESCRIPCIONES[modulo] || "") + "</p></div>";
       }).join("");
       modulosCards.querySelectorAll(".module-card").forEach(function (card) {
-        card.addEventListener("click", function () {
+        function abrirModulo() {
           window.location.href = card.dataset.href;
+        }
+        card.addEventListener("click", abrirModulo);
+        card.addEventListener("keydown", function (event) {
+          if (event.key === "Enter" || event.key === " ") {
+            event.preventDefault();
+            abrirModulo();
+          }
         });
       });
     }
+
+      const accionesPreferidas = [
+        { modulo: "Peticiones", etiqueta: "Gestionar peticiones", detalle: "Solicitudes y seguimiento" },
+        { modulo: "Requisiciones", etiqueta: "Revisar requisiciones", detalle: "Compras, OC y facturas" },
+        { modulo: "Vales", etiqueta: "Consultar vales", detalle: "Salidas de almacén" },
+        { modulo: "Parque Vehicular", etiqueta: "Consultar unidades", detalle: "Estado del parque vehicular" },
+        { modulo: "Acuerdos", etiqueta: "Revisar acuerdos", detalle: "Compromisos y fechas" },
+        { modulo: "Tramites Administrativos", etiqueta: "Registrar trámite", detalle: "Permisos y vacaciones" }
+      ];
+      const quickActions = document.getElementById("dashboardQuickActions");
+      if (quickActions && window.ETPermissions) {
+        const acciones = accionesPreferidas.filter(function (accion) {
+          return permitidos.includes(accion.modulo);
+        }).slice(0, 4);
+        quickActions.innerHTML = acciones.map(function (accion) {
+          return '<a class="dashboard-quick-action" href="' +
+            ETPermissions.obtenerRutaModulo(accion.modulo, false) + '">' +
+            '<span class="dashboard-quick-action-icon" aria-hidden="true">→</span>' +
+            "<span><strong>" + accion.etiqueta + "</strong><small>" + accion.detalle + "</small></span>" +
+            "</a>";
+        }).join("") || '<p class="consulta-parque-placeholder">No hay accesos adicionales para este rol.</p>';
+      }
+
+      document.querySelectorAll(".dashboard-link-card").forEach(function (card) {
+        const modulo = card.dataset.module;
+        if (modulo && !permitidos.includes(modulo)) {
+          card.hidden = true;
+          return;
+        }
+        function navegar() {
+          if (card.dataset.href) window.location.href = card.dataset.href;
+        }
+        card.addEventListener("click", navegar);
+        card.addEventListener("keydown", function (event) {
+          if (event.key === "Enter" || event.key === " ") {
+            event.preventDefault();
+            navegar();
+          }
+        });
+      });
+
+      document.querySelectorAll(".recent-card[data-module]").forEach(function (card) {
+        card.hidden = !permitidos.includes(card.dataset.module);
+      });
+
+      const alertsPanel = document.getElementById("dashboardAlertsPanel");
+      const activityPanel = document.getElementById("dashboardActivityPanel");
+      if (alertsPanel) {
+        alertsPanel.hidden = !alertsPanel.querySelector(".alert-card:not([hidden])");
+      }
+      if (activityPanel) {
+        activityPanel.hidden = !activityPanel.querySelector(".recent-card:not([hidden])");
+      }
+      const priorityGrid = document.getElementById("dashboardPriorityGrid");
+      if (priorityGrid) {
+        priorityGrid.hidden = Boolean(
+          (!alertsPanel || alertsPanel.hidden) && (!activityPanel || activityPanel.hidden)
+        );
+      }
   }
 
     function esRolFinanciero(usuario) {
@@ -391,8 +532,11 @@ let fechaDesdeDashboard = "";
 let fechaHastaDashboard = "";
 
     async function cargarDashboardReal() {
+      const estadoActualizacion = document.getElementById("ultimaActualizacion");
+      if (estadoActualizacion) estadoActualizacion.textContent = "Actualizando información…";
       if (!dashboardClient) {
         console.error("Supabase no está disponible.");
+        if (estadoActualizacion) estadoActualizacion.textContent = "Sin conexión con la fuente de datos";
         return;
       }
 
@@ -417,6 +561,7 @@ let fechaHastaDashboard = "";
         }
       } catch (err) {
         console.error("Error cargando datos del dashboard:", err);
+        if (estadoActualizacion) estadoActualizacion.textContent = "No fue posible actualizar la información";
         return;
       }
 
@@ -434,6 +579,10 @@ let fechaHastaDashboard = "";
 
   llenarFiltroAnios();
   renderizarDashboard();
+  if (estadoActualizacion) {
+    estadoActualizacion.textContent = "Actualizado a las " +
+      new Date().toLocaleTimeString("es-MX", { hour: "2-digit", minute: "2-digit" });
+  }
 }
 
 function obtenerAnio(fecha) {
@@ -500,6 +649,11 @@ function moneda(valor) {
   });
 }
 
+function estadoVacioDashboard(mensaje) {
+  return '<div class="dashboard-empty-mini"><span aria-hidden="true">·</span>' +
+    "<small>" + escaparHTML(mensaje) + "</small></div>";
+}
+
 function renderizarDashboard() {
   const peticiones = aplicarFiltros(datosDashboard.peticiones);
   const requisiciones = aplicarFiltros(datosDashboard.requisiciones);
@@ -523,6 +677,7 @@ function renderizarDashboard() {
   const rankingsOperativos = document.getElementById("seccionRankingsOperativos");
   const graficasOperativas = document.getElementById("seccionGraficasOperativas");
   const gastoProveedor = document.getElementById("seccionGastoProveedor");
+  const analisisHeading = document.getElementById("seccionAnalisisHeading");
   const labelKpiVales = document.getElementById("labelKpiVales");
 
   if (costoAnualCard) costoAnualCard.style.display = puedeVerFinanciero ? "" : "none";
@@ -530,6 +685,7 @@ function renderizarDashboard() {
   if (rankingsOperativos) rankingsOperativos.style.display = puedeVerFinanciero ? "" : "none";
   if (graficasOperativas) graficasOperativas.style.display = puedeVerFinanciero ? "" : "none";
   if (gastoProveedor) gastoProveedor.style.display = puedeVerFinanciero ? "" : "none";
+  if (analisisHeading) analisisHeading.style.display = puedeVerFinanciero ? "" : "none";
 
   if (labelKpiVales) {
     labelKpiVales.textContent = puedeVerFinanciero ? "Vales emitidos" : "Vales activos";
@@ -578,45 +734,62 @@ function renderizarDashboard() {
   if (alertPeticionesVencidas) alertPeticionesVencidas.textContent = peticionesVencidas;
   if (alertPeticionesSinProveedor) alertPeticionesSinProveedor.textContent = peticionesSinProveedor;
 
+  const resumenAtencion = document.getElementById("resumenAtencion");
+  if (resumenAtencion) {
+    const modulosAtencion = window.ETPermissions
+      ? ETPermissions.obtenerModulosUsuario(usuarioActivo)
+      : [];
+    const totalAtencion =
+      (modulosAtencion.includes("Peticiones") ? kpis.peticionesPendientes : 0) +
+      (modulosAtencion.includes("Requisiciones") ? kpis.requisicionesPorAutorizar : 0) +
+      (modulosAtencion.includes("Vales") ? kpis.valesPendientes : 0);
+    resumenAtencion.classList.toggle("is-clear", totalAtencion === 0);
+    resumenAtencion.innerHTML =
+      '<span class="dashboard-attention-dot"></span>' +
+      (totalAtencion === 0
+        ? "Operación sin pendientes críticos"
+        : totalAtencion + (totalAtencion === 1 ? " pendiente requiere atención" : " pendientes requieren atención"));
+  }
+
   document.getElementById("rankingReparaciones").innerHTML =
     kpis.reparacionesCostosas.map(function (r, i) {
       return "<li><span><span class=\"rank\">" + (i + 1) + ".</span>" +
-        (r.concepto || "Sin concepto") + "</span><strong>" + moneda(r.monto) + "</strong></li>";
+        escaparHTML(r.concepto || "Sin concepto") + "</span><strong>" + moneda(r.monto) + "</strong></li>";
     }).join("") || "<li>Sin datos en el periodo</li>";
 
   document.getElementById("rankingPartes").innerHTML =
     kpis.partesFrecuentes.map(function (p, i) {
-      return "<li><span><span class=\"rank\">" + (i + 1) + ".</span>" + p[0] + "</span><strong>" + p[1] + "</strong></li>";
+      return "<li><span><span class=\"rank\">" + (i + 1) + ".</span>" + escaparHTML(p[0]) + "</span><strong>" + p[1] + "</strong></li>";
     }).join("") || "<li>Sin datos en el periodo</li>";
 
   document.getElementById("rankingServicios").innerHTML =
     kpis.serviciosFrecuentes.map(function (s, i) {
-      return "<li><span><span class=\"rank\">" + (i + 1) + ".</span>" + s[0] + "</span><strong>" + s[1] + "</strong></li>";
+      return "<li><span><span class=\"rank\">" + (i + 1) + ".</span>" + escaparHTML(s[0]) + "</span><strong>" + s[1] + "</strong></li>";
     }).join("") || "<li>Sin datos en el periodo</li>";
 
   document.getElementById("ultimasPeticiones").innerHTML =
     peticiones.slice(0, 5).map(p => `
       <div class="recent-item">
-        <strong>${p.unidad || "Sin unidad"}</strong>
-        <span>${p.peticion || "Sin petición"}</span>
+        <strong>${escaparHTML(p.unidad || "Sin unidad")}</strong>
+        <span>${escaparHTML(p.peticion || "Sin petición")}</span>
       </div>
-    `).join("");
+    `).join("") || estadoVacioDashboard("No hay peticiones en el periodo.");
 
   document.getElementById("ultimosVales").innerHTML =
     vales.slice(0, 5).map(v => `
       <div class="recent-item">
-        <strong>${v.folio || "Sin folio"}</strong>
-        <span>${v.refaccion || "Sin descripción"}</span>
+        <strong>${escaparHTML(v.folio || "Sin folio")}</strong>
+        <span>${escaparHTML(v.refaccion || "Sin descripción")}</span>
       </div>
-    `).join("");
+    `).join("") || estadoVacioDashboard("No hay vales en el periodo.");
 
   document.getElementById("ultimasReq").innerHTML =
     requisiciones.slice(0, 5).map(r => `
       <div class="recent-item">
-        <strong>${r.numero || "Sin requisición"}</strong>
-        <span>${r.concepto || "Sin concepto"}</span>
+        <strong>${escaparHTML(r.numero || "Sin requisición")}</strong>
+        <span>${escaparHTML(r.concepto || "Sin concepto")}</span>
       </div>
-    `).join("");
+    `).join("") || estadoVacioDashboard("No hay requisiciones en el periodo.");
 
   crearGraficaGastoMes(requisiciones);
   crearGraficaGastoDependencia(requisiciones);
@@ -1015,7 +1188,38 @@ if (filtroHastaEl) {
   filtroHastaEl.addEventListener("change", function () {
     fechaHastaDashboard = this.value;
     renderizarDashboard();
+    actualizarBotonLimpiarDashboard();
   });
+}
+
+const limpiarFiltrosDashboard = document.getElementById("limpiarFiltrosDashboard");
+
+function actualizarBotonLimpiarDashboard() {
+  if (!limpiarFiltrosDashboard) return;
+  limpiarFiltrosDashboard.disabled =
+    !anioSeleccionadoDashboard && !fechaDesdeDashboard && !fechaHastaDashboard;
+}
+
+if (filtroAnioEl) {
+  filtroAnioEl.addEventListener("change", actualizarBotonLimpiarDashboard);
+}
+
+if (filtroDesdeEl) {
+  filtroDesdeEl.addEventListener("change", actualizarBotonLimpiarDashboard);
+}
+
+if (limpiarFiltrosDashboard) {
+  limpiarFiltrosDashboard.addEventListener("click", function () {
+    anioSeleccionadoDashboard = "";
+    fechaDesdeDashboard = "";
+    fechaHastaDashboard = "";
+    if (filtroAnioEl) filtroAnioEl.value = "";
+    if (filtroDesdeEl) filtroDesdeEl.value = "";
+    if (filtroHastaEl) filtroHastaEl.value = "";
+    renderizarDashboard();
+    actualizarBotonLimpiarDashboard();
+  });
+  actualizarBotonLimpiarDashboard();
 }
 
 function exportarDashboardCSV() {
@@ -1098,14 +1302,14 @@ function consultarParqueVehicular() {
     return (
       '<div class="consulta-parque-card">' +
         '<div class="consulta-parque-card-header">' +
-          "<strong>No. económico: " + obtenerNumeroEconomico(u) + "</strong>" +
-          '<span class="badge ' + claseEstatusParque(estatus) + '">' + estatus + "</span>" +
+          "<strong>No. económico: " + escaparHTML(obtenerNumeroEconomico(u)) + "</strong>" +
+          '<span class="badge ' + claseEstatusParque(estatus) + '">' + escaparHTML(estatus) + "</span>" +
         "</div>" +
         '<dl class="consulta-parque-dl">' +
-          "<div><dt>Descripción</dt><dd>" + (u.descripcion || "Sin descripción") + "</dd></div>" +
-          "<div><dt>Dependencia</dt><dd>" + (u.dependencia || "Sin dependencia") + "</dd></div>" +
-          "<div><dt>Tipo de vehículo</dt><dd>" + obtenerTipoVehiculo(u) + "</dd></div>" +
-          "<div><dt>Estatus</dt><dd>" + estatus + "</dd></div>" +
+          "<div><dt>Descripción</dt><dd>" + escaparHTML(u.descripcion || "Sin descripción") + "</dd></div>" +
+          "<div><dt>Dependencia</dt><dd>" + escaparHTML(u.dependencia || "Sin dependencia") + "</dd></div>" +
+          "<div><dt>Tipo de vehículo</dt><dd>" + escaparHTML(obtenerTipoVehiculo(u)) + "</dd></div>" +
+          "<div><dt>Estatus</dt><dd>" + escaparHTML(estatus) + "</dd></div>" +
         "</dl>" +
       "</div>"
     );

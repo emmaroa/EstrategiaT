@@ -46,7 +46,11 @@ document.addEventListener("DOMContentLoaded", () => {
   if (btnNuevo) btnNuevo.addEventListener("click", abrirModal);
   if (btnCerrar) btnCerrar.addEventListener("click", cerrarModal);
   if (btnCancelar) btnCancelar.addEventListener("click", cerrarModal);
-  if (btnGuardar) btnGuardar.addEventListener("click", guardarAcuerdo);
+  if (btnGuardar) {
+    btnGuardar.addEventListener("click", function () {
+      ETLoading.ejecutar(btnGuardar, guardarAcuerdo);
+    });
+  }
 
   buscarAcuerdo?.addEventListener("input", renderizarAcuerdos);
   filtroEstado?.addEventListener("change", renderizarAcuerdos);
