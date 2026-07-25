@@ -121,7 +121,7 @@
               <th>Solicitante</th>
               <th>Área</th>
               <th>Dependencia</th>
-              <th>Proveedor</th>
+              <th id="columnaProveedorPeticion">Proveedor</th>
               <th>Estatus</th>
               <th>Acciones</th>
             </tr>
@@ -158,6 +158,11 @@
       </div>
 
       <div class="form-grid">
+        <div class="input-group full" id="mensajeCamposTecnico" style="display:none;">
+          <small style="color:var(--muted);display:block;padding:8px 10px;border:1px solid var(--border);border-radius:8px;background:rgba(7,177,188,.08);">
+            Como técnico, el proveedor se dejará vacío, el estatus quedará en Pendiente y la fecha se tomará automáticamente del día de captura.
+          </small>
+        </div>
 
         <div class="input-group">
           <label for="unidad">Unidad</label>
@@ -271,6 +276,7 @@
     const peticionInput = document.getElementById("peticion");
     const observacionesInput = document.getElementById("observaciones");
     const infoUnidadPeticion = document.getElementById("infoUnidadPeticion");
+    const mensajeCamposTecnico = document.getElementById("mensajeCamposTecnico");
     const kpiTotal = document.getElementById("kpiTotal");
     const kpiPendientes = document.getElementById("kpiPendientes");
     const kpiProceso = document.getElementById("kpiProceso");
@@ -321,6 +327,12 @@
         .trim()
         .toLowerCase()
         .replace(/[\s_-]+/g, "");
+    }
+
+    function esRolTecnicoPeticion() {
+      const usuarioActivo = obtenerUsuarioActivoPeticion();
+      const rol = normalizarRolPeticion(usuarioActivo?.rol || usuarioActivo?.rol_original);
+      return rol.includes("tecnico") || rol === "tec";
     }
 
     function puedeGenerarRequisicion() {
@@ -418,6 +430,8 @@
       const proveedor = String(filtroProveedor?.value || "");
       const area = String(filtroArea?.value || "");
       const estatusFiltro = obtenerValorCanonicoEstatusPeticion(estatus);
+      const vistaTecnico = esRolTecnicoPeticion();
+      const mostrarProveedor = !vistaTecnico;
 
       if (tablaPeticiones) tablaPeticiones.innerHTML = "";
 
@@ -437,15 +451,22 @@
         return coincideTexto && coincideEstatus && coincideProveedor && coincideArea;
       });
 
-      const totalPaginas = Math.max(1, Math.ceil(filtradas.length / REGISTROS_POR_PAGINA_PET));
+      const filtradasVisibles = vistaTecnico ? filtradas.slice(0, 10) : filtradas;
+
+      const totalPaginas = Math.max(1, Math.ceil(filtradasVisibles.length / REGISTROS_POR_PAGINA_PET));
       if (paginaPeticiones > totalPaginas) paginaPeticiones = totalPaginas;
       if (paginaPeticiones < 1) paginaPeticiones = 1;
 
       const inicio = (paginaPeticiones - 1) * REGISTROS_POR_PAGINA_PET;
-      const paginaActual = filtradas.slice(inicio, inicio + REGISTROS_POR_PAGINA_PET);
+      const paginaActual = filtradasVisibles.slice(inicio, inicio + REGISTROS_POR_PAGINA_PET);
 
-      if (!filtradas.length) {
-        tablaPeticiones.innerHTML = '<tr><td colspan="9">No hay peticiones registradas.</td></tr>';
+      const columnaProveedor = document.getElementById("columnaProveedorPeticion");
+      if (columnaProveedor) columnaProveedor.style.display = mostrarProveedor ? "" : "none";
+      if (btnFiltroProveedor) btnFiltroProveedor.style.display = mostrarProveedor ? "" : "none";
+      if (filtroProveedor) filtroProveedor.style.display = mostrarProveedor ? "" : "none";
+
+      if (!filtradasVisibles.length) {
+        tablaPeticiones.innerHTML = '<tr><td colspan="' + (mostrarProveedor ? "9" : "8") + '">No hay peticiones registradas.</td></tr>';
       } else {
         const mostrarTextoPedido = puedeCopiarTextoPedido();
         const mostrarGenerarRequisicion = puedeGenerarRequisicion();
@@ -460,7 +481,7 @@
             "<td>" + p.solicitante + "</td>" +
             "<td>" + p.area + "</td>" +
             "<td>" + (p.dependencia || "Sin dependencia") + "</td>" +
-            "<td>" + (p.proveedor || "Sin asignar") + "</td>" +
+            (mostrarProveedor ? "<td>" + (p.proveedor || "Sin asignar") + "</td>" : "") +
             '<td><span class="badge status-badge ' + obtenerClaseEstatusPeticion(p.estatus) + '">' + p.estatus + "</span></td>" +
             '<td><div class="action-grid">' +
               ETLayout.iconButton("ver", "Ver peticion", "verPeticion('" + p.id + "')") +
@@ -474,7 +495,7 @@
         });
       }
 
-      actualizarPaginacionPeticiones(filtradas.length, totalPaginas, inicio, paginaActual.length);
+      actualizarPaginacionPeticiones(filtradasVisibles.length, totalPaginas, inicio, paginaActual.length);
       actualizarKPIs();
     }
 
@@ -504,6 +525,33 @@
       if (kpiCotizacion) kpiCotizacion.textContent = counts.cotizacion;
     }
 
+    function configurarCamposTecnico() {
+      const vistaTecnico = esRolTecnicoPeticion();
+      const deshabilitar = vistaTecnico && !idEditando;
+
+      if (mensajeCamposTecnico) {
+        mensajeCamposTecnico.style.display = vistaTecnico && !idEditando ? "block" : "none";
+      }
+
+      if (proveedorInput) {
+        proveedorInput.value = "";
+        proveedorInput.disabled = deshabilitar;
+        proveedorInput.setAttribute("aria-disabled", deshabilitar ? "true" : "false");
+      }
+
+      if (estatusSelect) {
+        estatusSelect.value = "Pendiente";
+        estatusSelect.disabled = deshabilitar;
+        estatusSelect.setAttribute("aria-disabled", deshabilitar ? "true" : "false");
+      }
+
+      if (fechaInput) {
+        fechaInput.value = new Date().toISOString().split("T")[0];
+        fechaInput.disabled = deshabilitar;
+        fechaInput.setAttribute("aria-disabled", deshabilitar ? "true" : "false");
+      }
+    }
+
     function abrirModal() {
       if (!idEditando && !puedeAccionPeticion("crear")) return;
       if (idEditando && !puedeAccionPeticion("editar")) return;
@@ -511,7 +559,20 @@
       modalPeticion?.setAttribute("aria-hidden", "false");
       modalPeticionTitulo.textContent = idEditando ? "Editar petición" : "Nueva petición";
       if (!idEditando) {
-        fechaInput.value = new Date().toISOString().split("T")[0];
+        configurarCamposTecnico();
+      } else {
+        if (proveedorInput) {
+          proveedorInput.disabled = false;
+          proveedorInput.setAttribute("aria-disabled", "false");
+        }
+        if (estatusSelect) {
+          estatusSelect.disabled = false;
+          estatusSelect.setAttribute("aria-disabled", "false");
+        }
+        if (fechaInput) {
+          fechaInput.disabled = false;
+          fechaInput.setAttribute("aria-disabled", "false");
+        }
       }
       unidadInput?.focus();
     }
@@ -582,6 +643,7 @@
         if (unidadEncontrada) dependenciaInput.value = unidadEncontrada.dependencia || "";
       }
 
+      const vistaTecnico = esRolTecnicoPeticion();
       const nuevaPeticion = {
         fecha: fechaInput.value,
         unidad: obtenerUnidadPeticion(unidadInput.value),
@@ -589,8 +651,8 @@
         solicitante: solicitanteInput.value.trim(),
         area: areaSelect.value,
         dependencia: dependenciaInput.value.trim() || null,
-        proveedor: proveedorInput.value.trim() || null,
-        estatus: estatusSelect.value,
+        proveedor: vistaTecnico ? null : (proveedorInput.value.trim() || null),
+        estatus: vistaTecnico ? "Pendiente" : estatusSelect.value,
         observaciones: observacionesInput.value.trim() || null
       };
 
@@ -651,6 +713,21 @@
       estatusSelect.value = "Pendiente";
       observacionesInput.value = "";
       infoUnidadPeticion.textContent = "";
+      if (mensajeCamposTecnico) {
+        mensajeCamposTecnico.style.display = "none";
+      }
+      if (proveedorInput) {
+        proveedorInput.disabled = false;
+        proveedorInput.setAttribute("aria-disabled", "false");
+      }
+      if (estatusSelect) {
+        estatusSelect.disabled = false;
+        estatusSelect.setAttribute("aria-disabled", "false");
+      }
+      if (fechaInput) {
+        fechaInput.disabled = false;
+        fechaInput.setAttribute("aria-disabled", "false");
+      }
     }
 
     function obtenerPeticionPorId(id) {

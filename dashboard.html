@@ -14,6 +14,7 @@
   <script src="js/core/layout.js"></script>
   <script src="js/services/export.service.js"></script>
   <script src="js/services/dashboard.service.js"></script>
+  <script src="js/services/requisiciones.service.js"></script>
   <script src="login.js"></script>
 </head>
 
@@ -85,9 +86,19 @@
         <p>Sin atender</p>
       </div>
       <div class="kpi-card">
-        <span>Requisiciones activas</span>
+        <span>Requisiciones abiertas</span>
         <h2 id="kpiRequisiciones">0</h2>
-        <p>En proceso</p>
+        <p>Sin cerrar</p>
+      </div>
+      <div class="kpi-card">
+        <span>Requisiciones por autorizar</span>
+        <h2 id="kpiRequisicionesAutorizar">0</h2>
+        <p>Por revisar</p>
+      </div>
+      <div class="kpi-card">
+        <span>Requisiciones con XML</span>
+        <h2 id="kpiRequisicionesXml">0</h2>
+        <p>Listas para trámite</p>
       </div>
       <div class="kpi-card">
         <span id="labelKpiVales">Vales emitidos</span>
@@ -389,17 +400,21 @@ let fechaHastaDashboard = "";
       try {
         [
           peticionesRes,
-          requisicionesRes,
           valesRes,
           parqueRes,
           usuariosRes
         ] = await Promise.all([
           dashboardClient.from("peticiones").select("*").order("created_at", { ascending: false }),
-          dashboardClient.from("requisiciones").select("*").order("created_at", { ascending: false }),
           dashboardClient.from("vales").select("*").order("created_at", { ascending: false }),
           dashboardClient.from("parque_vehicular").select("*").order("created_at", { ascending: false }),
           dashboardClient.from("usuarios").select("*").order("created_at", { ascending: false })
         ]);
+
+        if (window.ETRequisiciones && typeof ETRequisiciones.listar === "function") {
+          requisicionesRes = await ETRequisiciones.listar();
+        } else {
+          requisicionesRes = await dashboardClient.from("requisiciones_siif").select("*").order("created_at", { ascending: false });
+        }
       } catch (err) {
         console.error("Error cargando datos del dashboard:", err);
         return;
@@ -527,6 +542,8 @@ function renderizarDashboard() {
   document.getElementById("kpiCostoMensual").textContent = moneda(kpis.costoMensual);
   document.getElementById("kpiPeticiones").textContent = kpis.peticionesPendientes;
   document.getElementById("kpiRequisiciones").textContent = kpis.requisicionesActivas;
+  document.getElementById("kpiRequisicionesAutorizar").textContent = kpis.requisicionesPorAutorizar;
+  document.getElementById("kpiRequisicionesXml").textContent = kpis.requisicionesConXml;
   document.getElementById("kpiValesEmitidos").textContent = puedeVerFinanciero ? kpis.valesEmitidos : kpis.valesActivos;
 
   document.getElementById("kpiCostoAnualDesc").textContent =

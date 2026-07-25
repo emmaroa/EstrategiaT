@@ -62,6 +62,14 @@
       .slice(0, limite);
   }
 
+  function normalizarTextoDashboard(valor) {
+    return String(valor || "")
+      .trim()
+      .normalize("NFD")
+      .replace(/[\u0300-\u036f]/g, "")
+      .toLowerCase();
+  }
+
   function calcularKPIs(datos) {
     const ahora = new Date();
     const anioActual = ahora.getFullYear().toString();
@@ -94,6 +102,21 @@
       requisiciones.filter(function (r) { return obtenerMes(r.fecha) === mesActual; })
     );
 
+    const requisicionesActivas = requisicionesOperativas.filter(function (r) {
+      const estatus = normalizarTextoDashboard(r.estatus);
+      return !["cancelado", "cerrado", "finalizado", "enviado", "entregado", "pagado", "rechazado", "rechazada"].includes(estatus);
+    }).length;
+
+    const requisicionesPorAutorizar = requisicionesOperativas.filter(function (r) {
+      const estatus = normalizarTextoDashboard(r.estatus);
+      return estatus.includes("autorizar") || estatus.includes("pendiente") || estatus.includes("por revisar") || estatus.includes("revision");
+    }).length;
+
+    const requisicionesConXml = requisicionesOperativas.filter(function (r) {
+      const xml = String(r.xml || r.factura || "").trim();
+      return Boolean(xml);
+    }).length;
+
     const partesFrecuentes = topN(agruparConteo(vales, "refaccion"), 5);
     const serviciosFrecuentes = topN(agruparConteo(peticiones, "peticion"), 5);
     const reparacionesCostosas = requisiciones
@@ -106,7 +129,9 @@
       unidadesActivas: parque.filter(function (u) { return u.estatus === "ACTIVO"; }).length,
       unidadesTaller: parque.filter(function (u) { return u.estatus === "TALLER"; }).length,
       peticionesPendientes: peticiones.filter(function (p) { return p.estatus === "Pendiente"; }).length,
-      requisicionesActivas: requisicionesOperativas.filter(function (r) { return r.estatus !== "Enviado"; }).length,
+      requisicionesActivas: requisicionesActivas,
+      requisicionesPorAutorizar: requisicionesPorAutorizar,
+      requisicionesConXml: requisicionesConXml,
       valesEmitidos: vales.length,
       valesActivos: valesOperativos.filter(function (v) {
         const estatus = String(v.estatus || "").trim().toLowerCase();
@@ -117,7 +142,10 @@
       costoAnual: costoAnual,
       costoMensual: costoMensual,
       reqSinOC: requisiciones.filter(function (r) { return !r.oc; }).length,
-      facturasPendientes: requisiciones.filter(function (r) { return !r.factura; }).length,
+      facturasPendientes: requisiciones.filter(function (r) {
+        const xml = String(r.xml || r.factura || "").trim();
+        return !xml;
+      }).length,
       partesFrecuentes: partesFrecuentes,
       serviciosFrecuentes: serviciosFrecuentes,
       reparacionesCostosas: reparacionesCostosas,
