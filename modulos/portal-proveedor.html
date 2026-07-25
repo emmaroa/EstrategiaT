@@ -1,0 +1,322 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Administración de Talleres | Portal Proveedor</title>
+  <link rel="stylesheet" href="../css/style.css">
+  <link rel="stylesheet" href="../css/design-system.css?v=20260725-1">
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="../js/core/supabase.js"></script>
+  <script src="../js/core/permissions.js?v=20260725-3"></script>
+  <script src="../js/core/theme.js"></script>
+  <script src="../js/core/layout.js?v=20260725-3"></script>
+  <script src="../login.js?v=20260725-3"></script>
+</head>
+<body class="dashboard-body">
+  <aside class="sidebar">
+    <div class="sidebar-logo">
+      <div class="mini-logo">E</div>
+      <div>
+        <h3>Administración de Talleres</h3>
+        <small id="etModuleName">Portal Proveedor</small>
+      </div>
+    </div>
+    <nav id="etNav"></nav>
+    <button type="button" class="logout" id="etLogout">Cerrar sesión</button>
+  </aside>
+
+  <main class="main-content">
+    <header class="topbar">
+      <div>
+        <h1>Portal de proveedores</h1>
+        <p id="nombreProveedorPortal">Consulta tus solicitudes y requisiciones asignadas.</p>
+      </div>
+      <span id="etTemaContainer"></span>
+    </header>
+
+    <section class="kpi-grid">
+      <div class="kpi-card">
+        <span>Peticiones asignadas</span>
+        <h2 id="kpiPeticionesProveedor">0</h2>
+        <p>Total visible</p>
+      </div>
+      <div class="kpi-card">
+        <span>Pendientes de entrega</span>
+        <h2 id="kpiPendientesProveedor">0</h2>
+        <p>Por entregar al almacén</p>
+      </div>
+      <div class="kpi-card">
+        <span>Entregadas</span>
+        <h2 id="kpiEntregadasProveedor">0</h2>
+        <p>Confirmadas por proveedor</p>
+      </div>
+      <div class="kpi-card">
+        <span>Requisiciones</span>
+        <h2 id="kpiRequisicionesProveedor">0</h2>
+        <p>Seguimiento disponible</p>
+      </div>
+    </section>
+
+    <section class="panel">
+      <div class="panel-header">
+        <div>
+          <h2>Peticiones asignadas</h2>
+          <p>Confirma la entrega al almacén o agrega una nota especial.</p>
+        </div>
+      </div>
+      <div class="table-container">
+        <table>
+          <thead>
+            <tr>
+              <th>Fecha</th>
+              <th>Unidad</th>
+              <th>Petición</th>
+              <th>Solicitante</th>
+              <th>Estatus interno</th>
+              <th>Entrega proveedor</th>
+              <th>Nota</th>
+              <th>Acciones</th>
+            </tr>
+          </thead>
+          <tbody id="tablaPeticionesProveedor"></tbody>
+        </table>
+      </div>
+    </section>
+
+    <section class="panel">
+      <div class="panel-header">
+        <div>
+          <h2>Estatus de requisiciones</h2>
+          <p>Vista de consulta exclusiva para tus requisiciones.</p>
+        </div>
+      </div>
+      <div class="table-container">
+        <table>
+          <thead>
+            <tr>
+              <th>Fecha</th>
+              <th>Requisición</th>
+              <th>Unidad</th>
+              <th>Concepto</th>
+              <th>Orden de compra</th>
+              <th>Estatus</th>
+            </tr>
+          </thead>
+          <tbody id="tablaRequisicionesProveedor"></tbody>
+        </table>
+      </div>
+    </section>
+  </main>
+
+  <div class="modal" id="modalNotaProveedor" role="dialog" aria-modal="true" aria-labelledby="tituloNotaProveedor" aria-hidden="true">
+    <div class="modal-card">
+      <div class="modal-header">
+        <div>
+          <h2 id="tituloNotaProveedor">Nota especial</h2>
+          <p>La nota quedará asociada a esta petición.</p>
+        </div>
+        <button type="button" class="close-btn" aria-label="Cerrar diálogo" onclick="cerrarNotaProveedor()">×</button>
+      </div>
+      <div class="input-group">
+        <label for="textoNotaProveedor">Nota del proveedor</label>
+        <textarea id="textoNotaProveedor" rows="6" maxlength="2000" placeholder="Escribe indicaciones, incidencias o detalles de la entrega"></textarea>
+      </div>
+      <div class="modal-actions">
+        <button type="button" class="btn-secondary" onclick="cerrarNotaProveedor()">Cancelar</button>
+        <button type="button" class="btn-small" onclick="guardarNotaProveedor()">Guardar nota</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const usuarioProveedor = JSON.parse(localStorage.getItem("usuarioActivo") || "null");
+    const rolProveedor = String(usuarioProveedor?.rol || "").trim().toLowerCase();
+
+    if (!usuarioProveedor || rolProveedor !== "proveedor") {
+      alert("Este módulo es exclusivo para usuarios con rol Proveedor.");
+      window.location.href = "../dashboard.html";
+    }
+
+    ETLayout.inicializar("Portal Proveedor");
+
+    const proveedorVinculado = String(usuarioProveedor?.proveedor || "").trim();
+    let peticionesProveedor = [];
+    let requisicionesProveedor = [];
+    let peticionNotaId = null;
+
+    function escaparPortal(valor) {
+      return String(valor ?? "")
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
+    }
+
+    function fechaPortal(valor) {
+      if (!valor) return "—";
+      const fecha = String(valor).split("T")[0].split("-");
+      return fecha.length === 3 ? fecha[2] + "/" + fecha[1] + "/" + fecha[0] : escaparPortal(valor);
+    }
+
+    async function cargarPortalProveedor() {
+      if (!proveedorVinculado) {
+        document.getElementById("nombreProveedorPortal").textContent =
+          "Tu usuario no tiene un proveedor vinculado. Solicita la configuración al administrador.";
+        renderizarPortalProveedor();
+        return;
+      }
+
+      document.getElementById("nombreProveedorPortal").textContent = proveedorVinculado;
+
+      const [peticionesResultado, requisicionesResultado] = await Promise.all([
+        supabaseClient
+          .from("peticiones")
+          .select("id,fecha,unidad,peticion,solicitante,estatus,estatus_proveedor,nota_proveedor,fecha_entrega_proveedor,proveedor")
+          .eq("proveedor", proveedorVinculado)
+          .order("created_at", { ascending: false }),
+        supabaseClient
+          .from("requisiciones_siif")
+          .select("id,fecha_req,numero_req,unidad,concepto,numero_oc,estatus,proveedor")
+          .eq("proveedor", proveedorVinculado)
+          .order("fecha_req", { ascending: false })
+      ]);
+
+      if (peticionesResultado.error) {
+        console.error(peticionesResultado.error);
+        alert("No se pudieron cargar las peticiones asignadas.");
+      }
+      if (requisicionesResultado.error) {
+        console.error(requisicionesResultado.error);
+        alert("No se pudieron cargar las requisiciones.");
+      }
+
+      peticionesProveedor = peticionesResultado.data || [];
+      requisicionesProveedor = requisicionesResultado.data || [];
+      renderizarPortalProveedor();
+    }
+
+    function renderizarPortalProveedor() {
+      const tablaPeticiones = document.getElementById("tablaPeticionesProveedor");
+      const tablaRequisiciones = document.getElementById("tablaRequisicionesProveedor");
+
+      tablaPeticiones.innerHTML = peticionesProveedor.length
+        ? peticionesProveedor.map(function (peticion) {
+            const entregada = peticion.estatus_proveedor === "Entregado a almacén";
+            return "<tr>" +
+              "<td>" + fechaPortal(peticion.fecha) + "</td>" +
+              "<td>" + escaparPortal(peticion.unidad || "—") + "</td>" +
+              "<td>" + escaparPortal(peticion.peticion || "—") + "</td>" +
+              "<td>" + escaparPortal(peticion.solicitante || "—") + "</td>" +
+              '<td><span class="badge status-badge blue">' + escaparPortal(peticion.estatus || "—") + "</span></td>" +
+              '<td><span class="badge status-badge ' + (entregada ? "green" : "amber") + '">' +
+                escaparPortal(peticion.estatus_proveedor || "Pendiente de entrega") + "</span>" +
+                (peticion.fecha_entrega_proveedor ? "<small style=\"display:block;margin-top:5px;\">" + fechaPortal(peticion.fecha_entrega_proveedor) + "</small>" : "") +
+              "</td>" +
+              "<td>" + escaparPortal(peticion.nota_proveedor || "Sin nota") + "</td>" +
+              '<td><div class="action-grid">' +
+                '<button type="button" class="btn-small" onclick="marcarEntregadaProveedor(\'' + peticion.id + '\')" ' + (entregada ? "disabled" : "") + '>Entregado</button>' +
+                '<button type="button" class="btn-secondary" onclick="abrirNotaProveedor(\'' + peticion.id + '\')">Nota</button>' +
+              "</div></td></tr>";
+          }).join("")
+        : '<tr><td colspan="8">No hay peticiones asignadas a este proveedor.</td></tr>';
+
+      tablaRequisiciones.innerHTML = requisicionesProveedor.length
+        ? requisicionesProveedor.map(function (requisicion) {
+            return "<tr>" +
+              "<td>" + fechaPortal(requisicion.fecha_req) + "</td>" +
+              "<td><strong>" + escaparPortal(requisicion.numero_req || "—") + "</strong></td>" +
+              "<td>" + escaparPortal(requisicion.unidad || "—") + "</td>" +
+              "<td>" + escaparPortal(requisicion.concepto || "—") + "</td>" +
+              "<td>" + escaparPortal(requisicion.numero_oc || "Pendiente") + "</td>" +
+              '<td><span class="badge status-badge blue">' + escaparPortal(requisicion.estatus || "—") + "</span></td></tr>";
+          }).join("")
+        : '<tr><td colspan="6">No hay requisiciones asignadas a este proveedor.</td></tr>';
+
+      document.getElementById("kpiPeticionesProveedor").textContent = peticionesProveedor.length;
+      document.getElementById("kpiPendientesProveedor").textContent = peticionesProveedor.filter(function (p) {
+        return p.estatus_proveedor !== "Entregado a almacén";
+      }).length;
+      document.getElementById("kpiEntregadasProveedor").textContent = peticionesProveedor.filter(function (p) {
+        return p.estatus_proveedor === "Entregado a almacén";
+      }).length;
+      document.getElementById("kpiRequisicionesProveedor").textContent = requisicionesProveedor.length;
+    }
+
+    async function marcarEntregadaProveedor(id) {
+      const peticion = peticionesProveedor.find(function (item) { return item.id === id; });
+      if (!peticion || peticion.estatus_proveedor === "Entregado a almacén") return;
+
+      const confirmar = await ETFeedback.confirmar({
+        title: "Confirmar entrega",
+        message: "¿Confirmas que esta petición ya fue entregada al almacén?",
+        confirmLabel: "Sí, entregar"
+      });
+      if (!confirmar) return;
+
+      const { data: entregaActualizada, error } = await supabaseClient
+        .from("peticiones")
+        .update({
+          estatus_proveedor: "Entregado a almacén",
+          fecha_entrega_proveedor: new Date().toISOString(),
+          updated_at: new Date().toISOString()
+        })
+        .eq("id", id)
+        .eq("proveedor", proveedorVinculado)
+        .select("id")
+        .maybeSingle();
+
+      if (error || !entregaActualizada) {
+        console.error(error);
+        alert("No se pudo confirmar la entrega.");
+        return;
+      }
+
+      registrarAuditoria("Portal Proveedor", "Confirmó entrega a almacén", proveedorVinculado + " - " + (peticion.peticion || id));
+      await cargarPortalProveedor();
+    }
+
+    function abrirNotaProveedor(id) {
+      const peticion = peticionesProveedor.find(function (item) { return item.id === id; });
+      if (!peticion) return;
+      peticionNotaId = id;
+      document.getElementById("textoNotaProveedor").value = peticion.nota_proveedor || "";
+      document.getElementById("modalNotaProveedor").classList.add("show");
+      document.getElementById("modalNotaProveedor").setAttribute("aria-hidden", "false");
+      document.getElementById("textoNotaProveedor").focus();
+    }
+
+    function cerrarNotaProveedor() {
+      peticionNotaId = null;
+      document.getElementById("modalNotaProveedor").classList.remove("show");
+      document.getElementById("modalNotaProveedor").setAttribute("aria-hidden", "true");
+      document.getElementById("textoNotaProveedor").value = "";
+    }
+
+    async function guardarNotaProveedor() {
+      if (!peticionNotaId) return;
+      const nota = document.getElementById("textoNotaProveedor").value.trim();
+      const { data: notaActualizada, error } = await supabaseClient
+        .from("peticiones")
+        .update({ nota_proveedor: nota || null, updated_at: new Date().toISOString() })
+        .eq("id", peticionNotaId)
+        .eq("proveedor", proveedorVinculado)
+        .select("id")
+        .maybeSingle();
+
+      if (error || !notaActualizada) {
+        console.error(error);
+        alert("No se pudo guardar la nota.");
+        return;
+      }
+
+      registrarAuditoria("Portal Proveedor", "Actualizó nota de petición", proveedorVinculado + " - " + peticionNotaId);
+      cerrarNotaProveedor();
+      await cargarPortalProveedor();
+    }
+
+    cargarPortalProveedor();
+  </script>
+</body>
+</html>

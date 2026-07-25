@@ -8,10 +8,10 @@
   <link rel="stylesheet" href="../css/design-system.css">
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="../js/core/supabase.js"></script>
-  <script src="../js/core/permissions.js"></script>
+  <script src="../js/core/permissions.js?v=20260725-1"></script>
   <script src="../js/core/theme.js"></script>
-  <script src="../js/core/layout.js?v=20260724-3"></script>
-  <script src="../login.js"></script>
+  <script src="../js/core/layout.js?v=20260725-1"></script>
+  <script src="../login.js?v=20260725-1"></script>
 </head>
 
 <body class="dashboard-body">
@@ -72,7 +72,7 @@
       <div class="panel-header">
         <div>
           <h2>Listado de vales</h2>
-          <p>Busca por folio, unidad, dependencia, solicitante, recibe, entrega o refacción.</p>
+          <p>Busca por folio, unidad, dependencia, solicitante, recibe, entrega o material.</p>
         </div>
       </div>
 
@@ -83,17 +83,10 @@
           <option value="">Todos los estatus</option>
           <option value="Pendiente">Pendiente</option>
           <option value="Entregado">Entregado</option>
+          <option value="Solventado">Solventado</option>
           <option value="Cancelado">Cancelado</option>
         </select>
 
-        <select id="filtroValeArea" aria-label="Filtrar por área">
-          <option value="">Todas las áreas</option>
-          <option value="Gasolina">Gasolina</option>
-          <option value="Colectores">Colectores</option>
-          <option value="Maquinaria pesada">Maquinaria pesada</option>
-          <option value="Eléctricos">Eléctricos</option>
-          <option value="Barredoras">Barredoras</option>
-        </select>
       </div>
 
       <div class="table-container">
@@ -104,10 +97,8 @@
               <th>Folio</th>
               <th>Unidad</th>
               <th>Dependencia</th>
-              <th>Área</th>
               <th>Solicitante</th>
-              <th>Refacción / Material</th>
-              <th>Cant.</th>
+              <th>Material entregado</th>
               <th>Entrega</th>
               <th>Recibe</th>
               <th>Estatus</th>
@@ -155,18 +146,6 @@
         </div>
 
         <div class="input-group">
-          <label>Área</label>
-          <select id="areaVale">
-            <option value="">Selecciona área</option>
-            <option value="Gasolina">Gasolina</option>
-            <option value="Colectores">Colectores</option>
-            <option value="Maquinaria pesada">Maquinaria pesada</option>
-            <option value="Eléctricos">Eléctricos</option>
-            <option value="Barredoras">Barredoras</option>
-          </select>
-        </div>
-
-        <div class="input-group">
           <label>Dependencia</label>
           <input type="text" id="dependenciaVale" readonly placeholder="Se obtiene de la unidad">
         </div>
@@ -182,29 +161,14 @@
         </div>
 
         <div class="input-group">
-          <label>Cantidad</label>
-          <input type="number" id="cantidadVale">
-        </div>
-
-        <div class="input-group">
-          <label>Unidad de medida</label>
-          <select id="medidaVale">
-            <option value="Pieza">Pieza</option>
-            <option value="Litro">Litro</option>
-            <option value="Juego">Juego</option>
-            <option value="Servicio">Servicio</option>
-            <option value="Metro">Metro</option>
-          </select>
-        </div>
-
-        <div class="input-group">
           <label>Entrega</label>
-          <input type="text" id="entregaVale">
+          <input type="text" id="entregaVale" readonly>
         </div>
 
         <div class="input-group">
           <label>Recibe</label>
-          <input type="text" id="recibeVale">
+          <input type="text" id="recibeVale" list="empleadosValeLista" autocomplete="off" placeholder="Teclea el nombre del empleado">
+          <datalist id="empleadosValeLista"></datalist>
         </div>
 
         <div class="input-group">
@@ -222,8 +186,8 @@
         </div>
 
         <div class="input-group full">
-          <label>Refacción / Material</label>
-          <textarea id="refaccionVale"></textarea>
+          <label>Material entregado</label>
+          <textarea id="refaccionVale" rows="5" placeholder="Describe el material entregado"></textarea>
         </div>
 
         <div class="input-group full">
@@ -254,17 +218,14 @@
     const tablaVales = document.getElementById("tablaVales");
     const buscarVale = document.getElementById("buscarVale");
     const filtroValeEstatus = document.getElementById("filtroValeEstatus");
-    const filtroValeArea = document.getElementById("filtroValeArea");
     const unidadVale = document.getElementById("unidadVale");
-    const areaVale = document.getElementById("areaVale");
     const dependenciaVale = document.getElementById("dependenciaVale");
     const solicitanteVale = document.getElementById("solicitanteVale");
     const proveedorVale = document.getElementById("proveedorVale");
     const refaccionVale = document.getElementById("refaccionVale");
-    const cantidadVale = document.getElementById("cantidadVale");
-    const medidaVale = document.getElementById("medidaVale");
     const entregaVale = document.getElementById("entregaVale");
     const recibeVale = document.getElementById("recibeVale");
+    const empleadosValeLista = document.getElementById("empleadosValeLista");
     const estatusVale = document.getElementById("estatusVale");
     const reqVale = document.getElementById("reqVale");
     const observacionesVale = document.getElementById("observacionesVale");
@@ -288,7 +249,55 @@
 
     buscarVale?.addEventListener("input", cargarVales);
     filtroValeEstatus?.addEventListener("change", cargarVales);
-    filtroValeArea?.addEventListener("change", cargarVales);
+
+    function obtenerUsuarioVale() {
+      try {
+        return JSON.parse(localStorage.getItem("usuarioActivo") || "null");
+      } catch (_) {
+        return null;
+      }
+    }
+
+    function puedeSolventarVale() {
+      const rol = String(obtenerUsuarioVale()?.rol || "").trim().toLowerCase();
+      return ["técnico vales", "tecnico vales", "superadmin", "jefe de almacen", "jefe de almacén"].includes(rol);
+    }
+
+    function puedeAccionVale(accion) {
+      const usuario = obtenerUsuarioVale();
+      return Boolean(window.ETPermissions?.puedeAccion(usuario, "Vales", accion));
+    }
+
+    function configurarEstatusVale() {
+      if (!estatusVale || !puedeSolventarVale()) return;
+      if (!Array.from(estatusVale.options).some(function (opcion) { return opcion.value === "Solventado"; })) {
+        estatusVale.add(new Option("Solventado", "Solventado"));
+      }
+    }
+
+    async function cargarEmpleadosVale() {
+      if (!empleadosValeLista || !window.supabaseClient) return;
+      const { data, error } = await supabaseClient
+        .from("empleados")
+        .select("nombre_completo,nombre,num_empleado")
+        .eq("activo", true)
+        .order("nombre_completo", { ascending: true });
+
+      if (error) {
+        console.warn("No se pudo cargar el catálogo de empleados:", error);
+        return;
+      }
+
+      empleadosValeLista.innerHTML = "";
+      (data || []).forEach(function (empleado) {
+        const nombre = String(empleado.nombre_completo || empleado.nombre || "").trim();
+        if (!nombre) return;
+        const opcion = document.createElement("option");
+        opcion.value = nombre;
+        opcion.label = empleado.num_empleado ? empleado.num_empleado + " · " + nombre : nombre;
+        empleadosValeLista.appendChild(opcion);
+      });
+    }
 
     function obtenerValePorId(id) {
       return vales.find(function (v) { return v.id === id; });
@@ -367,7 +376,6 @@ unidadVale?.addEventListener("blur", async function () {
     function cargarVales() {
       const texto = String(buscarVale?.value || "").toLowerCase();
       const estatus = String(filtroValeEstatus?.value || "");
-      const area = String(filtroValeArea?.value || "");
 
       if (tablaVales) tablaVales.innerHTML = "";
 
@@ -376,7 +384,6 @@ unidadVale?.addEventListener("blur", async function () {
           (v.folio || "").toLowerCase().includes(texto) ||
           (v.unidad || "").toLowerCase().includes(texto) ||
           (v.dependencia || "").toLowerCase().includes(texto) ||
-          (v.area || "").toLowerCase().includes(texto) ||
           (v.solicitante || "").toLowerCase().includes(texto) ||
           (v.proveedor || "").toLowerCase().includes(texto) ||
           (v.refaccion || "").toLowerCase().includes(texto) ||
@@ -385,15 +392,15 @@ unidadVale?.addEventListener("blur", async function () {
           (v.requisicion || "").toLowerCase().includes(texto);
 
         const coincideEstatus = estatus === "" || v.estatus === estatus;
-        const coincideArea = area === "" || v.area === area;
-
-        return coincideTexto && coincideEstatus && coincideArea;
+        return coincideTexto && coincideEstatus;
       });
 
       if (!filtrados.length) {
-        if (tablaVales) tablaVales.innerHTML = '<tr><td colspan="12">No hay vales registrados.</td></tr>';
+        if (tablaVales) tablaVales.innerHTML = '<tr><td colspan="10">No hay vales registrados.</td></tr>';
       } else {
-        const soloLectura = typeof esSoloLectura === "function" && esSoloLectura();
+        const puedeEditar = puedeAccionVale("editar");
+        const puedeCambiarEstatus = puedeAccionVale("cambiar_estatus");
+        const puedeEliminar = puedeAccionVale("eliminar");
 
         filtrados.forEach(function (v) {
           const fila = document.createElement("tr");
@@ -402,20 +409,16 @@ unidadVale?.addEventListener("blur", async function () {
             "<td><strong>" + (v.folio || "") + "</strong></td>" +
             "<td>" + (v.unidad || "") + "</td>" +
             "<td>" + (v.dependencia || "") + "</td>" +
-            "<td>" + (v.area || "") + "</td>" +
             "<td>" + (v.solicitante || "") + "</td>" +
             "<td>" + (v.refaccion || "") + "</td>" +
-            "<td>" + (v.cantidad || 0) + " " + (v.medida || "") + "</td>" +
             "<td>" + (v.entrega || "") + "</td>" +
             "<td>" + (v.recibe || "") + "</td>" +
             '<td><span class="badge status-badge ' + obtenerClaseEstatusVale(v.estatus) + '">' + (v.estatus || "") + "</span></td>" +
             '<td><div class="action-grid">' +
               ETLayout.iconButton("ver", "Ver vale", "verVale('" + v.id + "')") +
-              (soloLectura ? "" :
-                ETLayout.iconButton("editar", "Editar vale", "editarVale('" + v.id + "')", "edit") +
-                ETLayout.iconButton("estatus", "Cambiar estatus", "cambiarEstatusVale('" + v.id + "')", "orange") +
-                ETLayout.iconButton("eliminar", "Eliminar vale", "eliminarVale('" + v.id + "')", "red-btn")
-              ) +
+              (puedeEditar ? ETLayout.iconButton("editar", "Editar vale", "editarVale('" + v.id + "')", "edit") : "") +
+              (puedeCambiarEstatus ? ETLayout.iconButton("estatus", "Cambiar estatus", "cambiarEstatusVale('" + v.id + "')", "orange") : "") +
+              (puedeEliminar ? ETLayout.iconButton("eliminar", "Eliminar vale", "eliminarVale('" + v.id + "')", "red-btn") : "") +
               ETLayout.iconButton("imprimir", "Imprimir vale", "imprimirVale('" + v.id + "')") +
             "</div></td>";
           tablaVales.appendChild(fila);
@@ -454,6 +457,8 @@ unidadVale?.addEventListener("blur", async function () {
       const hoy = new Date().toISOString().split("T")[0];
       fechaVale.value = hoy;
       folioVale.value = generarFolioVale();
+      entregaVale.value = obtenerUsuarioVale()?.nombre || "";
+      estatusVale.value = "Pendiente";
       unidadVale?.focus();
     }
 
@@ -464,10 +469,10 @@ unidadVale?.addEventListener("blur", async function () {
       idEditandoVale = null;
     }
 
-    function generarFolioVale() {
+    function generarFolioVale(listaVales) {
       const anio = new Date().getFullYear();
       const patronFolio = /^(\d+)-(\d{4})-V$/i;
-      const ultimoConsecutivo = vales.reduce(function (mayor, vale) {
+      const ultimoConsecutivo = (listaVales || vales).reduce(function (mayor, vale) {
         const coincidencia = String(vale.folio || "").trim().match(patronFolio);
         if (!coincidencia || Number(coincidencia[2]) !== anio) return mayor;
         return Math.max(mayor, Number(coincidencia[1]) || 0);
@@ -475,6 +480,19 @@ unidadVale?.addEventListener("blur", async function () {
       const consecutivo = ultimoConsecutivo + 1;
       const numero = String(consecutivo).padStart(4, "0");
       return `${numero}-${anio}-V`;
+    }
+
+    async function obtenerSiguienteFolioVale() {
+      const { data, error } = await supabaseClient
+        .from("vales")
+        .select("folio");
+
+      if (error) {
+        console.warn("No se pudieron consultar los folios; se usará la lista cargada.", error);
+        return generarFolioVale(vales);
+      }
+
+      return generarFolioVale(data || []);
     }
 
     async function guardarVale() {
@@ -496,51 +514,79 @@ unidadVale?.addEventListener("blur", async function () {
       }
 
       dependenciaVale.value = unidadParque.dependencia || "";
+      if (!idEditandoVale) {
+        folioVale.value = await obtenerSiguienteFolioVale();
+      }
 
       const nuevo = {
         fecha: String(fechaVale.value || ""),
         folio: String(folioVale.value || ""),
         unidad: numeroUnidad,
         dependencia: String(unidadParque.dependencia || "").trim(),
-        area: String(areaVale.value || ""),
         solicitante: String(solicitanteVale.value || "").trim(),
         proveedor: String(proveedorVale.value || "").trim(),
         refaccion: String(refaccionVale.value || "").trim(),
-        cantidad: Number(cantidadVale.value || 0),
-        medida: String(medidaVale.value || ""),
-        entrega: String(entregaVale.value || "").trim(),
+        entrega: idEditandoVale
+          ? String(entregaVale.value || "").trim()
+          : String(obtenerUsuarioVale()?.nombre || "").trim(),
         recibe: String(recibeVale.value || "").trim(),
         estatus: String(estatusVale.value || "Pendiente"),
         requisicion: String(reqVale.value || "").trim(),
         observaciones: String(observacionesVale.value || "").trim()
       };
 
-      if (!nuevo.unidad || !nuevo.dependencia || !nuevo.area || !nuevo.solicitante || !nuevo.refaccion || !nuevo.recibe) {
-        alert("Completa unidad, dependencia, área, solicitante, refacción/material y recibe.");
+      const valeActual = idEditandoVale ? obtenerValePorId(idEditandoVale) : null;
+      if (valeActual?.estatus === "Solventado" && !puedeSolventarVale()) {
+        nuevo.estatus = "Solventado";
+      }
+
+      if (nuevo.estatus === "Solventado" && !puedeSolventarVale()) {
+        alert("Solo Técnico vales, SuperAdmin o Jefe de Almacen pueden usar el estatus Solventado.");
+        return;
+      }
+
+      if (!nuevo.folio || !nuevo.unidad || !nuevo.dependencia || !nuevo.solicitante || !nuevo.refaccion || !nuevo.entrega || !nuevo.recibe) {
+        alert("Completa folio, unidad, dependencia, solicitante, material entregado, entrega y recibe.");
         return;
       }
 
       if (!idEditandoVale) {
-        const { error } = await supabaseClient
+        const { data: valeGuardado, error } = await supabaseClient
           .from("vales")
-          .insert([nuevo]);
+          .insert([nuevo])
+          .select("id,folio")
+          .single();
 
         if (error) {
           console.error(error);
-          alert("No se pudo guardar en Supabase.");
+          alert("No se pudo guardar en Supabase: " + error.message);
+          return;
+        }
+
+        if (!valeGuardado?.folio || valeGuardado.folio !== nuevo.folio) {
+          console.error("Supabase no confirmó el folio enviado.", { enviado: nuevo.folio, recibido: valeGuardado });
+          alert("Supabase guardó el registro sin confirmar correctamente el folio.");
           return;
         }
 
         registrarAuditoria("Vales", "Creó nuevo vale", nuevo.folio + " - Unidad " + nuevo.unidad);
       } else {
-        const { error } = await supabaseClient
+        const { data: valeActualizado, error } = await supabaseClient
           .from("vales")
           .update(nuevo)
-          .eq("id", idEditandoVale);
+          .eq("id", idEditandoVale)
+          .select("id,folio")
+          .single();
 
         if (error) {
           console.error(error);
-          alert("No se pudo actualizar en Supabase.");
+          alert("No se pudo actualizar en Supabase: " + error.message);
+          return;
+        }
+
+        if (!valeActualizado?.folio) {
+          console.error("Supabase no confirmó el folio actualizado.", valeActualizado);
+          alert("Supabase no confirmó el folio del vale actualizado.");
           return;
         }
 
@@ -566,12 +612,9 @@ unidadVale?.addEventListener("blur", async function () {
       folioVale.value = v.folio || "";
       unidadVale.value = v.unidad || "";
       dependenciaVale.value = v.dependencia || "";
-      areaVale.value = v.area || "";
       solicitanteVale.value = v.solicitante || "";
       proveedorVale.value = v.proveedor || "";
-      cantidadVale.value = v.cantidad || "";
-      medidaVale.value = v.medida || "Pieza";
-      entregaVale.value = v.entrega || "";
+      entregaVale.value = v.entrega || obtenerUsuarioVale()?.nombre || "";
       recibeVale.value = v.recibe || "";
       estatusVale.value = v.estatus || "Pendiente";
       reqVale.value = v.requisicion || "";
@@ -580,11 +623,13 @@ unidadVale?.addEventListener("blur", async function () {
     }
 
     async function cambiarEstatusVale(id) {
+      if (!puedeAccionVale("cambiar_estatus")) return;
       const v = obtenerValePorId(id);
       if (!v) return;
       const actual = v.estatus;
 
       const validos = ["Pendiente", "Entregado", "Cancelado"];
+      if (puedeSolventarVale()) validos.push("Solventado");
 
       const nuevoEstatus = await ETFeedback.seleccionar({
         title: "Cambiar estatus",
@@ -661,12 +706,9 @@ unidadVale?.addEventListener("blur", async function () {
       folioVale.value = "";
       unidadVale.value = "";
       dependenciaVale.value = "";
-      areaVale.value = "";
       solicitanteVale.value = "";
       proveedorVale.value = "";
       refaccionVale.value = "";
-      cantidadVale.value = "";
-      medidaVale.value = "Pieza";
       entregaVale.value = "";
       recibeVale.value = "";
       estatusVale.value = "Pendiente";
@@ -684,11 +726,9 @@ unidadVale?.addEventListener("blur", async function () {
         "\nFecha: " + formatearFechaVale(v.fecha) +
         "\nUnidad: " + v.unidad +
         "\nDependencia: " + (v.dependencia || "Sin dato") +
-        "\nÁrea: " + v.area +
         "\nSolicitante: " + v.solicitante +
         "\nProveedor/Origen: " + (v.proveedor || "Sin dato") +
-        "\nRefacción/Material: " + v.refaccion +
-        "\nCantidad: " + v.cantidad + " " + v.medida +
+        "\nMaterial entregado: " + v.refaccion +
         "\nEntrega: " + (v.entrega || "Sin dato") +
         "\nRecibe: " + v.recibe +
         "\nRequisición: " + (v.requisicion || "Sin relacionar") +
@@ -742,12 +782,10 @@ unidadVale?.addEventListener("blur", async function () {
               <div class="item"><strong>Fecha</strong>${formatearFechaVale(v.fecha)}</div>
               <div class="item"><strong>Unidad</strong>${v.unidad}</div>
               <div class="item"><strong>Dependencia</strong>${v.dependencia || "Sin dato"}</div>
-              <div class="item"><strong>Área</strong>${v.area}</div>
               <div class="item"><strong>Solicitante</strong>${v.solicitante}</div>
               <div class="item"><strong>Proveedor / Origen</strong>${v.proveedor || "Sin dato"}</div>
               <div class="item"><strong>Requisición relacionada</strong>${v.requisicion || "Sin relacionar"}</div>
-              <div class="item full"><strong>Refacción / Material</strong>${v.refaccion}</div>
-              <div class="item"><strong>Cantidad</strong>${v.cantidad} ${v.medida}</div>
+              <div class="item full"><strong>Material entregado</strong>${v.refaccion}</div>
               <div class="item"><strong>Estatus</strong>${v.estatus}</div>
               <div class="item full"><strong>Observaciones</strong>${v.observaciones || "Sin observaciones"}</div>
             </div>
@@ -769,6 +807,7 @@ unidadVale?.addEventListener("blur", async function () {
     function obtenerClaseEstatusVale(estatus) {
       if (estatus === "Pendiente") return "amber";
       if (estatus === "Entregado") return "green";
+      if (estatus === "Solventado") return "blue";
       if (estatus === "Cancelado") return "red";
       return "gray";
     }
@@ -790,6 +829,11 @@ unidadVale?.addEventListener("blur", async function () {
       return partes[2] + "/" + partes[1] + "/" + partes[0];
     }
 
+    if (!puedeAccionVale("crear")) {
+      document.getElementById("btnNuevoVale")?.setAttribute("hidden", "");
+    }
+    configurarEstatusVale();
+    cargarEmpleadosVale();
     cargarValesDesdeSupabase();
   </script>
 

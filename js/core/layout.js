@@ -323,9 +323,8 @@
     {
       modulo: "Vales",
       tabla: "vales",
-      campos: "id,folio,unidad,solicitante,refaccion,estatus,area",
-      buscarEn: ["folio", "unidad", "solicitante", "refaccion"],
-      area: "area",
+      campos: "id,folio,unidad,dependencia,solicitante,refaccion,estatus",
+      buscarEn: ["folio", "unidad", "dependencia", "solicitante", "refaccion"],
       titulo: function (fila) {
         return fila.folio || fila.unidad || "Vale";
       },

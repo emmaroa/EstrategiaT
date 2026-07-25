@@ -8,10 +8,10 @@
   <link rel="stylesheet" href="../css/design-system.css"/>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="../js/core/supabase.js"></script>
-  <script src="../js/core/permissions.js?v=20260724-2"></script>
+  <script src="../js/core/permissions.js?v=20260725-3"></script>
   <script src="../js/core/theme.js"></script>
-  <script src="../js/core/layout.js?v=20260724-3"></script>
-  <script src="../login.js?v=20260724-2"></script>
+  <script src="../js/core/layout.js?v=20260725-3"></script>
+  <script src="../login.js?v=20260725-3"></script>
 </head>
 
 <body class="dashboard-body">
@@ -89,6 +89,8 @@
           <option value="Admin">Admin</option>
           <option value="Moderador de Acuerdos">Moderador de Acuerdos</option>
           <option value="Jefe de Almacen">Jefe de Almacen</option>
+          <option value="Técnico vales">Técnico vales</option>
+          <option value="Proveedor">Proveedor</option>
           <option value="Encargado de Almacén">Encargado de Almacén</option>
           <option value="Técnico">Técnico</option>
           <option value="Compras">Compras</option>
@@ -166,6 +168,8 @@
             <option value="Admin">Admin</option>
             <option value="Moderador de Acuerdos">Moderador de Acuerdos</option>
             <option value="Jefe de Almacen">Jefe de Almacen</option>
+            <option value="Técnico vales">Técnico vales</option>
+            <option value="Proveedor">Proveedor</option>
             <option value="Encargado de Almacén">Encargado de Almacén</option>
             <option value="Técnico">Técnico</option>
             <option value="Compras">Compras</option>
@@ -174,6 +178,11 @@
             <option value="Solo Lectura">Solo Lectura</option>
             <option value="CapturistaPV">CapturistaPV</option>
           </select>
+        </div>
+
+        <div class="input-group">
+          <label>Proveedor vinculado</label>
+          <input type="text" id="proveedorUsuario" placeholder="Nombre exacto usado en peticiones y requisiciones">
         </div>
 
         <div class="input-group">
@@ -234,7 +243,8 @@
       "Auditoría",
       "Tiempo Extra",
       "Tramites Administrativos",
-      "Generar Textos"
+      "Generar Textos",
+      "Portal Proveedor"
     ];
     const buscarUsuario = document.getElementById("buscarUsuario");
     const filtroRolUsuario = document.getElementById("filtroRolUsuario");
@@ -449,14 +459,22 @@
         usuario: document.getElementById("usuarioUsuario").value.trim(),
         password: document.getElementById("passwordUsuario").value.trim(),
         rol: document.getElementById("rolUsuarioForm").value,
+        proveedor: document.getElementById("proveedorUsuario").value.trim() || null,
         activo: document.getElementById("activoUsuario").value === "true",
         areas_permitidas: obtenerAreasPermitidasDesdeFormulario(),
         modulos_permitidos: obtenerPermisosModulosDesdeFormulario()
       };
 
-      if (!nuevo.nombre || !nuevo.usuario || !nuevo.rol) {
-        alert("Completa nombre, usuario y rol.");
+      if (!nuevo.nombre || !nuevo.usuario || !nuevo.rol || (nuevo.rol === "Proveedor" && !nuevo.proveedor)) {
+        alert(nuevo.rol === "Proveedor"
+          ? "Completa nombre, usuario, rol y proveedor vinculado."
+          : "Completa nombre, usuario y rol.");
         return;
+      }
+
+      if (nuevo.rol === "Proveedor") {
+        nuevo.areas_permitidas = [];
+        nuevo.modulos_permitidos = [{ modulo: "Portal Proveedor", permiso: "editar" }];
       }
 
       if (indiceEditandoUsuario === null && !nuevo.password) {
@@ -484,6 +502,7 @@
           nombre: nuevo.nombre,
           usuario: nuevo.usuario,
           rol: nuevo.rol,
+          proveedor: nuevo.proveedor,
           activo: nuevo.activo,
           areas_permitidas: nuevo.areas_permitidas,
           modulos_permitidos: nuevo.modulos_permitidos
@@ -525,6 +544,7 @@
       document.getElementById("usuarioUsuario").value = u.usuario || "";
       document.getElementById("passwordUsuario").value = "";
       document.getElementById("rolUsuarioForm").value = u.rol || "";
+      document.getElementById("proveedorUsuario").value = u.proveedor || "";
       document.getElementById("activoUsuario").value = String(u.activo);
       renderPermisosModulos(u);
       renderAreasPermitidas(u);
@@ -596,6 +616,7 @@
       document.getElementById("usuarioUsuario").value = "";
       document.getElementById("passwordUsuario").value = "";
       document.getElementById("rolUsuarioForm").value = "";
+      document.getElementById("proveedorUsuario").value = "";
       document.getElementById("activoUsuario").value = "true";
     }
 

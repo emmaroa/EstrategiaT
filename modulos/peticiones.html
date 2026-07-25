@@ -8,11 +8,11 @@
   <link rel="stylesheet" href="../css/design-system.css">
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="../js/core/supabase.js"></script>
-  <script src="../js/core/permissions.js?v=20260724-2"></script>
+  <script src="../js/core/permissions.js?v=20260725-3"></script>
   <script src="../js/core/theme.js"></script>
-  <script src="../js/core/layout.js?v=20260724-3"></script>
+  <script src="../js/core/layout.js?v=20260725-3"></script>
   <script src="../js/services/peticiones.service.js"></script>
-  <script src="../login.js?v=20260724-2"></script>
+  <script src="../login.js?v=20260725-3"></script>
 </head>
 <body class="dashboard-body">
 
@@ -264,8 +264,8 @@
     ETLayout.inicializar("Peticiones");
 
     let peticiones = [];
+    let proveedoresCatalogo = [];
     let idEditando = null;
-    const PROVEEDORES_STORAGE_KEY = "proveedores_peticiones";
     let counts = {
       total: 0,
       pendientes: 0,
@@ -445,7 +445,50 @@
       if (migracion.migrados > 0) {
         console.info("Migradas " + migracion.migrados + " peticiones desde localStorage.");
       }
+      await cargarCatalogoProveedores();
       await recargarPeticiones();
+    }
+
+    async function cargarCatalogoProveedores() {
+      const [catalogoResultado, requisicionesResultado] = await Promise.all([
+        supabaseClient
+          .from("proveedores")
+          .select("id,razon_social,activo")
+          .eq("activo", true)
+          .order("razon_social", { ascending: true }),
+        supabaseClient
+          .from("requisiciones_siif")
+          .select("proveedor")
+          .not("proveedor", "is", null)
+      ]);
+
+      if (catalogoResultado.error) {
+        console.warn("No se pudo cargar el catálogo de proveedores:", catalogoResultado.error);
+      }
+      if (requisicionesResultado.error) {
+        console.warn("No se pudieron cargar los proveedores de requisiciones:", requisicionesResultado.error);
+      }
+
+      const unificados = new Map();
+      (requisicionesResultado.data || []).forEach(function (registro) {
+        const nombre = String(registro.proveedor || "").trim().replace(/\s+/g, " ");
+        const clave = nombre.toLocaleLowerCase("es");
+        if (nombre && !unificados.has(clave)) {
+          unificados.set(clave, { id: null, razon_social: nombre, activo: true });
+        }
+      });
+
+      (catalogoResultado.data || []).forEach(function (registro) {
+        const nombre = String(registro.razon_social || "").trim().replace(/\s+/g, " ");
+        const clave = nombre.toLocaleLowerCase("es");
+        if (nombre && !unificados.has(clave)) {
+          unificados.set(clave, Object.assign({}, registro, { razon_social: nombre }));
+        }
+      });
+
+      proveedoresCatalogo = Array.from(unificados.values()).sort(function (a, b) {
+        return a.razon_social.localeCompare(b.razon_social, "es");
+      });
     }
 
     async function recargarPeticiones() {
@@ -463,21 +506,22 @@
     }
 
     function obtenerProveedoresDisponibles() {
-      const proveedores = [];
-      peticiones.forEach(function (p) {
-        const proveedor = String(p.proveedor || "").trim();
-        if (proveedor) proveedores.push(proveedor);
+      const proveedores = new Map();
+      proveedoresCatalogo.forEach(function (registro) {
+        const nombre = String(registro.razon_social || "").trim().replace(/\s+/g, " ");
+        const clave = nombre.toLocaleLowerCase("es");
+        if (nombre && !proveedores.has(clave)) proveedores.set(clave, nombre);
       });
 
-      try {
-        const guardados = JSON.parse(localStorage.getItem(PROVEEDORES_STORAGE_KEY) || "[]");
-        guardados.forEach(function (proveedor) {
-          const valor = String(proveedor || "").trim();
-          if (valor) proveedores.push(valor);
-        });
-      } catch (_) {}
+      return Array.from(proveedores.values()).sort(function (a, b) { return a.localeCompare(b, "es"); });
+    }
 
-      return Array.from(new Set(proveedores)).sort(function (a, b) { return a.localeCompare(b, "es"); });
+    function obtenerNombreCanonicoProveedor(valor) {
+      const nombre = String(valor || "").trim().replace(/\s+/g, " ");
+      const clave = nombre.toLocaleLowerCase("es");
+      return obtenerProveedoresDisponibles().find(function (proveedor) {
+        return proveedor.toLocaleLowerCase("es") === clave;
+      }) || "";
     }
 
     function poblarSelectProveedorPeticiones() {
@@ -490,7 +534,7 @@
       proveedores.forEach(function (proveedor) {
         proveedorInput.add(new Option(proveedor, proveedor));
       });
-      proveedorInput.value = proveedores.includes(valorActual) ? valorActual : "";
+      proveedorInput.value = obtenerNombreCanonicoProveedor(valorActual);
     }
 
     function poblarFiltroProveedorPeticiones() {
@@ -503,7 +547,7 @@
       proveedores.forEach(function (proveedor) {
         filtroProveedor.add(new Option(proveedor, proveedor));
       });
-      filtroProveedor.value = proveedores.includes(valorActual) ? valorActual : "";
+      filtroProveedor.value = obtenerNombreCanonicoProveedor(valorActual);
     }
 
     function renderizarPeticiones() {
@@ -527,7 +571,9 @@
 
         const estatusNormalizado = normalizarTextoPeticion(p.estatus);
         const coincideEstatus = estatusFiltro === "" || estatusNormalizado === normalizarTextoPeticion(estatusFiltro);
-        const coincideProveedor = proveedor === "" || String(p.proveedor || "") === proveedor;
+        const coincideProveedor = proveedor === "" ||
+          String(p.proveedor || "").trim().replace(/\s+/g, " ").toLocaleLowerCase("es") ===
+          proveedor.trim().replace(/\s+/g, " ").toLocaleLowerCase("es");
         const coincideArea = area === "" || String(p.area || "") === area;
 
         return coincideTexto && coincideEstatus && coincideProveedor && coincideArea;
@@ -856,7 +902,7 @@
       }
     });
 
-    function guardarProveedor() {
+    async function guardarProveedor() {
       if (!puedeGestionarProveedoresPeticion()) return;
       const nombre = String(nuevoProveedorNombre?.value || "").trim();
       if (!nombre) {
@@ -864,24 +910,28 @@
         return;
       }
 
-      try {
-        const guardados = JSON.parse(localStorage.getItem(PROVEEDORES_STORAGE_KEY) || "[]");
-        const lista = Array.isArray(guardados) ? guardados : [];
-        const yaExiste = lista.some(function (item) {
-          return String(item || "").trim().toLowerCase() === nombre.toLowerCase();
-        });
-        if (!yaExiste) {
-          lista.push(nombre);
-          localStorage.setItem(PROVEEDORES_STORAGE_KEY, JSON.stringify(lista));
+      const existente = proveedoresCatalogo.some(function (item) {
+        return String(item.razon_social || "").trim().toLowerCase() === nombre.toLowerCase();
+      });
+
+      if (!existente) {
+        const { error } = await supabaseClient
+          .from("proveedores")
+          .insert({ razon_social: nombre, activo: true });
+
+        if (error) {
+          console.error(error);
+          alert("No se pudo guardar el proveedor en el catálogo.");
+          return;
         }
-        poblarSelectProveedorPeticiones();
-        poblarFiltroProveedorPeticiones();
-        if (proveedorInput) proveedorInput.value = nombre;
-        cerrarModalProveedor();
-        alert("Proveedor guardado correctamente.");
-      } catch (_) {
-        alert("No se pudo guardar el proveedor.");
       }
+
+      await cargarCatalogoProveedores();
+      poblarSelectProveedorPeticiones();
+      poblarFiltroProveedorPeticiones();
+      if (proveedorInput) proveedorInput.value = nombre;
+      cerrarModalProveedor();
+      alert(existente ? "El proveedor ya existe en el catálogo." : "Proveedor guardado correctamente.");
     }
 
     function verPeticion(id) {
@@ -1172,7 +1222,7 @@
       solicitanteInput.value = p.solicitante;
       areaSelect.value = p.area;
       dependenciaInput.value = p.dependencia || "";
-      proveedorInput.value = p.proveedor || "";
+      proveedorInput.value = obtenerNombreCanonicoProveedor(p.proveedor);
       estatusSelect.value = p.estatus;
       observacionesInput.value = p.observaciones || "";
     }

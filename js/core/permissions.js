@@ -16,6 +16,7 @@
       TIEMPO_EXTRA: "Tiempo Extra",
       TRAMITES_ADMINISTRATIVOS: "Tramites Administrativos",
       GENERAR_TEXTOS: "Generar Textos",
+      PORTAL_PROVEEDOR: "Portal Proveedor",
       INVENTARIO: "Inventario",
       COMPRAS: "Compras",
       PROVEEDORES: "Proveedores",
@@ -38,6 +39,7 @@
     [MODULOS.TIEMPO_EXTRA]: "modulos/tiempo-extra.html",
     [MODULOS.TRAMITES_ADMINISTRATIVOS]: "modulos/tramites-administrativos.html",
     [MODULOS.GENERAR_TEXTOS]: "modulos/generar-textos.html",
+    [MODULOS.PORTAL_PROVEEDOR]: "modulos/portal-proveedor.html",
     [MODULOS.INVENTARIO]: "modulos/inventario.html",
     [MODULOS.COMPRAS]: "modulos/compras.html",
     [MODULOS.PROVEEDORES]: "modulos/proveedores.html",
@@ -67,13 +69,23 @@
     [MODULOS.TIEMPO_EXTRA]: "Gestión de solicitudes y autorizaciones de tiempo extra.",
     [MODULOS.TRAMITES_ADMINISTRATIVOS]: "Registro y reportes de permisos, vacaciones, dias economicos e incapacidades.",
     [MODULOS.GENERAR_TEXTOS]: "Generador de descripciones para solicitudes de pago."
+    ,[MODULOS.PORTAL_PROVEEDOR]: "Consulta y actualización de entregas asignadas al proveedor."
   };
 
   const PERMISOS = {
     "Administrador del Sistema": Object.values(MODULOS),
     jefe: Object.values(MODULOS),
     Jefe: Object.values(MODULOS),
-    "Jefe de Almacen": [],
+    "Jefe de Almacen": [
+      MODULOS.DASHBOARD,
+      MODULOS.PETICIONES,
+      MODULOS.VALES
+    ],
+    "Técnico vales": [
+      MODULOS.DASHBOARD,
+      MODULOS.VALES
+    ],
+    Proveedor: [MODULOS.PORTAL_PROVEEDOR],
     "Moderador de Acuerdos": [
       MODULOS.DASHBOARD,
       MODULOS.ACUERDOS
@@ -209,6 +221,9 @@
     "Capturista Administrativo": ["ver", "crear", "editar", "eliminar", "exportar", "imprimir"],
     Compras: ["ver", "crear", "editar", "cambiar_estatus", "generar_requisicion", "exportar", "imprimir"],
     Almacen: ["ver", "crear", "editar", "cambiar_estatus", "exportar", "imprimir"],
+    "Jefe de Almacen": ["ver", "crear", "editar", "eliminar", "cambiar_estatus", "exportar", "imprimir"],
+    "Técnico vales": ["ver", "cambiar_estatus", "exportar", "imprimir"],
+    Proveedor: ["ver", "editar"],
     Consulta: ["ver", "consultar", "exportar", "imprimir"],
     "Coordinador": ["ver", "crear", "editar", "cambiar_estatus", "exportar", "imprimir"],
     "Solo Lectura": ["ver", "consultar", "exportar", "imprimir"]
@@ -224,6 +239,10 @@
     if (clave === "jefe de almacen" || clave === "jefe de almacén" || clave === "jefe_de_almacen" || clave === "jefe_de_almacén") {
       return "Jefe de Almacen";
     }
+    if (clave === "tecnico vales" || clave === "técnico vales" || clave === "tecnico_vales" || clave === "técnico_vales") {
+      return "Técnico vales";
+    }
+    if (clave === "proveedor") return "Proveedor";
     if (clave === "coordinador") return "Coordinador";
     if (clave === "capturista administrativo" || clave === "capturista_administrativo" || clave === "capturista-administrativo") return "Capturista Administrativo";
     if (clave === "moderador de acuerdos" || clave === "moderador acuerdos" || clave === "moderador_acuerdos" || clave === "moderador-acuerdos") {
@@ -347,6 +366,7 @@
   function obtenerModulosUsuario(usuario) {
     const permisosModulos = obtenerPermisosModulosUsuario(usuario);
     const rol = normalizarRol((usuario || {}).rol || (usuario || {}).cargo || (usuario || {}).tipo || "");
+    if (rol === "Proveedor") return [MODULOS.PORTAL_PROVEEDOR];
 
     if (permisosModulos.length) {
       const modulos = permisosModulos
@@ -378,6 +398,11 @@
   }
 
   function obtenerPermisoModuloUsuario(usuario, modulo) {
+    const rol = normalizarRol((usuario || {}).rol || (usuario || {}).cargo || (usuario || {}).tipo || "");
+    if (rol === "Proveedor") {
+      return modulo === MODULOS.PORTAL_PROVEEDOR ? "editar" : "none";
+    }
+
     const permisosModulos = obtenerPermisosModulosUsuario(usuario);
     const encontrado = permisosModulos.find(function (item) {
       return item.modulo === modulo;
@@ -390,7 +415,6 @@
       return encontrado.permiso;
     }
 
-    const rol = normalizarRol((usuario || {}).rol || (usuario || {}).cargo || (usuario || {}).tipo || "");
     if (modulo === MODULOS.SEGUIMIENTO_PETICIONES && rolVeSeguimientoPeticiones(rol)) {
       return "ver";
     }

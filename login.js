@@ -20,7 +20,9 @@
         "Moderador de Acuerdos": ["Dashboard", "Acuerdos"],
         Compras: ["Dashboard", "Peticiones", "Requisiciones", "Generar Textos"],
         Almacen: ["Dashboard", "Peticiones", "Vales"],
-        "Jefe de Almacen": [],
+        "Jefe de Almacen": ["Dashboard", "Peticiones", "Vales"],
+        "Técnico vales": ["Dashboard", "Vales"],
+        Proveedor: ["Portal Proveedor"],
         Consulta: ["Dashboard", "Parque Vehicular", "Peticiones", "Requisiciones", "Vales"],
         Coordinador: ["Dashboard", "Seguimiento Peticiones"],
         "Capturista Administrativo": ["Dashboard", "Tramites Administrativos", "Generar Textos"],
@@ -106,6 +108,8 @@
     if (clave === "admin") return "Admin";
     if (clave === "jefe") return "jefe";
     if (clave === "jefe_de_almacen" || clave === "jefe_de_almacén") return "Jefe de Almacen";
+    if (clave === "tecnico_vales" || clave === "técnico_vales") return "Técnico vales";
+    if (clave === "proveedor") return "Proveedor";
     if (clave === "coordinador") return "Coordinador";
     if (clave === "capturista_administrativo") return "Capturista Administrativo";
     if (clave === "moderador_de_acuerdos" || clave === "moderador_acuerdos") return "Moderador de Acuerdos";
@@ -113,6 +117,10 @@
   }
 
   function obtenerModulosUsuario(data) {
+    if (normalizarRolLogin(data && data.rol) === "Proveedor") {
+      return ["Portal Proveedor"];
+    }
+
     if (window.ETPermissions && typeof window.ETPermissions.obtenerModulosUsuario === "function") {
       return window.ETPermissions.obtenerModulosUsuario(data);
     }
@@ -183,6 +191,7 @@
       rol_original: data.rol,
       modulos_permitidos: data.modulos_permitidos || [],
       areas_permitidas: data.areas_permitidas || [],
+      proveedor: data.proveedor || "",
       modulos: obtenerModulosUsuario(data)
     };
 
@@ -192,7 +201,9 @@
       registrarAuditoria("Login", "Inicio de sesión", usuarioActivo.usuario);
     }
 
-    window.location.href = "dashboard.html";
+    window.location.href = rolNormalizado === "Proveedor"
+      ? "modulos/portal-proveedor.html"
+      : "dashboard.html";
   }
 
   function ejecutarInicioSesion() {
