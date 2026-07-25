@@ -8,11 +8,11 @@
   <link rel="stylesheet" href="../css/design-system.css">
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="../js/core/supabase.js"></script>
-  <script src="../js/core/permissions.js"></script>
+  <script src="../js/core/permissions.js?v=20260724-2"></script>
   <script src="../js/core/theme.js"></script>
-  <script src="../js/core/layout.js"></script>
+  <script src="../js/core/layout.js?v=20260724-3"></script>
   <script src="../js/services/peticiones.service.js"></script>
-  <script src="../login.js"></script>
+  <script src="../login.js?v=20260724-2"></script>
 </head>
 <body class="dashboard-body">
 
@@ -369,6 +369,12 @@
       return rol.includes("tecnico") || rol === "tec";
     }
 
+    function esJefeAlmacenPeticion() {
+      const usuarioActivo = obtenerUsuarioActivoPeticion();
+      const rol = normalizarRolPeticion(usuarioActivo?.rol || usuarioActivo?.rol_original);
+      return rol === "jefedealmacen";
+    }
+
     function puedeGestionarProveedoresPeticion() {
       const usuarioActivo = obtenerUsuarioActivoPeticion();
       const rol = normalizarRolPeticion(usuarioActivo?.rol || usuarioActivo?.rol_original);
@@ -550,6 +556,9 @@
           const fila = document.createElement("tr");
           const puedeEditar = puedeAccionPeticion("editar");
           const puedeEliminar = puedeAccionPeticion("eliminar");
+          const puedeRevisarAlmacen =
+            esJefeAlmacenPeticion() &&
+            normalizarTextoPeticion(p.estatus) === "pendiente";
           fila.innerHTML =
             "<td>" + formatearFecha(p.fecha) + "</td>" +
             "<td><strong>" + p.unidad + "</strong></td>" +
@@ -565,6 +574,7 @@
               (mostrarTextoPedido ? ETLayout.iconButton("copiar", "Copiar texto pedido", "copiarTextoPedido('" + p.id + "')") : "") +
               (puedeEditar ? ETLayout.iconButton("editar", "Editar peticion", "editarPeticion('" + p.id + "')", "edit") : "") +
               (puedeEliminar ? ETLayout.iconButton("eliminar", "Eliminar peticion", "eliminarPeticion('" + p.id + "')", "red-btn") : "") +
+              (puedeRevisarAlmacen ? ETLayout.iconButton("estatus", "Marcar como Revisado por almacen", "revisarPeticionAlmacen('" + p.id + "')", "orange") : "") +
               (mostrarGenerarRequisicion ? ETLayout.iconButton("requisicion", "Generar requisicion", "generarRequisicion('" + p.id + "')", "orange") : "") +
             "</div></td>";
           tablaPeticiones.appendChild(fila);
@@ -892,6 +902,17 @@
         });
       }
 
+      if (
+        esJefeAlmacenPeticion() &&
+        normalizarTextoPeticion(p.estatus) === "pendiente"
+      ) {
+        acciones.push({
+          label: "Revisado por almacen",
+          variant: "primary",
+          onClick: function () { revisarPeticionAlmacen(id); }
+        });
+      }
+
       ETLayout.abrirFichaDetalle({
         eyebrow: "Petición de almacén",
         title: p.unidad || "Sin unidad",
@@ -1184,6 +1205,49 @@
 
       await recargarPeticiones();
       alert("Petición eliminada correctamente.");
+    }
+
+    async function revisarPeticionAlmacen(id) {
+      if (!esJefeAlmacenPeticion()) {
+        alert("Esta accion es exclusiva del Jefe de Almacen.");
+        return;
+      }
+
+      const p = obtenerPeticionPorId(id);
+      if (!p) return;
+      if (normalizarTextoPeticion(p.estatus) !== "pendiente") {
+        alert("Solo se pueden revisar peticiones con estatus Pendiente.");
+        return;
+      }
+
+      const confirmar = await ETFeedback.confirmar({
+        title: "Revisar peticion",
+        message: "La peticion de la unidad " + p.unidad + " se marcara como Revisado por almacen.",
+        confirmLabel: "Marcar revisada"
+      });
+      if (!confirmar) return;
+
+      const nuevoEstatus = "Revisado por almacen";
+      const { error } = await ETPeticiones.actualizar(id, { estatus: nuevoEstatus });
+      if (error) {
+        alert("No se pudo actualizar el estatus: " + error.message);
+        return;
+      }
+
+      if (typeof registrarAuditoria === "function") {
+        registrarAuditoria("Peticiones", "Reviso peticion en almacen", "Unidad " + p.unidad + " - " + p.peticion, {
+          entidad_tipo: "peticiones",
+          entidad_id: p.id,
+          metadata: {
+            antes: { estatus: p.estatus },
+            despues: { estatus: nuevoEstatus }
+          }
+        });
+      }
+
+      ETLayout.cerrarFichaDetalle();
+      await recargarPeticiones();
+      alert("Peticion marcada como Revisado por almacen.");
     }
 
     function generarRequisicion(id) {

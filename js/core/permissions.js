@@ -73,6 +73,7 @@
     "Administrador del Sistema": Object.values(MODULOS),
     jefe: Object.values(MODULOS),
     Jefe: Object.values(MODULOS),
+    "Jefe de Almacen": [],
     "Moderador de Acuerdos": [
       MODULOS.DASHBOARD,
       MODULOS.ACUERDOS
@@ -220,6 +221,9 @@
     if (clave === "superadmin" || clave === "super admin" || clave === "super_admin") return "SuperAdmin";
     if (clave === "admin") return "Admin";
     if (clave === "jefe") return "jefe";
+    if (clave === "jefe de almacen" || clave === "jefe de almacén" || clave === "jefe_de_almacen" || clave === "jefe_de_almacén") {
+      return "Jefe de Almacen";
+    }
     if (clave === "coordinador") return "Coordinador";
     if (clave === "capturista administrativo" || clave === "capturista_administrativo" || clave === "capturista-administrativo") return "Capturista Administrativo";
     if (clave === "moderador de acuerdos" || clave === "moderador acuerdos" || clave === "moderador_acuerdos" || clave === "moderador-acuerdos") {

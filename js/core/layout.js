@@ -273,9 +273,10 @@
     breadcrumb.className = "et-breadcrumb";
     breadcrumb.setAttribute("aria-label", "Ruta de navegación");
     breadcrumb.innerHTML =
-      '<a href="' + (esRutaDeModulo(global.location.pathname) ? "../dashboard.html" : "dashboard.html") + '">Inicio</a>' +
-      '<span aria-hidden="true">/</span>' +
-      '<span aria-current="page">' + moduloActivo + "</span>";
+      '<a class="et-home-button" href="' + (esRutaDeModulo(global.location.pathname) ? "../dashboard.html" : "dashboard.html") + '">' +
+        '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 11.5 12 4l9 7.5v8a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1v-8Z"/></svg>' +
+        "<span>Inicio</span>" +
+      "</a>";
     primerBloque.insertBefore(breadcrumb, primerBloque.firstChild);
   }
 

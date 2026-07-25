@@ -1377,20 +1377,40 @@ tbody tr:hover {
 .et-breadcrumb {
   display: flex;
   align-items: center;
+  margin-bottom: 10px;
+}
+
+.et-breadcrumb .et-home-button {
+  display: inline-flex;
+  align-items: center;
   gap: 7px;
-  margin-bottom: 7px;
-  color: var(--content-muted);
+  width: fit-content;
+  padding: 7px 12px;
+  border: 1px solid rgba(7, 177, 188, 0.22);
+  border-radius: 10px;
+  background: rgba(7, 177, 188, 0.08);
+  color: var(--color-teal, #078d97);
   font-size: 12px;
-  font-weight: 650;
-}
-
-.et-breadcrumb a {
-  color: var(--color-teal, #07b1bc);
+  font-weight: 700;
   text-decoration: none;
+  transition: background-color 160ms ease, border-color 160ms ease, transform 160ms ease;
 }
 
-.et-breadcrumb a:hover {
-  text-decoration: underline;
+.et-breadcrumb .et-home-button svg {
+  width: 14px;
+  height: 14px;
+  fill: currentColor;
+}
+
+.et-breadcrumb .et-home-button:hover {
+  border-color: rgba(7, 177, 188, 0.4);
+  background: rgba(7, 177, 188, 0.14);
+  transform: translateY(-1px);
+}
+
+.et-breadcrumb .et-home-button:focus-visible {
+  outline: 3px solid rgba(7, 177, 188, 0.2);
+  outline-offset: 2px;
 }
 
 .et-layout-ready .topbar-logout,

@@ -20,6 +20,7 @@
         "Moderador de Acuerdos": ["Dashboard", "Acuerdos"],
         Compras: ["Dashboard", "Peticiones", "Requisiciones", "Generar Textos"],
         Almacen: ["Dashboard", "Peticiones", "Vales"],
+        "Jefe de Almacen": [],
         Consulta: ["Dashboard", "Parque Vehicular", "Peticiones", "Requisiciones", "Vales"],
         Coordinador: ["Dashboard", "Seguimiento Peticiones"],
         "Capturista Administrativo": ["Dashboard", "Tramites Administrativos", "Generar Textos"],
@@ -104,6 +105,7 @@
     if (clave === "superadmin" || clave === "super_admin") return "SuperAdmin";
     if (clave === "admin") return "Admin";
     if (clave === "jefe") return "jefe";
+    if (clave === "jefe_de_almacen" || clave === "jefe_de_almacén") return "Jefe de Almacen";
     if (clave === "coordinador") return "Coordinador";
     if (clave === "capturista_administrativo") return "Capturista Administrativo";
     if (clave === "moderador_de_acuerdos" || clave === "moderador_acuerdos") return "Moderador de Acuerdos";
