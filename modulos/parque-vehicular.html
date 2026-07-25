@@ -63,21 +63,27 @@
       </div>
 
       <div class="kpi-card">
-        <span>Activas</span>
-        <h2 id="kpiActivas">0</h2>
-        <p>En operación</p>
+        <span>Gasolina</span>
+        <h2 id="kpiGasolina">0</h2>
+        <p>Unidades con gasolina</p>
       </div>
 
       <div class="kpi-card">
-        <span>Gasolina</span>
-        <h2 id="kpiGasolina">0</h2>
-        <p>Combustión</p>
+        <span>Diesel</span>
+        <h2 id="kpiDiesel">0</h2>
+        <p>Diesel menos colectores</p>
       </div>
 
       <div class="kpi-card">
         <span>Eléctricas</span>
         <h2 id="kpiElectricas">0</h2>
         <p>Vehículos eléctricos</p>
+      </div>
+
+      <div class="kpi-card">
+        <span>Colectores</span>
+        <h2 id="kpiColectores">0</h2>
+        <p>Unidades colectoras</p>
       </div>
 
     </section>
@@ -434,9 +440,10 @@
     let idEditandoUnidad = null;
     let counts = {
       total: 0,
-      activas: 0,
       gasolina: 0,
-      electricas: 0
+      diesel: 0,
+      electricas: 0,
+      colectores: 0
     };
     let totalParque = 0;
     const DEPENDENCIAS = [
@@ -490,9 +497,10 @@
     const procedenciaUnidad = document.getElementById("procedenciaUnidad");
     const estatusUnidad = document.getElementById("estatusUnidad");
     const kpiTotal = document.getElementById("kpiTotal");
-    const kpiActivas = document.getElementById("kpiActivas");
     const kpiGasolina = document.getElementById("kpiGasolina");
+    const kpiDiesel = document.getElementById("kpiDiesel");
     const kpiElectricas = document.getElementById("kpiElectricas");
+    const kpiColectores = document.getElementById("kpiColectores");
 
     poblarDependencias(filtroDependencia, "Todas las dependencias");
     poblarDependencias(dependenciaUnidad, "Selecciona dependencia");
@@ -633,24 +641,31 @@
 
     function actualizarCounts() {
       counts = parque.reduce(function (acumulado, u) {
-        if (u.estatus === "ACTIVO") acumulado.activas += 1;
-        if (u.combustible === "GASOLINA") acumulado.gasolina += 1;
-        if (u.combustible === "ELECTRICO") acumulado.electricas += 1;
+        const combustible = String(u.combustible || "").trim().toUpperCase();
+        const descripcion = String(u.descripcion || "").trim().toLowerCase();
+        const esColector = descripcion.includes("colector") || combustible === "COLECTOR";
+
+        if (combustible === "GASOLINA") acumulado.gasolina += 1;
+        if (combustible === "DIESEL") acumulado.diesel += 1;
+        if (combustible === "ELECTRICO") acumulado.electricas += 1;
+        if (esColector) acumulado.colectores += 1;
         return acumulado;
       }, {
         total: totalParque,
-        activas: 0,
         gasolina: 0,
-        electricas: 0
+        diesel: 0,
+        electricas: 0,
+        colectores: 0
       });
     }
 
     function actualizarKPIs() {
       actualizarCounts();
       if (kpiTotal) kpiTotal.textContent = counts.total;
-      if (kpiActivas) kpiActivas.textContent = counts.activas;
       if (kpiGasolina) kpiGasolina.textContent = counts.gasolina;
+      if (kpiDiesel) kpiDiesel.textContent = counts.diesel - counts.colectores;
       if (kpiElectricas) kpiElectricas.textContent = counts.electricas;
+      if (kpiColectores) kpiColectores.textContent = counts.colectores;
     }
 
     async function guardarUnidad() {

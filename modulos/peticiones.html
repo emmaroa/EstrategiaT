@@ -189,7 +189,12 @@
 
         <div class="input-group">
           <label for="proveedor">Proveedor asignado</label>
-          <input type="text" id="proveedor" placeholder="Proveedor">
+          <div style="display:flex;gap:8px;align-items:center;">
+            <select id="proveedor" style="flex:1;min-width:0;">
+              <option value="">Sin proveedor</option>
+            </select>
+            <button type="button" class="btn-small" id="btnAgregarProveedor" onclick="abrirModalProveedor()" style="display:none;">+ Nuevo</button>
+          </div>
         </div>
 
         <div class="input-group">
@@ -228,6 +233,30 @@
     </div>
   </div>
 
+  <div class="modal" id="modalProveedor" role="dialog" aria-modal="true" aria-labelledby="modalProveedorTitulo" aria-hidden="true">
+    <div class="modal-card">
+      <div class="modal-header">
+        <div>
+          <h2 id="modalProveedorTitulo">Nuevo proveedor</h2>
+          <p>Alta rápida de proveedores para peticiones.</p>
+        </div>
+        <button type="button" class="close-btn" aria-label="Cerrar diálogo" onclick="cerrarModalProveedor()">×</button>
+      </div>
+
+      <div class="form-grid">
+        <div class="input-group full">
+          <label for="nuevoProveedorNombre">Nombre del proveedor</label>
+          <input type="text" id="nuevoProveedorNombre" placeholder="Ej. Proveedora ABC">
+        </div>
+      </div>
+
+      <div class="modal-actions">
+        <button type="button" class="btn-secondary" onclick="cerrarModalProveedor()">Cancelar</button>
+        <button type="button" class="btn-small" onclick="guardarProveedor()">Guardar proveedor</button>
+      </div>
+    </div>
+  </div>
+
   <script>
     validarPermiso("Peticiones");
     ETLayout.inicializar("Peticiones");
@@ -235,6 +264,7 @@
 
     let peticiones = [];
     let idEditando = null;
+    const PROVEEDORES_STORAGE_KEY = "proveedores_peticiones";
     let counts = {
       total: 0,
       pendientes: 0,
@@ -261,6 +291,7 @@
     const filtroProveedor = document.getElementById("filtroProveedor");
     const filtroArea = document.getElementById("filtroArea");
     const btnFiltroProveedor = document.getElementById("btnFiltroProveedor");
+    const btnAgregarProveedor = document.getElementById("btnAgregarProveedor");
     const btnFiltroPendientes = document.getElementById("btnFiltroPendientes");
     const btnFiltroRevisado = document.getElementById("btnFiltroRevisado");
     const btnFiltroCotizacion = document.getElementById("btnFiltroCotizacion");
@@ -277,6 +308,8 @@
     const observacionesInput = document.getElementById("observaciones");
     const infoUnidadPeticion = document.getElementById("infoUnidadPeticion");
     const mensajeCamposTecnico = document.getElementById("mensajeCamposTecnico");
+    const modalProveedor = document.getElementById("modalProveedor");
+    const nuevoProveedorNombre = document.getElementById("nuevoProveedorNombre");
     const kpiTotal = document.getElementById("kpiTotal");
     const kpiPendientes = document.getElementById("kpiPendientes");
     const kpiProceso = document.getElementById("kpiProceso");
@@ -333,6 +366,12 @@
       const usuarioActivo = obtenerUsuarioActivoPeticion();
       const rol = normalizarRolPeticion(usuarioActivo?.rol || usuarioActivo?.rol_original);
       return rol.includes("tecnico") || rol === "tec";
+    }
+
+    function puedeGestionarProveedoresPeticion() {
+      const usuarioActivo = obtenerUsuarioActivoPeticion();
+      const rol = normalizarRolPeticion(usuarioActivo?.rol || usuarioActivo?.rol_original);
+      return ["superadmin", "admin", "jefe", "jefes"].includes(rol);
     }
 
     function puedeGenerarRequisicion() {
@@ -404,17 +443,45 @@
       peticiones = (data || []).map(normalizarPeticion);
       totalPeticiones = count ?? 0;
       poblarFiltroProveedorPeticiones();
+      poblarSelectProveedorPeticiones();
       renderizarPeticiones();
+    }
+
+    function obtenerProveedoresDisponibles() {
+      const proveedores = [];
+      peticiones.forEach(function (p) {
+        const proveedor = String(p.proveedor || "").trim();
+        if (proveedor) proveedores.push(proveedor);
+      });
+
+      try {
+        const guardados = JSON.parse(localStorage.getItem(PROVEEDORES_STORAGE_KEY) || "[]");
+        guardados.forEach(function (proveedor) {
+          const valor = String(proveedor || "").trim();
+          if (valor) proveedores.push(valor);
+        });
+      } catch (_) {}
+
+      return Array.from(new Set(proveedores)).sort(function (a, b) { return a.localeCompare(b, "es"); });
+    }
+
+    function poblarSelectProveedorPeticiones() {
+      if (!proveedorInput) return;
+      const valorActual = proveedorInput.value;
+      const proveedores = obtenerProveedoresDisponibles();
+
+      proveedorInput.innerHTML = "";
+      proveedorInput.add(new Option("Sin proveedor", ""));
+      proveedores.forEach(function (proveedor) {
+        proveedorInput.add(new Option(proveedor, proveedor));
+      });
+      proveedorInput.value = proveedores.includes(valorActual) ? valorActual : "";
     }
 
     function poblarFiltroProveedorPeticiones() {
       if (!filtroProveedor) return;
       const valorActual = filtroProveedor.value;
-      const proveedores = Array.from(new Set(
-        peticiones
-          .map(function (p) { return String(p.proveedor || "").trim(); })
-          .filter(Boolean)
-      )).sort(function (a, b) { return a.localeCompare(b, "es"); });
+      const proveedores = obtenerProveedoresDisponibles();
 
       filtroProveedor.innerHTML = "";
       filtroProveedor.add(new Option("Todos los proveedores", ""));
@@ -546,10 +613,18 @@
       }
 
       if (fechaInput) {
-        fechaInput.value = new Date().toISOString().split("T")[0];
+        fechaInput.value = obtenerFechaActualLocal();
         fechaInput.disabled = deshabilitar;
         fechaInput.setAttribute("aria-disabled", deshabilitar ? "true" : "false");
       }
+    }
+
+    function obtenerFechaActualLocal() {
+      const hoy = new Date();
+      const anio = hoy.getFullYear();
+      const mes = String(hoy.getMonth() + 1).padStart(2, "0");
+      const dia = String(hoy.getDate()).padStart(2, "0");
+      return anio + "-" + mes + "-" + dia;
     }
 
     function abrirModal() {
@@ -558,6 +633,10 @@
       modalPeticion?.classList.add("show");
       modalPeticion?.setAttribute("aria-hidden", "false");
       modalPeticionTitulo.textContent = idEditando ? "Editar petición" : "Nueva petición";
+      poblarSelectProveedorPeticiones();
+      if (btnAgregarProveedor) {
+        btnAgregarProveedor.style.display = puedeGestionarProveedoresPeticion() ? "" : "none";
+      }
       if (!idEditando) {
         configurarCamposTecnico();
       } else {
@@ -645,13 +724,13 @@
 
       const vistaTecnico = esRolTecnicoPeticion();
       const nuevaPeticion = {
-        fecha: fechaInput.value,
+        fecha: fechaInput.value || obtenerFechaActualLocal(),
         unidad: obtenerUnidadPeticion(unidadInput.value),
         peticion: peticionInput.value.trim(),
         solicitante: solicitanteInput.value.trim(),
         area: areaSelect.value,
         dependencia: dependenciaInput.value.trim() || null,
-        proveedor: vistaTecnico ? null : (proveedorInput.value.trim() || null),
+        proveedor: vistaTecnico ? null : (String(proveedorInput.value || "").trim() || null),
         estatus: vistaTecnico ? "Pendiente" : estatusSelect.value,
         observaciones: observacionesInput.value.trim() || null
       };
@@ -712,6 +791,8 @@
       proveedorInput.value = "";
       estatusSelect.value = "Pendiente";
       observacionesInput.value = "";
+      if (fechaInput) fechaInput.value = obtenerFechaActualLocal();
+      if (proveedorInput) proveedorInput.value = "";
       infoUnidadPeticion.textContent = "";
       if (mensajeCamposTecnico) {
         mensajeCamposTecnico.style.display = "none";
@@ -732,6 +813,54 @@
 
     function obtenerPeticionPorId(id) {
       return peticiones.find(function (p) { return p.id === id; });
+    }
+
+    function abrirModalProveedor() {
+      if (!puedeGestionarProveedoresPeticion()) return;
+      modalProveedor?.classList.add("show");
+      modalProveedor?.setAttribute("aria-hidden", "false");
+      if (nuevoProveedorNombre) nuevoProveedorNombre.value = "";
+      nuevoProveedorNombre?.focus();
+    }
+
+    function cerrarModalProveedor() {
+      modalProveedor?.classList.remove("show");
+      modalProveedor?.setAttribute("aria-hidden", "true");
+      if (nuevoProveedorNombre) nuevoProveedorNombre.value = "";
+    }
+
+    modalProveedor?.addEventListener("click", function (event) {
+      if (event.target === modalProveedor) {
+        cerrarModalProveedor();
+      }
+    });
+
+    function guardarProveedor() {
+      if (!puedeGestionarProveedoresPeticion()) return;
+      const nombre = String(nuevoProveedorNombre?.value || "").trim();
+      if (!nombre) {
+        alert("Ingresa el nombre del proveedor.");
+        return;
+      }
+
+      try {
+        const guardados = JSON.parse(localStorage.getItem(PROVEEDORES_STORAGE_KEY) || "[]");
+        const lista = Array.isArray(guardados) ? guardados : [];
+        const yaExiste = lista.some(function (item) {
+          return String(item || "").trim().toLowerCase() === nombre.toLowerCase();
+        });
+        if (!yaExiste) {
+          lista.push(nombre);
+          localStorage.setItem(PROVEEDORES_STORAGE_KEY, JSON.stringify(lista));
+        }
+        poblarSelectProveedorPeticiones();
+        poblarFiltroProveedorPeticiones();
+        if (proveedorInput) proveedorInput.value = nombre;
+        cerrarModalProveedor();
+        alert("Proveedor guardado correctamente.");
+      } catch (_) {
+        alert("No se pudo guardar el proveedor.");
+      }
     }
 
     function verPeticion(id) {
