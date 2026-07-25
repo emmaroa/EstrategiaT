@@ -72,7 +72,7 @@
       <div class="panel-header">
         <div>
           <h2>Listado de vales</h2>
-          <p>Busca por folio, unidad, solicitante, recibe, entrega o refacción.</p>
+          <p>Busca por folio, unidad, dependencia, solicitante, recibe, entrega o refacción.</p>
         </div>
       </div>
 
@@ -88,10 +88,11 @@
 
         <select id="filtroValeArea" aria-label="Filtrar por área">
           <option value="">Todas las áreas</option>
-          <option value="Talleres">Talleres</option>
-          <option value="Infraestructura">Infraestructura</option>
-          <option value="Servicios Públicos">Servicios Públicos</option>
-          <option value="Parques y Jardines">Parques y Jardines</option>
+          <option value="Gasolina">Gasolina</option>
+          <option value="Colectores">Colectores</option>
+          <option value="Maquinaria pesada">Maquinaria pesada</option>
+          <option value="Eléctricos">Eléctricos</option>
+          <option value="Barredoras">Barredoras</option>
         </select>
       </div>
 
@@ -102,6 +103,7 @@
               <th>Fecha</th>
               <th>Folio</th>
               <th>Unidad</th>
+              <th>Dependencia</th>
               <th>Área</th>
               <th>Solicitante</th>
               <th>Refacción / Material</th>
@@ -156,11 +158,17 @@
           <label>Área</label>
           <select id="areaVale">
             <option value="">Selecciona área</option>
-            <option value="Talleres">Talleres</option>
-            <option value="Infraestructura">Infraestructura</option>
-            <option value="Servicios Públicos">Servicios Públicos</option>
-            <option value="Parques y Jardines">Parques y Jardines</option>
+            <option value="Gasolina">Gasolina</option>
+            <option value="Colectores">Colectores</option>
+            <option value="Maquinaria pesada">Maquinaria pesada</option>
+            <option value="Eléctricos">Eléctricos</option>
+            <option value="Barredoras">Barredoras</option>
           </select>
+        </div>
+
+        <div class="input-group">
+          <label>Dependencia</label>
+          <input type="text" id="dependenciaVale" readonly placeholder="Se obtiene de la unidad">
         </div>
 
         <div class="input-group">
@@ -249,6 +257,7 @@
     const filtroValeArea = document.getElementById("filtroValeArea");
     const unidadVale = document.getElementById("unidadVale");
     const areaVale = document.getElementById("areaVale");
+    const dependenciaVale = document.getElementById("dependenciaVale");
     const solicitanteVale = document.getElementById("solicitanteVale");
     const proveedorVale = document.getElementById("proveedorVale");
     const refaccionVale = document.getElementById("refaccionVale");
@@ -308,33 +317,48 @@
     }
 
     async function buscarUnidadParque(valorUnidad) {
-  if (!valorUnidad || !window.supabaseClient) return null;
+      if (!valorUnidad || !window.supabaseClient) return null;
 
-  const { data, error } = await supabaseClient
-    .from("parque_vehicular")
-    .select("*")
-    .or(`unidad_patrulla.ilike.%${valorUnidad}%,numero_inventario.ilike.%${valorUnidad}%`)
-    .limit(1)
-    .single();
+      const campos = "numero_economico,unidad_patrulla,dependencia,descripcion,placa,combustible";
+      const porNumeroEconomico = await supabaseClient
+        .from("parque_vehicular")
+        .select(campos)
+        .eq("numero_economico", valorUnidad)
+        .limit(1)
+        .maybeSingle();
 
-  if (error) {
-    console.warn("Unidad no encontrada:", error);
-    return null;
-  }
+      if (porNumeroEconomico.error) {
+        console.warn("No se pudo consultar el número económico:", porNumeroEconomico.error);
+        return null;
+      }
+      if (porNumeroEconomico.data) return porNumeroEconomico.data;
 
-  return data;
-}
+      const porNumeroPatrulla = await supabaseClient
+        .from("parque_vehicular")
+        .select(campos)
+        .eq("unidad_patrulla", valorUnidad)
+        .limit(1)
+        .maybeSingle();
+
+      if (porNumeroPatrulla.error) {
+        console.warn("No se pudo consultar el número de patrulla:", porNumeroPatrulla.error);
+        return null;
+      }
+
+      return porNumeroPatrulla.data;
+    }
 
 unidadVale?.addEventListener("blur", async function () {
   const valor = this.value.trim();
   const unidad = await buscarUnidadParque(valor);
 
   if (!unidad) {
-    infoUnidadVale.textContent = "Unidad no encontrada en Parque Vehicular.";
+    infoUnidadVale.textContent = "Número económico o de patrulla no encontrado en Parque Vehicular.";
+    dependenciaVale.value = "";
     return;
   }
 
-  areaVale.value = unidad.dependencia || "";
+  dependenciaVale.value = unidad.dependencia || "";
 
   infoUnidadVale.textContent =
     `${unidad.descripcion || ""} | Placa: ${unidad.placa || "Sin placa"} | Combustible: ${unidad.combustible || "Sin dato"}`;
@@ -351,6 +375,7 @@ unidadVale?.addEventListener("blur", async function () {
         const coincideTexto =
           (v.folio || "").toLowerCase().includes(texto) ||
           (v.unidad || "").toLowerCase().includes(texto) ||
+          (v.dependencia || "").toLowerCase().includes(texto) ||
           (v.area || "").toLowerCase().includes(texto) ||
           (v.solicitante || "").toLowerCase().includes(texto) ||
           (v.proveedor || "").toLowerCase().includes(texto) ||
@@ -366,7 +391,7 @@ unidadVale?.addEventListener("blur", async function () {
       });
 
       if (!filtrados.length) {
-        if (tablaVales) tablaVales.innerHTML = '<tr><td colspan="11">No hay vales registrados.</td></tr>';
+        if (tablaVales) tablaVales.innerHTML = '<tr><td colspan="12">No hay vales registrados.</td></tr>';
       } else {
         const soloLectura = typeof esSoloLectura === "function" && esSoloLectura();
 
@@ -376,6 +401,7 @@ unidadVale?.addEventListener("blur", async function () {
             "<td>" + formatearFechaVale(v.fecha) + "</td>" +
             "<td><strong>" + (v.folio || "") + "</strong></td>" +
             "<td>" + (v.unidad || "") + "</td>" +
+            "<td>" + (v.dependencia || "") + "</td>" +
             "<td>" + (v.area || "") + "</td>" +
             "<td>" + (v.solicitante || "") + "</td>" +
             "<td>" + (v.refaccion || "") + "</td>" +
@@ -440,7 +466,13 @@ unidadVale?.addEventListener("blur", async function () {
 
     function generarFolioVale() {
       const anio = new Date().getFullYear();
-      const consecutivo = vales.length + 1;
+      const patronFolio = /^(\d+)-(\d{4})-V$/i;
+      const ultimoConsecutivo = vales.reduce(function (mayor, vale) {
+        const coincidencia = String(vale.folio || "").trim().match(patronFolio);
+        if (!coincidencia || Number(coincidencia[2]) !== anio) return mayor;
+        return Math.max(mayor, Number(coincidencia[1]) || 0);
+      }, 0);
+      const consecutivo = ultimoConsecutivo + 1;
       const numero = String(consecutivo).padStart(4, "0");
       return `${numero}-${anio}-V`;
     }
@@ -452,10 +484,24 @@ unidadVale?.addEventListener("blur", async function () {
         return;
       }
 
+      const numeroUnidad = String(unidadVale.value || "").trim();
+      const unidadParque = await buscarUnidadParque(numeroUnidad);
+
+      if (!unidadParque) {
+        dependenciaVale.value = "";
+        infoUnidadVale.textContent = "Número económico o de patrulla no encontrado en Parque Vehicular.";
+        alert("Registra un número económico o número de patrulla válido para obtener su dependencia.");
+        unidadVale.focus();
+        return;
+      }
+
+      dependenciaVale.value = unidadParque.dependencia || "";
+
       const nuevo = {
         fecha: String(fechaVale.value || ""),
         folio: String(folioVale.value || ""),
-        unidad: String(unidadVale.value || "").trim(),
+        unidad: numeroUnidad,
+        dependencia: String(unidadParque.dependencia || "").trim(),
         area: String(areaVale.value || ""),
         solicitante: String(solicitanteVale.value || "").trim(),
         proveedor: String(proveedorVale.value || "").trim(),
@@ -469,8 +515,8 @@ unidadVale?.addEventListener("blur", async function () {
         observaciones: String(observacionesVale.value || "").trim()
       };
 
-      if (!nuevo.unidad || !nuevo.area || !nuevo.solicitante || !nuevo.refaccion || !nuevo.recibe) {
-        alert("Completa unidad, área, solicitante, refacción/material y recibe.");
+      if (!nuevo.unidad || !nuevo.dependencia || !nuevo.area || !nuevo.solicitante || !nuevo.refaccion || !nuevo.recibe) {
+        alert("Completa unidad, dependencia, área, solicitante, refacción/material y recibe.");
         return;
       }
 
@@ -519,6 +565,7 @@ unidadVale?.addEventListener("blur", async function () {
       fechaVale.value = v.fecha || "";
       folioVale.value = v.folio || "";
       unidadVale.value = v.unidad || "";
+      dependenciaVale.value = v.dependencia || "";
       areaVale.value = v.area || "";
       solicitanteVale.value = v.solicitante || "";
       proveedorVale.value = v.proveedor || "";
@@ -613,6 +660,7 @@ unidadVale?.addEventListener("blur", async function () {
       fechaVale.value = "";
       folioVale.value = "";
       unidadVale.value = "";
+      dependenciaVale.value = "";
       areaVale.value = "";
       solicitanteVale.value = "";
       proveedorVale.value = "";
@@ -635,6 +683,7 @@ unidadVale?.addEventListener("blur", async function () {
         "Folio: " + v.folio +
         "\nFecha: " + formatearFechaVale(v.fecha) +
         "\nUnidad: " + v.unidad +
+        "\nDependencia: " + (v.dependencia || "Sin dato") +
         "\nÁrea: " + v.area +
         "\nSolicitante: " + v.solicitante +
         "\nProveedor/Origen: " + (v.proveedor || "Sin dato") +
@@ -692,6 +741,7 @@ unidadVale?.addEventListener("blur", async function () {
             <div class="grid">
               <div class="item"><strong>Fecha</strong>${formatearFechaVale(v.fecha)}</div>
               <div class="item"><strong>Unidad</strong>${v.unidad}</div>
+              <div class="item"><strong>Dependencia</strong>${v.dependencia || "Sin dato"}</div>
               <div class="item"><strong>Área</strong>${v.area}</div>
               <div class="item"><strong>Solicitante</strong>${v.solicitante}</div>
               <div class="item"><strong>Proveedor / Origen</strong>${v.proveedor || "Sin dato"}</div>
