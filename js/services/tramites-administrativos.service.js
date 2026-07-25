@@ -46,8 +46,8 @@
 
     const registro = {
       num_empleado: texto(payload.num_empleado),
-      nombre_completo: texto(payload.nombre_completo || payload.nombre || ""),
       nombre: texto(payload.nombre || payload.nombre_completo || ""),
+      fecha_nac: payload.fecha_nac || null,
       direccion: texto(payload.direccion || ""),
       departamento: texto(payload.departamento || ""),
       puesto: texto(payload.puesto || ""),
@@ -59,6 +59,29 @@
     return client
       .from("empleados")
       .insert(registro)
+      .select()
+      .single();
+  }
+
+  async function actualizarEmpleado(id, payload) {
+    const client = getClient();
+    if (!client || !id) return { data: null, error: { message: "Sin conexion" } };
+
+    const registro = {
+      num_empleado: texto(payload.num_empleado),
+      nombre: texto(payload.nombre || payload.nombre_completo || ""),
+      fecha_nac: payload.fecha_nac || null,
+      direccion: texto(payload.direccion || ""),
+      departamento: texto(payload.departamento || ""),
+      puesto: texto(payload.puesto || ""),
+      activo: payload.activo !== false,
+      updated_at: new Date().toISOString()
+    };
+
+    return client
+      .from("empleados")
+      .update(registro)
+      .eq("id", id)
       .select()
       .single();
   }
@@ -180,6 +203,7 @@
     buscarEmpleado,
     listarEmpleados,
     crearEmpleado,
+    actualizarEmpleado,
     listarTramites,
     crearTramite,
     actualizarTramite,

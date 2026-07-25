@@ -4,12 +4,16 @@
 (function (global) {
   function obtenerAnio(fecha) {
     if (!fecha) return "";
-    return new Date(fecha + "T00:00:00").getFullYear().toString();
+    const fechaCorta = String(fecha).split("T")[0];
+    const valor = new Date(fechaCorta + "T00:00:00");
+    return Number.isNaN(valor.getTime()) ? "" : valor.getFullYear().toString();
   }
 
   function obtenerMes(fecha) {
     if (!fecha) return "";
-    const d = new Date(fecha + "T00:00:00");
+    const fechaCorta = String(fecha).split("T")[0];
+    const d = new Date(fechaCorta + "T00:00:00");
+    if (Number.isNaN(d.getTime())) return "";
     return d.getFullYear() + "-" + String(d.getMonth() + 1).padStart(2, "0");
   }
 
@@ -23,9 +27,10 @@
   function filtrarPorRango(datos, desde, hasta) {
     if (!desde && !hasta) return datos;
     return datos.filter(function (item) {
-      if (!item.fecha) return false;
-      if (desde && item.fecha < desde) return false;
-      if (hasta && item.fecha > hasta) return false;
+      const fecha = String(item.fecha || item.fecha_req || "").split("T")[0];
+      if (!fecha) return false;
+      if (desde && fecha < desde) return false;
+      if (hasta && fecha > hasta) return false;
       return true;
     });
   }

@@ -1,0 +1,341 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Administración de Talleres | Empleados</title>
+  <link rel="stylesheet" href="../css/style.css">
+  <link rel="stylesheet" href="../css/design-system.css">
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="../js/core/supabase.js"></script>
+  <script src="../js/core/permissions.js"></script>
+  <script src="../js/core/theme.js"></script>
+  <script src="../js/core/layout.js"></script>
+  <script src="../js/services/tramites-administrativos.service.js"></script>
+  <script src="../login.js"></script>
+</head>
+<body class="dashboard-body">
+
+  <aside class="sidebar">
+    <div class="sidebar-logo">
+      <div class="mini-logo">E</div>
+      <div>
+        <h3>Administración de Talleres</h3>
+        <small id="etModuleName">Empleados</small>
+      </div>
+    </div>
+    <nav id="etNav"></nav>
+    <button type="button" class="logout" id="etLogout">Cerrar sesión</button>
+  </aside>
+
+  <main class="main-content">
+    <header class="topbar">
+      <div>
+        <h1>Empleados</h1>
+        <p>Consulta y actualiza la información utilizada en los trámites administrativos.</p>
+      </div>
+      <div style="display:flex;gap:12px;align-items:center;">
+        <span id="etTemaContainer"></span>
+        <a href="tramites-administrativos.html" class="btn-secondary">Volver a trámites</a>
+      </div>
+    </header>
+
+    <section class="kpi-grid">
+      <div class="kpi-card">
+        <span>Total empleados</span>
+        <h2 id="kpiEmpleadosTotal">0</h2>
+        <p>Registros del catálogo</p>
+      </div>
+      <div class="kpi-card">
+        <span>Empleados activos</span>
+        <h2 id="kpiEmpleadosActivos">0</h2>
+        <p>Disponibles para trámites</p>
+      </div>
+      <div class="kpi-card">
+        <span>Fechas pendientes</span>
+        <h2 id="kpiFechasPendientes">0</h2>
+        <p>Sin fecha de nacimiento</p>
+      </div>
+      <div class="kpi-card highlight-teal">
+        <span>Cumpleaños de la semana</span>
+        <h2 id="kpiCumpleanosEmpleados" class="et-kpi-text-value">Nadie</h2>
+        <p>Hoy y próximos 6 días</p>
+      </div>
+    </section>
+
+    <section class="panel">
+      <div class="panel-header">
+        <div>
+          <h2>Catálogo de empleados</h2>
+          <p>Busca por número, nombre, departamento o puesto.</p>
+        </div>
+      </div>
+
+      <div class="filters">
+        <input type="search" id="buscarEmpleadoCatalogo" placeholder="Buscar empleado..." aria-label="Buscar empleado">
+        <select id="filtroEstadoEmpleado" aria-label="Filtrar por estado">
+          <option value="">Todos los estados</option>
+          <option value="activo">Activos</option>
+          <option value="inactivo">Inactivos</option>
+        </select>
+      </div>
+
+      <div class="table-container">
+        <table>
+          <thead>
+            <tr>
+              <th>Número</th>
+              <th>Nombre completo</th>
+              <th>Fecha de nacimiento</th>
+              <th>Departamento</th>
+              <th>Puesto</th>
+              <th>Estado</th>
+              <th>Acciones</th>
+            </tr>
+          </thead>
+          <tbody id="tablaEmpleadosCatalogo"></tbody>
+        </table>
+      </div>
+    </section>
+  </main>
+
+  <div class="modal" id="modalEditarEmpleado" role="dialog" aria-modal="true" aria-labelledby="tituloEditarEmpleado" aria-hidden="true">
+    <div class="modal-card">
+      <div class="modal-header">
+        <div>
+          <h2 id="tituloEditarEmpleado">Editar empleado</h2>
+          <p>Actualiza la información general y laboral del empleado.</p>
+        </div>
+        <button type="button" class="close-btn" aria-label="Cerrar diálogo" onclick="cerrarModalEmpleado()">×</button>
+      </div>
+
+      <div class="form-grid">
+        <div class="input-group">
+          <label for="editarNumEmpleado">Número de empleado</label>
+          <input type="text" id="editarNumEmpleado" required>
+        </div>
+        <div class="input-group">
+          <label for="editarNombreEmpleado">Nombre completo</label>
+          <input type="text" id="editarNombreEmpleado" required>
+        </div>
+        <div class="input-group">
+          <label for="editarFechaNacimiento">Fecha de nacimiento</label>
+          <input type="date" id="editarFechaNacimiento">
+        </div>
+        <div class="input-group">
+          <label for="editarDepartamento">Departamento</label>
+          <input type="text" id="editarDepartamento">
+        </div>
+        <div class="input-group">
+          <label for="editarPuesto">Puesto</label>
+          <input type="text" id="editarPuesto">
+        </div>
+        <div class="input-group">
+          <label for="editarEstadoEmpleado">Estado</label>
+          <select id="editarEstadoEmpleado">
+            <option value="true">Activo</option>
+            <option value="false">Inactivo</option>
+          </select>
+        </div>
+        <div class="input-group full">
+          <label for="editarDireccion">Dirección</label>
+          <input type="text" id="editarDireccion">
+        </div>
+      </div>
+
+      <div class="modal-actions">
+        <button type="button" class="btn-secondary" onclick="cerrarModalEmpleado()">Cancelar</button>
+        <button type="button" class="btn-small" id="btnGuardarEdicionEmpleado" onclick="ETLoading.ejecutar(this, guardarEmpleado)">Guardar cambios</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    validarPermiso("Tramites Administrativos");
+    ETLayout.inicializar("Tramites Administrativos");
+
+    const $ = function (id) { return document.getElementById(id); };
+    let empleados = [];
+    let empleadoEditandoId = null;
+
+    function obtenerUsuarioActivo() {
+      try {
+        return JSON.parse(localStorage.getItem("usuarioActivo") || "null");
+      } catch (_) {
+        return null;
+      }
+    }
+
+    function puedeEditarEmpleados() {
+      return window.ETPermissions &&
+        ETPermissions.puedeAccion(obtenerUsuarioActivo(), "Tramites Administrativos", "editar");
+    }
+
+    function escapar(valor) {
+      return String(valor == null ? "" : valor)
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
+    }
+
+    function formatearFecha(fecha) {
+      if (!fecha) return "Sin capturar";
+      const partes = String(fecha).split("T")[0].split("-");
+      return partes.length === 3 ? partes[2] + "/" + partes[1] + "/" + partes[0] : fecha;
+    }
+
+    function obtenerCumpleanerosHoy() {
+      return ETLayout.obtenerCumpleanosSemana(empleados);
+    }
+
+    function actualizarKPIsEmpleados() {
+      $("kpiEmpleadosTotal").textContent = empleados.length;
+      $("kpiEmpleadosActivos").textContent = empleados.filter(function (empleado) {
+        return empleado.activo !== false;
+      }).length;
+      $("kpiFechasPendientes").textContent = empleados.filter(function (empleado) {
+        return !empleado.fecha_nac;
+      }).length;
+      const cumpleaneros = obtenerCumpleanerosHoy();
+      $("kpiCumpleanosEmpleados").textContent = cumpleaneros.length
+        ? cumpleaneros.map(function (item) {
+            return item.nombre + " (" + item.etiqueta + ")";
+          }).join(" · ")
+        : "Nadie";
+    }
+
+    function obtenerEmpleadosFiltrados() {
+      const texto = String($("buscarEmpleadoCatalogo")?.value || "").trim().toLowerCase();
+      const estado = $("filtroEstadoEmpleado")?.value || "";
+      return empleados.filter(function (empleado) {
+        const coincideTexto = [
+          empleado.num_empleado,
+          empleado.nombre_completo,
+          empleado.nombre,
+          empleado.departamento,
+          empleado.puesto
+        ].some(function (valor) {
+          return String(valor || "").toLowerCase().includes(texto);
+        });
+        const activo = empleado.activo !== false;
+        const coincideEstado =
+          !estado ||
+          (estado === "activo" && activo) ||
+          (estado === "inactivo" && !activo);
+        return coincideTexto && coincideEstado;
+      });
+    }
+
+    function renderizarEmpleados() {
+      const tbody = $("tablaEmpleadosCatalogo");
+      const filtrados = obtenerEmpleadosFiltrados();
+      if (!filtrados.length) {
+        tbody.innerHTML = '<tr><td colspan="7">No se encontraron empleados.</td></tr>';
+      } else {
+        tbody.innerHTML = filtrados.map(function (empleado) {
+          const activo = empleado.activo !== false;
+          const acciones = puedeEditarEmpleados()
+            ? ETLayout.iconButton("editar", "Editar empleado", "abrirModalEmpleado('" + empleado.id + "')", "edit")
+            : '<span class="helper-text">Solo consulta</span>';
+          return "<tr>" +
+            "<td><strong>" + escapar(empleado.num_empleado) + "</strong></td>" +
+            "<td>" + escapar(empleado.nombre_completo || empleado.nombre || "-") + "</td>" +
+            "<td>" + escapar(formatearFecha(empleado.fecha_nac)) + "</td>" +
+            "<td>" + escapar(empleado.departamento || "-") + "</td>" +
+            "<td>" + escapar(empleado.puesto || "-") + "</td>" +
+            '<td><span class="badge ' + (activo ? "green" : "red") + '">' + (activo ? "Activo" : "Inactivo") + "</span></td>" +
+            '<td><div class="action-grid">' + acciones + "</div></td>" +
+          "</tr>";
+        }).join("");
+      }
+      actualizarKPIsEmpleados();
+    }
+
+    async function cargarEmpleados() {
+      const resultado = await ETTramitesAdministrativos.listarEmpleados();
+      if (resultado.error) {
+        alert("No se pudo cargar el catálogo de empleados: " + resultado.error.message);
+        empleados = [];
+      } else {
+        empleados = resultado.data || [];
+      }
+      renderizarEmpleados();
+    }
+
+    function abrirModalEmpleado(id) {
+      if (!puedeEditarEmpleados()) return;
+      const empleado = empleados.find(function (item) { return String(item.id) === String(id); });
+      if (!empleado) return;
+      empleadoEditandoId = empleado.id;
+      $("editarNumEmpleado").value = empleado.num_empleado || "";
+      $("editarNombreEmpleado").value = empleado.nombre_completo || empleado.nombre || "";
+      $("editarFechaNacimiento").value = String(empleado.fecha_nac || "").split("T")[0];
+      $("editarDepartamento").value = empleado.departamento || "";
+      $("editarPuesto").value = empleado.puesto || "";
+      $("editarDireccion").value = empleado.direccion || "";
+      $("editarEstadoEmpleado").value = String(empleado.activo !== false);
+      $("modalEditarEmpleado").classList.add("show");
+      $("modalEditarEmpleado").setAttribute("aria-hidden", "false");
+    }
+
+    function cerrarModalEmpleado() {
+      $("modalEditarEmpleado").classList.remove("show");
+      $("modalEditarEmpleado").setAttribute("aria-hidden", "true");
+      empleadoEditandoId = null;
+    }
+
+    async function guardarEmpleado() {
+      if (!puedeEditarEmpleados() || !empleadoEditandoId) return;
+      const numero = $("editarNumEmpleado").value.trim();
+      const nombre = $("editarNombreEmpleado").value.trim();
+      if (!numero || !nombre) {
+        alert("Captura el número y nombre completo del empleado.");
+        return;
+      }
+      const duplicado = empleados.some(function (empleado) {
+        return String(empleado.id) !== String(empleadoEditandoId) &&
+          String(empleado.num_empleado || "").trim().toLowerCase() === numero.toLowerCase();
+      });
+      if (duplicado) {
+        alert("Ya existe otro empleado con ese número.");
+        return;
+      }
+
+      const resultado = await ETTramitesAdministrativos.actualizarEmpleado(empleadoEditandoId, {
+        num_empleado: numero,
+        nombre_completo: nombre,
+        nombre,
+        fecha_nac: $("editarFechaNacimiento").value || null,
+        departamento: $("editarDepartamento").value.trim(),
+        puesto: $("editarPuesto").value.trim(),
+        direccion: $("editarDireccion").value.trim(),
+        activo: $("editarEstadoEmpleado").value === "true"
+      });
+      if (resultado.error) {
+        alert("No se pudo actualizar el empleado: " + resultado.error.message);
+        return;
+      }
+
+      if (typeof registrarAuditoria === "function") {
+        registrarAuditoria("Tramites Administrativos", "Editó empleado", numero + " - " + nombre);
+      }
+      cerrarModalEmpleado();
+      await cargarEmpleados();
+      alert("Información del empleado actualizada.");
+    }
+
+    $("buscarEmpleadoCatalogo").addEventListener("input", renderizarEmpleados);
+    $("filtroEstadoEmpleado").addEventListener("change", renderizarEmpleados);
+    $("modalEditarEmpleado").addEventListener("click", function (event) {
+      if (event.target === $("modalEditarEmpleado")) cerrarModalEmpleado();
+    });
+
+    if (!puedeEditarEmpleados()) {
+      $("btnGuardarEdicionEmpleado").style.display = "none";
+    }
+    cargarEmpleados();
+  </script>
+</body>
+</html>

@@ -135,6 +135,12 @@ textarea {
   opacity: 1;
 }
 
+.kpi-card .et-kpi-text-value {
+  font-size: clamp(17px, 2vw, 25px);
+  line-height: 1.2;
+  overflow-wrap: anywhere;
+}
+
 .topbar h1,
 .page-header h1 {
   letter-spacing: -0.025em;

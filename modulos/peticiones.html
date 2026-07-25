@@ -97,6 +97,7 @@
           <option value="Pendiente">Pendiente</option>
           <option value="Revisado por almacen">Revisado por almacen</option>
           <option value="Pedido a proveedor">Pedido a proveedor</option>
+          <option value="Recibido Parcial">Recibido Parcial</option>
           <option value="Recibido en Almacen">Recibido en Almacen</option>
           <option value="En cotización">En cotización</option>
           <option value="CANCELADO">CANCELADO</option>
@@ -203,14 +204,15 @@
             <option value="Pendiente">Pendiente</option>
             <option value="Revisado por almacen">Revisado por almacen</option>
             <option value="Pedido a proveedor">Pedido a proveedor</option>
+            <option value="Recibido Parcial">Recibido Parcial</option>
             <option value="Recibido en Almacen">Recibido en Almacen</option>
             <option value="CANCELADO">CANCELADO</option>
           </select>
         </div>
 
         <div class="input-group">
-          <label for="fecha">Fecha</label>
-          <input type="date" id="fecha">
+          <label for="fecha">Fecha de registro</label>
+          <input type="date" id="fecha" disabled aria-disabled="true" title="La fecha se asigna automáticamente al crear la petición">
         </div>
 
         <div class="input-group full">
@@ -260,7 +262,6 @@
   <script>
     validarPermiso("Peticiones");
     ETLayout.inicializar("Peticiones");
-    ETLayout.ocultarSiSoloLectura("#btnNuevaPeticion");
 
     let peticiones = [];
     let idEditando = null;
@@ -385,6 +386,13 @@
 
     function puedeAccionPeticion(accion) {
       const usuarioActivo = obtenerUsuarioActivoPeticion();
+      if (
+        accion === "crear" &&
+        usuarioActivo &&
+        (usuarioActivo.id || String(usuarioActivo.usuario || "").trim())
+      ) {
+        return true;
+      }
       if (window.ETPermissions && typeof ETPermissions.puedeAccion === "function") {
         return ETPermissions.puedeAccion(usuarioActivo, "Peticiones", accion);
       }
@@ -402,6 +410,7 @@
         "entregado": "Recibido en Almacen",
         "solventado": "Recibido en Almacen",
         "cancelado": "CANCELADO",
+        "recibido parcial": "Recibido Parcial",
         "en cotizacion": "En cotización"
       };
       return ESTATUS_PETICION_LEGACY[valor] || mapeo[valorNormalizado] || valor || "Pendiente";
@@ -570,7 +579,7 @@
       counts = peticiones.reduce(function (acumulado, p) {
         const estatus = normalizarTextoPeticion(p.estatus);
         if (estatus === "pendiente") acumulado.pendientes += 1;
-        if (estatus === "revisado por almacen" || estatus === "pedido a proveedor") acumulado.proceso += 1;
+        if (estatus === "revisado por almacen" || estatus === "pedido a proveedor" || estatus === "recibido parcial") acumulado.proceso += 1;
         if (estatus === "recibido en almacen") acumulado.entregadas += 1;
         if (estatus === "en cotizacion") acumulado.cotizacion += 1;
         return acumulado;
@@ -614,8 +623,8 @@
 
       if (fechaInput) {
         fechaInput.value = obtenerFechaActualLocal();
-        fechaInput.disabled = deshabilitar;
-        fechaInput.setAttribute("aria-disabled", deshabilitar ? "true" : "false");
+        fechaInput.disabled = true;
+        fechaInput.setAttribute("aria-disabled", "true");
       }
     }
 
@@ -649,8 +658,8 @@
           estatusSelect.setAttribute("aria-disabled", "false");
         }
         if (fechaInput) {
-          fechaInput.disabled = false;
-          fechaInput.setAttribute("aria-disabled", "false");
+          fechaInput.disabled = true;
+          fechaInput.setAttribute("aria-disabled", "true");
         }
       }
       unidadInput?.focus();
@@ -687,6 +696,7 @@
       const texto = normalizarTextoPeticion(valor);
       if (texto === "revisado por almacen" || texto === "revisado" || texto === "revisado por almacen" || texto === "revisado por almacén") return "Revisado por almacen";
       if (texto === "pedido a proveedor") return "Pedido a proveedor";
+      if (texto === "recibido parcial") return "Recibido Parcial";
       if (texto === "recibido en almacen" || texto === "recibido en almacén") return "Recibido en Almacen";
       if (texto === "en cotizacion" || texto === "cotizacion") return "En cotización";
       if (texto === "pendiente") return "Pendiente";
@@ -723,8 +733,9 @@
       }
 
       const vistaTecnico = esRolTecnicoPeticion();
+      const peticionExistente = idEditando ? obtenerPeticionPorId(idEditando) : null;
       const nuevaPeticion = {
-        fecha: fechaInput.value || obtenerFechaActualLocal(),
+        fecha: peticionExistente?.fecha || obtenerFechaActualLocal(),
         unidad: obtenerUnidadPeticion(unidadInput.value),
         peticion: peticionInput.value.trim(),
         solicitante: solicitanteInput.value.trim(),
@@ -742,7 +753,7 @@
 
       let resultado;
       if (idEditando) {
-        const anterior = obtenerPeticionPorId(idEditando);
+        const anterior = peticionExistente;
         resultado = await ETPeticiones.actualizar(idEditando, nuevaPeticion);
         if (!resultado.error && typeof registrarAuditoria === "function") {
           registrarAuditoria("Peticiones", "Edito peticion", "Unidad " + nuevaPeticion.unidad, {
@@ -806,8 +817,8 @@
         estatusSelect.setAttribute("aria-disabled", "false");
       }
       if (fechaInput) {
-        fechaInput.disabled = false;
-        fechaInput.setAttribute("aria-disabled", "false");
+        fechaInput.disabled = true;
+        fechaInput.setAttribute("aria-disabled", "true");
       }
     }
 
@@ -1032,6 +1043,7 @@
       if (estatus === "Pendiente") return "amber";
       if (estatus === "Revisado por almacen") return "blue";
       if (estatus === "Pedido a proveedor") return "blue";
+      if (estatus === "Recibido Parcial") return "amber";
       if (estatus === "Recibido en Almacen") return "green";
       if (estatus === "CANCELADO") return "red";
       return "gray";
@@ -1133,7 +1145,7 @@
       if (!p) return;
       idEditando = id;
       abrirModal();
-      fechaInput.value = p.fecha;
+      fechaInput.value = String(p.fecha || "").split("T")[0];
       unidadInput.value = p.unidad;
       peticionInput.value = p.peticion;
       solicitanteInput.value = p.solicitante;

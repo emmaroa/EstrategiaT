@@ -37,6 +37,7 @@
       </div>
       <div style="display:flex;gap:12px;align-items:center;">
         <span id="etTemaContainer"></span>
+        <a href="empleados.html" class="btn-secondary" id="btnCatalogoEmpleados">Empleados</a>
         <button type="button" class="btn-small" id="btnNuevoEmpleado" onclick="abrirModalEmpleado()">+ Nuevo empleado</button>
         <button type="button" class="btn-small" id="btnNuevoTramite" onclick="abrirModalTramite()">+ Nuevo tramite</button>
       </div>
@@ -62,6 +63,16 @@
         <span>Tramites de incapacidades</span>
         <h2 id="kpiIncapacidades">0</h2>
         <p>Registros de este tipo</p>
+      </div>
+      <div class="kpi-card highlight">
+        <span>Empleados ausentes hoy</span>
+        <h2 id="kpiAusentesHoy">0</h2>
+        <p>Permiso, vacaciones o incapacidad vigente</p>
+      </div>
+      <div class="kpi-card highlight-teal">
+        <span>Cumpleaños de la semana</span>
+        <h2 id="kpiCumpleanosHoy" class="et-kpi-text-value">Nadie</h2>
+        <p>Hoy y próximos 6 días</p>
       </div>
     </section>
 
@@ -160,6 +171,10 @@
         <div class="input-group">
           <label for="altaNombreEmpleado">Nombre completo</label>
           <input type="text" id="altaNombreEmpleado" placeholder="Nombre completo">
+        </div>
+        <div class="input-group">
+          <label for="altaFechaNacimiento">Fecha de nacimiento</label>
+          <input type="date" id="altaFechaNacimiento">
         </div>
         <div class="input-group">
           <label for="altaDepartamento">Departamento</label>
@@ -370,6 +385,18 @@
       empleadosCatalogo = (data || []).filter(function (empleado) {
         return empleado.activo !== false;
       });
+      actualizarCumpleanosHoy();
+    }
+
+    function actualizarCumpleanosHoy() {
+      const destino = $("kpiCumpleanosHoy");
+      if (!destino) return;
+      const cumpleaneros = ETLayout.obtenerCumpleanosSemana(empleadosCatalogo);
+      destino.textContent = cumpleaneros.length
+        ? cumpleaneros.map(function (item) {
+            return item.nombre + " (" + item.etiqueta + ")";
+          }).join(" · ")
+        : "Nadie";
     }
 
     function abrirModalEmpleado() {
@@ -382,7 +409,7 @@
     function cerrarModalEmpleado() {
       $("modalEmpleado").classList.remove("show");
       $("modalEmpleado").setAttribute("aria-hidden", "true");
-      ["altaNumEmpleado", "altaNombreEmpleado", "altaDepartamento", "altaPuesto", "altaDireccion"].forEach(function (id) {
+      ["altaNumEmpleado", "altaNombreEmpleado", "altaFechaNacimiento", "altaDepartamento", "altaPuesto", "altaDireccion"].forEach(function (id) {
         if ($(id)) $(id).value = "";
       });
     }
@@ -409,6 +436,7 @@
         num_empleado: numEmpleado,
         nombre_completo: nombre,
         nombre: nombre,
+        fecha_nac: $("altaFechaNacimiento")?.value || null,
         departamento: $("altaDepartamento")?.value.trim() || "",
         puesto: $("altaPuesto")?.value.trim() || "",
         direccion: $("altaDireccion")?.value.trim() || "",
@@ -485,11 +513,28 @@
       const contarTipo = function (tipo) {
         return datos.filter(function (t) { return t.tipo_tramite === tipo; }).length;
       };
+      const ahora = new Date();
+      const hoy = [
+        ahora.getFullYear(),
+        String(ahora.getMonth() + 1).padStart(2, "0"),
+        String(ahora.getDate()).padStart(2, "0")
+      ].join("-");
+      const tiposAusencia = ["Permiso especial", "Vacaciones", "Incapacidad"];
+      const empleadosAusentes = new Set(
+        tramites.filter(function (t) {
+          return tiposAusencia.includes(t.tipo_tramite) &&
+            String(t.fecha_inicio || "") <= hoy &&
+            String(t.fecha_fin || "") >= hoy;
+        }).map(function (t) {
+          return String(t.num_empleado || t.empleado_id || t.empleado_nombre || "").trim();
+        }).filter(Boolean)
+      );
 
       $("kpiTotal").textContent = datos.length;
       $("kpiEconomicos").textContent = contarTipo("Dias economicos");
       $("kpiVacaciones").textContent = contarTipo("Vacaciones");
       $("kpiIncapacidades").textContent = contarTipo("Incapacidad");
+      $("kpiAusentesHoy").textContent = empleadosAusentes.size;
     }
 
     function renderizarFeriados() {

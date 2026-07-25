@@ -78,6 +78,7 @@
           <option value="Pendiente">Pendiente</option>
           <option value="Revisado por almacen">Revisado por almacen</option>
           <option value="Pedido a proveedor">Pedido a proveedor</option>
+          <option value="Recibido Parcial">Recibido Parcial</option>
           <option value="Recibido en Almacen">Recibido en Almacen</option>
           <option value="CANCELADO">CANCELADO</option>
         </select>
@@ -252,7 +253,7 @@
     function actualizarKPIs() {
       const counts = peticiones.reduce(function (acc, p) {
         if (p.estatus === "Pendiente") acc.pendientes += 1;
-        if (p.estatus === "Revisado por almacen" || p.estatus === "Pedido a proveedor") acc.proceso += 1;
+        if (p.estatus === "Revisado por almacen" || p.estatus === "Pedido a proveedor" || p.estatus === "Recibido Parcial") acc.proceso += 1;
         if (p.estatus === "Recibido en Almacen") acc.recibidas += 1;
         return acc;
       }, { pendientes: 0, proceso: 0, recibidas: 0 });
@@ -287,6 +288,7 @@
       if (estatus === "Pendiente") return "amber";
       if (estatus === "Revisado por almacen") return "blue";
       if (estatus === "Pedido a proveedor") return "blue";
+      if (estatus === "Recibido Parcial") return "amber";
       if (estatus === "Recibido en Almacen") return "green";
       if (estatus === "CANCELADO") return "red";
       return "gray";

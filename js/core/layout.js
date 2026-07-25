@@ -648,6 +648,46 @@
     control.dispatchEvent(new Event("input", { bubbles: true }));
   }
 
+  function obtenerCumpleanosSemana(empleados, totalDias) {
+    const diasVentana = Math.max(1, Number(totalDias || 7));
+    const ahora = new Date();
+    const hoy = new Date(ahora.getFullYear(), ahora.getMonth(), ahora.getDate());
+
+    return (empleados || []).filter(function (empleado) {
+      return empleado && empleado.activo !== false && empleado.fecha_nac;
+    }).map(function (empleado) {
+      const partes = String(empleado.fecha_nac).split("T")[0].split("-").map(Number);
+      if (partes.length !== 3 || !partes[1] || !partes[2]) return null;
+
+      let fecha = new Date(hoy.getFullYear(), partes[1] - 1, partes[2]);
+      if (fecha.getMonth() !== partes[1] - 1) {
+        fecha = new Date(hoy.getFullYear(), partes[1], 0);
+      }
+      if (fecha < hoy) {
+        fecha = new Date(hoy.getFullYear() + 1, partes[1] - 1, partes[2]);
+        if (fecha.getMonth() !== partes[1] - 1) {
+          fecha = new Date(hoy.getFullYear() + 1, partes[1], 0);
+        }
+      }
+
+      const dias = Math.round((fecha.getTime() - hoy.getTime()) / 86400000);
+      if (dias < 0 || dias >= diasVentana) return null;
+      return {
+        empleado,
+        fecha,
+        dias,
+        nombre: empleado.nombre_completo || empleado.nombre || empleado.num_empleado || "Empleado",
+        etiqueta: fecha.toLocaleDateString("es-MX", {
+          weekday: "short",
+          day: "numeric",
+          month: "short"
+        })
+      };
+    }).filter(Boolean).sort(function (a, b) {
+      return a.fecha - b.fecha || a.nombre.localeCompare(b.nombre, "es");
+    });
+  }
+
   function valorControl(control) {
     if (control.type === "checkbox" || control.type === "radio") {
       return control.checked ? "1" : "";
@@ -1644,6 +1684,7 @@ permitidos = permitidos.filter(function (m) {
     prepararFormularios,
     prepararBusquedaGlobal,
     prepararMicrointeracciones,
+    obtenerCumpleanosSemana,
     mostrarCargaTabla,
     terminarCargaTabla,
     ejecutarConBoton,

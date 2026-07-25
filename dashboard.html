@@ -15,6 +15,7 @@
   <script src="js/core/theme.js"></script>
   <script src="js/core/layout.js"></script>
   <script src="js/services/export.service.js"></script>
+  <script src="js/services/peticiones.service.js"></script>
   <script src="js/services/dashboard.service.js"></script>
   <script src="js/services/requisiciones.service.js"></script>
   <script src="login.js"></script>
@@ -138,6 +139,18 @@
         <span id="labelKpiVales">Vales emitidos</span>
         <h2 id="kpiValesEmitidos">0</h2>
         <p id="kpiValesEmitidosDesc">Del periodo</p>
+      </div>
+      <div class="kpi-card highlight-teal dashboard-kpi-card dashboard-link-card" data-module="Tramites Administrativos" data-href="modulos/empleados.html" role="link" tabindex="0">
+        <span class="dashboard-kpi-icon" aria-hidden="true">C</span>
+        <span>Cumpleaños de la semana</span>
+        <h2 id="kpiCumpleanosHoy" class="et-kpi-text-value">Nadie</h2>
+        <p>Hoy y próximos 6 días</p>
+      </div>
+      <div class="kpi-card highlight dashboard-kpi-card dashboard-link-card priority" data-module="Tramites Administrativos" data-href="modulos/tramites-administrativos.html" role="link" tabindex="0">
+        <span class="dashboard-kpi-icon" aria-hidden="true">A</span>
+        <span>Empleados ausentes hoy</span>
+        <h2 id="kpiAusentesHoy">0</h2>
+        <p>Permiso, vacaciones o incapacidad</p>
       </div>
     </section>
 
@@ -519,12 +532,14 @@
 
     const dashboardClient = supabaseClient;
 
-    let datosDashboard = {
+let datosDashboard = {
   peticiones: [],
   requisiciones: [],
   vales: [],
   parque: [],
-  usuarios: []
+  usuarios: [],
+  empleados: [],
+  tramites: []
 };
 
 let anioSeleccionadoDashboard = "";
@@ -539,19 +554,32 @@ let fechaHastaDashboard = "";
         if (estadoActualizacion) estadoActualizacion.textContent = "Sin conexión con la fuente de datos";
         return;
       }
+      const modulosPermitidosConsulta = window.ETPermissions
+        ? (ETPermissions.obtenerModulosUsuario(usuarioActivo) || [])
+        : [];
 
-      let peticionesRes, requisicionesRes, valesRes, parqueRes, usuariosRes;
+      let peticionesRes, requisicionesRes, valesRes, parqueRes, usuariosRes, empleadosRes, tramitesRes;
       try {
         [
           peticionesRes,
           valesRes,
           parqueRes,
-          usuariosRes
+          usuariosRes,
+          empleadosRes,
+          tramitesRes
         ] = await Promise.all([
-          dashboardClient.from("peticiones").select("*").order("created_at", { ascending: false }),
+          window.ETPeticiones && typeof ETPeticiones.listar === "function"
+            ? ETPeticiones.listar()
+            : dashboardClient.from("peticiones").select("*", { count: "exact" }).order("created_at", { ascending: false }),
           dashboardClient.from("vales").select("*").order("created_at", { ascending: false }),
           dashboardClient.from("parque_vehicular").select("*").order("created_at", { ascending: false }),
-          dashboardClient.from("usuarios").select("*").order("created_at", { ascending: false })
+          dashboardClient.from("usuarios").select("*").order("created_at", { ascending: false }),
+          modulosPermitidosConsulta.includes("Tramites Administrativos")
+            ? dashboardClient.from("empleados").select("id,num_empleado,nombre_completo,nombre,fecha_nac,activo")
+            : Promise.resolve({ data: [], error: null }),
+          modulosPermitidosConsulta.includes("Tramites Administrativos")
+            ? dashboardClient.from("tramites_administrativos").select("id,num_empleado,empleado_nombre,tipo_tramite,fecha_inicio,fecha_fin")
+            : Promise.resolve({ data: [], error: null })
         ]);
 
         if (window.ETRequisiciones && typeof ETRequisiciones.listar === "function") {
@@ -570,12 +598,16 @@ let fechaHastaDashboard = "";
   if (valesRes.error) console.error("Error vales:", valesRes.error);
   if (parqueRes.error) console.error("Error parque:", parqueRes.error);
   if (usuariosRes.error) console.error("Error usuarios:", usuariosRes.error);
+  if (empleadosRes.error) console.error("Error empleados:", empleadosRes.error);
+  if (tramitesRes.error) console.error("Error tramites:", tramitesRes.error);
 
   datosDashboard.peticiones = peticionesRes.data || [];
   datosDashboard.requisiciones = requisicionesRes.data || [];
   datosDashboard.vales = valesRes.data || [];
   datosDashboard.parque = parqueRes.data || [];
   datosDashboard.usuarios = usuariosRes.data || [];
+  datosDashboard.empleados = empleadosRes.data || [];
+  datosDashboard.tramites = tramitesRes.data || [];
 
   llenarFiltroAnios();
   renderizarDashboard();
@@ -587,7 +619,9 @@ let fechaHastaDashboard = "";
 
 function obtenerAnio(fecha) {
   if (!fecha) return "";
-  return new Date(fecha + "T00:00:00").getFullYear().toString();
+  const fechaCorta = String(fecha).split("T")[0];
+  const valor = new Date(fechaCorta + "T00:00:00");
+  return Number.isNaN(valor.getTime()) ? "" : valor.getFullYear().toString();
 }
 
 function llenarFiltroAnios() {
@@ -631,9 +665,10 @@ function filtrarPorAnio(datos) {
 function filtrarPorRangoFechas(datos) {
   if (!fechaDesdeDashboard && !fechaHastaDashboard) return datos;
   return datos.filter(function (item) {
-    if (!item.fecha) return false;
-    if (fechaDesdeDashboard && item.fecha < fechaDesdeDashboard) return false;
-    if (fechaHastaDashboard && item.fecha > fechaHastaDashboard) return false;
+    const fecha = String(item.fecha || "").split("T")[0];
+    if (!fecha) return false;
+    if (fechaDesdeDashboard && fecha < fechaDesdeDashboard) return false;
+    if (fechaHastaDashboard && fecha > fechaHastaDashboard) return false;
     return true;
   });
 }
@@ -660,6 +695,8 @@ function renderizarDashboard() {
   const vales = aplicarFiltros(datosDashboard.vales);
   const parque = datosDashboard.parque;
   const usuarios = datosDashboard.usuarios;
+  const empleados = datosDashboard.empleados;
+  const tramites = datosDashboard.tramites;
 
   const kpis = ETDashboard.calcularKPIs({
     peticiones: datosDashboard.peticiones,
@@ -701,6 +738,31 @@ function renderizarDashboard() {
   document.getElementById("kpiRequisicionesAutorizar").textContent = kpis.requisicionesPorAutorizar;
   document.getElementById("kpiRequisicionesXml").textContent = kpis.requisicionesConXml;
   document.getElementById("kpiValesEmitidos").textContent = puedeVerFinanciero ? kpis.valesEmitidos : kpis.valesActivos;
+
+  const ahoraOperativo = new Date();
+  const hoyOperativo = [
+    ahoraOperativo.getFullYear(),
+    String(ahoraOperativo.getMonth() + 1).padStart(2, "0"),
+    String(ahoraOperativo.getDate()).padStart(2, "0")
+  ].join("-");
+  const cumpleanosSemana = ETLayout.obtenerCumpleanosSemana(empleados);
+  const tiposAusencia = ["Permiso especial", "Vacaciones", "Incapacidad"];
+  const empleadosAusentes = new Set(
+    tramites.filter(function (tramite) {
+      return tiposAusencia.includes(tramite.tipo_tramite) &&
+        String(tramite.fecha_inicio || "") <= hoyOperativo &&
+        String(tramite.fecha_fin || "") >= hoyOperativo;
+    }).map(function (tramite) {
+      return String(tramite.num_empleado || tramite.empleado_nombre || "").trim();
+    }).filter(Boolean)
+  );
+  document.getElementById("kpiCumpleanosHoy").textContent =
+    cumpleanosSemana.length
+      ? cumpleanosSemana.map(function (item) {
+          return item.nombre + " (" + item.etiqueta + ")";
+        }).join(" · ")
+      : "Nadie";
+  document.getElementById("kpiAusentesHoy").textContent = empleadosAusentes.size;
 
   document.getElementById("kpiCostoAnualDesc").textContent =
     anioSeleccionadoDashboard ? "Año " + anioSeleccionadoDashboard : "Año " + anioEtiqueta;
@@ -851,9 +913,10 @@ function renderizarTablaGastoProveedor(requisiciones) {
   };
 
   requisiciones.forEach(function (r) {
-    if (ETDashboard.obtenerAnio(r.fecha) !== anioTabla) return;
-    if (fechaDesdeDashboard && r.fecha < fechaDesdeDashboard) return;
-    if (fechaHastaDashboard && r.fecha > fechaHastaDashboard) return;
+    const fecha = String(r.fecha || r.fecha_req || "").split("T")[0];
+    if (ETDashboard.obtenerAnio(fecha) !== anioTabla) return;
+    if (fechaDesdeDashboard && fecha < fechaDesdeDashboard) return;
+    if (fechaHastaDashboard && fecha > fechaHastaDashboard) return;
 
     const proveedor = String(r.proveedor || "Sin dato").trim() || "Sin dato";
     const monto = Number(r.monto || 0);
@@ -867,7 +930,7 @@ function renderizarTablaGastoProveedor(requisiciones) {
 
     acumulado[proveedor].anual += monto;
     totales.anual += monto;
-    if (ETDashboard.obtenerMes(r.fecha) === mesActual) {
+    if (ETDashboard.obtenerMes(fecha) === mesActual) {
       acumulado[proveedor].mensual += monto;
       totales.mensual += monto;
     }
@@ -939,7 +1002,9 @@ function crearGraficaGastoMes(requisiciones) {
   requisiciones.forEach(r => {
     if (!r.fecha) return;
 
-    const fecha = new Date(r.fecha + "T00:00:00");
+    const fechaCorta = String(r.fecha).split("T")[0];
+    const fecha = new Date(fechaCorta + "T00:00:00");
+    if (Number.isNaN(fecha.getTime())) return;
 
     const llave =
       fecha.getFullYear() + "-" +

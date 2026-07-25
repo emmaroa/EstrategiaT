@@ -275,6 +275,14 @@
     return salida;
   }
 
+  function usuarioConSesion(usuario) {
+    return Boolean(
+      usuario &&
+      typeof usuario === "object" &&
+      (usuario.id || String(usuario.usuario || "").trim())
+    );
+  }
+
   function obtenerPermisosModulosDesdeValor(valor) {
     if (!valor) return [];
 
@@ -353,10 +361,16 @@
       if (rolVeGenerarTextos(rol)) {
         modulosFinales = agregarModuloSiFalta(modulosFinales, MODULOS.GENERAR_TEXTOS);
       }
+      if (usuarioConSesion(usuario)) {
+        modulosFinales = agregarModuloSiFalta(modulosFinales, MODULOS.PETICIONES);
+      }
       return modulosFinales;
     }
 
-    return PERMISOS[rol] || [];
+    const modulosRol = PERMISOS[rol] || [];
+    return usuarioConSesion(usuario)
+      ? agregarModuloSiFalta(modulosRol, MODULOS.PETICIONES)
+      : modulosRol;
   }
 
   function obtenerPermisoModuloUsuario(usuario, modulo) {
@@ -366,6 +380,9 @@
     });
 
     if (encontrado) {
+      if (modulo === MODULOS.PETICIONES && usuarioConSesion(usuario) && encontrado.permiso === "none") {
+        return "ver";
+      }
       return encontrado.permiso;
     }
 
@@ -386,6 +403,10 @@
 
     if (["super_admin", "SuperAdmin", "Administrador del Sistema", "Admin", "admin", "jefe", "Jefe"].includes(rol)) {
       return "editar";
+    }
+
+    if (modulo === MODULOS.PETICIONES && usuarioConSesion(usuario)) {
+      return (PERMISOS[rol] || []).includes(modulo) ? "editar" : "ver";
     }
 
     return (PERMISOS[rol] || []).includes(modulo) ? "editar" : "none";
@@ -410,6 +431,13 @@
   function puedeAccion(usuario, modulo, accion) {
     const accionNormalizada = String(accion || "").trim().toLowerCase();
     if (!accionNormalizada) return false;
+    if (
+      modulo === MODULOS.PETICIONES &&
+      accionNormalizada === "crear" &&
+      usuarioConSesion(usuario)
+    ) {
+      return true;
+    }
     if (ACCIONES_LECTURA.includes(accionNormalizada)) {
       return puedeVerModulo(usuario, modulo);
     }

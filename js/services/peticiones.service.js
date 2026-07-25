@@ -6,14 +6,48 @@
     return global.supabaseClient || null;
   }
 
-  async function listar() {
-    const client = getClient();
-    if (!client) return { data: [], error: { message: "Sin conexión" } };
+  const TAMANO_BLOQUE = 1000;
 
-    return client
-      .from("peticiones")
-      .select("*", { count: "exact" })
-      .order("created_at", { ascending: false });
+  async function listarEnBloques(configurarConsulta) {
+    const client = getClient();
+    if (!client) return { data: [], count: 0, error: { message: "Sin conexión" } };
+
+    const registros = [];
+    let total = null;
+    let desde = 0;
+
+    while (total == null || registros.length < total) {
+      let consulta = client
+        .from("peticiones")
+        .select("*", { count: desde === 0 ? "exact" : undefined })
+        .order("created_at", { ascending: false })
+        .order("id", { ascending: false });
+
+      if (typeof configurarConsulta === "function") {
+        consulta = configurarConsulta(consulta);
+      }
+
+      const resultado = await consulta.range(desde, desde + TAMANO_BLOQUE - 1);
+      if (resultado.error) {
+        return { data: registros, count: total || registros.length, error: resultado.error };
+      }
+
+      const bloque = resultado.data || [];
+      registros.push.apply(registros, bloque);
+      if (desde === 0 && typeof resultado.count === "number") total = resultado.count;
+      if (bloque.length < TAMANO_BLOQUE) break;
+      desde += TAMANO_BLOQUE;
+    }
+
+    return {
+      data: registros,
+      count: typeof total === "number" ? total : registros.length,
+      error: null
+    };
+  }
+
+  async function listar() {
+    return listarEnBloques();
   }
 
   async function listarPorAreas(areas) {
@@ -28,11 +62,9 @@
       return { data: [], count: 0, error: null };
     }
 
-    return client
-      .from("peticiones")
-      .select("*", { count: "exact" })
-      .in("area", areasValidas)
-      .order("created_at", { ascending: false });
+    return listarEnBloques(function (consulta) {
+      return consulta.in("area", areasValidas);
+    });
   }
 
   async function crear(payload) {

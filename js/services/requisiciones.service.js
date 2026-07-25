@@ -43,10 +43,18 @@
     };
   }
 
+  function normalizarFecha(valor) {
+    if (!valor) return null;
+    return String(valor).split("T")[0];
+  }
+
   function normalizar(row) {
     if (!row) return row;
     return Object.assign({}, row, {
-      fecha: row.fecha_req || row.fecha || null,
+      fecha: normalizarFecha(row.fecha_req || row.fecha),
+      fecha_req: normalizarFecha(row.fecha_req || row.fecha),
+      fecha_oc: normalizarFecha(row.fecha_oc),
+      fecha_sp: normalizarFecha(row.fecha_sp),
       numero: row.numero_req || row.numero || null,
       oc: row.numero_oc || row.oc || null,
       xml: row.xml || row.factura || null,
