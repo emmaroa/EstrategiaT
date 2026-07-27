@@ -16,6 +16,29 @@
   color-scheme: light;
 }
 
+/* Menús nativos: evita texto claro sobre el fondo blanco del sistema operativo. */
+[data-theme="dark"] select,
+[data-theme="dark"] input[list] {
+  color-scheme: dark;
+}
+
+[data-theme="dark"] select option,
+[data-theme="dark"] select optgroup {
+  background-color: #111827;
+  color: #f8fafc;
+}
+
+[data-theme="light"] select,
+[data-theme="light"] input[list] {
+  color-scheme: light;
+}
+
+[data-theme="light"] select option,
+[data-theme="light"] select optgroup {
+  background-color: #ffffff;
+  color: #0f172a;
+}
+
 html {
   scroll-behavior: smooth;
 }

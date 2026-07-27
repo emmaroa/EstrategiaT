@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Administración de Talleres | Portal Proveedor</title>
   <link rel="stylesheet" href="../css/style.css">
-  <link rel="stylesheet" href="../css/design-system.css?v=20260725-1">
+  <link rel="stylesheet" href="../css/design-system.css?v=20260727-5">
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="../js/core/supabase.js"></script>
   <script src="../js/core/permissions.js?v=20260725-3"></script>
@@ -64,6 +64,18 @@
           <h2>Peticiones asignadas</h2>
           <p>Confirma la entrega al almacén o agrega una nota especial.</p>
         </div>
+        <button type="button" class="btn-secondary" id="btnExportarPeticionesProveedor">Exportar hoja de cálculo</button>
+      </div>
+      <div class="filters">
+        <input type="search" id="buscarPeticionesProveedor" placeholder="Buscar por unidad, petición, solicitante o nota..." aria-label="Buscar peticiones">
+        <select id="filtroEstatusPeticionProveedor" aria-label="Filtrar peticiones por estatus interno">
+          <option value="">Todos los estatus</option>
+        </select>
+        <select id="filtroEntregaPeticionProveedor" aria-label="Filtrar peticiones por entrega">
+          <option value="">Todas las entregas</option>
+          <option value="pendiente">Pendientes de entrega</option>
+          <option value="entregada">Entregadas al almacén</option>
+        </select>
       </div>
       <div class="table-container">
         <table>
@@ -90,6 +102,13 @@
           <h2>Estatus de requisiciones</h2>
           <p>Vista de consulta exclusiva para tus requisiciones.</p>
         </div>
+        <button type="button" class="btn-secondary" id="btnExportarRequisicionesProveedor">Exportar hoja de cálculo</button>
+      </div>
+      <div class="filters">
+        <input type="search" id="buscarRequisicionesProveedor" placeholder="Buscar por requisición, unidad, concepto u orden de compra..." aria-label="Buscar requisiciones">
+        <select id="filtroEstatusRequisicionProveedor" aria-label="Filtrar requisiciones por estatus">
+          <option value="">Todos los estatus</option>
+        </select>
       </div>
       <div class="table-container">
         <table>
@@ -144,6 +163,11 @@
     let peticionesProveedor = [];
     let requisicionesProveedor = [];
     let peticionNotaId = null;
+    const buscarPeticionesProveedor = document.getElementById("buscarPeticionesProveedor");
+    const filtroEstatusPeticionProveedor = document.getElementById("filtroEstatusPeticionProveedor");
+    const filtroEntregaPeticionProveedor = document.getElementById("filtroEntregaPeticionProveedor");
+    const buscarRequisicionesProveedor = document.getElementById("buscarRequisicionesProveedor");
+    const filtroEstatusRequisicionProveedor = document.getElementById("filtroEstatusRequisicionProveedor");
 
     function escaparPortal(valor) {
       return String(valor ?? "")
@@ -194,15 +218,80 @@
 
       peticionesProveedor = peticionesResultado.data || [];
       requisicionesProveedor = requisicionesResultado.data || [];
+      poblarFiltrosPortalProveedor();
       renderizarPortalProveedor();
+    }
+
+    function normalizarPortal(valor) {
+      return String(valor || "")
+        .trim()
+        .normalize("NFD")
+        .replace(/[\u0300-\u036f]/g, "")
+        .toLowerCase();
+    }
+
+    function poblarSelectPortal(select, valores, etiqueta) {
+      if (!select) return;
+      const actual = select.value;
+      const unicos = Array.from(new Set(valores.map(function (valor) {
+        return String(valor || "").trim();
+      }).filter(Boolean))).sort(function (a, b) {
+        return a.localeCompare(b, "es");
+      });
+      select.innerHTML = "";
+      select.add(new Option(etiqueta, ""));
+      unicos.forEach(function (valor) { select.add(new Option(valor, valor)); });
+      select.value = unicos.includes(actual) ? actual : "";
+    }
+
+    function poblarFiltrosPortalProveedor() {
+      poblarSelectPortal(
+        filtroEstatusPeticionProveedor,
+        peticionesProveedor.map(function (p) { return p.estatus; }),
+        "Todos los estatus"
+      );
+      poblarSelectPortal(
+        filtroEstatusRequisicionProveedor,
+        requisicionesProveedor.map(function (r) { return r.estatus; }),
+        "Todos los estatus"
+      );
+    }
+
+    function obtenerPeticionesFiltradasProveedor() {
+      const texto = normalizarPortal(buscarPeticionesProveedor?.value);
+      const estatus = String(filtroEstatusPeticionProveedor?.value || "");
+      const entrega = String(filtroEntregaPeticionProveedor?.value || "");
+      return peticionesProveedor.filter(function (p) {
+        const contenido = normalizarPortal([
+          p.fecha, p.unidad, p.peticion, p.solicitante, p.estatus,
+          p.estatus_proveedor, p.nota_proveedor
+        ].join(" "));
+        const entregada = p.estatus_proveedor === "Entregado a almacén";
+        return contenido.includes(texto) &&
+          (!estatus || p.estatus === estatus) &&
+          (!entrega || (entrega === "entregada" ? entregada : !entregada));
+      });
+    }
+
+    function obtenerRequisicionesFiltradasProveedor() {
+      const texto = normalizarPortal(buscarRequisicionesProveedor?.value);
+      const estatus = String(filtroEstatusRequisicionProveedor?.value || "");
+      return requisicionesProveedor.filter(function (r) {
+        const contenido = normalizarPortal([
+          r.fecha_req, r.numero_req, r.unidad, r.concepto, r.numero_oc, r.estatus
+        ].join(" "));
+        return contenido.includes(texto) && (!estatus || r.estatus === estatus);
+      });
     }
 
     function renderizarPortalProveedor() {
       const tablaPeticiones = document.getElementById("tablaPeticionesProveedor");
       const tablaRequisiciones = document.getElementById("tablaRequisicionesProveedor");
+      const peticionesFiltradas = obtenerPeticionesFiltradasProveedor();
+      const requisicionesFiltradas = obtenerRequisicionesFiltradasProveedor();
 
-      tablaPeticiones.innerHTML = peticionesProveedor.length
-        ? peticionesProveedor.map(function (peticion) {
+      tablaPeticiones.innerHTML = peticionesFiltradas.length
+        ? peticionesFiltradas.map(function (peticion) {
             const entregada = peticion.estatus_proveedor === "Entregado a almacén";
             return "<tr>" +
               "<td>" + fechaPortal(peticion.fecha) + "</td>" +
@@ -220,10 +309,10 @@
                 '<button type="button" class="btn-secondary" onclick="abrirNotaProveedor(\'' + peticion.id + '\')">Nota</button>' +
               "</div></td></tr>";
           }).join("")
-        : '<tr><td colspan="8">No hay peticiones asignadas a este proveedor.</td></tr>';
+        : '<tr><td colspan="8">No hay peticiones que coincidan con los filtros.</td></tr>';
 
-      tablaRequisiciones.innerHTML = requisicionesProveedor.length
-        ? requisicionesProveedor.map(function (requisicion) {
+      tablaRequisiciones.innerHTML = requisicionesFiltradas.length
+        ? requisicionesFiltradas.map(function (requisicion) {
             return "<tr>" +
               "<td>" + fechaPortal(requisicion.fecha_req) + "</td>" +
               "<td><strong>" + escaparPortal(requisicion.numero_req || "—") + "</strong></td>" +
@@ -232,7 +321,7 @@
               "<td>" + escaparPortal(requisicion.numero_oc || "Pendiente") + "</td>" +
               '<td><span class="badge status-badge blue">' + escaparPortal(requisicion.estatus || "—") + "</span></td></tr>";
           }).join("")
-        : '<tr><td colspan="6">No hay requisiciones asignadas a este proveedor.</td></tr>';
+        : '<tr><td colspan="6">No hay requisiciones que coincidan con los filtros.</td></tr>';
 
       document.getElementById("kpiPeticionesProveedor").textContent = peticionesProveedor.length;
       document.getElementById("kpiPendientesProveedor").textContent = peticionesProveedor.filter(function (p) {
@@ -242,6 +331,72 @@
         return p.estatus_proveedor === "Entregado a almacén";
       }).length;
       document.getElementById("kpiRequisicionesProveedor").textContent = requisicionesProveedor.length;
+    }
+
+    function protegerCeldaCSV(valor) {
+      let texto = String(valor ?? "").replace(/\r?\n/g, " ").trim();
+      if (/^[=+\-@]/.test(texto)) texto = "'" + texto;
+      return '"' + texto.replace(/"/g, '""') + '"';
+    }
+
+    function descargarCSV(nombreArchivo, encabezados, filas) {
+      const contenido = [encabezados].concat(filas).map(function (fila) {
+        return fila.map(protegerCeldaCSV).join(",");
+      }).join("\r\n");
+      const blob = new Blob(["\ufeff" + contenido], { type: "text/csv;charset=utf-8;" });
+      const enlace = document.createElement("a");
+      const url = URL.createObjectURL(blob);
+      enlace.href = url;
+      enlace.download = nombreArchivo;
+      document.body.appendChild(enlace);
+      enlace.click();
+      enlace.remove();
+      setTimeout(function () { URL.revokeObjectURL(url); }, 0);
+    }
+
+    function nombreArchivoPortal(prefijo) {
+      const proveedor = normalizarPortal(proveedorVinculado)
+        .replace(/[^a-z0-9]+/g, "-")
+        .replace(/^-|-$/g, "") || "proveedor";
+      return prefijo + "-" + proveedor + ".csv";
+    }
+
+    function exportarPeticionesProveedor() {
+      const filas = obtenerPeticionesFiltradasProveedor().map(function (p) {
+        return [
+          fechaPortal(p.fecha),
+          p.unidad,
+          p.peticion,
+          p.solicitante,
+          p.estatus,
+          p.estatus_proveedor || "Pendiente de entrega",
+          p.fecha_entrega_proveedor ? fechaPortal(p.fecha_entrega_proveedor) : "",
+          p.nota_proveedor
+        ];
+      });
+      descargarCSV(
+        nombreArchivoPortal("peticiones"),
+        ["Fecha", "Unidad", "Petición", "Solicitante", "Estatus interno", "Entrega proveedor", "Fecha de entrega", "Nota"],
+        filas
+      );
+    }
+
+    function exportarRequisicionesProveedor() {
+      const filas = obtenerRequisicionesFiltradasProveedor().map(function (r) {
+        return [
+          fechaPortal(r.fecha_req),
+          r.numero_req,
+          r.unidad,
+          r.concepto,
+          r.numero_oc,
+          r.estatus
+        ];
+      });
+      descargarCSV(
+        nombreArchivoPortal("requisiciones"),
+        ["Fecha", "Requisición", "Unidad", "Concepto", "Orden de compra", "Estatus"],
+        filas
+      );
     }
 
     async function marcarEntregadaProveedor(id) {
@@ -315,6 +470,20 @@
       cerrarNotaProveedor();
       await cargarPortalProveedor();
     }
+
+    [
+      buscarPeticionesProveedor,
+      filtroEstatusPeticionProveedor,
+      filtroEntregaPeticionProveedor,
+      buscarRequisicionesProveedor,
+      filtroEstatusRequisicionProveedor
+    ].forEach(function (control) {
+      control?.addEventListener(control.tagName === "INPUT" ? "input" : "change", renderizarPortalProveedor);
+    });
+    document.getElementById("btnExportarPeticionesProveedor")
+      ?.addEventListener("click", exportarPeticionesProveedor);
+    document.getElementById("btnExportarRequisicionesProveedor")
+      ?.addEventListener("click", exportarRequisicionesProveedor);
 
     cargarPortalProveedor();
   </script>
