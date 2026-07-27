@@ -7,6 +7,7 @@
   <link rel="stylesheet" href="../css/style.css">
   <link rel="stylesheet" href="../css/design-system.css?v=20260727-3">
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <script src="../js/core/supabase.js"></script>
   <script src="../js/core/permissions.js?v=20260725-1"></script>
   <script src="../js/core/theme.js"></script>
@@ -56,15 +57,16 @@
       </div>
 
       <div class="kpi-card">
-        <span>Entregados</span>
-        <h2 id="kpiValesEntregados">0</h2>
-        <p>Con salida confirmada</p>
+        <span>Vales solventados</span>
+        <h2 id="kpiValesSolventados">0</h2>
+        <p>Con estatus Solventado</p>
       </div>
 
-      <div class="kpi-card">
-        <span>Pendientes</span>
-        <h2 id="kpiValesPendientes">0</h2>
-        <p>Sin entregar</p>
+      <div class="kpi-card" style="min-height:210px;">
+        <span>Estado de los vales</span>
+        <div style="position:relative;height:150px;margin-top:8px;">
+          <canvas id="graficaEstatusVales" aria-label="Solventados contra entregados y pendientes"></canvas>
+        </div>
       </div>
     </section>
 
@@ -72,7 +74,7 @@
       <div class="panel-header">
         <div>
           <h2>Listado de vales</h2>
-          <p>Busca por folio, unidad, dependencia, solicitante, recibe, entrega o material.</p>
+          <p>Busca por folio, unidad, dependencia, recibe, entrega o material.</p>
         </div>
       </div>
 
@@ -97,7 +99,6 @@
               <th>Folio</th>
               <th>Unidad</th>
               <th>Dependencia</th>
-              <th>Solicitante</th>
               <th>Material entregado</th>
               <th>Entrega</th>
               <th>Recibe</th>
@@ -171,6 +172,7 @@
           <select id="estatusVale">
             <option value="Pendiente">Pendiente</option>
             <option value="Entregado">Entregado</option>
+            <option value="Solventado">Solventado</option>
             <option value="Cancelado">Cancelado</option>
           </select>
         </div>
@@ -203,6 +205,7 @@
 
     let vales = [];
     let idEditandoVale = null;
+    let graficaEstatusVales = null;
 
     const modalVale = document.getElementById("modalVale");
     const tituloModalVale = document.getElementById("tituloModalVale");
@@ -223,8 +226,7 @@
     const infoUnidadVale = document.getElementById("infoUnidadVale");
     const kpiValesTotal = document.getElementById("kpiValesTotal");
     const kpiValesMes = document.getElementById("kpiValesMes");
-    const kpiValesEntregados = document.getElementById("kpiValesEntregados");
-    const kpiValesPendientes = document.getElementById("kpiValesPendientes");
+    const kpiValesSolventados = document.getElementById("kpiValesSolventados");
 
     modalVale?.addEventListener("click", function (event) {
       if (event.target === modalVale) cerrarModalVale();
@@ -249,7 +251,8 @@
 
     function puedeSolventarVale() {
       const rol = String(obtenerUsuarioVale()?.rol || "").trim().toLowerCase();
-      return ["técnico vales", "tecnico vales", "superadmin", "jefe de almacen", "jefe de almacén"].includes(rol);
+      return puedeAccionVale("editar") ||
+        ["técnico vales", "tecnico vales", "superadmin", "jefe de almacen", "jefe de almacén"].includes(rol);
     }
 
     function puedeAccionVale(accion) {
@@ -398,7 +401,6 @@ unidadVale?.addEventListener("blur", async function () {
           (v.folio || "").toLowerCase().includes(texto) ||
           (v.unidad || "").toLowerCase().includes(texto) ||
           (v.dependencia || "").toLowerCase().includes(texto) ||
-          (v.solicitante || "").toLowerCase().includes(texto) ||
           (v.proveedor || "").toLowerCase().includes(texto) ||
           (v.refaccion || "").toLowerCase().includes(texto) ||
           (v.entrega || "").toLowerCase().includes(texto) ||
@@ -410,7 +412,7 @@ unidadVale?.addEventListener("blur", async function () {
       });
 
       if (!filtrados.length) {
-        if (tablaVales) tablaVales.innerHTML = '<tr><td colspan="10">No hay vales registrados.</td></tr>';
+        if (tablaVales) tablaVales.innerHTML = '<tr><td colspan="9">No hay vales registrados.</td></tr>';
       } else {
         const puedeEditar = puedeAccionVale("editar");
         const puedeCambiarEstatus = puedeAccionVale("cambiar_estatus");
@@ -423,7 +425,6 @@ unidadVale?.addEventListener("blur", async function () {
             "<td><strong>" + (v.folio || "") + "</strong></td>" +
             "<td>" + (v.unidad || "") + "</td>" +
             "<td>" + (v.dependencia || "") + "</td>" +
-            "<td>" + (v.solicitante || "") + "</td>" +
             "<td>" + formatearMaterialVale(v.refaccion) + "</td>" +
             "<td>" + (v.entrega || "") + "</td>" +
             "<td>" + (v.recibe || "") + "</td>" +
@@ -446,6 +447,11 @@ unidadVale?.addEventListener("blur", async function () {
       const hoy = new Date();
       const mesActual = hoy.getMonth();
       const anioActual = hoy.getFullYear();
+      const contarEstatus = function (estatusBuscado) {
+        return vales.filter(function (vale) {
+          return String(vale.estatus || "").trim().toLowerCase() === estatusBuscado;
+        }).length;
+      };
 
       if (kpiValesTotal) kpiValesTotal.textContent = vales.length;
       if (kpiValesMes) kpiValesMes.textContent =
@@ -455,10 +461,42 @@ unidadVale?.addEventListener("blur", async function () {
           return fecha.getMonth() === mesActual && fecha.getFullYear() === anioActual;
         }).length;
 
-      if (kpiValesEntregados) kpiValesEntregados.textContent =
-        vales.filter(v => v.estatus === "Entregado").length;
-      if (kpiValesPendientes) kpiValesPendientes.textContent =
-        vales.filter(v => v.estatus === "Pendiente").length;
+      const solventados = contarEstatus("solventado");
+      const entregadosPendientes = contarEstatus("entregado") + contarEstatus("pendiente");
+      if (kpiValesSolventados) kpiValesSolventados.textContent = solventados;
+      renderizarGraficaEstatusVales(solventados, entregadosPendientes);
+    }
+
+    function renderizarGraficaEstatusVales(solventados, entregadosPendientes) {
+      const canvas = document.getElementById("graficaEstatusVales");
+      if (!canvas || typeof Chart === "undefined") return;
+      if (graficaEstatusVales) graficaEstatusVales.destroy();
+
+      graficaEstatusVales = new Chart(canvas, {
+        type: "pie",
+        data: {
+          labels: ["Solventados", "Entregados / Pendientes"],
+          datasets: [{
+            data: [solventados, entregadosPendientes],
+            backgroundColor: ["#10b981", "#f59e0b"],
+            borderColor: ["#ffffff", "#ffffff"],
+            borderWidth: 2
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: {
+              position: "right",
+              labels: {
+                boxWidth: 12,
+                usePointStyle: true
+              }
+            }
+          }
+        }
+      });
     }
 
     function abrirModalVale() {
@@ -559,7 +597,7 @@ unidadVale?.addEventListener("blur", async function () {
       }
 
       if (nuevo.estatus === "Solventado" && !puedeSolventarVale()) {
-        alert("Solo Técnico vales, SuperAdmin o Jefe de Almacen pueden usar el estatus Solventado.");
+        alert("No tienes permiso para usar el estatus Solventado.");
         return;
       }
 
