@@ -44,33 +44,33 @@
 
     <section class="kpi-grid">
       <div class="kpi-card">
-        <span>Total peticiones</span>
-        <h2 id="kpiTotal">0</h2>
-        <p>Registradas en sistema</p>
+        <span>Pendientes de entrega a almacén</span>
+        <h2 id="kpiPendientesEntrega">0</h2>
+        <p>Pedido a proveedor</p>
       </div>
 
       <div class="kpi-card">
-        <span>Pendientes</span>
-        <h2 id="kpiPendientes">0</h2>
-        <p>Sin atender</p>
+        <span>Recibido parcialmente</span>
+        <h2 id="kpiRecibidoParcial">0</h2>
+        <p>Recibido parcial</p>
       </div>
 
       <div class="kpi-card">
-        <span>Revisadas por almacen</span>
-        <h2 id="kpiProceso">0</h2>
-        <p>En seguimiento</p>
+        <span>Pendiente de cotización</span>
+        <h2 id="kpiPendienteCotizacion">0</h2>
+        <p>En cotización</p>
       </div>
 
       <div class="kpi-card">
-        <span>Recibidas en Almacen</span>
-        <h2 id="kpiSolventadas">0</h2>
-        <p>Recibidas</p>
+        <span>Pendiente de revisión por almacén</span>
+        <h2 id="kpiPendienteRevision">0</h2>
+        <p>Pendiente</p>
       </div>
 
       <div class="kpi-card">
-        <span>En cotización</span>
-        <h2 id="kpiCotizacion">0</h2>
-        <p>Estatus en cotización</p>
+        <span>Pendiente de asignación de proveedor</span>
+        <h2 id="kpiPendienteProveedor">0</h2>
+        <p>Revisado por almacén</p>
       </div>
     </section>
 
@@ -267,11 +267,11 @@
     let proveedoresCatalogo = [];
     let idEditando = null;
     let counts = {
-      total: 0,
-      pendientes: 0,
-      proceso: 0,
-      entregadas: 0,
-      cotizacion: 0
+      pendientesEntrega: 0,
+      recibidoParcial: 0,
+      pendienteCotizacion: 0,
+      pendienteRevision: 0,
+      pendienteProveedor: 0
     };
     let totalPeticiones = 0;
     let paginaPeticiones = 1;
@@ -311,11 +311,11 @@
     const mensajeCamposTecnico = document.getElementById("mensajeCamposTecnico");
     const modalProveedor = document.getElementById("modalProveedor");
     const nuevoProveedorNombre = document.getElementById("nuevoProveedorNombre");
-    const kpiTotal = document.getElementById("kpiTotal");
-    const kpiPendientes = document.getElementById("kpiPendientes");
-    const kpiProceso = document.getElementById("kpiProceso");
-    const kpiSolventadas = document.getElementById("kpiSolventadas");
-    const kpiCotizacion = document.getElementById("kpiCotizacion");
+    const kpiPendientesEntrega = document.getElementById("kpiPendientesEntrega");
+    const kpiRecibidoParcial = document.getElementById("kpiRecibidoParcial");
+    const kpiPendienteCotizacion = document.getElementById("kpiPendienteCotizacion");
+    const kpiPendienteRevision = document.getElementById("kpiPendienteRevision");
+    const kpiPendienteProveedor = document.getElementById("kpiPendienteProveedor");
     const infoPaginacionPeticiones = document.getElementById("infoPaginacionPeticiones");
     const paginaPetActual = document.getElementById("paginaPetActual");
     const btnPetAnterior = document.getElementById("btnPetAnterior");
@@ -626,27 +626,28 @@
     function actualizarCounts() {
       counts = peticiones.reduce(function (acumulado, p) {
         const estatus = normalizarTextoPeticion(p.estatus);
-        if (estatus === "pendiente") acumulado.pendientes += 1;
-        if (estatus === "revisado por almacen" || estatus === "pedido a proveedor" || estatus === "recibido parcial") acumulado.proceso += 1;
-        if (estatus === "recibido en almacen") acumulado.entregadas += 1;
-        if (estatus === "en cotizacion") acumulado.cotizacion += 1;
+        if (estatus === "pedido a proveedor") acumulado.pendientesEntrega += 1;
+        if (estatus === "recibido parcial") acumulado.recibidoParcial += 1;
+        if (estatus === "en cotizacion") acumulado.pendienteCotizacion += 1;
+        if (estatus === "pendiente") acumulado.pendienteRevision += 1;
+        if (estatus === "revisado por almacen") acumulado.pendienteProveedor += 1;
         return acumulado;
       }, {
-        total: totalPeticiones,
-        pendientes: 0,
-        proceso: 0,
-        entregadas: 0,
-        cotizacion: 0
+        pendientesEntrega: 0,
+        recibidoParcial: 0,
+        pendienteCotizacion: 0,
+        pendienteRevision: 0,
+        pendienteProveedor: 0
       });
     }
 
     function actualizarKPIs() {
       actualizarCounts();
-      if (kpiTotal) kpiTotal.textContent = counts.total;
-      if (kpiPendientes) kpiPendientes.textContent = counts.pendientes;
-      if (kpiProceso) kpiProceso.textContent = counts.proceso;
-      if (kpiSolventadas) kpiSolventadas.textContent = counts.entregadas;
-      if (kpiCotizacion) kpiCotizacion.textContent = counts.cotizacion;
+      if (kpiPendientesEntrega) kpiPendientesEntrega.textContent = counts.pendientesEntrega;
+      if (kpiRecibidoParcial) kpiRecibidoParcial.textContent = counts.recibidoParcial;
+      if (kpiPendienteCotizacion) kpiPendienteCotizacion.textContent = counts.pendienteCotizacion;
+      if (kpiPendienteRevision) kpiPendienteRevision.textContent = counts.pendienteRevision;
+      if (kpiPendienteProveedor) kpiPendienteProveedor.textContent = counts.pendienteProveedor;
     }
 
     function configurarCamposTecnico() {

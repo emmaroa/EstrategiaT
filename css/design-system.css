@@ -138,8 +138,10 @@ textarea {
 #kpiCumpleanosHoy.et-kpi-text-value,
 #kpiCumpleanosEmpleados.et-kpi-text-value {
   font-size: clamp(14px, 1.2vw, 18px) !important;
-  line-height: 1.3;
+  line-height: 1.45;
   overflow-wrap: anywhere;
+  white-space: pre-line;
+  text-align: left;
 }
 
 .topbar h1,

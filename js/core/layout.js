@@ -678,9 +678,9 @@
         dias,
         nombre: empleado.nombre_completo || empleado.nombre || empleado.num_empleado || "Empleado",
         etiqueta: fecha.toLocaleDateString("es-MX", {
-          weekday: "short",
+          weekday: "long",
           day: "numeric",
-          month: "short"
+          month: "long"
         })
       };
     }).filter(Boolean).sort(function (a, b) {
