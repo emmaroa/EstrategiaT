@@ -10,7 +10,7 @@
   <link rel="stylesheet" href="../css/design-system.css"/>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="../js/core/supabase.js"></script>
-  <script src="../js/core/permissions.js"></script>
+  <script src="../js/core/permissions.js?v=20260727-4"></script>
   <script src="../js/core/theme.js"></script>
   <script src="../js/core/layout.js?v=20260724-3"></script>
   <script src="../login.js"></script>
@@ -613,6 +613,7 @@
         tablaParque.innerHTML = '<tr><td colspan="11">No hay unidades registradas.</td></tr>';
       } else {
         const soloLectura = typeof esSoloLectura === "function" && esSoloLectura();
+        const puedeEliminar = puedeEliminarUnidadParque();
 
         filtradas.forEach(function (u) {
           const fila = document.createElement("tr");
@@ -628,10 +629,13 @@
             "<td>" + (u.combustible || "") + "</td>" +
             '<td><span class="badge status-badge ' + claseEstatusParque(u.estatus) + '">' + (u.estatus || "") + "</span></td>" +
             '<td><div class="action-grid">' +
-              (soloLectura ? "—" :
-                ETLayout.iconButton("editar", "Editar unidad", "editarUnidad('" + u.id + "')", "edit") +
-                ETLayout.iconButton("eliminar", "Eliminar unidad", "eliminarUnidad('" + u.id + "')", "red-btn")
-              ) +
+              (!soloLectura
+                ? ETLayout.iconButton("editar", "Editar unidad", "editarUnidad('" + u.id + "')", "edit")
+                : "") +
+              (puedeEliminar
+                ? ETLayout.iconButton("eliminar", "Eliminar unidad", "eliminarUnidad('" + u.id + "')", "red-btn")
+                : "") +
+              (soloLectura && !puedeEliminar ? "—" : "") +
             "</div></td>";
           tablaParque.appendChild(fila);
         });
@@ -765,7 +769,19 @@
       estatusUnidad.value = u.estatus || "";
     }
 
+    function puedeEliminarUnidadParque() {
+      let usuarioActivo = null;
+      try {
+        usuarioActivo = JSON.parse(localStorage.getItem("usuarioActivo") || "null");
+      } catch (_) {}
+      return Boolean(
+        window.ETPermissions &&
+        ETPermissions.puedeAccion(usuarioActivo, "Parque Vehicular", "eliminar")
+      );
+    }
+
     async function eliminarUnidad(id) {
+      if (!puedeEliminarUnidadParque()) return;
       const u = obtenerUnidadPorId(id);
       if (!u) return;
 

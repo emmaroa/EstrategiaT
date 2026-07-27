@@ -538,8 +538,8 @@ unidadVale?.addEventListener("blur", async function () {
         unidad: numeroUnidad,
         dependencia: String(unidadParque.dependencia || "").trim(),
         solicitante: idEditandoVale
-          ? (obtenerValePorId(idEditandoVale)?.solicitante || null)
-          : null,
+          ? (obtenerValePorId(idEditandoVale)?.solicitante || "")
+          : "",
         proveedor: String(proveedorVale.value || "").trim(),
         refaccion: normalizarMaterialVale(refaccionVale.value),
         entrega: idEditandoVale
@@ -740,7 +740,6 @@ unidadVale?.addEventListener("blur", async function () {
         "\nFecha: " + formatearFechaVale(v.fecha) +
         "\nUnidad: " + v.unidad +
         "\nDependencia: " + (v.dependencia || "Sin dato") +
-        "\nSolicitante: " + v.solicitante +
         "\nProveedor/Origen: " + (v.proveedor || "Sin dato") +
         "\nMaterial entregado: " + v.refaccion +
         "\nEntrega: " + (v.entrega || "Sin dato") +
@@ -753,6 +752,9 @@ unidadVale?.addEventListener("blur", async function () {
     function imprimirVale(id) {
       const v = obtenerValePorId(id);
       if (!v) return;
+      const usuarioGenerador = escaparHTMLVale(
+        obtenerUsuarioVale()?.nombre || obtenerUsuarioVale()?.usuario || "Usuario no identificado"
+      );
 
       registrarAuditoria("Vales", "Imprimió vale", v.folio + " - Unidad " + v.unidad);
 
@@ -773,8 +775,9 @@ unidadVale?.addEventListener("blur", async function () {
             .item { border: 1px solid #e5e7eb; padding: 12px; border-radius: 10px; }
             .item strong { display: block; color: #374151; font-size: 12px; margin-bottom: 5px; }
             .full { grid-column: 1 / -1; }
-            .firmas { display: grid; grid-template-columns: 1fr 1fr; gap: 45px; margin-top: 70px; text-align: center; }
+            .firmas { max-width: 360px; margin: 70px auto 0; text-align: center; }
             .firma-linea { border-top: 1px solid #111827; padding-top: 10px; }
+            .generado-por { margin: 34px 0 0; text-align: center; color: #6b7280; font-size: 10px; }
             @media print { button { display: none; } }
           </style>
         </head>
@@ -795,7 +798,6 @@ unidadVale?.addEventListener("blur", async function () {
               <div class="item"><strong>Fecha</strong>${formatearFechaVale(v.fecha)}</div>
               <div class="item"><strong>Unidad</strong>${v.unidad}</div>
               <div class="item"><strong>Dependencia</strong>${v.dependencia || "Sin dato"}</div>
-              <div class="item"><strong>Solicitante</strong>${v.solicitante}</div>
               <div class="item"><strong>Proveedor / Origen</strong>${v.proveedor || "Sin dato"}</div>
               <div class="item full"><strong>Material entregado</strong>${formatearMaterialVale(v.refaccion)}</div>
               <div class="item"><strong>Estatus</strong>${v.estatus}</div>
@@ -803,9 +805,9 @@ unidadVale?.addEventListener("blur", async function () {
             </div>
 
             <div class="firmas">
-              <div class="firma-linea">Entrega<br>${v.entrega || ""}</div>
               <div class="firma-linea">Recibe<br>${v.recibe || ""}</div>
             </div>
+            <p class="generado-por">Vale generado por ${usuarioGenerador}</p>
           </div>
 
           <br>

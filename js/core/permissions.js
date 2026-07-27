@@ -241,6 +241,7 @@
     const clave = valor.toLowerCase();
     if (clave === "superadmin" || clave === "super admin" || clave === "super_admin") return "SuperAdmin";
     if (clave === "admin") return "Admin";
+    if (clave === "administrador") return "Administrador del Sistema";
     if (clave === "jefe") return "jefe";
     if (clave === "jefe de almacen" || clave === "jefe de almacén" || clave === "jefe_de_almacen" || clave === "jefe_de_almacén") {
       return "Jefe de Almacen";
@@ -483,6 +484,18 @@
     if (permisoModulo !== "editar" && permisoModulo !== "moderar") return false;
 
     const rol = normalizarRol((usuario || {}).rol || (usuario || {}).cargo || (usuario || {}).tipo || "");
+    if (
+      accionNormalizada === "eliminar" &&
+      [MODULOS.PARQUE, MODULOS.REQUISICIONES, MODULOS.PETICIONES].includes(modulo)
+    ) {
+      return [
+        "Admin",
+        "SuperAdmin",
+        "Jefe de Almacen",
+        "Director",
+        "Administrador del Sistema"
+      ].includes(rol);
+    }
     const acciones = ACCIONES_POR_ROL[rol] || ["ver", "crear", "editar", "cambiar_estatus", "exportar", "imprimir"];
     return acciones.includes(accionNormalizada);
   }
