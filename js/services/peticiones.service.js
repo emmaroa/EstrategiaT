@@ -47,6 +47,19 @@
   }
 
   async function listar() {
+    let usuario = null;
+    try {
+      usuario = JSON.parse(localStorage.getItem("usuarioActivo") || "null");
+    } catch (_) {}
+    const rol = String(usuario && (usuario.rol || usuario.rol_original) || "")
+      .trim()
+      .toLowerCase()
+      .replace(/[\s_-]+/g, "");
+    if (rol === "coordinadorinfraestructura") {
+      return listarEnBloques(function (consulta) {
+        return consulta.ilike("dependencia", "%Infraestructura%");
+      });
+    }
     return listarEnBloques();
   }
 

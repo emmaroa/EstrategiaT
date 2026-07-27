@@ -151,6 +151,10 @@
       MODULOS.TRAMITES_ADMINISTRATIVOS,
       MODULOS.GENERAR_TEXTOS
     ],
+    "Coordinador Infraestructura": [
+      MODULOS.DASHBOARD,
+      MODULOS.PETICIONES
+    ],
     "Capturista Administrativo": [
       MODULOS.DASHBOARD,
       MODULOS.TRAMITES_ADMINISTRATIVOS,
@@ -183,6 +187,7 @@
       MODULOS.PETICIONES, 
       MODULOS.REQUISICIONES, 
       MODULOS.COMPRAS,
+      MODULOS.PROVEEDORES,
       MODULOS.GENERAR_TEXTOS, 
       MODULOS.PARQUE
     ],
@@ -226,6 +231,7 @@
     Proveedor: ["ver", "editar"],
     Consulta: ["ver", "consultar", "exportar", "imprimir"],
     "Coordinador": ["ver", "crear", "editar", "cambiar_estatus", "exportar", "imprimir"],
+    "Coordinador Infraestructura": ["ver", "crear"],
     "Solo Lectura": ["ver", "consultar", "exportar", "imprimir"]
   };
 
@@ -244,6 +250,9 @@
     }
     if (clave === "proveedor") return "Proveedor";
     if (clave === "coordinador") return "Coordinador";
+    if (clave === "coordinador infraestructura" || clave === "coordinador_infraestructura" || clave === "coordinador-infraestructura") {
+      return "Coordinador Infraestructura";
+    }
     if (clave === "capturista administrativo" || clave === "capturista_administrativo" || clave === "capturista-administrativo") return "Capturista Administrativo";
     if (clave === "moderador de acuerdos" || clave === "moderador acuerdos" || clave === "moderador_acuerdos" || clave === "moderador-acuerdos") {
       return "Moderador de Acuerdos";

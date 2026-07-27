@@ -8,11 +8,11 @@
   <link rel="stylesheet" href="../css/design-system.css">
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="../js/core/supabase.js"></script>
-  <script src="../js/core/permissions.js?v=20260725-3"></script>
+  <script src="../js/core/permissions.js?v=20260727-2"></script>
   <script src="../js/core/theme.js"></script>
   <script src="../js/core/layout.js?v=20260725-3"></script>
-  <script src="../js/services/peticiones.service.js"></script>
-  <script src="../login.js?v=20260725-3"></script>
+  <script src="../js/services/peticiones.service.js?v=20260727-1"></script>
+  <script src="../login.js?v=20260727-1"></script>
 </head>
 <body class="dashboard-body">
 
@@ -194,7 +194,7 @@
             <select id="proveedor" style="flex:1;min-width:0;">
               <option value="">Sin proveedor</option>
             </select>
-            <button type="button" class="btn-small" id="btnAgregarProveedor" onclick="abrirModalProveedor()" style="display:none;">+ Nuevo</button>
+            <button type="button" class="btn-small" id="btnAgregarProveedor" onclick="abrirCatalogoProveedores()" style="display:none;">Catálogo</button>
           </div>
         </div>
 
@@ -375,6 +375,16 @@
       return rol === "jefedealmacen";
     }
 
+    function esCoordinadorInfraestructuraPeticion() {
+      const usuarioActivo = obtenerUsuarioActivoPeticion();
+      const rol = normalizarRolPeticion(usuarioActivo?.rol || usuarioActivo?.rol_original);
+      return rol === "coordinadorinfraestructura";
+    }
+
+    function esDependenciaInfraestructura(dependencia) {
+      return normalizarTextoPeticion(dependencia).includes("infraestructura");
+    }
+
     function puedeGestionarProveedoresPeticion() {
       const usuarioActivo = obtenerUsuarioActivoPeticion();
       const rol = normalizarRolPeticion(usuarioActivo?.rol || usuarioActivo?.rol_original);
@@ -450,34 +460,16 @@
     }
 
     async function cargarCatalogoProveedores() {
-      const [catalogoResultado, requisicionesResultado] = await Promise.all([
-        supabaseClient
-          .from("proveedores")
-          .select("id,razon_social,activo")
-          .eq("activo", true)
-          .order("razon_social", { ascending: true }),
-        supabaseClient
-          .from("requisiciones_siif")
-          .select("proveedor")
-          .not("proveedor", "is", null)
-      ]);
+      const catalogoResultado = await supabaseClient
+        .from("proveedores")
+        .select("id,razon_social,activo")
+        .eq("activo", true)
+        .order("razon_social", { ascending: true });
 
       if (catalogoResultado.error) {
         console.warn("No se pudo cargar el catálogo de proveedores:", catalogoResultado.error);
       }
-      if (requisicionesResultado.error) {
-        console.warn("No se pudieron cargar los proveedores de requisiciones:", requisicionesResultado.error);
-      }
-
       const unificados = new Map();
-      (requisicionesResultado.data || []).forEach(function (registro) {
-        const nombre = String(registro.proveedor || "").trim().replace(/\s+/g, " ");
-        const clave = nombre.toLocaleLowerCase("es");
-        if (nombre && !unificados.has(clave)) {
-          unificados.set(clave, { id: null, razon_social: nombre, activo: true });
-        }
-      });
-
       (catalogoResultado.data || []).forEach(function (registro) {
         const nombre = String(registro.razon_social || "").trim().replace(/\s+/g, " ");
         const clave = nombre.toLocaleLowerCase("es");
@@ -659,22 +651,41 @@
 
     function configurarCamposTecnico() {
       const vistaTecnico = esRolTecnicoPeticion();
-      const deshabilitar = vistaTecnico && !idEditando;
+      const coordinadorInfraestructura = esCoordinadorInfraestructuraPeticion();
+      const capturaRestringida = (vistaTecnico || coordinadorInfraestructura) && !idEditando;
 
       if (mensajeCamposTecnico) {
-        mensajeCamposTecnico.style.display = vistaTecnico && !idEditando ? "block" : "none";
+        mensajeCamposTecnico.style.display = capturaRestringida ? "block" : "none";
+        const textoAyuda = mensajeCamposTecnico.querySelector("small");
+        if (textoAyuda) {
+          textoAyuda.textContent = coordinadorInfraestructura
+            ? "La persona solicitante corresponde al usuario que inició sesión; el proveedor quedará sin asignar y el estatus será Pendiente."
+            : "Como técnico, el proveedor se dejará vacío, el estatus quedará en Pendiente y la fecha se tomará automáticamente del día de captura.";
+        }
+      }
+
+      if (solicitanteInput) {
+        if (coordinadorInfraestructura && !idEditando) {
+          const usuarioActivo = obtenerUsuarioActivoPeticion();
+          solicitanteInput.value = String(usuarioActivo?.nombre || "").trim();
+          solicitanteInput.readOnly = true;
+          solicitanteInput.setAttribute("aria-readonly", "true");
+        } else {
+          solicitanteInput.readOnly = false;
+          solicitanteInput.removeAttribute("aria-readonly");
+        }
       }
 
       if (proveedorInput) {
         proveedorInput.value = "";
-        proveedorInput.disabled = deshabilitar;
-        proveedorInput.setAttribute("aria-disabled", deshabilitar ? "true" : "false");
+        proveedorInput.disabled = capturaRestringida;
+        proveedorInput.setAttribute("aria-disabled", capturaRestringida ? "true" : "false");
       }
 
       if (estatusSelect) {
         estatusSelect.value = "Pendiente";
-        estatusSelect.disabled = deshabilitar;
-        estatusSelect.setAttribute("aria-disabled", deshabilitar ? "true" : "false");
+        estatusSelect.disabled = capturaRestringida;
+        estatusSelect.setAttribute("aria-disabled", capturaRestringida ? "true" : "false");
       }
 
       if (fechaInput) {
@@ -780,25 +791,48 @@
       if (!idEditando && !puedeAccionPeticion("crear")) return;
       if (idEditando && !puedeAccionPeticion("editar")) return;
       const unidadCapturada = unidadInput.value.trim();
+      let unidadEncontrada = null;
+      if (esCoordinadorInfraestructuraPeticion() && esPeticionStock(unidadCapturada)) {
+        alert("Este rol solo puede capturar unidades de la dependencia de Infraestructura.");
+        return;
+      }
       if (esPeticionStock(unidadCapturada)) {
         unidadInput.value = "STOCK";
         dependenciaInput.value = DEPENDENCIA_STOCK;
-      } else if (unidadCapturada && !dependenciaInput.value.trim()) {
-        const unidadEncontrada = await ETPeticiones.buscarUnidadParque(unidadCapturada);
+      } else if (unidadCapturada) {
+        unidadEncontrada = await ETPeticiones.buscarUnidadParque(unidadCapturada);
         if (unidadEncontrada) dependenciaInput.value = unidadEncontrada.dependencia || "";
       }
 
+      if (esCoordinadorInfraestructuraPeticion()) {
+        if (!unidadEncontrada || !esDependenciaInfraestructura(unidadEncontrada.dependencia)) {
+          dependenciaInput.value = "";
+          alert("Solo puedes capturar unidades registradas en la dependencia de Infraestructura.");
+          unidadInput.focus();
+          return;
+        }
+        dependenciaInput.value = unidadEncontrada.dependencia || "Infraestructura";
+      }
+
       const vistaTecnico = esRolTecnicoPeticion();
+      const coordinadorInfraestructura = esCoordinadorInfraestructuraPeticion();
+      const usuarioActivo = obtenerUsuarioActivoPeticion();
       const peticionExistente = idEditando ? obtenerPeticionPorId(idEditando) : null;
       const nuevaPeticion = {
         fecha: peticionExistente?.fecha || obtenerFechaActualLocal(),
         unidad: obtenerUnidadPeticion(unidadInput.value),
         peticion: peticionInput.value.trim(),
-        solicitante: solicitanteInput.value.trim(),
+        solicitante: coordinadorInfraestructura
+          ? String(usuarioActivo?.nombre || "").trim()
+          : solicitanteInput.value.trim(),
         area: areaSelect.value,
         dependencia: dependenciaInput.value.trim() || null,
-        proveedor: vistaTecnico ? null : (String(proveedorInput.value || "").trim() || null),
-        estatus: vistaTecnico ? "Pendiente" : estatusSelect.value,
+        proveedor: (vistaTecnico || coordinadorInfraestructura)
+          ? null
+          : (String(proveedorInput.value || "").trim() || null),
+        estatus: (vistaTecnico || coordinadorInfraestructura)
+          ? "Pendiente"
+          : estatusSelect.value,
         observaciones: observacionesInput.value.trim() || null
       };
 
@@ -853,6 +887,8 @@
       unidadInput.value = "";
       peticionInput.value = "";
       solicitanteInput.value = "";
+      solicitanteInput.readOnly = false;
+      solicitanteInput.removeAttribute("aria-readonly");
       areaSelect.value = "";
       dependenciaInput.value = "";
       proveedorInput.value = "";
@@ -888,6 +924,11 @@
       modalProveedor?.setAttribute("aria-hidden", "false");
       if (nuevoProveedorNombre) nuevoProveedorNombre.value = "";
       nuevoProveedorNombre?.focus();
+    }
+
+    function abrirCatalogoProveedores() {
+      if (!puedeGestionarProveedoresPeticion()) return;
+      window.location.href = "proveedores.html";
     }
 
     function cerrarModalProveedor() {
@@ -1350,6 +1391,11 @@
       }
 
       const dependencia = unidad.dependencia || "";
+      if (esCoordinadorInfraestructuraPeticion() && !esDependenciaInfraestructura(dependencia)) {
+        dependenciaInput.value = "";
+        infoUnidadPeticion.textContent = "Esta unidad no pertenece a la dependencia de Infraestructura.";
+        return;
+      }
       dependenciaInput.value = dependencia;
 
       infoUnidadPeticion.textContent =

@@ -25,6 +25,7 @@
         Proveedor: ["Portal Proveedor"],
         Consulta: ["Dashboard", "Parque Vehicular", "Peticiones", "Requisiciones", "Vales"],
         Coordinador: ["Dashboard", "Seguimiento Peticiones"],
+        "Coordinador Infraestructura": ["Dashboard", "Peticiones"],
         "Capturista Administrativo": ["Dashboard", "Tramites Administrativos", "Generar Textos"],
         CapturistaPV: ["Dashboard", "Parque Vehicular"]
       };
@@ -111,6 +112,7 @@
     if (clave === "tecnico_vales" || clave === "técnico_vales") return "Técnico vales";
     if (clave === "proveedor") return "Proveedor";
     if (clave === "coordinador") return "Coordinador";
+    if (clave === "coordinador_infraestructura") return "Coordinador Infraestructura";
     if (clave === "capturista_administrativo") return "Capturista Administrativo";
     if (clave === "moderador_de_acuerdos" || clave === "moderador_acuerdos") return "Moderador de Acuerdos";
     return String(rol || "").trim();

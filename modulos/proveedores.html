@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Administración de Talleres | Proveedores</title>
+  <link rel="stylesheet" href="../css/style.css">
+  <link rel="stylesheet" href="../css/design-system.css">
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="../js/core/supabase.js"></script>
+  <script src="../js/core/permissions.js?v=20260727-2"></script>
+  <script src="../js/core/theme.js"></script>
+  <script src="../js/core/layout.js?v=20260725-3"></script>
+  <script src="../login.js?v=20260727-2"></script>
+</head>
+<body class="dashboard-body">
+  <aside class="sidebar">
+    <div class="sidebar-logo">
+      <div class="mini-logo">E</div>
+      <div>
+        <h3>Administración de Talleres</h3>
+        <small id="etModuleName">Proveedores</small>
+      </div>
+    </div>
+    <nav id="etNav"></nav>
+    <button type="button" class="logout" id="etLogout">Cerrar sesión</button>
+  </aside>
+
+  <main class="main-content">
+    <header class="topbar">
+      <div>
+        <h1>Catálogo de proveedores</h1>
+        <p>Nombres oficiales obtenidos de Requisiciones para asignar peticiones.</p>
+      </div>
+      <div style="display:flex;gap:12px;align-items:center;">
+        <span id="etTemaContainer"></span>
+        <button type="button" class="btn-small" id="btnSincronizar">Sincronizar requisiciones</button>
+      </div>
+    </header>
+
+    <section class="kpi-grid">
+      <div class="kpi-card">
+        <span>Total proveedores</span>
+        <h2 id="kpiTotal">0</h2>
+        <p>Registrados en catálogo</p>
+      </div>
+      <div class="kpi-card">
+        <span>Activos</span>
+        <h2 id="kpiActivos">0</h2>
+        <p>Disponibles en Peticiones</p>
+      </div>
+      <div class="kpi-card">
+        <span>Con peticiones</span>
+        <h2 id="kpiAsignados">0</h2>
+        <p>Proveedores ya asignados</p>
+      </div>
+    </section>
+
+    <section class="panel">
+      <div class="panel-header">
+        <div>
+          <h2>Proveedores de Requisiciones</h2>
+          <p>El nombre se conserva exactamente como aparece en Requisiciones.</p>
+        </div>
+      </div>
+
+      <div class="filters">
+        <input type="search" id="buscarProveedor" placeholder="Buscar proveedor..." aria-label="Buscar proveedor">
+        <select id="filtroEstado" aria-label="Filtrar por estado">
+          <option value="">Todos</option>
+          <option value="true">Activos</option>
+          <option value="false">Inactivos</option>
+        </select>
+      </div>
+
+      <div class="table-container">
+        <table>
+          <thead>
+            <tr>
+              <th>Proveedor</th>
+              <th>Estado</th>
+              <th>Peticiones asignadas</th>
+              <th>Acciones</th>
+            </tr>
+          </thead>
+          <tbody id="tablaProveedores"></tbody>
+        </table>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    validarPermiso("Proveedores");
+    ETLayout.inicializar("Proveedores");
+
+    let proveedores = [];
+    let peticionesPorProveedor = new Map();
+    const tabla = document.getElementById("tablaProveedores");
+    const buscar = document.getElementById("buscarProveedor");
+    const filtroEstado = document.getElementById("filtroEstado");
+    const btnSincronizar = document.getElementById("btnSincronizar");
+
+    function limpiarNombre(valor) {
+      return String(valor || "").trim().replace(/\s+/g, " ");
+    }
+
+    function claveNombre(valor) {
+      return limpiarNombre(valor).toLocaleLowerCase("es");
+    }
+
+    function escapar(valor) {
+      const elemento = document.createElement("div");
+      elemento.textContent = String(valor ?? "");
+      return elemento.innerHTML;
+    }
+
+    async function cargarCatalogo() {
+      const [catalogoRes, peticionesRes] = await Promise.all([
+        supabaseClient
+          .from("proveedores")
+          .select("id,razon_social,activo,created_at")
+          .order("razon_social", { ascending: true }),
+        supabaseClient
+          .from("peticiones")
+          .select("proveedor")
+          .not("proveedor", "is", null)
+      ]);
+
+      if (catalogoRes.error) {
+        console.error(catalogoRes.error);
+        alert("No se pudo cargar el catálogo de proveedores.");
+        return;
+      }
+
+      proveedores = catalogoRes.data || [];
+      peticionesPorProveedor = new Map();
+      (peticionesRes.data || []).forEach(function (fila) {
+        const clave = claveNombre(fila.proveedor);
+        if (clave) peticionesPorProveedor.set(clave, (peticionesPorProveedor.get(clave) || 0) + 1);
+      });
+      renderizar();
+    }
+
+    async function sincronizarDesdeRequisiciones() {
+      btnSincronizar.disabled = true;
+      btnSincronizar.textContent = "Sincronizando...";
+      try {
+        const { data, error } = await supabaseClient
+          .from("requisiciones_siif")
+          .select("proveedor")
+          .not("proveedor", "is", null);
+
+        if (error) throw error;
+
+        const existentes = new Set(proveedores.map(function (p) { return claveNombre(p.razon_social); }));
+        const nuevosPorClave = new Map();
+        (data || []).forEach(function (fila) {
+          const nombre = limpiarNombre(fila.proveedor);
+          const clave = claveNombre(nombre);
+          if (nombre && !existentes.has(clave) && !nuevosPorClave.has(clave)) {
+            nuevosPorClave.set(clave, { razon_social: nombre, activo: true });
+          }
+        });
+
+        const nuevos = Array.from(nuevosPorClave.values());
+        if (nuevos.length) {
+          const resultado = await supabaseClient.from("proveedores").insert(nuevos);
+          if (resultado.error) throw resultado.error;
+        }
+
+        await cargarCatalogo();
+        alert(nuevos.length
+          ? "Se agregaron " + nuevos.length + " proveedores desde Requisiciones."
+          : "El catálogo ya está actualizado.");
+      } catch (error) {
+        console.error(error);
+        alert("No se pudo sincronizar el catálogo.");
+      } finally {
+        btnSincronizar.disabled = false;
+        btnSincronizar.textContent = "Sincronizar requisiciones";
+      }
+    }
+
+    function renderizar() {
+      const texto = claveNombre(buscar.value);
+      const estado = filtroEstado.value;
+      const filtrados = proveedores.filter(function (p) {
+        return claveNombre(p.razon_social).includes(texto) &&
+          (estado === "" || String(Boolean(p.activo)) === estado);
+      });
+
+      tabla.innerHTML = filtrados.map(function (p) {
+        const asignadas = peticionesPorProveedor.get(claveNombre(p.razon_social)) || 0;
+        return "<tr>" +
+          "<td><strong>" + escapar(p.razon_social) + "</strong></td>" +
+          '<td><span class="badge status-badge ' + (p.activo ? "green" : "red") + '">' +
+            (p.activo ? "Activo" : "Inactivo") + "</span></td>" +
+          "<td>" + asignadas + "</td>" +
+          '<td><button type="button" class="btn-secondary" onclick="cambiarEstadoProveedor(\'' +
+            p.id + "'," + (!p.activo) + ')">' + (p.activo ? "Inactivar" : "Activar") + "</button></td>" +
+          "</tr>";
+      }).join("") || '<tr><td colspan="4">No hay proveedores que coincidan con el filtro.</td></tr>';
+
+      document.getElementById("kpiTotal").textContent = proveedores.length;
+      document.getElementById("kpiActivos").textContent = proveedores.filter(function (p) { return p.activo; }).length;
+      document.getElementById("kpiAsignados").textContent = proveedores.filter(function (p) {
+        return peticionesPorProveedor.has(claveNombre(p.razon_social));
+      }).length;
+    }
+
+    async function cambiarEstadoProveedor(id, activo) {
+      const { error } = await supabaseClient
+        .from("proveedores")
+        .update({ activo: activo, updated_at: new Date().toISOString() })
+        .eq("id", id);
+      if (error) {
+        console.error(error);
+        alert("No se pudo actualizar el proveedor.");
+        return;
+      }
+      if (typeof registrarAuditoria === "function") {
+        registrarAuditoria("Proveedores", activo ? "Activó proveedor" : "Inactivó proveedor", id);
+      }
+      await cargarCatalogo();
+    }
+
+    buscar.addEventListener("input", renderizar);
+    filtroEstado.addEventListener("change", renderizar);
+    btnSincronizar.addEventListener("click", sincronizarDesdeRequisiciones);
+    cargarCatalogo();
+  </script>
+</body>
+</html>

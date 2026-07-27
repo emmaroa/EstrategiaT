@@ -8,10 +8,10 @@
   <link rel="stylesheet" href="../css/design-system.css"/>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="../js/core/supabase.js"></script>
-  <script src="../js/core/permissions.js?v=20260725-3"></script>
+  <script src="../js/core/permissions.js?v=20260727-1"></script>
   <script src="../js/core/theme.js"></script>
   <script src="../js/core/layout.js?v=20260725-3"></script>
-  <script src="../login.js?v=20260725-3"></script>
+  <script src="../login.js?v=20260727-1"></script>
 </head>
 
 <body class="dashboard-body">
@@ -85,6 +85,7 @@
           <option value="SuperAdmin">SuperAdmin</option>
           <option value="Director">Director</option>
           <option value="Coordinador">Coordinador</option>
+          <option value="Coordinador Infraestructura">Coordinador Infraestructura</option>
           <option value="Capturista Administrativo">Capturista Administrativo</option>
           <option value="Admin">Admin</option>
           <option value="Moderador de Acuerdos">Moderador de Acuerdos</option>
@@ -164,6 +165,7 @@
             <option value="SuperAdmin">SuperAdmin</option>
             <option value="Director">Director</option>
             <option value="Coordinador">Coordinador</option>
+            <option value="Coordinador Infraestructura">Coordinador Infraestructura</option>
             <option value="Capturista Administrativo">Capturista Administrativo</option>
             <option value="Admin">Admin</option>
             <option value="Moderador de Acuerdos">Moderador de Acuerdos</option>
@@ -475,6 +477,13 @@
       if (nuevo.rol === "Proveedor") {
         nuevo.areas_permitidas = [];
         nuevo.modulos_permitidos = [{ modulo: "Portal Proveedor", permiso: "editar" }];
+      }
+      if (nuevo.rol === "Coordinador Infraestructura") {
+        nuevo.areas_permitidas = [];
+        nuevo.modulos_permitidos = [
+          { modulo: "Dashboard", permiso: "ver" },
+          { modulo: "Peticiones", permiso: "editar" }
+        ];
       }
 
       if (indiceEditandoUsuario === null && !nuevo.password) {
