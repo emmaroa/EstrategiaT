@@ -216,10 +216,31 @@
         alert("No se pudieron cargar las requisiciones.");
       }
 
-      peticionesProveedor = peticionesResultado.data || [];
-      requisicionesProveedor = requisicionesResultado.data || [];
+      peticionesProveedor = ordenarRegistrosDescendente(
+        peticionesResultado.data || [],
+        "fecha"
+      );
+      requisicionesProveedor = ordenarRegistrosDescendente(
+        requisicionesResultado.data || [],
+        "fecha_req"
+      );
       poblarFiltrosPortalProveedor();
       renderizarPortalProveedor();
+    }
+
+    function obtenerTiempoPortal(valor) {
+      if (!valor) return 0;
+      const fecha = new Date(valor);
+      return Number.isNaN(fecha.getTime()) ? 0 : fecha.getTime();
+    }
+
+    function ordenarRegistrosDescendente(registros, campoFecha) {
+      return registros.slice().sort(function (a, b) {
+        const diferenciaFecha =
+          obtenerTiempoPortal(b[campoFecha]) - obtenerTiempoPortal(a[campoFecha]);
+        if (diferenciaFecha !== 0) return diferenciaFecha;
+        return String(b.id || "").localeCompare(String(a.id || ""));
+      });
     }
 
     function normalizarPortal(valor) {
