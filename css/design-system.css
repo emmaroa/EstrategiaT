@@ -144,6 +144,15 @@ textarea {
   text-align: left;
 }
 
+.vale-material-lista {
+  margin: 0;
+  padding-left: 18px;
+}
+
+.vale-material-lista li + li {
+  margin-top: 4px;
+}
+
 .topbar h1,
 .page-header h1 {
   letter-spacing: -0.025em;

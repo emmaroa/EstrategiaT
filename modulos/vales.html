@@ -5,12 +5,12 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Administración de Talleres | Vales</title>
   <link rel="stylesheet" href="../css/style.css">
-  <link rel="stylesheet" href="../css/design-system.css">
+  <link rel="stylesheet" href="../css/design-system.css?v=20260727-3">
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="../js/core/supabase.js"></script>
   <script src="../js/core/permissions.js?v=20260725-1"></script>
   <script src="../js/core/theme.js"></script>
-  <script src="../js/core/layout.js?v=20260725-1"></script>
+  <script src="../js/core/layout.js?v=20260727-3"></script>
   <script src="../login.js?v=20260725-1"></script>
 </head>
 
@@ -151,11 +151,6 @@
         </div>
 
         <div class="input-group">
-          <label>Solicitante</label>
-          <input type="text" id="solicitanteVale">
-        </div>
-
-        <div class="input-group">
           <label>Proveedor / Origen</label>
           <input type="text" id="proveedorVale">
         </div>
@@ -180,14 +175,10 @@
           </select>
         </div>
 
-        <div class="input-group">
-          <label>Requisición relacionada</label>
-          <input type="text" id="reqVale" placeholder="Ej. REQ-2026-001">
-        </div>
-
         <div class="input-group full">
           <label>Material entregado</label>
-          <textarea id="refaccionVale" rows="5" placeholder="Describe el material entregado"></textarea>
+          <textarea id="refaccionVale" rows="6" placeholder="Ejemplo:&#10;Filtro de aceite&#10;2 balatas delanteras&#10;Banda de alternador"></textarea>
+          <small class="helper-text">Captura una refacción por renglón. Todo se guardará en el mismo vale.</small>
         </div>
 
         <div class="input-group full">
@@ -220,14 +211,12 @@
     const filtroValeEstatus = document.getElementById("filtroValeEstatus");
     const unidadVale = document.getElementById("unidadVale");
     const dependenciaVale = document.getElementById("dependenciaVale");
-    const solicitanteVale = document.getElementById("solicitanteVale");
     const proveedorVale = document.getElementById("proveedorVale");
     const refaccionVale = document.getElementById("refaccionVale");
     const entregaVale = document.getElementById("entregaVale");
     const recibeVale = document.getElementById("recibeVale");
     const empleadosValeLista = document.getElementById("empleadosValeLista");
     const estatusVale = document.getElementById("estatusVale");
-    const reqVale = document.getElementById("reqVale");
     const observacionesVale = document.getElementById("observacionesVale");
     const fechaVale = document.getElementById("fechaVale");
     const folioVale = document.getElementById("folioVale");
@@ -301,6 +290,31 @@
 
     function obtenerValePorId(id) {
       return vales.find(function (v) { return v.id === id; });
+    }
+
+    function obtenerPartidasMaterialVale(valor) {
+      return String(valor || "")
+        .split(/\r?\n|;/)
+        .map(function (partida) { return partida.trim(); })
+        .filter(Boolean);
+    }
+
+    function normalizarMaterialVale(valor) {
+      return obtenerPartidasMaterialVale(valor).join("\n");
+    }
+
+    function escaparHTMLVale(valor) {
+      const elemento = document.createElement("div");
+      elemento.textContent = String(valor ?? "");
+      return elemento.innerHTML;
+    }
+
+    function formatearMaterialVale(valor) {
+      const partidas = obtenerPartidasMaterialVale(valor);
+      if (!partidas.length) return "Sin material";
+      return '<ul class="vale-material-lista">' + partidas.map(function (partida) {
+        return "<li>" + escaparHTMLVale(partida) + "</li>";
+      }).join("") + "</ul>";
     }
 
     async function cargarValesDesdeSupabase() {
@@ -410,7 +424,7 @@ unidadVale?.addEventListener("blur", async function () {
             "<td>" + (v.unidad || "") + "</td>" +
             "<td>" + (v.dependencia || "") + "</td>" +
             "<td>" + (v.solicitante || "") + "</td>" +
-            "<td>" + (v.refaccion || "") + "</td>" +
+            "<td>" + formatearMaterialVale(v.refaccion) + "</td>" +
             "<td>" + (v.entrega || "") + "</td>" +
             "<td>" + (v.recibe || "") + "</td>" +
             '<td><span class="badge status-badge ' + obtenerClaseEstatusVale(v.estatus) + '">' + (v.estatus || "") + "</span></td>" +
@@ -523,15 +537,19 @@ unidadVale?.addEventListener("blur", async function () {
         folio: String(folioVale.value || ""),
         unidad: numeroUnidad,
         dependencia: String(unidadParque.dependencia || "").trim(),
-        solicitante: String(solicitanteVale.value || "").trim(),
+        solicitante: idEditandoVale
+          ? (obtenerValePorId(idEditandoVale)?.solicitante || null)
+          : null,
         proveedor: String(proveedorVale.value || "").trim(),
-        refaccion: String(refaccionVale.value || "").trim(),
+        refaccion: normalizarMaterialVale(refaccionVale.value),
         entrega: idEditandoVale
           ? String(entregaVale.value || "").trim()
           : String(obtenerUsuarioVale()?.nombre || "").trim(),
         recibe: String(recibeVale.value || "").trim(),
         estatus: String(estatusVale.value || "Pendiente"),
-        requisicion: String(reqVale.value || "").trim(),
+        requisicion: idEditandoVale
+          ? (obtenerValePorId(idEditandoVale)?.requisicion || null)
+          : null,
         observaciones: String(observacionesVale.value || "").trim()
       };
 
@@ -545,8 +563,8 @@ unidadVale?.addEventListener("blur", async function () {
         return;
       }
 
-      if (!nuevo.folio || !nuevo.unidad || !nuevo.dependencia || !nuevo.solicitante || !nuevo.refaccion || !nuevo.entrega || !nuevo.recibe) {
-        alert("Completa folio, unidad, dependencia, solicitante, material entregado, entrega y recibe.");
+      if (!nuevo.folio || !nuevo.unidad || !nuevo.dependencia || !nuevo.refaccion || !nuevo.entrega || !nuevo.recibe) {
+        alert("Completa folio, unidad, dependencia, material entregado, entrega y recibe.");
         return;
       }
 
@@ -612,12 +630,10 @@ unidadVale?.addEventListener("blur", async function () {
       folioVale.value = v.folio || "";
       unidadVale.value = v.unidad || "";
       dependenciaVale.value = v.dependencia || "";
-      solicitanteVale.value = v.solicitante || "";
       proveedorVale.value = v.proveedor || "";
       entregaVale.value = v.entrega || obtenerUsuarioVale()?.nombre || "";
       recibeVale.value = v.recibe || "";
       estatusVale.value = v.estatus || "Pendiente";
-      reqVale.value = v.requisicion || "";
       refaccionVale.value = v.refaccion || "";
       observacionesVale.value = v.observaciones || "";
     }
@@ -706,13 +722,11 @@ unidadVale?.addEventListener("blur", async function () {
       folioVale.value = "";
       unidadVale.value = "";
       dependenciaVale.value = "";
-      solicitanteVale.value = "";
       proveedorVale.value = "";
       refaccionVale.value = "";
       entregaVale.value = "";
       recibeVale.value = "";
       estatusVale.value = "Pendiente";
-      reqVale.value = "";
       observacionesVale.value = "";
       infoUnidadVale.textContent = "";
     }
@@ -731,7 +745,6 @@ unidadVale?.addEventListener("blur", async function () {
         "\nMaterial entregado: " + v.refaccion +
         "\nEntrega: " + (v.entrega || "Sin dato") +
         "\nRecibe: " + v.recibe +
-        "\nRequisición: " + (v.requisicion || "Sin relacionar") +
         "\nEstatus: " + v.estatus +
         "\nObservaciones: " + (v.observaciones || "Sin observaciones")
       );
@@ -784,8 +797,7 @@ unidadVale?.addEventListener("blur", async function () {
               <div class="item"><strong>Dependencia</strong>${v.dependencia || "Sin dato"}</div>
               <div class="item"><strong>Solicitante</strong>${v.solicitante}</div>
               <div class="item"><strong>Proveedor / Origen</strong>${v.proveedor || "Sin dato"}</div>
-              <div class="item"><strong>Requisición relacionada</strong>${v.requisicion || "Sin relacionar"}</div>
-              <div class="item full"><strong>Material entregado</strong>${v.refaccion}</div>
+              <div class="item full"><strong>Material entregado</strong>${formatearMaterialVale(v.refaccion)}</div>
               <div class="item"><strong>Estatus</strong>${v.estatus}</div>
               <div class="item full"><strong>Observaciones</strong>${v.observaciones || "Sin observaciones"}</div>
             </div>

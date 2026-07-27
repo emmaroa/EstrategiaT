@@ -59,7 +59,6 @@
     "rolUsuarioForm",
     "unidadVale",
     "areaVale",
-    "solicitanteVale",
     "recibeVale",
     "refaccionVale",
     "altaNumEmpleado",
