@@ -1312,10 +1312,24 @@ function imprimirDashboard() {
 }
 
 function obtenerTipoVehiculo(unidad) {
-  const partes = [];
-  if (unidad.grupo) partes.push(unidad.grupo);
-  if (unidad.uso) partes.push(unidad.uso);
-  return partes.join(" · ") || "Sin tipo registrado";
+  return unidad.tipo_vehiculo ||
+    unidad.tipo ||
+    unidad.grupo ||
+    unidad.categoria ||
+    "Sin tipo registrado";
+}
+
+function obtenerSerieVehiculo(unidad) {
+  return unidad.serie || unidad.numero_serie || unidad.vin || "Sin serie registrada";
+}
+
+function obtenerAnioVehiculo(unidad) {
+  return unidad.anio ||
+    unidad.ano ||
+    unidad["año"] ||
+    unidad.anio_modelo ||
+    unidad.modelo_anio ||
+    "Sin año registrado";
 }
 
 function obtenerNumeroEconomico(unidad) {
@@ -1371,10 +1385,14 @@ function consultarParqueVehicular() {
           '<span class="badge ' + claseEstatusParque(estatus) + '">' + escaparHTML(estatus) + "</span>" +
         "</div>" +
         '<dl class="consulta-parque-dl">' +
+          "<div><dt>Serie</dt><dd>" + escaparHTML(obtenerSerieVehiculo(u)) + "</dd></div>" +
+          "<div><dt>Modelo</dt><dd>" + escaparHTML(u.modelo || "Sin modelo registrado") + "</dd></div>" +
           "<div><dt>Descripción</dt><dd>" + escaparHTML(u.descripcion || "Sin descripción") + "</dd></div>" +
+          "<div><dt>Año</dt><dd>" + escaparHTML(obtenerAnioVehiculo(u)) + "</dd></div>" +
           "<div><dt>Dependencia</dt><dd>" + escaparHTML(u.dependencia || "Sin dependencia") + "</dd></div>" +
           "<div><dt>Tipo de vehículo</dt><dd>" + escaparHTML(obtenerTipoVehiculo(u)) + "</dd></div>" +
-          "<div><dt>Estatus</dt><dd>" + escaparHTML(estatus) + "</dd></div>" +
+          "<div><dt>Uso</dt><dd>" + escaparHTML(u.uso || "Sin uso registrado") + "</dd></div>" +
+          "<div><dt>Combustible</dt><dd>" + escaparHTML(u.combustible || "Sin combustible registrado") + "</dd></div>" +
         "</dl>" +
       "</div>"
     );
