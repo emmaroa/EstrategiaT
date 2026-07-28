@@ -10,8 +10,16 @@
         { key: "folio", label: "Folio", required: true, placeholder: "0002720-00" },
         { key: "oficio", label: "Oficio", required: true, placeholder: "RB/0002720/2026" },
         { key: "fecha", label: "Fecha", type: "datetime-local", required: true },
-        { key: "estatus", label: "Estatus", type: "select", required: true, value: "Pendiente",
-          options: ["Pendiente", "En proceso", "Finalizada", "Cancelada"] },
+        { key: "estatus", label: "Estatus", type: "select", required: true, value: "PENDIENTE",
+          options: [
+            "PENDIENTE",
+            "EN PROCESO",
+            "COTIZACION EN PORTAL",
+            "INICIO DE PROCEDIMIENTO",
+            "INSUFICIENCIA",
+            "FINALIZADA",
+            "CANCELADA"
+          ] },
         { key: "importe", label: "Importe", type: "number", step: "0.01", required: true },
         { key: "tipo_procedimiento", label: "Tipo de procedimiento", value: "COMPRA DIRECTA" },
         { key: "dependencia", label: "Dependencia", required: true, wide: true },
@@ -34,8 +42,17 @@
       campos: [
         { key: "folio", label: "Número de OC", type: "number", required: true },
         { key: "fecha", label: "Fecha", type: "datetime-local", required: true },
-        { key: "estatus", label: "Estatus", type: "select", required: true, value: "Pendiente",
-          options: ["Pendiente", "En proceso", "Adjudicada", "Finalizada", "Cancelada"] },
+        { key: "estatus", label: "Estatus", type: "select", required: true, value: "PENDIENTE",
+          options: [
+            "PENDIENTE",
+            "EN PROCESO",
+            "LLENADO DE OC",
+            "OC AUTORIZADA",
+            "ADJUDICADA",
+            "FACTURA RECIBIDA",
+            "FINALIZADA",
+            "CANCELADA"
+          ] },
         { key: "fecha_adjudicacion", label: "Fecha de adjudicación", type: "date" },
         { key: "importe", label: "Importe", type: "number", step: "0.01", required: true },
         { key: "proveedor", label: "Proveedor", type: "provider", required: true, wide: true },
