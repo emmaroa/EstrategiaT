@@ -12,6 +12,7 @@
   <script src="../js/core/theme.js"></script>
   <script src="../js/core/layout.js?v=20260725-3"></script>
   <script src="../js/services/peticiones.service.js?v=20260727-1"></script>
+  <script src="../js/services/cotizaciones-almacen.service.js?v=20260727-1"></script>
   <script src="../login.js?v=20260727-1"></script>
 </head>
 <body class="dashboard-body">
@@ -123,6 +124,7 @@
               <th>Área</th>
               <th>Dependencia</th>
               <th id="columnaProveedorPeticion">Proveedor</th>
+              <th>Cotizada</th>
               <th>Estatus</th>
               <th>Acciones</th>
             </tr>
@@ -143,7 +145,65 @@
 
     </section>
 
+    <section class="panel" id="panelGestionCotizaciones" style="display:none;">
+      <div class="panel-header">
+        <div>
+          <h2>Gestión privada de cotizaciones</h2>
+          <p>Completa la partida y el número de requisición cuando la cotización tenga trámite.</p>
+        </div>
+      </div>
+      <div class="table-container">
+        <table>
+          <thead>
+            <tr>
+              <th>Folio</th>
+              <th>Proveedor</th>
+              <th>Fecha</th>
+              <th>Unidad</th>
+              <th>Dependencia</th>
+              <th>Total</th>
+              <th>Partida</th>
+              <th>Requisición</th>
+              <th>Acciones</th>
+            </tr>
+          </thead>
+          <tbody id="tablaGestionCotizaciones"></tbody>
+        </table>
+      </div>
+    </section>
+
   </main>
+
+  <div class="modal" id="modalDatosInternosCotizacion" role="dialog" aria-modal="true" aria-labelledby="tituloDatosInternosCotizacion" aria-hidden="true">
+    <div class="modal-card">
+      <div class="modal-header">
+        <div>
+          <h2 id="tituloDatosInternosCotizacion">Datos internos de cotización</h2>
+          <p id="subtituloDatosInternosCotizacion"></p>
+        </div>
+        <button type="button" class="close-btn" aria-label="Cerrar diálogo" onclick="cerrarDatosInternosCotizacion()">×</button>
+      </div>
+      <div class="form-grid">
+        <div class="input-group">
+          <label for="partidaCotizacionInterna">Partida</label>
+          <select id="partidaCotizacionInterna">
+            <option value="">Pendiente</option>
+            <option value="29601">29601</option>
+            <option value="29801">29801</option>
+            <option value="26102">26102</option>
+          </select>
+        </div>
+        <div class="input-group">
+          <label for="requisicionCotizacionInterna">Número de requisición</label>
+          <input type="text" id="requisicionCotizacionInterna" maxlength="100" placeholder="Pendiente">
+        </div>
+      </div>
+      <div class="modal-actions">
+        <button type="button" class="btn-secondary" onclick="cerrarDatosInternosCotizacion()">Cancelar</button>
+        <button type="button" class="btn-small" onclick="guardarDatosInternosCotizacion()">Guardar</button>
+      </div>
+    </div>
+  </div>
 
 
   <div class="modal" id="modalPeticion" role="dialog" aria-modal="true" aria-labelledby="modalPeticionTitulo" aria-hidden="true">
@@ -264,6 +324,9 @@
     ETLayout.inicializar("Peticiones");
 
     let peticiones = [];
+    let cotizacionesPorPeticion = new Map();
+    let cotizacionesAlmacen = [];
+    let cotizacionInternaId = null;
     let proveedoresCatalogo = [];
     let idEditando = null;
     let counts = {
@@ -491,10 +554,28 @@
         return;
       }
       peticiones = (data || []).map(normalizarPeticion);
+      const cotizacionesResultado = puedeCopiarTextoPedido()
+        ? await ETCotizacionesAlmacen.listar()
+        : await ETCotizacionesAlmacen.listarPorPeticiones(
+            peticiones.map(function (peticion) { return peticion.id; })
+          );
+      if (cotizacionesResultado.error) {
+        console.warn("No se pudo cargar el indicador de cotizaciones:", cotizacionesResultado.error);
+        cotizacionesPorPeticion = new Map();
+        cotizacionesAlmacen = [];
+      } else {
+        cotizacionesAlmacen = cotizacionesResultado.data || [];
+        cotizacionesPorPeticion = new Map(cotizacionesAlmacen.filter(function (cotizacion) {
+          return cotizacion.peticion_id;
+        }).map(function (cotizacion) {
+          return [cotizacion.peticion_id, cotizacion];
+        }));
+      }
       totalPeticiones = count ?? 0;
       poblarFiltroProveedorPeticiones();
       poblarSelectProveedorPeticiones();
       renderizarPeticiones();
+      renderizarGestionCotizaciones();
     }
 
     function obtenerProveedoresDisponibles() {
@@ -586,10 +667,11 @@
       if (filtroProveedor) filtroProveedor.style.display = mostrarProveedor ? "" : "none";
 
       if (!filtradasVisibles.length) {
-        tablaPeticiones.innerHTML = '<tr><td colspan="' + (mostrarProveedor ? "9" : "8") + '">No hay peticiones registradas.</td></tr>';
+        tablaPeticiones.innerHTML = '<tr><td colspan="' + (mostrarProveedor ? "10" : "9") + '">No hay peticiones registradas.</td></tr>';
       } else {
         const mostrarTextoPedido = puedeCopiarTextoPedido();
         const mostrarGenerarRequisicion = puedeGenerarRequisicion();
+        const puedeEnviarCotizacion = puedeAccionPeticion("editar");
         paginaActual.forEach(function (p) {
           const fila = document.createElement("tr");
           const puedeEditar = puedeAccionPeticion("editar");
@@ -597,6 +679,7 @@
           const puedeRevisarAlmacen =
             esJefeAlmacenPeticion() &&
             normalizarTextoPeticion(p.estatus) === "pendiente";
+          const cotizacion = cotizacionesPorPeticion.get(p.id);
           fila.innerHTML =
             "<td>" + formatearFecha(p.fecha) + "</td>" +
             "<td><strong>" + p.unidad + "</strong></td>" +
@@ -605,6 +688,8 @@
             "<td>" + p.area + "</td>" +
             "<td>" + (p.dependencia || "Sin dependencia") + "</td>" +
             (mostrarProveedor ? "<td>" + (p.proveedor || "Sin asignar") + "</td>" : "") +
+            '<td><span class="badge status-badge ' + (cotizacion ? "green" : "gray") + '">' +
+              (cotizacion ? "✓ Sí" : "No") + "</span></td>" +
             '<td><span class="badge status-badge ' + obtenerClaseEstatusPeticion(p.estatus) + '">' + p.estatus + "</span></td>" +
             '<td><div class="action-grid">' +
               ETLayout.iconButton("ver", "Ver peticion", "verPeticion('" + p.id + "')") +
@@ -613,6 +698,7 @@
               (puedeEditar ? ETLayout.iconButton("editar", "Editar peticion", "editarPeticion('" + p.id + "')", "edit") : "") +
               (puedeEliminar ? ETLayout.iconButton("eliminar", "Eliminar peticion", "eliminarPeticion('" + p.id + "')", "red-btn") : "") +
               (puedeRevisarAlmacen ? ETLayout.iconButton("estatus", "Marcar como Revisado por almacen", "revisarPeticionAlmacen('" + p.id + "')", "orange") : "") +
+              (puedeEnviarCotizacion && !cotizacion ? ETLayout.iconButton("cotizacion", "Enviar a cotizaciones", "enviarPeticionACotizaciones('" + p.id + "')", "orange") : "") +
               (mostrarGenerarRequisicion ? ETLayout.iconButton("requisicion", "Generar requisicion", "generarRequisicion('" + p.id + "')", "orange") : "") +
             "</div></td>";
           tablaPeticiones.appendChild(fila);
@@ -1345,6 +1431,128 @@
       ETLayout.cerrarFichaDetalle();
       await recargarPeticiones();
       alert("Peticion marcada como Revisado por almacen.");
+    }
+
+    async function enviarPeticionACotizaciones(id) {
+      if (!puedeAccionPeticion("editar")) {
+        alert("No tienes permiso para enviar peticiones a cotizaciones.");
+        return;
+      }
+      const peticion = obtenerPeticionPorId(id);
+      if (!peticion || cotizacionesPorPeticion.has(id)) return;
+      if (!String(peticion.proveedor || "").trim()) {
+        alert("Asigna un proveedor antes de enviar la petición a cotizaciones.");
+        return;
+      }
+
+      const confirmar = await ETFeedback.confirmar({
+        title: "Enviar a cotizaciones",
+        message: "Se copiarán los datos de esta petición a la tabla de cotizaciones de almacén.",
+        confirmLabel: "Enviar"
+      });
+      if (!confirmar) return;
+
+      const { data, error } = await ETCotizacionesAlmacen.crearDesdePeticion(peticion);
+      if (error) {
+        const duplicada = String(error.code || "") === "23505";
+        alert(duplicada
+          ? "Esta petición ya cuenta con una cotización."
+          : "No se pudo crear la cotización: " + error.message);
+        await recargarPeticiones();
+        return;
+      }
+
+      if (typeof registrarAuditoria === "function") {
+        registrarAuditoria("Peticiones", "Envió petición a cotizaciones", "Unidad " + peticion.unidad + " - " + peticion.peticion, {
+          entidad_tipo: "cotizaciones_almacen",
+          entidad_id: data.id,
+          metadata: { peticion_id: peticion.id }
+        });
+      }
+
+      await recargarPeticiones();
+      alert("Petición enviada a cotizaciones correctamente.");
+    }
+
+    function escaparCotizacionInterna(valor) {
+      return String(valor ?? "")
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
+    }
+
+    function monedaCotizacionInterna(valor) {
+      return Number(valor || 0).toLocaleString("es-MX", {
+        style: "currency",
+        currency: "MXN"
+      });
+    }
+
+    function renderizarGestionCotizaciones() {
+      const panel = document.getElementById("panelGestionCotizaciones");
+      const tabla = document.getElementById("tablaGestionCotizaciones");
+      const visible = puedeCopiarTextoPedido();
+      if (panel) panel.style.display = visible ? "" : "none";
+      if (!visible || !tabla) return;
+
+      tabla.innerHTML = cotizacionesAlmacen.length
+        ? cotizacionesAlmacen.map(function (cotizacion) {
+            return "<tr>" +
+              "<td><strong>" + escaparCotizacionInterna(cotizacion.folio || "—") + "</strong></td>" +
+              "<td>" + escaparCotizacionInterna(cotizacion.proveedor || "—") + "</td>" +
+              "<td>" + formatearFecha(cotizacion.fecha_cotizacion) + "</td>" +
+              "<td>" + escaparCotizacionInterna(cotizacion.unidad || "—") + "</td>" +
+              "<td>" + escaparCotizacionInterna(cotizacion.dependencia || "Pendiente") + "</td>" +
+              "<td><strong>" + escaparCotizacionInterna(monedaCotizacionInterna(cotizacion.total)) + "</strong></td>" +
+              "<td>" + escaparCotizacionInterna(cotizacion.partida || "Pendiente") + "</td>" +
+              "<td>" + escaparCotizacionInterna(cotizacion.requisicion || "Pendiente") + "</td>" +
+              '<td>' + ETLayout.iconButton("editar", "Capturar partida y requisición", "abrirDatosInternosCotizacion('" + cotizacion.id + "')", "edit") + "</td>" +
+            "</tr>";
+          }).join("")
+        : '<tr><td colspan="9">No hay cotizaciones registradas.</td></tr>';
+    }
+
+    function abrirDatosInternosCotizacion(id) {
+      if (!puedeCopiarTextoPedido()) return;
+      const cotizacion = cotizacionesAlmacen.find(function (item) { return item.id === id; });
+      if (!cotizacion) return;
+      cotizacionInternaId = id;
+      document.getElementById("subtituloDatosInternosCotizacion").textContent =
+        (cotizacion.folio || "") + " · " + (cotizacion.proveedor || "");
+      document.getElementById("partidaCotizacionInterna").value = cotizacion.partida || "";
+      document.getElementById("requisicionCotizacionInterna").value = cotizacion.requisicion || "";
+      document.getElementById("modalDatosInternosCotizacion").classList.add("show");
+      document.getElementById("modalDatosInternosCotizacion").setAttribute("aria-hidden", "false");
+    }
+
+    function cerrarDatosInternosCotizacion() {
+      cotizacionInternaId = null;
+      document.getElementById("modalDatosInternosCotizacion").classList.remove("show");
+      document.getElementById("modalDatosInternosCotizacion").setAttribute("aria-hidden", "true");
+    }
+
+    async function guardarDatosInternosCotizacion() {
+      if (!puedeCopiarTextoPedido() || !cotizacionInternaId) return;
+      const cotizacion = cotizacionesAlmacen.find(function (item) {
+        return item.id === cotizacionInternaId;
+      });
+      if (!cotizacion) return;
+      const partida = document.getElementById("partidaCotizacionInterna").value;
+      const requisicion = document.getElementById("requisicionCotizacionInterna").value.trim();
+      const { error } = await ETCotizacionesAlmacen.actualizarDatosInternos(cotizacion.id, {
+        partida: partida,
+        requisicion: requisicion,
+        estatus: cotizacion.estatus
+      });
+      if (error) {
+        alert("No se pudieron guardar los datos internos: " + error.message);
+        return;
+      }
+      cerrarDatosInternosCotizacion();
+      await recargarPeticiones();
+      alert("Datos internos guardados correctamente.");
     }
 
     function generarRequisicion(id) {

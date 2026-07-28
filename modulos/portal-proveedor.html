@@ -3,6 +3,9 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+  <meta http-equiv="Pragma" content="no-cache">
+  <meta http-equiv="Expires" content="0">
   <title>Administración de Talleres | Portal Proveedor</title>
   <link rel="stylesheet" href="../css/style.css">
   <link rel="stylesheet" href="../css/design-system.css?v=20260727-5">
@@ -11,6 +14,7 @@
   <script src="../js/core/permissions.js?v=20260725-3"></script>
   <script src="../js/core/theme.js"></script>
   <script src="../js/core/layout.js?v=20260725-3"></script>
+  <script src="../js/services/cotizaciones-almacen.service.js?v=20260727-1"></script>
   <script src="../login.js?v=20260725-3"></script>
 </head>
 <body class="dashboard-body">
@@ -56,6 +60,21 @@
         <h2 id="kpiRequisicionesProveedor">0</h2>
         <p>Seguimiento disponible</p>
       </div>
+      <div class="kpi-card">
+        <span>Cotizaciones de almacén</span>
+        <h2 id="kpiCotizacionesAlmacen">0</h2>
+        <p>Con y sin petición</p>
+      </div>
+      <div class="kpi-card">
+        <span>Total de cotizaciones sin trámite</span>
+        <h2 id="kpiTotalCotizacionesSinTramite">$0.00</h2>
+        <p>Importe sin número de requisición</p>
+      </div>
+      <div class="kpi-card">
+        <span>Total de requisiciones</span>
+        <h2 id="kpiTotalCotizacionesConRequisicion">$0.00</h2>
+        <p>Importe con requisición asignada</p>
+      </div>
     </section>
 
     <section class="panel">
@@ -92,6 +111,45 @@
             </tr>
           </thead>
           <tbody id="tablaPeticionesProveedor"></tbody>
+        </table>
+      </div>
+    </section>
+
+    <section class="panel">
+      <div class="panel-header">
+        <div>
+          <h2>Cotizaciones entregadas a almacén</h2>
+          <p>Consulta las cotizaciones enviadas desde peticiones o registra entregas que no tengan petición.</p>
+        </div>
+        <button type="button" class="btn-small" id="btnNuevaCotizacionAlmacen">Registrar entrega sin petición</button>
+      </div>
+      <div class="filters">
+        <input type="search" id="buscarCotizacionesAlmacen" placeholder="Buscar por unidad, descripción o documento..." aria-label="Buscar cotizaciones de almacén">
+        <select id="filtroEstatusCotizacionesAlmacen" aria-label="Filtrar cotizaciones por estatus">
+          <option value="">Todos los estatus</option>
+        </select>
+      </div>
+      <div class="table-container">
+        <table>
+          <thead>
+            <tr>
+              <th>Folio</th>
+              <th>Fecha cotización</th>
+              <th>Fecha entrega</th>
+              <th>Origen</th>
+              <th>Petición</th>
+              <th>Unidad</th>
+              <th>Dependencia</th>
+              <th>Materiales</th>
+              <th>Subtotal</th>
+              <th>IVA</th>
+              <th>Total</th>
+              <th>Estatus</th>
+              <th>Requisición</th>
+              <th>Acciones</th>
+            </tr>
+          </thead>
+          <tbody id="tablaCotizacionesAlmacen"></tbody>
         </table>
       </div>
     </section>
@@ -148,6 +206,75 @@
     </div>
   </div>
 
+  <div class="modal" id="modalCotizacionAlmacen" role="dialog" aria-modal="true" aria-labelledby="tituloCotizacionAlmacen" aria-hidden="true">
+    <div class="modal-card">
+      <div class="modal-header">
+        <div>
+          <h2 id="tituloCotizacionAlmacen">Registrar entrega sin petición</h2>
+          <p>Captura los datos de lo entregado al almacén.</p>
+        </div>
+        <button type="button" class="close-btn" aria-label="Cerrar diálogo" onclick="cerrarCotizacionAlmacen()">×</button>
+      </div>
+      <div class="form-grid">
+        <div class="input-group">
+          <label for="cotizacionFechaCotizacion">Fecha de cotización</label>
+          <input type="date" id="cotizacionFechaCotizacion" readonly>
+        </div>
+        <div class="input-group">
+          <label for="cotizacionFechaEntrega">Fecha de entrega</label>
+          <input type="date" id="cotizacionFechaEntrega" required>
+        </div>
+        <div class="input-group">
+          <label for="cotizacionUnidad">Número de inventario</label>
+          <input type="text" id="cotizacionUnidad" maxlength="100" placeholder="Número de inventario, 0 o STOCK" required>
+          <small id="cotizacionInfoUnidad">Se buscará en la columna número de inventario del parque vehicular.</small>
+        </div>
+        <div class="input-group">
+          <label for="cotizacionDependencia">Dependencia</label>
+          <input type="text" id="cotizacionDependencia" readonly placeholder="Pendiente">
+        </div>
+        <div class="input-group full">
+          <div class="panel-header">
+            <div>
+              <label>Material entregado</label>
+              <small>Agrega uno o varios artículos.</small>
+            </div>
+            <button type="button" class="btn-secondary" id="btnAgregarMaterialCotizacion">Agregar material</button>
+          </div>
+          <div class="table-container">
+            <table>
+              <thead>
+                <tr>
+                  <th>Cantidad</th>
+                  <th>Artículo</th>
+                  <th>Precio unitario</th>
+                  <th>Importe</th>
+                  <th></th>
+                </tr>
+              </thead>
+              <tbody id="materialesCotizacionAlmacen"></tbody>
+            </table>
+          </div>
+          <div style="display:flex;justify-content:flex-end;margin-top:12px;">
+            <div style="min-width:260px;display:grid;grid-template-columns:1fr auto;gap:8px 20px;">
+              <span>Subtotal</span><strong id="cotizacionSubtotal">$0.00</strong>
+              <span>IVA (16%)</span><strong id="cotizacionIVA">$0.00</strong>
+              <span>Total</span><strong id="cotizacionTotal">$0.00</strong>
+            </div>
+          </div>
+        </div>
+        <div class="input-group full">
+          <label for="cotizacionObservaciones">Observaciones</label>
+          <textarea id="cotizacionObservaciones" rows="3" maxlength="2000"></textarea>
+        </div>
+      </div>
+      <div class="modal-actions">
+        <button type="button" class="btn-secondary" onclick="cerrarCotizacionAlmacen()">Cancelar</button>
+        <button type="button" class="btn-small" id="btnGuardarCotizacionAlmacen">Guardar registro</button>
+      </div>
+    </div>
+  </div>
+
   <script>
     const usuarioProveedor = JSON.parse(localStorage.getItem("usuarioActivo") || "null");
     const rolProveedor = String(usuarioProveedor?.rol || "").trim().toLowerCase();
@@ -162,12 +289,17 @@
     const proveedorVinculado = String(usuarioProveedor?.proveedor || "").trim();
     let peticionesProveedor = [];
     let requisicionesProveedor = [];
+    let cotizacionesAlmacenProveedor = [];
+    let unidadCotizacionSeleccionada = null;
+    let cotizacionAlmacenEditandoId = null;
     let peticionNotaId = null;
     const buscarPeticionesProveedor = document.getElementById("buscarPeticionesProveedor");
     const filtroEstatusPeticionProveedor = document.getElementById("filtroEstatusPeticionProveedor");
     const filtroEntregaPeticionProveedor = document.getElementById("filtroEntregaPeticionProveedor");
     const buscarRequisicionesProveedor = document.getElementById("buscarRequisicionesProveedor");
     const filtroEstatusRequisicionProveedor = document.getElementById("filtroEstatusRequisicionProveedor");
+    const buscarCotizacionesAlmacen = document.getElementById("buscarCotizacionesAlmacen");
+    const filtroEstatusCotizacionesAlmacen = document.getElementById("filtroEstatusCotizacionesAlmacen");
 
     function escaparPortal(valor) {
       return String(valor ?? "")
@@ -194,7 +326,7 @@
 
       document.getElementById("nombreProveedorPortal").textContent = proveedorVinculado;
 
-      const [peticionesResultado, requisicionesResultado] = await Promise.all([
+      const [peticionesResultado, requisicionesResultado, cotizacionesResultado] = await Promise.all([
         supabaseClient
           .from("peticiones")
           .select("id,fecha,unidad,peticion,solicitante,estatus,estatus_proveedor,nota_proveedor,fecha_entrega_proveedor,proveedor")
@@ -204,7 +336,8 @@
           .from("requisiciones_siif")
           .select("id,fecha_req,numero_req,unidad,concepto,numero_oc,estatus,proveedor")
           .eq("proveedor", proveedorVinculado)
-          .order("fecha_req", { ascending: false })
+          .order("fecha_req", { ascending: false }),
+        ETCotizacionesAlmacen.listarPorProveedor(proveedorVinculado)
       ]);
 
       if (peticionesResultado.error) {
@@ -215,6 +348,10 @@
         console.error(requisicionesResultado.error);
         alert("No se pudieron cargar las requisiciones.");
       }
+      if (cotizacionesResultado.error) {
+        console.error(cotizacionesResultado.error);
+        alert("No se pudieron cargar las cotizaciones de almacén.");
+      }
 
       peticionesProveedor = ordenarRegistrosDescendente(
         peticionesResultado.data || [],
@@ -223,6 +360,10 @@
       requisicionesProveedor = ordenarRegistrosDescendente(
         requisicionesResultado.data || [],
         "fecha_req"
+      );
+      cotizacionesAlmacenProveedor = ordenarRegistrosDescendente(
+        cotizacionesResultado.data || [],
+        "fecha_entrega"
       );
       poblarFiltrosPortalProveedor();
       renderizarPortalProveedor();
@@ -276,6 +417,11 @@
         requisicionesProveedor.map(function (r) { return r.estatus; }),
         "Todos los estatus"
       );
+      poblarSelectPortal(
+        filtroEstatusCotizacionesAlmacen,
+        cotizacionesAlmacenProveedor.map(function (c) { return c.estatus; }),
+        "Todos los estatus"
+      );
     }
 
     function obtenerPeticionesFiltradasProveedor() {
@@ -305,11 +451,47 @@
       });
     }
 
+    function obtenerCotizacionesFiltradasProveedor() {
+      const texto = normalizarPortal(buscarCotizacionesAlmacen?.value);
+      const estatus = String(filtroEstatusCotizacionesAlmacen?.value || "");
+      return cotizacionesAlmacenProveedor.filter(function (cotizacion) {
+        const contenido = normalizarPortal([
+          cotizacion.folio,
+          cotizacion.fecha_cotizacion,
+          cotizacion.fecha_entrega,
+          cotizacion.origen,
+          cotizacion.unidad,
+          cotizacion.numero_serie,
+          cotizacion.dependencia,
+          cotizacion.requisicion,
+          JSON.stringify(cotizacion.materiales || []),
+          cotizacion.estatus
+        ].join(" "));
+        return contenido.includes(texto) && (!estatus || cotizacion.estatus === estatus);
+      });
+    }
+
+    function importePortal(valor) {
+      if (valor === null || valor === undefined || valor === "") return "—";
+      return Number(valor).toLocaleString("es-MX", {
+        style: "currency",
+        currency: "MXN"
+      });
+    }
+
+    function tonoCotizacionPortal(estatus) {
+      if (estatus === "Validada" || estatus === "Requisición generada") return "green";
+      if (estatus === "Rechazada") return "red";
+      return "amber";
+    }
+
     function renderizarPortalProveedor() {
       const tablaPeticiones = document.getElementById("tablaPeticionesProveedor");
       const tablaRequisiciones = document.getElementById("tablaRequisicionesProveedor");
+      const tablaCotizaciones = document.getElementById("tablaCotizacionesAlmacen");
       const peticionesFiltradas = obtenerPeticionesFiltradasProveedor();
       const requisicionesFiltradas = obtenerRequisicionesFiltradasProveedor();
+      const cotizacionesFiltradas = obtenerCotizacionesFiltradasProveedor();
 
       tablaPeticiones.innerHTML = peticionesFiltradas.length
         ? peticionesFiltradas.map(function (peticion) {
@@ -332,6 +514,38 @@
           }).join("")
         : '<tr><td colspan="8">No hay peticiones que coincidan con los filtros.</td></tr>';
 
+      tablaCotizaciones.innerHTML = cotizacionesFiltradas.length
+        ? cotizacionesFiltradas.map(function (cotizacion) {
+            const peticion = peticionesProveedor.find(function (item) {
+              return item.id === cotizacion.peticion_id;
+            });
+            const materiales = (cotizacion.materiales || []).map(function (material) {
+              return escaparPortal(material.cantidad) + " × " + escaparPortal(material.item);
+            }).join("<br>");
+            return "<tr>" +
+              "<td><strong>" + escaparPortal(cotizacion.folio || "—") + "</strong></td>" +
+              "<td>" + fechaPortal(cotizacion.fecha_cotizacion) + "</td>" +
+              "<td>" + fechaPortal(cotizacion.fecha_entrega) + "</td>" +
+              "<td>" + escaparPortal(cotizacion.origen || "Sin petición") + "</td>" +
+              "<td>" + escaparPortal(peticion?.peticion || "—") + "</td>" +
+              "<td><strong>" + escaparPortal(cotizacion.unidad || "—") + "</strong></td>" +
+              "<td>" + escaparPortal(cotizacion.dependencia || "Pendiente") + "</td>" +
+              "<td>" + (materiales || "—") + "</td>" +
+              "<td>" + escaparPortal(importePortal(cotizacion.subtotal)) + "</td>" +
+              "<td>" + escaparPortal(importePortal(cotizacion.iva)) + "</td>" +
+              "<td><strong>" + escaparPortal(importePortal(cotizacion.total)) + "</strong></td>" +
+              '<td><span class="badge status-badge ' + tonoCotizacionPortal(cotizacion.estatus) + '">' +
+                escaparPortal(cotizacion.estatus || "Pendiente de revisión") + "</span></td>" +
+              "<td>" + escaparPortal(cotizacion.requisicion || "Pendiente") + "</td>" +
+              '<td><div class="action-grid">' +
+                '<button type="button" class="btn-secondary" onclick="imprimirCotizacionAlmacen(\'' +
+                cotizacion.id + '\')">Imprimir</button>' +
+                '<button type="button" class="btn-secondary" onclick="editarCotizacionAlmacen(\'' +
+                cotizacion.id + '\')" ' + (cotizacion.estatus === "Requisición generada" ? "disabled" : "") +
+                '>Editar</button></div></td></tr>';
+          }).join("")
+        : '<tr><td colspan="14">No hay cotizaciones que coincidan con los filtros.</td></tr>';
+
       tablaRequisiciones.innerHTML = requisicionesFiltradas.length
         ? requisicionesFiltradas.map(function (requisicion) {
             return "<tr>" +
@@ -352,6 +566,17 @@
         return p.estatus_proveedor === "Entregado a almacén";
       }).length;
       document.getElementById("kpiRequisicionesProveedor").textContent = requisicionesProveedor.length;
+      document.getElementById("kpiCotizacionesAlmacen").textContent = cotizacionesAlmacenProveedor.length;
+      const totalSinTramite = cotizacionesAlmacenProveedor.reduce(function (acumulado, cotizacion) {
+        return acumulado + (!String(cotizacion.requisicion || "").trim() ? Number(cotizacion.total || 0) : 0);
+      }, 0);
+      const totalConRequisicion = cotizacionesAlmacenProveedor.reduce(function (acumulado, cotizacion) {
+        return acumulado + (String(cotizacion.requisicion || "").trim() ? Number(cotizacion.total || 0) : 0);
+      }, 0);
+      document.getElementById("kpiTotalCotizacionesSinTramite").textContent =
+        importePortal(totalSinTramite);
+      document.getElementById("kpiTotalCotizacionesConRequisicion").textContent =
+        importePortal(totalConRequisicion);
     }
 
     function protegerCeldaCSV(valor) {
@@ -492,12 +717,274 @@
       await cargarPortalProveedor();
     }
 
+    function abrirCotizacionAlmacen(cotizacion) {
+      if (!proveedorVinculado) {
+        alert("Tu usuario no tiene un proveedor vinculado.");
+        return;
+      }
+      const hoy = new Date().toISOString().slice(0, 10);
+      cotizacionAlmacenEditandoId = cotizacion?.id || null;
+      unidadCotizacionSeleccionada = null;
+      document.getElementById("tituloCotizacionAlmacen").textContent =
+        cotizacion ? "Editar " + (cotizacion.folio || "cotización") : "Registrar entrega sin petición";
+      document.getElementById("cotizacionFechaCotizacion").value = cotizacion?.fecha_cotizacion || hoy;
+      document.getElementById("cotizacionFechaEntrega").value = cotizacion?.fecha_entrega || hoy;
+      document.getElementById("cotizacionUnidad").value = cotizacion?.unidad || "";
+      document.getElementById("cotizacionDependencia").value = cotizacion?.dependencia || "";
+      document.getElementById("cotizacionInfoUnidad").textContent =
+        "Se buscará en la columna número de inventario del parque vehicular.";
+      document.getElementById("materialesCotizacionAlmacen").innerHTML = "";
+      (cotizacion?.materiales || [null]).forEach(function (material) {
+        agregarMaterialCotizacion(material);
+      });
+      document.getElementById("cotizacionObservaciones").value = cotizacion?.observaciones || "";
+      document.getElementById("modalCotizacionAlmacen").classList.add("show");
+      document.getElementById("modalCotizacionAlmacen").setAttribute("aria-hidden", "false");
+      document.getElementById("cotizacionUnidad").focus();
+      if (cotizacion) resolverUnidadCotizacion();
+    }
+
+    function editarCotizacionAlmacen(id) {
+      const cotizacion = cotizacionesAlmacenProveedor.find(function (item) { return item.id === id; });
+      if (cotizacion) abrirCotizacionAlmacen(cotizacion);
+    }
+
+    function imprimirCotizacionAlmacen(id) {
+      const cotizacion = cotizacionesAlmacenProveedor.find(function (item) { return item.id === id; });
+      if (!cotizacion) return;
+
+      const materiales = (cotizacion.materiales || []).map(function (material) {
+        const cantidad = Number(material.cantidad || 0);
+        const precio = Number(material.precio_unitario || 0);
+        return "<tr>" +
+          "<td>" + escaparPortal(cantidad) + "</td>" +
+          "<td>" + escaparPortal(material.item || "") + "</td>" +
+          "<td class=\"numero\">" + escaparPortal(importePortal(precio)) + "</td>" +
+          "<td class=\"numero\">" + escaparPortal(importePortal(cantidad * precio)) + "</td>" +
+        "</tr>";
+      }).join("");
+
+      const comprobante = window.open("", "_blank", "width=960,height=720");
+      if (!comprobante) {
+        alert("El navegador bloqueó la ventana de impresión. Permite ventanas emergentes e intenta nuevamente.");
+        return;
+      }
+
+      comprobante.document.write(
+        '<!DOCTYPE html><html lang="es"><head><meta charset="UTF-8">' +
+        "<title>" + escaparPortal(cotizacion.folio || "Cotización") + "</title>" +
+        "<style>" +
+          "@page{size:auto;margin:16mm}body{font-family:Arial,sans-serif;color:#172033;margin:0;font-size:13px}" +
+          "header{display:flex;justify-content:space-between;align-items:flex-start;border-bottom:3px solid #0a8f98;padding-bottom:14px;margin-bottom:20px}" +
+          "h1{font-size:24px;margin:0 0 5px}h2{font-size:16px;margin:22px 0 8px}" +
+          ".folio{font-size:18px;font-weight:700;color:#0a8f98}.grid{display:grid;grid-template-columns:1fr 1fr;gap:10px 28px}" +
+          ".campo{border-bottom:1px solid #d8dee8;padding:7px 0}.campo span{display:block;color:#667085;font-size:11px;text-transform:uppercase;margin-bottom:3px}" +
+          "table{width:100%;border-collapse:collapse;margin-top:8px}th,td{border:1px solid #ccd5df;padding:8px;text-align:left;vertical-align:top}" +
+          "th{background:#eef7f8}.numero{text-align:right;white-space:nowrap}.totales{width:330px;margin:16px 0 0 auto}" +
+          ".totales div{display:flex;justify-content:space-between;padding:6px 10px}.total{font-size:16px;font-weight:700;border-top:2px solid #172033}" +
+          "footer{margin-top:45px;padding-top:12px;border-top:1px solid #ccd5df;color:#667085;font-size:11px}" +
+          "@media print{.no-print{display:none}}" +
+        "</style></head><body>" +
+        "<header><div><h1>Comprobante de cotización</h1><div>" + escaparPortal(proveedorVinculado) +
+        '</div></div><div class="folio">' + escaparPortal(cotizacion.folio || "—") + "</div></header>" +
+        '<div class="grid">' +
+          '<div class="campo"><span>Fecha de cotización</span><strong>' + fechaPortal(cotizacion.fecha_cotizacion) + "</strong></div>" +
+          '<div class="campo"><span>Fecha de entrega</span><strong>' + fechaPortal(cotizacion.fecha_entrega) + "</strong></div>" +
+          '<div class="campo"><span>Número de inventario</span><strong>' + escaparPortal(cotizacion.unidad || "—") + "</strong></div>" +
+          '<div class="campo"><span>Dependencia</span><strong>' + escaparPortal(cotizacion.dependencia || "Pendiente") + "</strong></div>" +
+          '<div class="campo"><span>Estatus</span><strong>' + escaparPortal(cotizacion.estatus || "—") + "</strong></div>" +
+          '<div class="campo"><span>Requisición</span><strong>' + escaparPortal(cotizacion.requisicion || "Pendiente") + "</strong></div>" +
+        "</div>" +
+        "<h2>Material entregado</h2>" +
+        "<table><thead><tr><th>Cantidad</th><th>Artículo</th><th>Precio unitario</th><th>Importe</th></tr></thead>" +
+        "<tbody>" + materiales + "</tbody></table>" +
+        '<div class="totales">' +
+          "<div><span>Subtotal</span><strong>" + escaparPortal(importePortal(cotizacion.subtotal)) + "</strong></div>" +
+          "<div><span>IVA (16%)</span><strong>" + escaparPortal(importePortal(cotizacion.iva)) + "</strong></div>" +
+          '<div class="total"><span>Total</span><strong>' + escaparPortal(importePortal(cotizacion.total)) + "</strong></div>" +
+        "</div>" +
+        "<footer>Comprobante generado desde el Portal de Proveedores el " +
+          escaparPortal(new Date().toLocaleString("es-MX")) +
+          ". Este documento acredita el registro de la cotización en el portal.</footer>"
+      );
+      comprobante.document.close();
+      comprobante.focus();
+      setTimeout(function () {
+        comprobante.print();
+      }, 250);
+    }
+
+    function cerrarCotizacionAlmacen() {
+      cotizacionAlmacenEditandoId = null;
+      document.getElementById("modalCotizacionAlmacen").classList.remove("show");
+      document.getElementById("modalCotizacionAlmacen").setAttribute("aria-hidden", "true");
+    }
+
+    function agregarMaterialCotizacion(material) {
+      const tbody = document.getElementById("materialesCotizacionAlmacen");
+      const fila = document.createElement("tr");
+      fila.innerHTML =
+        '<td><input type="number" class="material-cantidad" min="0.01" step="0.01" value="' +
+          escaparPortal(material?.cantidad || 1) + '" aria-label="Cantidad"></td>' +
+        '<td><input type="text" class="material-item" maxlength="500" value="' +
+          escaparPortal(material?.item || "") + '" placeholder="Artículo o refacción" aria-label="Artículo"></td>' +
+        '<td><input type="number" class="material-precio" min="0" step="0.01" value="' +
+          escaparPortal(material?.precio_unitario ?? "") + '" placeholder="0.00" aria-label="Precio unitario"></td>' +
+        '<td><strong class="material-importe">$0.00</strong></td>' +
+        '<td><button type="button" class="btn-secondary material-eliminar" aria-label="Eliminar material">×</button></td>';
+      tbody.appendChild(fila);
+      fila.querySelectorAll("input").forEach(function (input) {
+        input.addEventListener("input", calcularTotalesCotizacion);
+      });
+      fila.querySelector(".material-eliminar").addEventListener("click", function () {
+        if (tbody.children.length === 1) {
+          alert("La cotización debe contener al menos un material.");
+          return;
+        }
+        fila.remove();
+        calcularTotalesCotizacion();
+      });
+      calcularTotalesCotizacion();
+    }
+
+    function obtenerMaterialesCotizacion() {
+      return Array.from(document.querySelectorAll("#materialesCotizacionAlmacen tr")).map(function (fila) {
+        return {
+          cantidad: Number(fila.querySelector(".material-cantidad").value),
+          item: fila.querySelector(".material-item").value.trim(),
+          precio_unitario: Number(fila.querySelector(".material-precio").value)
+        };
+      });
+    }
+
+    function calcularTotalesCotizacion() {
+      let subtotal = 0;
+      document.querySelectorAll("#materialesCotizacionAlmacen tr").forEach(function (fila) {
+        const cantidad = Number(fila.querySelector(".material-cantidad").value) || 0;
+        const precio = Number(fila.querySelector(".material-precio").value) || 0;
+        const importe = Math.round(cantidad * precio * 100) / 100;
+        subtotal += importe;
+        fila.querySelector(".material-importe").textContent = importePortal(importe);
+      });
+      subtotal = Math.round(subtotal * 100) / 100;
+      const iva = Math.round(subtotal * 0.16 * 100) / 100;
+      const total = Math.round((subtotal + iva) * 100) / 100;
+      document.getElementById("cotizacionSubtotal").textContent = importePortal(subtotal);
+      document.getElementById("cotizacionIVA").textContent = importePortal(iva);
+      document.getElementById("cotizacionTotal").textContent = importePortal(total);
+    }
+
+    async function resolverUnidadCotizacion() {
+      const input = document.getElementById("cotizacionUnidad");
+      const valor = input.value.trim();
+      const dependenciaInput = document.getElementById("cotizacionDependencia");
+      const info = document.getElementById("cotizacionInfoUnidad");
+      unidadCotizacionSeleccionada = null;
+
+      if (/^(0|stock)$/i.test(valor)) {
+        input.value = valor === "0" ? "0" : "STOCK";
+        dependenciaInput.value = "";
+        info.textContent = "La dependencia quedará pendiente.";
+        return;
+      }
+
+      if (!valor) {
+        dependenciaInput.value = "";
+        info.textContent = "Captura un número de inventario, 0 o STOCK.";
+        return;
+      }
+
+      info.textContent = "Buscando unidad...";
+      const unidad = await ETCotizacionesAlmacen.buscarUnidadParque(valor);
+      if (!unidad) {
+        dependenciaInput.value = "";
+        info.textContent = "Número de inventario no encontrado en el parque vehicular.";
+        return;
+      }
+
+      unidadCotizacionSeleccionada = unidad;
+      input.value = unidad.numero_inventario || unidad.unidad_patrulla || valor;
+      dependenciaInput.value = unidad.dependencia || "";
+      info.textContent = [
+        unidad.descripcion,
+        unidad.serie || unidad.vin ? "Serie: " + (unidad.serie || unidad.vin) : ""
+      ].filter(Boolean).join(" · ");
+    }
+
+    async function guardarCotizacionAlmacen() {
+      const fechaCotizacion = document.getElementById("cotizacionFechaCotizacion").value;
+      const fechaEntrega = document.getElementById("cotizacionFechaEntrega").value;
+      const unidad = document.getElementById("cotizacionUnidad").value.trim();
+      const observaciones = document.getElementById("cotizacionObservaciones").value.trim();
+      const esStock = /^(0|stock)$/i.test(unidad);
+      await resolverUnidadCotizacion();
+      const materiales = obtenerMaterialesCotizacion();
+
+      if (!fechaCotizacion || !fechaEntrega || !unidad) {
+        alert("Completa las fechas y la unidad.");
+        return;
+      }
+      if (!esStock && !unidadCotizacionSeleccionada) {
+        alert("Captura un número de inventario existente en el parque vehicular o utiliza 0 o STOCK.");
+        return;
+      }
+      const materialesInvalidos = materiales.some(function (material) {
+        return !material.item || !Number.isFinite(material.cantidad) || material.cantidad <= 0 ||
+          !Number.isFinite(material.precio_unitario) || material.precio_unitario < 0;
+      });
+      if (!materiales.length || materialesInvalidos) {
+        alert("Cada material requiere artículo, cantidad mayor que cero y precio unitario válido.");
+        return;
+      }
+
+      const boton = document.getElementById("btnGuardarCotizacionAlmacen");
+      boton.disabled = true;
+      const payload = {
+        fecha_entrega: fechaEntrega,
+        unidad: unidad,
+        unidad_id: unidadCotizacionSeleccionada?.id || null,
+        numero_serie: unidadCotizacionSeleccionada?.serie || unidadCotizacionSeleccionada?.vin || null,
+        dependencia: unidadCotizacionSeleccionada?.dependencia || null,
+        materiales: materiales,
+        observaciones: observaciones || null
+      };
+      if (!cotizacionAlmacenEditandoId) {
+        payload.peticion_id = null;
+        payload.proveedor = proveedorVinculado;
+        payload.origen = "Sin petición";
+        payload.estatus = "Pendiente de revisión";
+      }
+      const resultado = cotizacionAlmacenEditandoId
+        ? await ETCotizacionesAlmacen.actualizar(cotizacionAlmacenEditandoId, payload, proveedorVinculado)
+        : await ETCotizacionesAlmacen.crear(payload);
+      const { data, error } = resultado;
+      boton.disabled = false;
+
+      if (error) {
+        console.error(error);
+        alert("No se pudo guardar la cotización: " + error.message);
+        return;
+      }
+
+      registrarAuditoria(
+        "Portal Proveedor",
+        cotizacionAlmacenEditandoId ? "Actualizó cotización de almacén" : "Registró entrega sin petición",
+        proveedorVinculado + " - " + unidad + " - " + (data.folio || data.id)
+      );
+      const fueEdicion = Boolean(cotizacionAlmacenEditandoId);
+      cerrarCotizacionAlmacen();
+      await cargarPortalProveedor();
+      alert(fueEdicion ? "Cotización actualizada correctamente." : "Entrega sin petición registrada correctamente.");
+    }
+
     [
       buscarPeticionesProveedor,
       filtroEstatusPeticionProveedor,
       filtroEntregaPeticionProveedor,
       buscarRequisicionesProveedor,
-      filtroEstatusRequisicionProveedor
+      filtroEstatusRequisicionProveedor,
+      buscarCotizacionesAlmacen,
+      filtroEstatusCotizacionesAlmacen
     ].forEach(function (control) {
       control?.addEventListener(control.tagName === "INPUT" ? "input" : "change", renderizarPortalProveedor);
     });
@@ -505,6 +992,14 @@
       ?.addEventListener("click", exportarPeticionesProveedor);
     document.getElementById("btnExportarRequisicionesProveedor")
       ?.addEventListener("click", exportarRequisicionesProveedor);
+    document.getElementById("btnNuevaCotizacionAlmacen")
+      ?.addEventListener("click", function () { abrirCotizacionAlmacen(); });
+    document.getElementById("btnGuardarCotizacionAlmacen")
+      ?.addEventListener("click", guardarCotizacionAlmacen);
+    document.getElementById("btnAgregarMaterialCotizacion")
+      ?.addEventListener("click", function () { agregarMaterialCotizacion(); });
+    document.getElementById("cotizacionUnidad")
+      ?.addEventListener("blur", resolverUnidadCotizacion);
 
     cargarPortalProveedor();
   </script>

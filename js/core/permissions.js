@@ -39,7 +39,7 @@
     [MODULOS.TIEMPO_EXTRA]: "modulos/tiempo-extra.html",
     [MODULOS.TRAMITES_ADMINISTRATIVOS]: "modulos/tramites-administrativos.html",
     [MODULOS.GENERAR_TEXTOS]: "modulos/generar-textos.html",
-    [MODULOS.PORTAL_PROVEEDOR]: "modulos/portal-proveedor.html",
+    [MODULOS.PORTAL_PROVEEDOR]: "modulos/portal-proveedor.html?v=20260728-1",
     [MODULOS.INVENTARIO]: "modulos/inventario.html",
     [MODULOS.COMPRAS]: "modulos/compras.html",
     [MODULOS.PROVEEDORES]: "modulos/proveedores.html",

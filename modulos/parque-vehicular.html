@@ -477,6 +477,50 @@
       return parque.find(function (u) { return u.id === id; });
     }
 
+    function obtenerTipoVehiculoCopia(unidad) {
+      return unidad.tipo_vehiculo || unidad.tipo || unidad.grupo || unidad.categoria || "SIN DATO";
+    }
+
+    function construirDatosUnidadCopia(unidad) {
+      return [
+        unidad.numero_economico || unidad.numero_inventario || unidad.unidad_patrulla || "SIN DATO",
+        unidad.descripcion || "SIN DATO",
+        unidad.modelo || "SIN DATO",
+        unidad.serie || unidad.numero_serie || unidad.vin || "SIN DATO",
+        unidad.combustible || "SIN DATO",
+        obtenerTipoVehiculoCopia(unidad),
+        unidad.dependencia || "SIN DATO"
+      ].join(", ");
+    }
+
+    async function copiarTextoUnidad(texto) {
+      if (navigator.clipboard && window.isSecureContext) {
+        await navigator.clipboard.writeText(texto);
+        return;
+      }
+      const textarea = document.createElement("textarea");
+      textarea.value = texto;
+      textarea.setAttribute("readonly", "");
+      textarea.style.position = "fixed";
+      textarea.style.left = "-9999px";
+      document.body.appendChild(textarea);
+      textarea.select();
+      document.execCommand("copy");
+      textarea.remove();
+    }
+
+    async function copiarDatosUnidad(id) {
+      const unidad = obtenerUnidadPorId(id);
+      if (!unidad) return;
+      try {
+        await copiarTextoUnidad(construirDatosUnidadCopia(unidad));
+        ETLayout.toast("Datos de la unidad copiados al portapapeles.", "success");
+      } catch (error) {
+        console.error("No se pudieron copiar los datos de la unidad:", error);
+        alert("No se pudieron copiar los datos.");
+      }
+    }
+
     const modalUnidad = document.getElementById("modalUnidad");
     const modalUnidadTitulo = document.getElementById("modalUnidadTitulo");
     const tablaParque = document.getElementById("tablaParque");
@@ -629,6 +673,7 @@
             "<td>" + (u.combustible || "") + "</td>" +
             '<td><span class="badge status-badge ' + claseEstatusParque(u.estatus) + '">' + (u.estatus || "") + "</span></td>" +
             '<td><div class="action-grid">' +
+              ETLayout.iconButton("copiar", "Copiar datos de la unidad", "copiarDatosUnidad('" + u.id + "')") +
               (!soloLectura
                 ? ETLayout.iconButton("editar", "Editar unidad", "editarUnidad('" + u.id + "')", "edit")
                 : "") +

@@ -1336,6 +1336,48 @@ function obtenerNumeroEconomico(unidad) {
   return unidad.numero_economico || unidad.numero_inventario || unidad.unidad_patrulla || "—";
 }
 
+function construirDatosUnidadPortapapeles(unidad) {
+  return [
+    obtenerNumeroEconomico(unidad),
+    unidad.descripcion || "SIN DATO",
+    unidad.modelo || "SIN DATO",
+    obtenerSerieVehiculo(unidad),
+    unidad.combustible || "SIN DATO",
+    obtenerTipoVehiculo(unidad),
+    unidad.dependencia || "SIN DATO"
+  ].join(", ");
+}
+
+async function escribirPortapapelesDashboard(texto) {
+  if (navigator.clipboard && window.isSecureContext) {
+    await navigator.clipboard.writeText(texto);
+    return;
+  }
+  const textarea = document.createElement("textarea");
+  textarea.value = texto;
+  textarea.setAttribute("readonly", "");
+  textarea.style.position = "fixed";
+  textarea.style.left = "-9999px";
+  document.body.appendChild(textarea);
+  textarea.select();
+  document.execCommand("copy");
+  textarea.remove();
+}
+
+async function copiarDatosUnidadRapida(id) {
+  const unidad = datosDashboard.parque.find(function (item) {
+    return String(item.id) === String(id);
+  });
+  if (!unidad) return;
+  try {
+    await escribirPortapapelesDashboard(construirDatosUnidadPortapapeles(unidad));
+    ETLayout.toast("Datos de la unidad copiados al portapapeles.", "success");
+  } catch (error) {
+    console.error("No se pudieron copiar los datos de la unidad:", error);
+    alert("No se pudieron copiar los datos.");
+  }
+}
+
 function claseEstatusParque(estatus) {
   const e = (estatus || "").toUpperCase();
   if (e === "ACTIVO") return "green";
@@ -1394,6 +1436,8 @@ function consultarParqueVehicular() {
           "<div><dt>Uso</dt><dd>" + escaparHTML(u.uso || "Sin uso registrado") + "</dd></div>" +
           "<div><dt>Combustible</dt><dd>" + escaparHTML(u.combustible || "Sin combustible registrado") + "</dd></div>" +
         "</dl>" +
+        '<button type="button" class="btn-secondary" onclick="copiarDatosUnidadRapida(\'' +
+          escaparHTML(u.id) + '\')">Copiar datos</button>' +
       "</div>"
     );
   }).join("");

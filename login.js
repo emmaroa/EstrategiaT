@@ -204,7 +204,7 @@
     }
 
     window.location.href = rolNormalizado === "Proveedor"
-      ? "modulos/portal-proveedor.html"
+      ? "modulos/portal-proveedor.html?v=20260728-1"
       : "dashboard.html";
   }
 
