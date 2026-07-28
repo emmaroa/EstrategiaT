@@ -1,0 +1,551 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Administración de Talleres | Importar SIIF</title>
+  <link rel="stylesheet" href="../css/style.css">
+  <link rel="stylesheet" href="../css/design-system.css?v=20260728-1">
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="../js/core/supabase.js"></script>
+  <script src="../js/core/permissions.js?v=20260728-4"></script>
+  <script src="../js/core/theme.js"></script>
+  <script src="../js/core/layout.js?v=20260728-4"></script>
+  <script src="../login.js?v=20260728-4"></script>
+</head>
+<body class="dashboard-body">
+  <aside class="sidebar">
+    <div class="sidebar-logo">
+      <div class="mini-logo">E</div>
+      <div>
+        <h3>Administración de Talleres</h3>
+        <small id="etModuleName">Importar SIIF</small>
+      </div>
+    </div>
+    <nav id="etNav"></nav>
+    <button type="button" class="logout" id="etLogout">Cerrar sesión</button>
+  </aside>
+
+  <main class="main-content">
+    <header class="topbar">
+      <div>
+        <h1>Importar SIIF</h1>
+        <p>Carga archivos CSV con validación, detección de duplicados y trazabilidad.</p>
+      </div>
+      <span id="etTemaContainer"></span>
+    </header>
+
+    <section class="kpi-grid">
+      <div class="kpi-card">
+        <span>Registros del archivo</span>
+        <h2 id="kpiImportarTotal">0</h2>
+        <p>Filas procesadas</p>
+      </div>
+      <div class="kpi-card">
+        <span>Nuevos</span>
+        <h2 id="kpiImportarNuevos">0</h2>
+        <p>Se agregarán</p>
+      </div>
+      <div class="kpi-card">
+        <span>Actualizaciones</span>
+        <h2 id="kpiImportarActualizados">0</h2>
+        <p>Ya existen en Supabase</p>
+      </div>
+      <div class="kpi-card">
+        <span>Con error</span>
+        <h2 id="kpiImportarErrores">0</h2>
+        <p>No se importarán</p>
+      </div>
+    </section>
+
+    <section class="panel">
+      <div class="panel-header">
+        <div>
+          <h2>Nueva importación</h2>
+          <p>Selecciona el origen del archivo antes de cargarlo.</p>
+        </div>
+      </div>
+
+      <div class="form-grid">
+        <div class="input-group">
+          <label for="tipoImportacionSiif">Tipo de información</label>
+          <select id="tipoImportacionSiif">
+            <option value="requisicion">Requisiciones → requis_siif</option>
+            <option value="oc">Órdenes de compra → oc_siif</option>
+            <option value="sp">Solicitudes de pago → sp_siif</option>
+          </select>
+        </div>
+        <div class="input-group">
+          <label for="archivoImportacionSiif">Archivo CSV</label>
+          <input type="file" id="archivoImportacionSiif" accept=".csv,text/csv">
+        </div>
+        <div class="input-group full">
+          <small id="ayudaImportacionSiif" class="helper-text"></small>
+        </div>
+      </div>
+
+      <div class="modal-actions">
+        <button type="button" class="btn-secondary" id="btnLimpiarImportacion">Limpiar</button>
+        <button type="button" class="btn-small" id="btnEjecutarImportacion" disabled>Importar registros válidos</button>
+      </div>
+    </section>
+
+    <section class="panel">
+      <div class="panel-header">
+        <div>
+          <h2>Vista previa</h2>
+          <p id="resumenVistaPreviaSiif">Selecciona un archivo para comenzar.</p>
+        </div>
+      </div>
+      <div class="table-container">
+        <table>
+          <thead id="encabezadoVistaPreviaSiif"></thead>
+          <tbody id="tablaVistaPreviaSiif">
+            <tr><td>Sin archivo cargado.</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <small class="helper-text">Se muestran como máximo 100 filas en la vista previa; la importación procesa todo el archivo.</small>
+    </section>
+
+    <section class="panel">
+      <div class="panel-header">
+        <div>
+          <h2>Historial de importaciones</h2>
+          <p>Últimas cargas realizadas desde este módulo.</p>
+        </div>
+      </div>
+      <div class="table-container">
+        <table>
+          <thead>
+            <tr>
+              <th>Fecha</th>
+              <th>Tipo</th>
+              <th>Archivo</th>
+              <th>Total</th>
+              <th>Nuevos</th>
+              <th>Actualizados</th>
+              <th>Errores</th>
+              <th>Usuario</th>
+              <th>Estado</th>
+            </tr>
+          </thead>
+          <tbody id="tablaHistorialImportaciones"></tbody>
+        </table>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    validarPermiso("Importar SIIF");
+    ETLayout.inicializar("Importar SIIF");
+
+    const CONFIG_IMPORTACION = {
+      requisicion: {
+        tabla: "requis_siif",
+        etiqueta: "Requisiciones",
+        campos: ["folio", "oficio", "estatus", "fecha", "tipo_procedimiento", "importe", "justificacion", "clasificacion", "dependencia", "precomprometido", "comprometido", "copiar", "multianual", "folio_multianual", "consolidada", "folio_consolidacion", "origen"],
+        requeridos: ["folio", "fecha"],
+        numericos: ["importe"],
+        booleanos: ["copiar", "multianual", "consolidada"],
+        columnasPreview: ["folio", "oficio", "fecha", "importe", "dependencia"],
+        clave: function (fila) {
+          return normalizarClaveImportacion(fila.oficio) ||
+            normalizarClaveImportacion(fila.folio) + "|" + obtenerAnioImportacion(fila.fecha);
+        }
+      },
+      oc: {
+        tabla: "oc_siif",
+        etiqueta: "Órdenes de compra",
+        campos: ["folio", "fecha", "estatus", "fecha_adjudicacion", "importe", "proveedor", "numero_requisicion", "oficio_requisicion", "tipo_procedimiento", "proceso", "precomprometido", "comprometido", "origen"],
+        requeridos: ["folio", "fecha"],
+        numericos: ["folio", "importe"],
+        booleanos: [],
+        columnasPreview: ["folio", "numero_requisicion", "fecha", "proveedor", "importe"],
+        clave: function (fila) {
+          return normalizarClaveImportacion(fila.folio) + "|" + obtenerAnioImportacion(fila.fecha);
+        }
+      },
+      sp: {
+        tabla: "sp_siif",
+        etiqueta: "Solicitudes de pago",
+        campos: ["numero_solicitud", "tipo_solicitud", "estatus", "beneficiario", "descripcion", "importe", "evento_generico", "beneficiario_cheque", "dependencia", "fuente_financiamiento", "fecha", "poliza_comprometido", "consolidadora", "numero_reporte", "reporte", "referencia", "version_gestion", "cheque_transferencia", "origen"],
+        requeridos: ["numero_solicitud", "fecha"],
+        numericos: ["numero_solicitud", "numero_reporte", "version_gestion", "importe"],
+        booleanos: [],
+        columnasPreview: ["numero_solicitud", "referencia", "fecha", "beneficiario", "importe"],
+        clave: function (fila) {
+          return normalizarClaveImportacion(fila.numero_solicitud) + "|" + obtenerAnioImportacion(fila.fecha);
+        }
+      }
+    };
+
+    const ALIAS_COLUMNAS = {
+      no_solicitud: "numero_solicitud",
+      numero_de_solicitud: "numero_solicitud",
+      solicitud: "numero_solicitud",
+      requisicion: "numero_requisicion",
+      numero_de_requisicion: "numero_requisicion",
+      no_requisicion: "numero_requisicion",
+      oficio_de_requisicion: "oficio_requisicion",
+      fecha_de_adjudicacion: "fecha_adjudicacion",
+      tipo_de_procedimiento: "tipo_procedimiento",
+      fuente_de_financiamiento: "fuente_financiamiento",
+      poliza_de_comprometido: "poliza_comprometido",
+      evento_generico: "evento_generico",
+      cheque_o_transferencia: "cheque_transferencia"
+    };
+
+    let archivoActual = null;
+    let filasAnalizadas = [];
+    const tipoImportacionSiif = document.getElementById("tipoImportacionSiif");
+    const archivoImportacionSiif = document.getElementById("archivoImportacionSiif");
+    const btnEjecutarImportacion = document.getElementById("btnEjecutarImportacion");
+
+    function escaparImportacion(valor) {
+      return String(valor ?? "")
+        .replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;").replace(/'/g, "&#039;");
+    }
+
+    function normalizarEncabezadoImportacion(valor) {
+      const limpio = String(valor || "").replace(/^\uFEFF/, "").trim()
+        .normalize("NFD").replace(/[\u0300-\u036f]/g, "")
+        .toLowerCase().replace(/[^a-z0-9]+/g, "_").replace(/^_|_$/g, "");
+      return ALIAS_COLUMNAS[limpio] || limpio;
+    }
+
+    function normalizarClaveImportacion(valor) {
+      return String(valor ?? "").trim().toUpperCase();
+    }
+
+    function obtenerAnioImportacion(valor) {
+      const coincidencia = String(valor || "").match(/\b(20\d{2})\b/);
+      return coincidencia ? coincidencia[1] : "";
+    }
+
+    function convertirNumeroImportacion(valor) {
+      if (valor === null || valor === undefined || valor === "") return null;
+      let texto = String(valor).trim().replace(/\s/g, "").replace(/\$/g, "");
+      if (texto.includes(",") && texto.includes(".")) {
+        texto = texto.lastIndexOf(",") > texto.lastIndexOf(".")
+          ? texto.replace(/\./g, "").replace(",", ".")
+          : texto.replace(/,/g, "");
+      } else if (texto.includes(",")) {
+        texto = /,\d{1,2}$/.test(texto) ? texto.replace(",", ".") : texto.replace(/,/g, "");
+      }
+      const numero = Number(texto);
+      return Number.isFinite(numero) ? numero : null;
+    }
+
+    function convertirBooleanoImportacion(valor) {
+      if (valor === null || valor === undefined || valor === "") return null;
+      return ["true", "1", "si", "sí", "yes"].includes(String(valor).trim().toLowerCase());
+    }
+
+    function normalizarFechaImportacion(valor) {
+      if (!valor) return null;
+      const texto = String(valor).trim();
+      const partes = texto.match(/^(\d{1,2})[\/-](\d{1,2})[\/-](\d{4})(.*)$/);
+      if (partes) {
+        return partes[3] + "-" + partes[2].padStart(2, "0") + "-" +
+          partes[1].padStart(2, "0") + (partes[4] || "");
+      }
+      return texto;
+    }
+
+    function parsearCSV(texto) {
+      const primeraLinea = String(texto).split(/\r?\n/, 1)[0] || "";
+      const delimitador = (primeraLinea.match(/;/g) || []).length > (primeraLinea.match(/,/g) || []).length ? ";" : ",";
+      const filas = [];
+      let fila = [];
+      let celda = "";
+      let comillas = false;
+
+      for (let i = 0; i < texto.length; i += 1) {
+        const caracter = texto[i];
+        if (caracter === '"') {
+          if (comillas && texto[i + 1] === '"') { celda += '"'; i += 1; }
+          else comillas = !comillas;
+        } else if (caracter === delimitador && !comillas) {
+          fila.push(celda); celda = "";
+        } else if ((caracter === "\n" || caracter === "\r") && !comillas) {
+          if (caracter === "\r" && texto[i + 1] === "\n") i += 1;
+          fila.push(celda);
+          if (fila.some(function (valor) { return String(valor).trim() !== ""; })) filas.push(fila);
+          fila = []; celda = "";
+        } else {
+          celda += caracter;
+        }
+      }
+      fila.push(celda);
+      if (fila.some(function (valor) { return String(valor).trim() !== ""; })) filas.push(fila);
+      if (filas.length < 2) throw new Error("El archivo no contiene filas de datos.");
+
+      const encabezados = filas.shift().map(normalizarEncabezadoImportacion);
+      return filas.map(function (valores, indice) {
+        const objeto = { __linea: indice + 2 };
+        encabezados.forEach(function (encabezado, posicion) {
+          if (encabezado) objeto[encabezado] = String(valores[posicion] ?? "").trim();
+        });
+        return objeto;
+      });
+    }
+
+    function prepararFilaImportacion(fila, config) {
+      const registro = {};
+      config.campos.forEach(function (campo) {
+        if (!(campo in fila)) return;
+        let valor = fila[campo];
+        if ((config.numericos || []).includes(campo) && valor !== "") {
+          const numero = convertirNumeroImportacion(valor);
+          valor = numero === null ? valor : numero;
+        }
+        if ((config.booleanos || []).includes(campo)) valor = convertirBooleanoImportacion(valor);
+        if (campo === "fecha" || campo.startsWith("fecha_")) valor = normalizarFechaImportacion(valor);
+        registro[campo] = valor === "" ? null : valor;
+      });
+      registro.origen = registro.origen || "IMPORTACION";
+      return registro;
+    }
+
+    async function obtenerExistentesImportacion(config) {
+      const registros = [];
+      let desde = 0;
+      while (true) {
+        const resultado = await supabaseClient.from(config.tabla).select("*").range(desde, desde + 999);
+        if (resultado.error) throw resultado.error;
+        const bloque = resultado.data || [];
+        registros.push.apply(registros, bloque);
+        if (bloque.length < 1000) break;
+        desde += 1000;
+      }
+      const mapa = new Map();
+      registros.forEach(function (fila) {
+        const clave = config.clave(fila);
+        if (clave) mapa.set(clave, fila);
+      });
+      return mapa;
+    }
+
+    function validarRegistroImportacion(registro, config) {
+      const faltantes = config.requeridos.filter(function (campo) {
+        return registro[campo] === null || registro[campo] === undefined || registro[campo] === "";
+      });
+      if (faltantes.length) return "Faltan: " + faltantes.join(", ");
+      if (config.tabla === "oc_siif" && !registro.numero_requisicion && !registro.oficio_requisicion) {
+        return "La OC requiere número u oficio de requisición.";
+      }
+      if (config.tabla === "sp_siif" && !registro.referencia && !registro.descripcion) {
+        return "La SP requiere referencia o descripción para relacionarse.";
+      }
+      if (!config.clave(registro).replace(/\|/g, "")) return "No se pudo construir una clave única.";
+      if (registro.importe !== null && registro.importe !== undefined && !Number.isFinite(Number(registro.importe))) {
+        return "Importe no válido.";
+      }
+      return "";
+    }
+
+    async function analizarArchivoImportacion(file) {
+      const config = CONFIG_IMPORTACION[tipoImportacionSiif.value];
+      const texto = await file.text();
+      const filasCSV = parsearCSV(texto);
+      const existentes = await obtenerExistentesImportacion(config);
+      const clavesArchivo = new Set();
+
+      filasAnalizadas = filasCSV.map(function (fila) {
+        const registro = prepararFilaImportacion(fila, config);
+        let error = validarRegistroImportacion(registro, config);
+        const clave = config.clave(registro);
+        if (!error && clavesArchivo.has(clave)) error = "Clave duplicada dentro del archivo.";
+        clavesArchivo.add(clave);
+        const existente = existentes.get(clave);
+        return {
+          linea: fila.__linea,
+          clave: clave,
+          registro: registro,
+          existente: existente || null,
+          estado: error ? "Error" : (existente ? "Actualizar" : "Nuevo"),
+          error: error
+        };
+      });
+      renderizarAnalisisImportacion();
+    }
+
+    function renderizarAnalisisImportacion() {
+      const config = CONFIG_IMPORTACION[tipoImportacionSiif.value];
+      const nuevos = filasAnalizadas.filter(function (fila) { return fila.estado === "Nuevo"; }).length;
+      const actualizados = filasAnalizadas.filter(function (fila) { return fila.estado === "Actualizar"; }).length;
+      const errores = filasAnalizadas.filter(function (fila) { return fila.estado === "Error"; }).length;
+      document.getElementById("kpiImportarTotal").textContent = filasAnalizadas.length;
+      document.getElementById("kpiImportarNuevos").textContent = nuevos;
+      document.getElementById("kpiImportarActualizados").textContent = actualizados;
+      document.getElementById("kpiImportarErrores").textContent = errores;
+      document.getElementById("resumenVistaPreviaSiif").textContent =
+        nuevos + " nuevos · " + actualizados + " actualizaciones · " + errores + " con error";
+      btnEjecutarImportacion.disabled = nuevos + actualizados === 0;
+
+      const columnas = ["Estado", "Línea"].concat(config.columnasPreview).concat(["Detalle"]);
+      document.getElementById("encabezadoVistaPreviaSiif").innerHTML =
+        "<tr>" + columnas.map(function (columna) { return "<th>" + escaparImportacion(columna) + "</th>"; }).join("") + "</tr>";
+      document.getElementById("tablaVistaPreviaSiif").innerHTML = filasAnalizadas.slice(0, 100).map(function (fila) {
+        const tono = fila.estado === "Nuevo" ? "green" : (fila.estado === "Actualizar" ? "blue" : "red");
+        return "<tr>" +
+          '<td><span class="badge status-badge ' + tono + '">' + fila.estado + "</span></td>" +
+          "<td>" + fila.linea + "</td>" +
+          config.columnasPreview.map(function (campo) {
+            return "<td>" + escaparImportacion(fila.registro[campo] ?? "—") + "</td>";
+          }).join("") +
+          "<td>" + escaparImportacion(fila.error || (fila.estado === "Actualizar" ? "Reemplazará los datos existentes" : "")) + "</td>" +
+        "</tr>";
+      }).join("");
+    }
+
+    function limpiarImportacion() {
+      archivoActual = null;
+      filasAnalizadas = [];
+      archivoImportacionSiif.value = "";
+      btnEjecutarImportacion.disabled = true;
+      ["Total", "Nuevos", "Actualizados", "Errores"].forEach(function (nombre) {
+        document.getElementById("kpiImportar" + nombre).textContent = "0";
+      });
+      document.getElementById("encabezadoVistaPreviaSiif").innerHTML = "";
+      document.getElementById("tablaVistaPreviaSiif").innerHTML = "<tr><td>Sin archivo cargado.</td></tr>";
+      document.getElementById("resumenVistaPreviaSiif").textContent = "Selecciona un archivo para comenzar.";
+      actualizarAyudaImportacion();
+    }
+
+    async function insertarEnBloques(tabla, registros) {
+      const errores = [];
+      for (let i = 0; i < registros.length; i += 200) {
+        const resultado = await supabaseClient.from(tabla).insert(registros.slice(i, i + 200));
+        if (resultado.error) errores.push(resultado.error.message);
+      }
+      return errores;
+    }
+
+    async function actualizarEnBloques(tabla, filas) {
+      const errores = [];
+      for (let i = 0; i < filas.length; i += 20) {
+        const bloque = filas.slice(i, i + 20);
+        const resultados = await Promise.all(bloque.map(function (fila) {
+          return supabaseClient.from(tabla).update(fila.registro).eq("id", fila.existente.id);
+        }));
+        resultados.forEach(function (resultado) {
+          if (resultado.error) errores.push(resultado.error.message);
+        });
+      }
+      return errores;
+    }
+
+    async function ejecutarImportacion() {
+      const validas = filasAnalizadas.filter(function (fila) { return fila.estado !== "Error"; });
+      if (!validas.length || !archivoActual) return;
+      const confirmar = await ETFeedback.confirmar({
+        title: "Confirmar importación",
+        message: "Se procesarán " + validas.length + " registros en Supabase.",
+        confirmLabel: "Importar"
+      });
+      if (!confirmar) return;
+
+      btnEjecutarImportacion.disabled = true;
+      const config = CONFIG_IMPORTACION[tipoImportacionSiif.value];
+      const usuario = JSON.parse(localStorage.getItem("usuarioActivo") || "null");
+      const erroresPrevios = filasAnalizadas.filter(function (fila) { return fila.estado === "Error"; });
+      const carga = await supabaseClient.from("importaciones_siif").insert({
+        tipo: tipoImportacionSiif.value,
+        nombre_archivo: archivoActual.name,
+        total_registros: filasAnalizadas.length,
+        registros_nuevos: validas.filter(function (fila) { return fila.estado === "Nuevo"; }).length,
+        registros_actualizados: validas.filter(function (fila) { return fila.estado === "Actualizar"; }).length,
+        registros_con_error: erroresPrevios.length,
+        usuario_nombre: usuario?.nombre || usuario?.usuario || null,
+        estado: "Procesando",
+        detalle_errores: erroresPrevios.map(function (fila) {
+          return { linea: fila.linea, error: fila.error };
+        })
+      }).select().single();
+
+      if (carga.error) {
+        alert("No se pudo iniciar la importación: " + carga.error.message);
+        btnEjecutarImportacion.disabled = false;
+        return;
+      }
+
+      const ahora = new Date().toISOString();
+      validas.forEach(function (fila) {
+        fila.registro.importacion_id = carga.data.id;
+        fila.registro.updated_at = ahora;
+      });
+      const nuevas = validas.filter(function (fila) { return fila.estado === "Nuevo"; }).map(function (fila) { return fila.registro; });
+      const actualizar = validas.filter(function (fila) { return fila.estado === "Actualizar"; });
+      const erroresCarga = (await insertarEnBloques(config.tabla, nuevas))
+        .concat(await actualizarEnBloques(config.tabla, actualizar));
+      const totalErrores = erroresPrevios.length + erroresCarga.length;
+
+      await supabaseClient.from("importaciones_siif").update({
+        registros_con_error: totalErrores,
+        estado: erroresCarga.length ? "Procesada con errores" : "Procesada",
+        detalle_errores: erroresPrevios.map(function (fila) {
+          return { linea: fila.linea, error: fila.error };
+        }).concat(erroresCarga.map(function (error) { return { error: error }; }))
+      }).eq("id", carga.data.id);
+
+      ETLayout.toast(
+        erroresCarga.length
+          ? "La carga terminó con " + erroresCarga.length + " errores de Supabase."
+          : "Importación terminada. Seguimiento SIIF ya refleja los cambios.",
+        erroresCarga.length ? "warning" : "success"
+      );
+      await cargarHistorialImportaciones();
+      limpiarImportacion();
+    }
+
+    function actualizarAyudaImportacion() {
+      const config = CONFIG_IMPORTACION[tipoImportacionSiif.value];
+      document.getElementById("ayudaImportacionSiif").textContent =
+        "Campos reconocidos: " + config.campos.join(", ") +
+        ". Obligatorios: " + config.requeridos.join(", ") + ".";
+    }
+
+    async function cargarHistorialImportaciones() {
+      const resultado = await supabaseClient.from("importaciones_siif")
+        .select("*").order("created_at", { ascending: false }).limit(25);
+      const tbody = document.getElementById("tablaHistorialImportaciones");
+      if (resultado.error) {
+        tbody.innerHTML = '<tr><td colspan="9">Ejecuta la migración 019 para habilitar el historial.</td></tr>';
+        return;
+      }
+      tbody.innerHTML = (resultado.data || []).map(function (fila) {
+        return "<tr><td>" + escaparImportacion(new Date(fila.created_at).toLocaleString("es-MX")) + "</td>" +
+          "<td>" + escaparImportacion(CONFIG_IMPORTACION[fila.tipo]?.etiqueta || fila.tipo) + "</td>" +
+          "<td>" + escaparImportacion(fila.nombre_archivo) + "</td>" +
+          "<td>" + fila.total_registros + "</td><td>" + fila.registros_nuevos + "</td>" +
+          "<td>" + fila.registros_actualizados + "</td><td>" + fila.registros_con_error + "</td>" +
+          "<td>" + escaparImportacion(fila.usuario_nombre || "—") + "</td>" +
+          "<td>" + escaparImportacion(fila.estado) + "</td></tr>";
+      }).join("") || '<tr><td colspan="9">Sin importaciones registradas.</td></tr>';
+    }
+
+    archivoImportacionSiif.addEventListener("change", async function () {
+      archivoActual = this.files?.[0] || null;
+      if (!archivoActual) return;
+      try {
+        await analizarArchivoImportacion(archivoActual);
+      } catch (error) {
+        console.error(error);
+        alert("No se pudo analizar el archivo: " + error.message);
+        limpiarImportacion();
+      }
+    });
+    tipoImportacionSiif.addEventListener("change", function () {
+      limpiarImportacion();
+    });
+    document.getElementById("btnLimpiarImportacion").addEventListener("click", limpiarImportacion);
+    btnEjecutarImportacion.addEventListener("click", ejecutarImportacion);
+
+    actualizarAyudaImportacion();
+    cargarHistorialImportaciones();
+  </script>
+</body>
+</html>

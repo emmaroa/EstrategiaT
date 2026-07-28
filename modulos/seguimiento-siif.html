@@ -1,0 +1,407 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Administración de Talleres | Seguimiento SIIF</title>
+  <link rel="stylesheet" href="../css/style.css">
+  <link rel="stylesheet" href="../css/design-system.css?v=20260728-1">
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="../js/core/supabase.js"></script>
+  <script src="../js/core/permissions.js?v=20260728-4"></script>
+  <script src="../js/core/theme.js"></script>
+  <script src="../js/core/layout.js?v=20260728-4"></script>
+  <script src="../login.js?v=20260728-4"></script>
+</head>
+<body class="dashboard-body">
+  <aside class="sidebar">
+    <div class="sidebar-logo">
+      <div class="mini-logo">E</div>
+      <div>
+        <h3>Administración de Talleres</h3>
+        <small id="etModuleName">Seguimiento SIIF</small>
+      </div>
+    </div>
+    <nav id="etNav"></nav>
+    <button type="button" class="logout" id="etLogout">Cerrar sesión</button>
+  </aside>
+
+  <main class="main-content">
+    <header class="topbar">
+      <div>
+        <h1>Seguimiento SIIF</h1>
+        <p>Vista unificada de requisiciones, órdenes de compra y solicitudes de pago.</p>
+      </div>
+      <span id="etTemaContainer"></span>
+    </header>
+
+    <section class="kpi-grid">
+      <div class="kpi-card">
+        <span>Total de requisiciones</span>
+        <h2 id="kpiSiifTotal">0</h2>
+        <p>Registros importados</p>
+      </div>
+      <div class="kpi-card">
+        <span>Sin orden de compra</span>
+        <h2 id="kpiSiifRequisicion">0</h2>
+        <p>Continúan en requisición</p>
+      </div>
+      <div class="kpi-card">
+        <span>Con orden, sin pago</span>
+        <h2 id="kpiSiifOrden">0</h2>
+        <p>Pendientes de solicitud de pago</p>
+      </div>
+      <div class="kpi-card">
+        <span>Con solicitud de pago</span>
+        <h2 id="kpiSiifPago">0</h2>
+        <p>Trámite avanzado</p>
+      </div>
+      <div class="kpi-card">
+        <span>Importe requisitado</span>
+        <h2 id="kpiSiifImporte">$0.00</h2>
+        <p>Suma de requisiciones</p>
+      </div>
+    </section>
+
+    <section class="panel">
+      <div class="panel-header">
+        <div>
+          <h2>Trámites unificados</h2>
+          <p>Consulta el avance completo de cada requisición.</p>
+        </div>
+        <button type="button" class="btn-secondary" id="btnExportarSiif">Exportar CSV</button>
+      </div>
+
+      <div class="filters">
+        <input type="search" id="buscarSiif" placeholder="Buscar requisición, unidad, concepto, proveedor, OC o SP..." aria-label="Buscar seguimiento SIIF">
+        <select id="filtroEtapaSiif" aria-label="Filtrar por etapa">
+          <option value="">Todas las etapas</option>
+          <option value="Requisición">Requisición</option>
+          <option value="Orden de compra">Orden de compra</option>
+          <option value="Solicitud de pago">Solicitud de pago</option>
+        </select>
+        <select id="filtroDependenciaSiif" aria-label="Filtrar por dependencia">
+          <option value="">Todas las dependencias</option>
+        </select>
+        <select id="filtroProveedorSiif" aria-label="Filtrar por proveedor">
+          <option value="">Todos los proveedores</option>
+        </select>
+      </div>
+
+      <div class="table-container">
+        <table>
+          <thead>
+            <tr>
+              <th>Fecha</th>
+              <th>Requisición</th>
+              <th>Unidad</th>
+              <th>Dependencia</th>
+              <th>Concepto</th>
+              <th>Importe</th>
+              <th>OC</th>
+              <th>Proveedor</th>
+              <th>SP</th>
+              <th>Etapa</th>
+              <th>Estatus</th>
+              <th>Acciones</th>
+            </tr>
+          </thead>
+          <tbody id="tablaSeguimientoSiif"></tbody>
+        </table>
+      </div>
+
+      <div class="pagination-bar" style="display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;margin-top:16px;">
+        <span id="infoPaginacionSiif">Mostrando 0 registros</span>
+        <div style="display:flex;gap:8px;align-items:center;">
+          <button type="button" class="btn-secondary" id="btnSiifAnterior">Anterior</button>
+          <span id="paginaSiifActual">Página 1 de 1</span>
+          <button type="button" class="btn-secondary" id="btnSiifSiguiente">Siguiente</button>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <div class="modal" id="modalDetalleSiif" role="dialog" aria-modal="true" aria-labelledby="tituloDetalleSiif" aria-hidden="true">
+    <div class="modal-card large-modal">
+      <div class="modal-header">
+        <div>
+          <h2 id="tituloDetalleSiif">Detalle del trámite</h2>
+          <p id="subtituloDetalleSiif"></p>
+        </div>
+        <button type="button" class="close-btn" aria-label="Cerrar diálogo" onclick="cerrarDetalleSiif()">×</button>
+      </div>
+      <div id="contenidoDetalleSiif"></div>
+      <div class="modal-actions">
+        <button type="button" class="btn-secondary" onclick="cerrarDetalleSiif()">Cerrar</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    validarPermiso("Seguimiento SIIF");
+    ETLayout.inicializar("Seguimiento SIIF");
+
+    let seguimientoSiif = [];
+    let paginaSiif = 1;
+    const REGISTROS_POR_PAGINA_SIIF = 30;
+    const buscarSiif = document.getElementById("buscarSiif");
+    const filtroEtapaSiif = document.getElementById("filtroEtapaSiif");
+    const filtroDependenciaSiif = document.getElementById("filtroDependenciaSiif");
+    const filtroProveedorSiif = document.getElementById("filtroProveedorSiif");
+
+    function escaparSiif(valor) {
+      return String(valor ?? "")
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
+    }
+
+    function normalizarSiif(valor) {
+      return String(valor || "").normalize("NFD")
+        .replace(/[\u0300-\u036f]/g, "").toLowerCase();
+    }
+
+    function fechaSiif(valor) {
+      if (!valor) return "—";
+      const partes = String(valor).split("T")[0].split("-");
+      return partes.length === 3 ? partes[2] + "/" + partes[1] + "/" + partes[0] : escaparSiif(valor);
+    }
+
+    function monedaSiif(valor) {
+      return Number(valor || 0).toLocaleString("es-MX", {
+        style: "currency",
+        currency: "MXN"
+      });
+    }
+
+    function tonoEtapaSiif(etapa) {
+      if (etapa === "Solicitud de pago") return "green";
+      if (etapa === "Orden de compra") return "blue";
+      return "amber";
+    }
+
+    async function cargarSeguimientoSiif() {
+      const registros = [];
+      let desde = 0;
+      const bloque = 1000;
+      let total = null;
+
+      while (total === null || registros.length < total) {
+        const resultado = await supabaseClient
+          .from("seguimiento_siif")
+          .select("*", { count: desde === 0 ? "exact" : undefined })
+          .order("fecha_req", { ascending: false })
+          .range(desde, desde + bloque - 1);
+
+        if (resultado.error) {
+          console.error(resultado.error);
+          document.getElementById("tablaSeguimientoSiif").innerHTML =
+            '<tr><td colspan="12">No se pudo cargar seguimiento_siif: ' +
+            escaparSiif(resultado.error.message || "Error desconocido") + "</td></tr>";
+          ETLayout.toast(
+            "No se pudo consultar seguimiento_siif: " + (resultado.error.message || "Error desconocido"),
+            "error"
+          );
+          return;
+        }
+
+        const datos = resultado.data || [];
+        registros.push.apply(registros, datos);
+        if (desde === 0) total = typeof resultado.count === "number" ? resultado.count : datos.length;
+        if (datos.length < bloque) break;
+        desde += bloque;
+      }
+
+      seguimientoSiif = registros;
+      poblarFiltrosSiif();
+      renderizarSeguimientoSiif();
+    }
+
+    function poblarSelectSiif(select, valores, etiqueta) {
+      const actual = select.value;
+      const unicos = Array.from(new Set(valores.filter(Boolean))).sort(function (a, b) {
+        return String(a).localeCompare(String(b), "es");
+      });
+      select.innerHTML = "";
+      select.add(new Option(etiqueta, ""));
+      unicos.forEach(function (valor) { select.add(new Option(valor, valor)); });
+      select.value = unicos.includes(actual) ? actual : "";
+    }
+
+    function poblarFiltrosSiif() {
+      poblarSelectSiif(
+        filtroDependenciaSiif,
+        seguimientoSiif.map(function (fila) { return fila.dependencia; }),
+        "Todas las dependencias"
+      );
+      const proveedores = [];
+      seguimientoSiif.forEach(function (fila) {
+        (fila.proveedores || [fila.proveedor]).filter(Boolean).forEach(function (proveedor) {
+          proveedores.push(proveedor);
+        });
+      });
+      poblarSelectSiif(filtroProveedorSiif, proveedores, "Todos los proveedores");
+    }
+
+    function obtenerFiltradosSiif() {
+      const texto = normalizarSiif(buscarSiif.value);
+      const etapa = filtroEtapaSiif.value;
+      const dependencia = filtroDependenciaSiif.value;
+      const proveedor = filtroProveedorSiif.value;
+      return seguimientoSiif.filter(function (fila) {
+        const contenido = normalizarSiif([
+          fila.numero_req, fila.oficio_req, fila.unidad, fila.dependencia,
+          fila.concepto, fila.numero_oc, fila.numero_sp, fila.estatus,
+          JSON.stringify(fila.proveedores || [])
+        ].join(" "));
+        return contenido.includes(texto) &&
+          (!etapa || fila.etapa_actual === etapa) &&
+          (!dependencia || fila.dependencia === dependencia) &&
+          (!proveedor || (fila.proveedores || [fila.proveedor]).includes(proveedor));
+      });
+    }
+
+    function renderizarSeguimientoSiif() {
+      const filtrados = obtenerFiltradosSiif();
+      const totalPaginas = Math.max(1, Math.ceil(filtrados.length / REGISTROS_POR_PAGINA_SIIF));
+      paginaSiif = Math.min(Math.max(paginaSiif, 1), totalPaginas);
+      const inicio = (paginaSiif - 1) * REGISTROS_POR_PAGINA_SIIF;
+      const pagina = filtrados.slice(inicio, inicio + REGISTROS_POR_PAGINA_SIIF);
+      const tbody = document.getElementById("tablaSeguimientoSiif");
+
+      tbody.innerHTML = pagina.length ? pagina.map(function (fila) {
+        return "<tr>" +
+          "<td>" + fechaSiif(fila.fecha_req) + "</td>" +
+          "<td><strong>" + escaparSiif(fila.numero_req || "—") + "</strong><small style=\"display:block\">" + escaparSiif(fila.oficio_req || "") + "</small></td>" +
+          "<td>" + escaparSiif(fila.unidad || "—") + "</td>" +
+          "<td>" + escaparSiif(fila.dependencia || "—") + "</td>" +
+          "<td>" + escaparSiif(fila.concepto || "—") + "</td>" +
+          "<td>" + escaparSiif(monedaSiif(fila.monto)) + "</td>" +
+          "<td>" + escaparSiif(fila.numero_oc || "Pendiente") + (fila.cantidad_oc > 1 ? " (" + fila.cantidad_oc + ")" : "") + "</td>" +
+          "<td>" + escaparSiif(fila.proveedor || "Pendiente") + "</td>" +
+          "<td>" + escaparSiif(fila.numero_sp || "Pendiente") + (fila.cantidad_sp > 1 ? " (" + fila.cantidad_sp + ")" : "") + "</td>" +
+          '<td><span class="badge status-badge ' + tonoEtapaSiif(fila.etapa_actual) + '">' + escaparSiif(fila.etapa_actual) + "</span></td>" +
+          "<td>" + escaparSiif(fila.estatus || "—") + "</td>" +
+          '<td>' + ETLayout.iconButton("ver", "Ver trámite completo", "verDetalleSiif('" + fila.id + "')") + "</td>" +
+        "</tr>";
+      }).join("") : '<tr><td colspan="12">No hay trámites que coincidan con los filtros.</td></tr>';
+
+      document.getElementById("infoPaginacionSiif").textContent = filtrados.length
+        ? "Mostrando " + (inicio + 1) + "-" + (inicio + pagina.length) + " de " + filtrados.length
+        : "Mostrando 0 registros";
+      document.getElementById("paginaSiifActual").textContent = "Página " + paginaSiif + " de " + totalPaginas;
+      document.getElementById("btnSiifAnterior").disabled = paginaSiif <= 1;
+      document.getElementById("btnSiifSiguiente").disabled = paginaSiif >= totalPaginas;
+      actualizarKpisSiif();
+    }
+
+    function actualizarKpisSiif() {
+      document.getElementById("kpiSiifTotal").textContent = seguimientoSiif.length;
+      document.getElementById("kpiSiifRequisicion").textContent =
+        seguimientoSiif.filter(function (fila) { return fila.etapa_actual === "Requisición"; }).length;
+      document.getElementById("kpiSiifOrden").textContent =
+        seguimientoSiif.filter(function (fila) { return fila.etapa_actual === "Orden de compra"; }).length;
+      document.getElementById("kpiSiifPago").textContent =
+        seguimientoSiif.filter(function (fila) { return fila.etapa_actual === "Solicitud de pago"; }).length;
+      const importe = seguimientoSiif.reduce(function (total, fila) {
+        return total + Number(fila.monto || 0);
+      }, 0);
+      document.getElementById("kpiSiifImporte").textContent = monedaSiif(importe);
+    }
+
+    function tablaDetalleSiif(titulo, registros, columnas) {
+      if (!registros.length) return "<h3>" + titulo + '</h3><p class="helper-text">Sin registros relacionados.</p>';
+      return "<h3 style=\"margin-top:22px\">" + titulo + "</h3><div class=\"table-container\"><table><thead><tr>" +
+        columnas.map(function (columna) { return "<th>" + escaparSiif(columna.label) + "</th>"; }).join("") +
+        "</tr></thead><tbody>" + registros.map(function (registro) {
+          return "<tr>" + columnas.map(function (columna) {
+            const valor = columna.formato ? columna.formato(registro[columna.key]) : registro[columna.key];
+            return "<td>" + escaparSiif(valor ?? "—") + "</td>";
+          }).join("") + "</tr>";
+        }).join("") + "</tbody></table></div>";
+    }
+
+    function verDetalleSiif(id) {
+      const fila = seguimientoSiif.find(function (item) { return item.id === id; });
+      if (!fila) return;
+      document.getElementById("tituloDetalleSiif").textContent = "Requisición " + (fila.numero_req || "");
+      document.getElementById("subtituloDetalleSiif").textContent =
+        (fila.oficio_req || "") + " · " + (fila.etapa_actual || "");
+      document.getElementById("contenidoDetalleSiif").innerHTML =
+        '<div class="form-grid">' +
+          '<div class="input-group"><label>Fecha</label><strong>' + fechaSiif(fila.fecha_req) + "</strong></div>" +
+          '<div class="input-group"><label>Unidad</label><strong>' + escaparSiif(fila.unidad || "—") + "</strong></div>" +
+          '<div class="input-group"><label>Dependencia</label><strong>' + escaparSiif(fila.dependencia || "—") + "</strong></div>" +
+          '<div class="input-group"><label>Importe</label><strong>' + escaparSiif(monedaSiif(fila.monto)) + "</strong></div>" +
+          '<div class="input-group full"><label>Concepto</label><p>' + escaparSiif(fila.concepto || "—") + "</p></div>" +
+          '<div class="input-group full"><label>Clasificación</label><p>' + escaparSiif(fila.clasificacion || "—") + "</p></div>" +
+        "</div>" +
+        tablaDetalleSiif("Órdenes de compra", fila.ordenes_compra || [], [
+          { key: "numero_oc", label: "OC" },
+          { key: "fecha", label: "Fecha", formato: fechaSiif },
+          { key: "proveedor", label: "Proveedor" },
+          { key: "importe", label: "Importe", formato: monedaSiif },
+          { key: "estatus", label: "Estatus" }
+        ]) +
+        tablaDetalleSiif("Solicitudes de pago", fila.solicitudes_pago || [], [
+          { key: "numero_solicitud", label: "SP" },
+          { key: "fecha", label: "Fecha", formato: fechaSiif },
+          { key: "beneficiario", label: "Beneficiario" },
+          { key: "importe", label: "Importe", formato: monedaSiif },
+          { key: "estatus", label: "Estatus" }
+        ]);
+      document.getElementById("modalDetalleSiif").classList.add("show");
+      document.getElementById("modalDetalleSiif").setAttribute("aria-hidden", "false");
+    }
+
+    function cerrarDetalleSiif() {
+      document.getElementById("modalDetalleSiif").classList.remove("show");
+      document.getElementById("modalDetalleSiif").setAttribute("aria-hidden", "true");
+    }
+
+    function exportarSeguimientoSiif() {
+      const encabezados = ["Fecha", "Requisición", "Oficio", "Unidad", "Dependencia", "Concepto", "Importe", "OC", "Proveedor", "SP", "Etapa", "Estatus"];
+      const filas = obtenerFiltradosSiif().map(function (fila) {
+        return [fechaSiif(fila.fecha_req), fila.numero_req, fila.oficio_req, fila.unidad, fila.dependencia,
+          fila.concepto, fila.monto, fila.numero_oc, fila.proveedor, fila.numero_sp, fila.etapa_actual, fila.estatus];
+      });
+      function celda(valor) {
+        let texto = String(valor ?? "").replace(/\r?\n/g, " ");
+        if (/^[=+\-@]/.test(texto)) texto = "'" + texto;
+        return '"' + texto.replace(/"/g, '""') + '"';
+      }
+      const contenido = [encabezados].concat(filas).map(function (fila) {
+        return fila.map(celda).join(",");
+      }).join("\r\n");
+      const enlace = document.createElement("a");
+      const url = URL.createObjectURL(new Blob(["\ufeff" + contenido], { type: "text/csv;charset=utf-8" }));
+      enlace.href = url;
+      enlace.download = "seguimiento-siif.csv";
+      enlace.click();
+      URL.revokeObjectURL(url);
+    }
+
+    [buscarSiif, filtroEtapaSiif, filtroDependenciaSiif, filtroProveedorSiif].forEach(function (control) {
+      control.addEventListener(control.tagName === "INPUT" ? "input" : "change", function () {
+        paginaSiif = 1;
+        renderizarSeguimientoSiif();
+      });
+    });
+    document.getElementById("btnSiifAnterior").addEventListener("click", function () {
+      if (paginaSiif > 1) { paginaSiif -= 1; renderizarSeguimientoSiif(); }
+    });
+    document.getElementById("btnSiifSiguiente").addEventListener("click", function () {
+      paginaSiif += 1;
+      renderizarSeguimientoSiif();
+    });
+    document.getElementById("btnExportarSiif").addEventListener("click", exportarSeguimientoSiif);
+    document.getElementById("modalDetalleSiif").addEventListener("click", function (event) {
+      if (event.target === this) cerrarDetalleSiif();
+    });
+
+    cargarSeguimientoSiif();
+  </script>
+</body>
+</html>

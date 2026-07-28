@@ -6,6 +6,11 @@
     "Peticiones",
     "Seguimiento Peticiones",
     "Requisiciones",
+    "Seguimiento SIIF",
+    "Importar SIIF",
+    "Requisiciones SIIF",
+    "Órdenes de Compra SIIF",
+    "Solicitudes de Pago SIIF",
     "Vales",
     "Usuarios",
     "Auditoría",
@@ -23,7 +28,7 @@
     },
     {
       nombre: "Administración",
-      modulos: ["Requisiciones", "Tiempo Extra", "Tramites Administrativos", "Generar Textos"]
+      modulos: ["Requisiciones", "Seguimiento SIIF", "Requisiciones SIIF", "Órdenes de Compra SIIF", "Solicitudes de Pago SIIF", "Importar SIIF", "Tiempo Extra", "Tramites Administrativos", "Generar Textos"]
     },
     { nombre: "Sistema", modulos: ["Usuarios", "Auditoría"] }
   ];
@@ -34,6 +39,11 @@
     "Peticiones": '<path d="M6 3h9l3 3v15H6Z"/><path d="M15 3v4h4M9 12h6M9 16h6"/>',
     "Seguimiento Peticiones": '<circle cx="11" cy="11" r="7"/><path d="m16 16 5 5M8 11l2 2 4-4"/>',
     "Requisiciones": '<path d="M7 3h8l4 4v14H7Z"/><path d="M15 3v5h5M10 13h6M10 17h6"/>',
+    "Seguimiento SIIF": '<path d="M4 6h16M4 12h16M4 18h16"/><circle cx="7" cy="6" r="2"/><circle cx="13" cy="12" r="2"/><circle cx="18" cy="18" r="2"/>',
+    "Importar SIIF": '<path d="M12 3v12M7 8l5-5 5 5"/><path d="M5 14v6h14v-6"/>',
+    "Requisiciones SIIF": '<path d="M6 3h12v18H6Z"/><path d="M9 8h6M9 12h6M9 16h4"/>',
+    "Órdenes de Compra SIIF": '<path d="M4 5h16v14H4Z"/><path d="M8 9h8M8 13h5"/>',
+    "Solicitudes de Pago SIIF": '<circle cx="12" cy="12" r="9"/><path d="M15 8h-4a2 2 0 0 0 0 4h2a2 2 0 0 1 0 4H9M12 6v12"/>',
     "Acuerdos": '<path d="M7 4h10v16H7Z"/><path d="m9 10 2 2 4-4M10 16h4"/>',
     "Vales": '<path d="M4 6h16v12H4Z"/><path d="M8 10h8M8 14h5"/>',
     "Usuarios": '<circle cx="9" cy="8" r="3"/><path d="M3 20a6 6 0 0 1 12 0M16 5a3 3 0 0 1 0 6M18 14a5 5 0 0 1 3 5"/>',
@@ -308,7 +318,7 @@
     },
     {
       modulo: "Requisiciones",
-      tabla: "requisiciones_siif",
+      tabla: "seguimiento_siif",
       campos: "id,numero_req,unidad,concepto,proveedor,estatus,dependencia",
       buscarEn: ["numero_req", "unidad", "concepto", "proveedor"],
       area: "dependencia",

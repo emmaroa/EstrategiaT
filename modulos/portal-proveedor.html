@@ -333,9 +333,9 @@
           .eq("proveedor", proveedorVinculado)
           .order("created_at", { ascending: false }),
         supabaseClient
-          .from("requisiciones_siif")
+          .from("seguimiento_siif")
           .select("id,fecha_req,numero_req,unidad,concepto,numero_oc,estatus,proveedor")
-          .eq("proveedor", proveedorVinculado)
+          .contains("proveedores", [proveedorVinculado])
           .order("fecha_req", { ascending: false }),
         ETCotizacionesAlmacen.listarPorProveedor(proveedorVinculado)
       ]);

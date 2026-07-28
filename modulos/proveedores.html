@@ -146,20 +146,25 @@
       btnSincronizar.textContent = "Sincronizando...";
       try {
         const { data, error } = await supabaseClient
-          .from("requisiciones_siif")
-          .select("proveedor")
-          .not("proveedor", "is", null);
+          .from("seguimiento_siif")
+          .select("proveedor,proveedores")
+          .not("proveedores", "is", null);
 
         if (error) throw error;
 
         const existentes = new Set(proveedores.map(function (p) { return claveNombre(p.razon_social); }));
         const nuevosPorClave = new Map();
         (data || []).forEach(function (fila) {
-          const nombre = limpiarNombre(fila.proveedor);
-          const clave = claveNombre(nombre);
-          if (nombre && !existentes.has(clave) && !nuevosPorClave.has(clave)) {
-            nuevosPorClave.set(clave, { razon_social: nombre, activo: true });
-          }
+          const nombres = Array.isArray(fila.proveedores) && fila.proveedores.length
+            ? fila.proveedores
+            : [fila.proveedor];
+          nombres.forEach(function (valor) {
+            const nombre = limpiarNombre(valor);
+            const clave = claveNombre(nombre);
+            if (nombre && !existentes.has(clave) && !nuevosPorClave.has(clave)) {
+              nuevosPorClave.set(clave, { razon_social: nombre, activo: true });
+            }
+          });
         });
 
         const nuevos = Array.from(nuevosPorClave.values());

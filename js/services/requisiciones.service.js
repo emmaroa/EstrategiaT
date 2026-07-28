@@ -115,6 +115,24 @@
     }
   }
 
+  async function listarSeguimientoSIIF() {
+    const client = getClient();
+    if (!client) return { data: [], count: 0, error: { message: "Sin conexión" } };
+
+    const result = await client
+      .from("seguimiento_siif")
+      .select("*", { count: "exact" })
+      .order("fecha_req", { ascending: false });
+
+    if (result.error) return result;
+    const data = Array.isArray(result.data) ? result.data : [];
+    return {
+      ...result,
+      data: data.map(normalizar),
+      count: typeof result.count === "number" ? result.count : data.length
+    };
+  }
+
   async function crear(payload) {
     const client = getClient();
     if (!client) return { data: null, error: { message: "Sin conexión" } };
@@ -262,6 +280,7 @@
 
   global.ETRequisiciones = {
     listar,
+    listarSeguimientoSIIF,
     crear,
     actualizar,
     eliminar,

@@ -11,14 +11,14 @@
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <script src="js/core/supabase.js"></script>
-  <script src="js/core/permissions.js?v=20260727-4"></script>
+  <script src="js/core/permissions.js?v=20260728-4"></script>
   <script src="js/core/theme.js"></script>
-  <script src="js/core/layout.js?v=20260727-2"></script>
+  <script src="js/core/layout.js?v=20260728-4"></script>
   <script src="js/services/export.service.js"></script>
   <script src="js/services/peticiones.service.js?v=20260727-1"></script>
   <script src="js/services/dashboard.service.js"></script>
-  <script src="js/services/requisiciones.service.js"></script>
-  <script src="login.js?v=20260727-1"></script>
+  <script src="js/services/requisiciones.service.js?v=20260728-1"></script>
+  <script src="login.js?v=20260728-4"></script>
 </head>
 
 <body class="dashboard-body">
@@ -527,7 +527,7 @@
 
     function esRolFinanciero(usuario) {
       const rol = (usuario && (usuario.rol || "")) || "";
-      return ["SuperAdmin", "Administrador del Sistema", "Admin", "Compras"].includes(rol);
+      return ["SuperAdmin", "Administrador del Sistema", "Admin", "Compras", "Director"].includes(rol);
     }
 
     const dashboardClient = supabaseClient;
@@ -582,10 +582,10 @@ let fechaHastaDashboard = "";
             : Promise.resolve({ data: [], error: null })
         ]);
 
-        if (window.ETRequisiciones && typeof ETRequisiciones.listar === "function") {
-          requisicionesRes = await ETRequisiciones.listar();
+        if (window.ETRequisiciones && typeof ETRequisiciones.listarSeguimientoSIIF === "function") {
+          requisicionesRes = await ETRequisiciones.listarSeguimientoSIIF();
         } else {
-          requisicionesRes = await dashboardClient.from("requisiciones_siif").select("*").order("created_at", { ascending: false });
+          requisicionesRes = await dashboardClient.from("seguimiento_siif").select("*").order("fecha_req", { ascending: false });
         }
       } catch (err) {
         console.error("Error cargando datos del dashboard:", err);
