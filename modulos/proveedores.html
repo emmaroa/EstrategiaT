@@ -34,6 +34,7 @@
       </div>
       <div style="display:flex;gap:12px;align-items:center;">
         <span id="etTemaContainer"></span>
+        <button type="button" class="btn-small" id="btnNuevoProveedor">Nuevo proveedor</button>
         <button type="button" class="btn-small" id="btnSincronizar">Sincronizar requisiciones</button>
       </div>
     </header>
@@ -89,6 +90,26 @@
     </section>
   </main>
 
+  <div class="modal" id="modalNuevoProveedor" role="dialog" aria-modal="true" aria-labelledby="tituloNuevoProveedor" aria-hidden="true">
+    <div class="modal-card">
+      <div class="modal-header">
+        <div>
+          <h2 id="tituloNuevoProveedor">Nuevo proveedor</h2>
+          <p>Registra el nombre oficial que aparecerá en los desplegables.</p>
+        </div>
+        <button type="button" class="close-btn" id="btnCerrarNuevoProveedor" aria-label="Cerrar">×</button>
+      </div>
+      <div class="input-group">
+        <label for="nombreNuevoProveedor">Razón social</label>
+        <input type="text" id="nombreNuevoProveedor" maxlength="250" placeholder="Ej. Proveedora ABC">
+      </div>
+      <div class="modal-actions">
+        <button type="button" class="btn-secondary" id="btnCancelarNuevoProveedor">Cancelar</button>
+        <button type="button" class="btn-small" id="btnGuardarNuevoProveedor">Guardar proveedor</button>
+      </div>
+    </div>
+  </div>
+
   <script>
     validarPermiso("Proveedores");
     ETLayout.inicializar("Proveedores");
@@ -99,6 +120,8 @@
     const buscar = document.getElementById("buscarProveedor");
     const filtroEstado = document.getElementById("filtroEstado");
     const btnSincronizar = document.getElementById("btnSincronizar");
+    const modalNuevoProveedor = document.getElementById("modalNuevoProveedor");
+    const nombreNuevoProveedor = document.getElementById("nombreNuevoProveedor");
 
     function limpiarNombre(valor) {
       return String(valor || "").trim().replace(/\s+/g, " ");
@@ -229,9 +252,68 @@
       await cargarCatalogo();
     }
 
+    function abrirNuevoProveedor() {
+      nombreNuevoProveedor.value = "";
+      modalNuevoProveedor.classList.add("show");
+      modalNuevoProveedor.setAttribute("aria-hidden", "false");
+      nombreNuevoProveedor.focus();
+    }
+
+    function cerrarNuevoProveedor() {
+      modalNuevoProveedor.classList.remove("show");
+      modalNuevoProveedor.setAttribute("aria-hidden", "true");
+      nombreNuevoProveedor.value = "";
+    }
+
+    async function guardarNuevoProveedor() {
+      const nombre = limpiarNombre(nombreNuevoProveedor.value);
+      if (!nombre) {
+        alert("Captura la razón social del proveedor.");
+        nombreNuevoProveedor.focus();
+        return;
+      }
+      const existente = proveedores.find(function (proveedor) {
+        return claveNombre(proveedor.razon_social) === claveNombre(nombre);
+      });
+      let resultado;
+      if (existente) {
+        if (existente.activo) {
+          alert("Ese proveedor ya existe y está activo.");
+          return;
+        }
+        resultado = await supabaseClient.from("proveedores")
+          .update({ activo: true, updated_at: new Date().toISOString() })
+          .eq("id", existente.id);
+      } else {
+        resultado = await supabaseClient.from("proveedores")
+          .insert({ razon_social: nombre, activo: true });
+      }
+      if (resultado.error) {
+        console.error(resultado.error);
+        alert("No se pudo guardar el proveedor: " + resultado.error.message);
+        return;
+      }
+      if (typeof registrarAuditoria === "function") {
+        registrarAuditoria("Proveedores", existente ? "Reactivó proveedor" : "Creó proveedor", nombre);
+      }
+      cerrarNuevoProveedor();
+      await cargarCatalogo();
+      alert(existente ? "Proveedor reactivado correctamente." : "Proveedor agregado correctamente.");
+    }
+
     buscar.addEventListener("input", renderizar);
     filtroEstado.addEventListener("change", renderizar);
     btnSincronizar.addEventListener("click", sincronizarDesdeRequisiciones);
+    document.getElementById("btnNuevoProveedor").addEventListener("click", abrirNuevoProveedor);
+    document.getElementById("btnCerrarNuevoProveedor").addEventListener("click", cerrarNuevoProveedor);
+    document.getElementById("btnCancelarNuevoProveedor").addEventListener("click", cerrarNuevoProveedor);
+    document.getElementById("btnGuardarNuevoProveedor").addEventListener("click", guardarNuevoProveedor);
+    nombreNuevoProveedor.addEventListener("keydown", function (event) {
+      if (event.key === "Enter") guardarNuevoProveedor();
+    });
+    modalNuevoProveedor.addEventListener("click", function (event) {
+      if (event.target === modalNuevoProveedor) cerrarNuevoProveedor();
+    });
     cargarCatalogo();
   </script>
 </body>

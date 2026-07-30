@@ -10,7 +10,7 @@
   <script src="../js/core/supabase.js"></script>
   <script src="../js/core/permissions.js?v=20260728-4"></script>
   <script src="../js/core/theme.js"></script>
-  <script src="../js/core/layout.js?v=20260728-4"></script>
+  <script src="../js/core/layout.js?v=20260730-1"></script>
   <script src="../login.js?v=20260728-4"></script>
 </head>
 <body class="dashboard-body">
@@ -198,6 +198,7 @@
 
     let archivoActual = null;
     let filasAnalizadas = [];
+    let ordenFechasImportacion = "DMY";
     const tipoImportacionSiif = document.getElementById("tipoImportacionSiif");
     const archivoImportacionSiif = document.getElementById("archivoImportacionSiif");
     const btnEjecutarImportacion = document.getElementById("btnEjecutarImportacion");
@@ -246,12 +247,53 @@
     function normalizarFechaImportacion(valor) {
       if (!valor) return null;
       const texto = String(valor).trim();
+      const iso = texto.match(/^(\d{4})-(\d{1,2})-(\d{1,2})(.*)$/);
+      if (iso) {
+        const anioIso = Number(iso[1]);
+        const mesIso = Number(iso[2]);
+        const diaIso = Number(iso[3]);
+        const pruebaIso = new Date(Date.UTC(anioIso, mesIso - 1, diaIso));
+        if (pruebaIso.getUTCFullYear() !== anioIso || pruebaIso.getUTCMonth() !== mesIso - 1 ||
+            pruebaIso.getUTCDate() !== diaIso) return "__FECHA_INVALIDA__";
+        return iso[1] + "-" + String(mesIso).padStart(2, "0") + "-" +
+          String(diaIso).padStart(2, "0") + (iso[4] || "");
+      }
       const partes = texto.match(/^(\d{1,2})[\/-](\d{1,2})[\/-](\d{4})(.*)$/);
       if (partes) {
-        return partes[3] + "-" + partes[2].padStart(2, "0") + "-" +
-          partes[1].padStart(2, "0") + (partes[4] || "");
+        const primero = Number(partes[1]);
+        const segundo = Number(partes[2]);
+        const usaMesPrimero = primero <= 12 && (segundo > 12 || ordenFechasImportacion === "MDY");
+        const mes = usaMesPrimero ? primero : segundo;
+        const dia = usaMesPrimero ? segundo : primero;
+        const anio = Number(partes[3]);
+        const fechaPrueba = new Date(Date.UTC(anio, mes - 1, dia));
+        if (mes < 1 || mes > 12 || dia < 1 || dia > 31 ||
+            fechaPrueba.getUTCFullYear() !== anio ||
+            fechaPrueba.getUTCMonth() !== mes - 1 ||
+            fechaPrueba.getUTCDate() !== dia) {
+          return "__FECHA_INVALIDA__";
+        }
+        return partes[3] + "-" + String(mes).padStart(2, "0") + "-" +
+          String(dia).padStart(2, "0") + (partes[4] || "");
       }
       return texto;
+    }
+
+    function detectarOrdenFechasImportacion(filas) {
+      let evidenciaMesPrimero = 0;
+      let evidenciaDiaPrimero = 0;
+      filas.forEach(function (fila) {
+        Object.keys(fila).forEach(function (campo) {
+          if (campo !== "fecha" && !campo.startsWith("fecha_")) return;
+          const partes = String(fila[campo] || "").trim().match(/^(\d{1,2})[\/-](\d{1,2})[\/-]\d{4}/);
+          if (!partes) return;
+          const primero = Number(partes[1]);
+          const segundo = Number(partes[2]);
+          if (primero <= 12 && segundo > 12) evidenciaMesPrimero += 1;
+          if (primero > 12 && segundo <= 12) evidenciaDiaPrimero += 1;
+        });
+      });
+      ordenFechasImportacion = evidenciaMesPrimero > evidenciaDiaPrimero ? "MDY" : "DMY";
     }
 
     function parsearCSV(texto) {
@@ -329,6 +371,11 @@
     }
 
     function validarRegistroImportacion(registro, config) {
+      const fechaInvalida = config.campos.find(function (campo) {
+        return (campo === "fecha" || campo.startsWith("fecha_")) &&
+          registro[campo] === "__FECHA_INVALIDA__";
+      });
+      if (fechaInvalida) return "Fecha no válida en " + fechaInvalida + ".";
       const faltantes = config.requeridos.filter(function (campo) {
         return registro[campo] === null || registro[campo] === undefined || registro[campo] === "";
       });
@@ -350,6 +397,7 @@
       const config = CONFIG_IMPORTACION[tipoImportacionSiif.value];
       const texto = await file.text();
       const filasCSV = parsearCSV(texto);
+      detectarOrdenFechasImportacion(filasCSV);
       const existentes = await obtenerExistentesImportacion(config);
       const clavesArchivo = new Set();
 
@@ -431,8 +479,13 @@
         const resultados = await Promise.all(bloque.map(function (fila) {
           return supabaseClient.from(tabla).update(fila.registro).eq("id", fila.existente.id);
         }));
-        resultados.forEach(function (resultado) {
-          if (resultado.error) errores.push(resultado.error.message);
+        resultados.forEach(function (resultado, indice) {
+          if (resultado.error) {
+            const fila = bloque[indice];
+            errores.push("Línea " + fila.linea + ": " +
+              [resultado.error.message, resultado.error.details, resultado.error.hint]
+                .filter(Boolean).join(" · "));
+          }
         });
       }
       return errores;
@@ -491,12 +544,17 @@
         }).concat(erroresCarga.map(function (error) { return { error: error }; }))
       }).eq("id", carga.data.id);
 
-      ETLayout.toast(
-        erroresCarga.length
-          ? "La carga terminó con " + erroresCarga.length + " errores de Supabase."
-          : "Importación terminada. Seguimiento SIIF ya refleja los cambios.",
-        erroresCarga.length ? "warning" : "success"
-      );
+      const mensajeFinal = erroresCarga.length
+        ? "La carga terminó con " + erroresCarga.length + " errores de Supabase."
+        : "Importación terminada. Seguimiento SIIF ya refleja los cambios.";
+      const tipoMensaje = erroresCarga.length ? "warning" : "success";
+      if (window.ETLayout && typeof ETLayout.toast === "function") {
+        ETLayout.toast(mensajeFinal, tipoMensaje);
+      } else if (window.ETFeedback && typeof ETFeedback.toast === "function") {
+        ETFeedback.toast(mensajeFinal, tipoMensaje);
+      } else {
+        alert(mensajeFinal);
+      }
       await cargarHistorialImportaciones();
       limpiarImportacion();
     }

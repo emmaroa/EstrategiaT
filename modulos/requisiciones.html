@@ -12,6 +12,7 @@
   <script src="../js/core/theme.js"></script>
   <script src="../js/core/layout.js?v=20260724-3"></script>
   <script src="../js/services/requisiciones.service.js"></script>
+  <script src="../js/services/proveedores.service.js?v=20260728-1"></script>
   <script src="../login.js"></script>
 </head>
 <body class="dashboard-body">
@@ -198,7 +199,7 @@
 
         <div class="input-group">
           <label>Proveedor</label>
-          <input type="text" id="proveedorReq" placeholder="Proveedor asignado">
+          <select id="proveedorReq" data-proveedor-select data-proveedor-placeholder="Sin proveedor"></select>
         </div>
 
         <div class="input-group">
@@ -446,7 +447,7 @@
       unidadReqInput.value = prefill.unidad || "";
       conceptoReqInput.value = prefill.concepto || "";
       dependenciaReqSelect.value = prefill.dependencia || "";
-      proveedorReqInput.value = prefill.proveedor || "";
+      ETProveedores.seleccionar(proveedorReqInput, prefill.proveedor || "");
       observacionesReqInput.value = prefill.observaciones || "";
 
       const numero = await ETRequisiciones.generarNumero();
@@ -633,6 +634,9 @@
     async function abrirModalRequisicion() {
       if (!idEditando && !puedeAccionRequisicion("crear")) return;
       if (idEditando && !puedeAccionRequisicion("editar")) return;
+      if (window.ETProveedores && typeof ETProveedores.poblarSelect === "function") {
+        await ETProveedores.poblarSelect(proveedorReqInput, proveedorReqInput.value);
+      }
       modalRequisicion.classList.add("show");
       modalRequisicion.setAttribute("aria-hidden", "false");
       modalRequisicionTitulo.textContent = idEditando ? "Editar requisición" : "Nueva requisición";
@@ -786,7 +790,7 @@
       document.getElementById("unidadReq").value = r.unidad;
       document.getElementById("dependenciaReq").value = r.dependencia;
       document.getElementById("conceptoReq").value = r.concepto;
-      document.getElementById("proveedorReq").value = r.proveedor || "";
+      ETProveedores.seleccionar(document.getElementById("proveedorReq"), r.proveedor || "");
       document.getElementById("ocReq").value = r.oc || "";
       document.getElementById("facturaReq").value = r.factura || "";
       document.getElementById("solicitudPagoReq").value = r.solicitudPago || "";

@@ -11,6 +11,7 @@
   <script src="../js/core/permissions.js?v=20260727-1"></script>
   <script src="../js/core/theme.js"></script>
   <script src="../js/core/layout.js?v=20260725-3"></script>
+  <script src="../js/services/proveedores.service.js?v=20260728-1"></script>
   <script src="../login.js?v=20260727-1"></script>
 </head>
 
@@ -184,7 +185,7 @@
 
         <div class="input-group">
           <label>Proveedor vinculado</label>
-          <input type="text" id="proveedorUsuario" placeholder="Nombre exacto usado en peticiones y requisiciones">
+          <select id="proveedorUsuario" data-proveedor-select data-proveedor-placeholder="Sin proveedor vinculado"></select>
         </div>
 
         <div class="input-group">
@@ -558,7 +559,7 @@
       document.getElementById("usuarioUsuario").value = u.usuario || "";
       document.getElementById("passwordUsuario").value = "";
       document.getElementById("rolUsuarioForm").value = u.rol || "";
-      document.getElementById("proveedorUsuario").value = u.proveedor || "";
+      ETProveedores.seleccionar(document.getElementById("proveedorUsuario"), u.proveedor || "");
       document.getElementById("activoUsuario").value = String(u.activo);
       renderPermisosModulos(u);
       renderAreasPermitidas(u);

@@ -12,6 +12,7 @@
   <script src="../js/core/permissions.js?v=20260725-1"></script>
   <script src="../js/core/theme.js"></script>
   <script src="../js/core/layout.js?v=20260727-3"></script>
+  <script src="../js/services/proveedores.service.js?v=20260728-1"></script>
   <script src="../login.js?v=20260725-1"></script>
 </head>
 
@@ -153,7 +154,7 @@
 
         <div class="input-group">
           <label>Proveedor / Origen</label>
-          <input type="text" id="proveedorVale">
+          <select id="proveedorVale" data-proveedor-select data-proveedor-placeholder="Selecciona proveedor u origen"></select>
         </div>
 
         <div class="input-group">
@@ -668,7 +669,7 @@ unidadVale?.addEventListener("blur", async function () {
       folioVale.value = v.folio || "";
       unidadVale.value = v.unidad || "";
       dependenciaVale.value = v.dependencia || "";
-      proveedorVale.value = v.proveedor || "";
+      ETProveedores.seleccionar(proveedorVale, v.proveedor || "");
       entregaVale.value = v.entrega || obtenerUsuarioVale()?.nombre || "";
       recibeVale.value = v.recibe || "";
       estatusVale.value = v.estatus || "Pendiente";

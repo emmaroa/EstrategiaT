@@ -75,6 +75,17 @@
       .toLowerCase();
   }
 
+  function estaCanceladoDashboard(registro) {
+    return [
+      registro && registro.estatus,
+      registro && registro.estatus_requisicion,
+      registro && registro.estatus_oc,
+      registro && registro.estatus_sp
+    ].some(function (estatus) {
+      return normalizarTextoDashboard(estatus).includes("cancelad");
+    });
+  }
+
   function calcularKPIs(datos) {
     const ahora = new Date();
     const anioActual = ahora.getFullYear().toString();
@@ -82,6 +93,10 @@
 
     const requisiciones = datos.requisiciones || [];
     const requisicionesOperativas = datos.requisicionesOperativas || requisiciones;
+    const requisicionesParaKpi = requisiciones.filter(function (r) { return !estaCanceladoDashboard(r); });
+    const requisicionesOperativasParaKpi = requisicionesOperativas.filter(function (r) {
+      return !estaCanceladoDashboard(r);
+    });
     const vales = datos.vales || [];
     const valesOperativos = datos.valesOperativos || vales;
     const peticiones = datos.peticiones || [];
@@ -89,7 +104,7 @@
     const usuarios = datos.usuarios || [];
 
     const aniosEnDatos = {};
-    requisiciones.forEach(function (r) {
+    requisicionesParaKpi.forEach(function (r) {
       const anio = obtenerAnio(r.fecha);
       if (anio) aniosEnDatos[anio] = true;
     });
@@ -98,26 +113,26 @@
       : null;
 
     const costoAnual = unSoloAnio
-      ? sumarMontos(requisiciones)
-      : sumarMontos(requisiciones.filter(function (r) {
+      ? sumarMontos(requisicionesParaKpi)
+      : sumarMontos(requisicionesParaKpi.filter(function (r) {
           return obtenerAnio(r.fecha) === anioActual;
         }));
 
     const costoMensual = sumarMontos(
-      requisiciones.filter(function (r) { return obtenerMes(r.fecha) === mesActual; })
+      requisicionesParaKpi.filter(function (r) { return obtenerMes(r.fecha) === mesActual; })
     );
 
-    const requisicionesActivas = requisicionesOperativas.filter(function (r) {
+    const requisicionesActivas = requisicionesOperativasParaKpi.filter(function (r) {
       const estatus = normalizarTextoDashboard(r.estatus);
       return !["cancelado", "cerrado", "finalizado", "enviado", "entregado", "pagado", "rechazado", "rechazada"].includes(estatus);
     }).length;
 
-    const requisicionesPorAutorizar = requisicionesOperativas.filter(function (r) {
+    const requisicionesPorAutorizar = requisicionesOperativasParaKpi.filter(function (r) {
       const estatus = normalizarTextoDashboard(r.estatus);
       return estatus.includes("autorizar") || estatus.includes("pendiente") || estatus.includes("por revisar") || estatus.includes("revision");
     }).length;
 
-    const requisicionesConXml = requisicionesOperativas.filter(function (r) {
+    const requisicionesConXml = requisicionesOperativasParaKpi.filter(function (r) {
       const xml = String(r.xml || r.factura || "").trim();
       return Boolean(xml);
     }).length;

@@ -254,7 +254,7 @@
             <select id="proveedor" style="flex:1;min-width:0;">
               <option value="">Sin proveedor</option>
             </select>
-            <button type="button" class="btn-small" id="btnAgregarProveedor" onclick="abrirCatalogoProveedores()" style="display:none;">Catálogo</button>
+            <button type="button" class="btn-small" id="btnAgregarProveedor" onclick="abrirModalProveedor()" style="display:none;">+ Proveedor</button>
           </div>
         </div>
 
@@ -670,7 +670,6 @@
         tablaPeticiones.innerHTML = '<tr><td colspan="' + (mostrarProveedor ? "10" : "9") + '">No hay peticiones registradas.</td></tr>';
       } else {
         const mostrarTextoPedido = puedeCopiarTextoPedido();
-        const mostrarGenerarRequisicion = puedeGenerarRequisicion();
         const puedeEnviarCotizacion = puedeAccionPeticion("editar");
         paginaActual.forEach(function (p) {
           const fila = document.createElement("tr");
@@ -699,7 +698,6 @@
               (puedeEliminar ? ETLayout.iconButton("eliminar", "Eliminar peticion", "eliminarPeticion('" + p.id + "')", "red-btn") : "") +
               (puedeRevisarAlmacen ? ETLayout.iconButton("estatus", "Marcar como Revisado por almacen", "revisarPeticionAlmacen('" + p.id + "')", "orange") : "") +
               (puedeEnviarCotizacion && !cotizacion ? ETLayout.iconButton("cotizacion", "Enviar a cotizaciones", "enviarPeticionACotizaciones('" + p.id + "')", "orange") : "") +
-              (mostrarGenerarRequisicion ? ETLayout.iconButton("requisicion", "Generar requisicion", "generarRequisicion('" + p.id + "')", "orange") : "") +
             "</div></td>";
           tablaPeticiones.appendChild(fila);
         });
@@ -1043,14 +1041,34 @@
         return;
       }
 
-      const existente = proveedoresCatalogo.some(function (item) {
-        return String(item.razon_social || "").trim().toLowerCase() === nombre.toLowerCase();
+      const consultaExistentes = await supabaseClient
+        .from("proveedores")
+        .select("id,razon_social,activo");
+      if (consultaExistentes.error) {
+        console.error(consultaExistentes.error);
+        alert("No se pudo revisar el catálogo de proveedores.");
+        return;
+      }
+      const existente = (consultaExistentes.data || []).find(function (item) {
+        return String(item.razon_social || "").trim().replace(/\s+/g, " ").toLocaleLowerCase("es") ===
+          nombre.replace(/\s+/g, " ").toLocaleLowerCase("es");
       });
+      const nombreCanonico = existente ? existente.razon_social : nombre.replace(/\s+/g, " ");
 
-      if (!existente) {
+      if (existente && !existente.activo) {
+        const reactivado = await supabaseClient
+          .from("proveedores")
+          .update({ activo: true, updated_at: new Date().toISOString() })
+          .eq("id", existente.id);
+        if (reactivado.error) {
+          console.error(reactivado.error);
+          alert("No se pudo reactivar el proveedor.");
+          return;
+        }
+      } else if (!existente) {
         const { error } = await supabaseClient
           .from("proveedores")
-          .insert({ razon_social: nombre, activo: true });
+          .insert({ razon_social: nombreCanonico, activo: true });
 
         if (error) {
           console.error(error);
@@ -1062,7 +1080,7 @@
       await cargarCatalogoProveedores();
       poblarSelectProveedorPeticiones();
       poblarFiltroProveedorPeticiones();
-      if (proveedorInput) proveedorInput.value = nombre;
+      if (proveedorInput) proveedorInput.value = nombreCanonico;
       cerrarModalProveedor();
       alert(existente ? "El proveedor ya existe en el catálogo." : "Proveedor guardado correctamente.");
     }

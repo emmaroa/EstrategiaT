@@ -6,6 +6,17 @@
   <title>Administración de Talleres | Seguimiento SIIF</title>
   <link rel="stylesheet" href="../css/style.css">
   <link rel="stylesheet" href="../css/design-system.css?v=20260728-1">
+  <style>
+    .siif-progress{display:flex;align-items:center;gap:4px;min-width:150px}
+    .siif-progress-step{display:flex;align-items:center;gap:4px;color:var(--text-muted);font-size:11px;white-space:nowrap}
+    .siif-progress-step::before{content:"";width:9px;height:9px;border-radius:50%;background:var(--border-color)}
+    .siif-progress-step.done{color:var(--text-primary);font-weight:700}
+    .siif-progress-step.done::before{background:#14b8a6;box-shadow:0 0 0 3px rgba(20,184,166,.14)}
+    .siif-progress-step.cancelled{color:#ef4444;font-weight:700}
+    .siif-progress-step.cancelled::before{background:#ef4444}
+    .siif-progress-line{width:14px;height:2px;background:var(--border-color)}
+    .siif-progress-line.done{background:#14b8a6}
+  </style>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="../js/core/supabase.js"></script>
   <script src="../js/core/permissions.js?v=20260728-4"></script>
@@ -182,6 +193,26 @@
       return "amber";
     }
 
+    function progresoSiif(fila) {
+      const cancelada = [
+        fila.estatus, fila.estatus_requisicion, fila.estatus_oc, fila.estatus_sp
+      ].some(function (estatus) { return normalizarSiif(estatus).includes("cancelad"); });
+      const nivel = fila.cantidad_sp > 0 ? 3 : (fila.cantidad_oc > 0 ? 2 : 1);
+      const pasos = [
+        { label: "REQ", nivel: 1 },
+        { label: "OC", nivel: 2 },
+        { label: "SP", nivel: 3 }
+      ];
+      return '<div class="siif-progress" aria-label="Avance: ' + escaparSiif(fila.etapa_actual) + '">' +
+        pasos.map(function (paso, indice) {
+          const clase = cancelada && paso.nivel === nivel ? "cancelled" : (paso.nivel <= nivel ? "done" : "");
+          const linea = indice < pasos.length - 1
+            ? '<span class="siif-progress-line ' + (paso.nivel < nivel && !cancelada ? "done" : "") + '"></span>'
+            : "";
+          return '<span class="siif-progress-step ' + clase + '">' + paso.label + "</span>" + linea;
+        }).join("") + "</div>";
+    }
+
     async function cargarSeguimientoSiif() {
       const registros = [];
       let desde = 0;
@@ -282,7 +313,7 @@
           "<td>" + escaparSiif(fila.numero_oc || "Pendiente") + (fila.cantidad_oc > 1 ? " (" + fila.cantidad_oc + ")" : "") + "</td>" +
           "<td>" + escaparSiif(fila.proveedor || "Pendiente") + "</td>" +
           "<td>" + escaparSiif(fila.numero_sp || "Pendiente") + (fila.cantidad_sp > 1 ? " (" + fila.cantidad_sp + ")" : "") + "</td>" +
-          '<td><span class="badge status-badge ' + tonoEtapaSiif(fila.etapa_actual) + '">' + escaparSiif(fila.etapa_actual) + "</span></td>" +
+          '<td>' + progresoSiif(fila) + '<span class="badge status-badge ' + tonoEtapaSiif(fila.etapa_actual) + '">' + escaparSiif(fila.etapa_actual) + "</span></td>" +
           "<td>" + escaparSiif(fila.estatus || "—") + "</td>" +
           '<td>' + ETLayout.iconButton("ver", "Ver trámite completo", "verDetalleSiif('" + fila.id + "')") + "</td>" +
         "</tr>";
@@ -298,14 +329,18 @@
     }
 
     function actualizarKpisSiif() {
-      document.getElementById("kpiSiifTotal").textContent = seguimientoSiif.length;
+      const vigentes = seguimientoSiif.filter(function (fila) {
+        return ![fila.estatus, fila.estatus_requisicion, fila.estatus_oc, fila.estatus_sp]
+          .some(function (estatus) { return normalizarSiif(estatus).includes("cancelad"); });
+      });
+      document.getElementById("kpiSiifTotal").textContent = vigentes.length;
       document.getElementById("kpiSiifRequisicion").textContent =
-        seguimientoSiif.filter(function (fila) { return fila.etapa_actual === "Requisición"; }).length;
+        vigentes.filter(function (fila) { return fila.etapa_actual === "Requisición"; }).length;
       document.getElementById("kpiSiifOrden").textContent =
-        seguimientoSiif.filter(function (fila) { return fila.etapa_actual === "Orden de compra"; }).length;
+        vigentes.filter(function (fila) { return fila.etapa_actual === "Orden de compra"; }).length;
       document.getElementById("kpiSiifPago").textContent =
-        seguimientoSiif.filter(function (fila) { return fila.etapa_actual === "Solicitud de pago"; }).length;
-      const importe = seguimientoSiif.reduce(function (total, fila) {
+        vigentes.filter(function (fila) { return fila.etapa_actual === "Solicitud de pago"; }).length;
+      const importe = vigentes.reduce(function (total, fila) {
         return total + Number(fila.monto || 0);
       }, 0);
       document.getElementById("kpiSiifImporte").textContent = monedaSiif(importe);
