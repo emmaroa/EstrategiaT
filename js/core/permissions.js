@@ -36,7 +36,7 @@
     [MODULOS.PARQUE]: "modulos/parque-vehicular.html",
     [MODULOS.PETICIONES]: "modulos/peticiones.html",
     [MODULOS.SEGUIMIENTO_PETICIONES]: "modulos/seguimiento-peticiones.html",
-    [MODULOS.REQUISICIONES]: "modulos/requisiciones.html",
+    [MODULOS.REQUISICIONES]: "modulos/seguimiento-siif.html",
     [MODULOS.SEGUIMIENTO_SIIF]: "modulos/seguimiento-siif.html",
     [MODULOS.IMPORTAR_SIIF]: "modulos/importar-siif.html",
     [MODULOS.REQUISICIONES_SIIF]: "modulos/requis-siif.html",
@@ -399,7 +399,11 @@
     const datos = usuario || {};
     return obtenerPermisosModulosDesdeValor(
       datos.modulos_permitidos ?? datos.modulos ?? datos.permisos_modulos ?? datos.permisos ?? datos.accesos
-    );
+    ).map(function (permiso) {
+      return permiso.modulo === MODULOS.REQUISICIONES
+        ? Object.assign({}, permiso, { modulo: MODULOS.SEGUIMIENTO_SIIF })
+        : permiso;
+    });
   }
 
   function obtenerModulosUsuario(usuario) {
@@ -427,13 +431,20 @@
       if (usuarioConSesion(usuario)) {
         modulosFinales = agregarModuloSiFalta(modulosFinales, MODULOS.PETICIONES);
       }
-      return modulosFinales;
+      return modulosFinales.filter(function (modulo, indice, lista) {
+        return modulo !== MODULOS.REQUISICIONES && lista.indexOf(modulo) === indice;
+      });
     }
 
     const modulosRol = PERMISOS[rol] || [];
-    return usuarioConSesion(usuario)
+    const modulosFinalesRol = usuarioConSesion(usuario)
       ? agregarModuloSiFalta(modulosRol, MODULOS.PETICIONES)
       : modulosRol;
+    return modulosFinalesRol.map(function (modulo) {
+      return modulo === MODULOS.REQUISICIONES ? MODULOS.SEGUIMIENTO_SIIF : modulo;
+    }).filter(function (modulo, indice, lista) {
+      return lista.indexOf(modulo) === indice;
+    });
   }
 
   function obtenerPermisoModuloUsuario(usuario, modulo) {

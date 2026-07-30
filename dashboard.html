@@ -5,20 +5,19 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Administración de Talleres | Dashboard</title>
 
-  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/style.css?v=20260730-1">
   <link rel="stylesheet" href="css/design-system.css?v=20260727-5">
   <link rel="stylesheet" href="css/dashboard.css">
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <script src="js/core/supabase.js"></script>
-  <script src="js/core/permissions.js?v=20260728-4"></script>
+  <script src="js/core/permissions.js?v=20260730-1"></script>
   <script src="js/core/theme.js"></script>
   <script src="js/core/layout.js?v=20260728-4"></script>
   <script src="js/services/export.service.js"></script>
   <script src="js/services/peticiones.service.js?v=20260727-1"></script>
-  <script src="js/services/dashboard.service.js?v=20260728-1"></script>
-  <script src="js/services/requisiciones.service.js?v=20260728-1"></script>
-  <script src="login.js?v=20260728-4"></script>
+  <script src="js/services/dashboard.service.js?v=20260730-2"></script>
+  <script src="login.js?v=20260730-1"></script>
 </head>
 
 <body class="dashboard-body">
@@ -116,23 +115,29 @@
         <h2 id="kpiPeticiones">0</h2>
         <p>Sin atender</p>
       </div>
-      <div class="kpi-card dashboard-kpi-card dashboard-link-card" data-module="Requisiciones" data-href="modulos/requisiciones.html" role="link" tabindex="0">
+      <div class="kpi-card dashboard-kpi-card dashboard-link-card priority" data-module="Peticiones" data-href="modulos/peticiones.html" role="link" tabindex="0">
+        <span class="dashboard-kpi-icon" aria-hidden="true">PR</span>
+        <span>Pendientes de asignar proveedor</span>
+        <h2 id="kpiPeticionesPendienteProveedor">0</h2>
+        <p>Revisadas por almacén</p>
+      </div>
+      <div class="kpi-card dashboard-kpi-card dashboard-link-card" data-module="Seguimiento SIIF" data-href="modulos/seguimiento-siif.html" role="link" tabindex="0">
         <span class="dashboard-kpi-icon" aria-hidden="true">R</span>
         <span>Requisiciones abiertas</span>
         <h2 id="kpiRequisiciones">0</h2>
         <p>Sin cerrar</p>
       </div>
-      <div class="kpi-card dashboard-kpi-card dashboard-link-card priority" data-module="Requisiciones" data-href="modulos/requisiciones.html" role="link" tabindex="0">
+      <div class="kpi-card dashboard-kpi-card dashboard-link-card priority" data-module="Seguimiento SIIF" data-href="modulos/seguimiento-siif.html" role="link" tabindex="0">
         <span class="dashboard-kpi-icon" aria-hidden="true">!</span>
         <span>Requisiciones por autorizar</span>
         <h2 id="kpiRequisicionesAutorizar">0</h2>
         <p>Por revisar</p>
       </div>
-      <div class="kpi-card dashboard-kpi-card dashboard-link-card positive" data-module="Requisiciones" data-href="modulos/requisiciones.html" role="link" tabindex="0">
+      <div class="kpi-card dashboard-kpi-card dashboard-link-card positive" data-module="Seguimiento SIIF" data-href="modulos/seguimiento-siif.html" role="link" tabindex="0">
         <span class="dashboard-kpi-icon" aria-hidden="true">✓</span>
-        <span>Requisiciones con XML</span>
+        <span>Con solicitud de pago</span>
         <h2 id="kpiRequisicionesXml">0</h2>
-        <p>Listas para trámite</p>
+        <p>Trámite registrado en SP SIIF</p>
       </div>
       <div class="kpi-card dashboard-kpi-card dashboard-link-card" data-module="Vales" data-href="modulos/vales.html" role="link" tabindex="0">
         <span class="dashboard-kpi-icon" aria-hidden="true">V</span>
@@ -140,17 +145,21 @@
         <h2 id="kpiValesEmitidos">0</h2>
         <p id="kpiValesEmitidosDesc">Del periodo</p>
       </div>
-      <div class="kpi-card highlight-teal dashboard-kpi-card dashboard-link-card" data-module="Tramites Administrativos" data-href="modulos/empleados.html" role="link" tabindex="0">
+      <div class="kpi-card highlight-teal dashboard-kpi-card dashboard-link-card" data-module="Tramites Administrativos" data-indicador-personal="true" data-href="modulos/empleados.html" role="link" tabindex="0">
         <span class="dashboard-kpi-icon" aria-hidden="true">C</span>
         <span>Cumpleaños de la semana</span>
         <h2 id="kpiCumpleanosHoy" class="et-kpi-text-value">Nadie</h2>
         <p>Hoy y próximos 6 días</p>
       </div>
-      <div class="kpi-card highlight dashboard-kpi-card dashboard-link-card priority" data-module="Tramites Administrativos" data-href="modulos/tramites-administrativos.html" role="link" tabindex="0">
+      <div class="kpi-card highlight dashboard-kpi-card dashboard-link-card priority kpi-ausentes-card" id="kpiAusentesCard" data-module="Tramites Administrativos" data-indicador-personal="true" data-href="modulos/tramites-administrativos.html" role="link" tabindex="0" aria-describedby="detalleAusentesHoy">
         <span class="dashboard-kpi-icon" aria-hidden="true">A</span>
         <span>Empleados ausentes hoy</span>
         <h2 id="kpiAusentesHoy">0</h2>
         <p>Permiso, vacaciones o incapacidad</p>
+        <div class="kpi-ausentes-tooltip" id="detalleAusentesHoy" role="tooltip">
+          <strong>Ausencias de hoy</strong>
+          <div id="listaAusentesHoy">No hay empleados ausentes.</div>
+        </div>
       </div>
     </section>
 
@@ -207,43 +216,43 @@
 
       <div class="panel-content">
       <div class="alerts-grid">
-        <div class="alert-card amber dashboard-link-card" data-module="Requisiciones" data-href="modulos/requisiciones.html" role="link" tabindex="0">
+        <div class="alert-card amber dashboard-link-card" data-module="Seguimiento SIIF" data-href="modulos/seguimiento-siif.html" role="link" tabindex="0">
           <div class="alert-icon">⚠️</div>
           <div>
-            <h3 id="alertReqSinOC">0</h3>
-            <p>Requisiciones sin OC</p>
+            <h3 id="alertReqInicioProcedimiento">0</h3>
+            <p>Requisiciones en inicio de procedimiento</p>
           </div>
         </div>
 
-        <div class="alert-card red dashboard-link-card" data-module="Requisiciones" data-href="modulos/requisiciones.html" role="link" tabindex="0">
-          <div class="alert-icon">🧾</div>
+        <div class="alert-card amber dashboard-link-card" data-module="Seguimiento SIIF" data-href="modulos/seguimiento-siif.html" role="link" tabindex="0">
+          <div class="alert-icon">OC</div>
           <div>
-            <h3 id="alertFacturas">0</h3>
-            <p>Facturas pendientes</p>
+            <h3 id="alertOcPendientesAutorizar">0</h3>
+            <p>Órdenes de compra pendientes de autorizar</p>
           </div>
         </div>
 
-        <div class="alert-card blue dashboard-link-card" data-module="Vales" data-href="modulos/vales.html" role="link" tabindex="0">
-          <div class="alert-icon">📦</div>
+        <div class="alert-card amber dashboard-link-card" data-module="Seguimiento SIIF" data-href="modulos/seguimiento-siif.html" role="link" tabindex="0">
+          <div class="alert-icon">SP</div>
           <div>
-            <h3 id="alertVales">0</h3>
-            <p>Vales pendientes</p>
+            <h3 id="alertSpEmitidas">0</h3>
+            <p>Solicitudes de pago en emitido</p>
           </div>
         </div>
 
-        <div class="alert-card green dashboard-link-card" data-module="Parque Vehicular" data-href="modulos/parque-vehicular.html" role="link" tabindex="0">
-          <div class="alert-icon">🚗</div>
-          <div>
-            <h3 id="alertTaller">0</h3>
-            <p>Unidades en taller</p>
-          </div>
-        </div>
-
-        <div class="alert-card red dashboard-link-card" data-module="Peticiones" data-href="modulos/peticiones.html" role="link" tabindex="0">
+        <div class="alert-card red dashboard-link-card" data-module="Seguimiento SIIF" data-href="modulos/seguimiento-siif.html" role="link" tabindex="0">
           <div class="alert-icon">!</div>
           <div>
-            <h3 id="alertPeticionesVencidas">0</h3>
-            <p>Peticiones con mas de 7 dias</p>
+            <h3 id="alertSpRechazadas">0</h3>
+            <p>Solicitudes de pago en rechazado</p>
+          </div>
+        </div>
+
+        <div class="alert-card blue dashboard-link-card" data-module="Seguimiento SIIF" data-href="modulos/seguimiento-siif.html" role="link" tabindex="0">
+          <div class="alert-icon">→</div>
+          <div>
+            <h3 id="alertSpEnviadas">0</h3>
+            <p>Solicitudes enviadas</p>
           </div>
         </div>
 
@@ -254,36 +263,18 @@
             <p>Peticiones sin proveedor</p>
           </div>
         </div>
+
+        <div class="alert-card blue dashboard-link-card" data-module="Vales" data-href="modulos/vales.html" role="link" tabindex="0">
+          <div class="alert-icon">V</div>
+          <div>
+            <h3 id="alertValesSinSolventar">0</h3>
+            <p>Vales sin solventar</p>
+          </div>
+        </div>
       </div>
       </div>
     </section>
 
-    <section class="panel collapsible-panel is-open" id="dashboardActivityPanel" data-collapsible>
-      <div class="panel-header">
-        <div>
-          <h2>Actividad reciente</h2>
-          <p>Últimos movimientos registrados.</p>
-        </div>
-        <button type="button" class="collapse-toggle" aria-expanded="true">Ocultar</button>
-      </div>
-
-      <div class="panel-content">
-      <div class="recent-grid">
-        <div class="recent-card" data-module="Peticiones">
-          <h3>Últimas peticiones</h3>
-          <div id="ultimasPeticiones"></div>
-        </div>
-        <div class="recent-card" data-module="Vales">
-          <h3>Últimos vales</h3>
-          <div id="ultimosVales"></div>
-        </div>
-        <div class="recent-card" data-module="Requisiciones">
-          <h3>Últimas requisiciones</h3>
-          <div id="ultimasReq"></div>
-        </div>
-      </div>
-      </div>
-    </section>
     </section>
 
     <div class="dashboard-section-heading dashboard-analysis-heading" id="seccionAnalisisHeading">
@@ -293,32 +284,6 @@
       </div>
       <p>Estas secciones inician contraídas para mantener el foco en la operación.</p>
     </div>
-
-    <section class="panel collapsible-panel is-collapsed" id="seccionRankingsOperativos" data-collapsible>
-      <div class="panel-header">
-        <div>
-          <h2>Rankings operativos</h2>
-          <p>Reparaciones costosas, partes y servicios más frecuentes.</p>
-        </div>
-        <button type="button" class="collapse-toggle" aria-expanded="true">Ocultar</button>
-      </div>
-      <div class="panel-content">
-      <div class="recent-grid">
-        <div class="recent-card">
-          <h3>Reparaciones más costosas</h3>
-          <ul class="ranking-list" id="rankingReparaciones"></ul>
-        </div>
-        <div class="recent-card">
-          <h3>Partes más reemplazadas</h3>
-          <ul class="ranking-list" id="rankingPartes"></ul>
-        </div>
-        <div class="recent-card">
-          <h3>Servicios más frecuentes</h3>
-          <ul class="ranking-list" id="rankingServicios"></ul>
-        </div>
-      </div>
-      </div>
-    </section>
 
 <section class="panel collapsible-panel is-collapsed" id="seccionGraficasOperativas" data-collapsible>
   <div class="panel-header">
@@ -389,6 +354,29 @@
       </tfoot>
     </table>
   </div>
+  </div>
+</section>
+
+<section class="panel collapsible-panel is-collapsed" id="seccionMatrizSolicitudesPago" data-collapsible style="display:none">
+  <div class="panel-header">
+    <div>
+      <h2>Solicitudes de pago por proveedor y estatus</h2>
+      <p>Suma de importes registrada directamente en SP SIIF.</p>
+    </div>
+    <button type="button" class="collapse-toggle" aria-expanded="false">Mostrar</button>
+  </div>
+  <div class="panel-content">
+    <div class="table-container">
+      <table>
+        <thead id="encabezadoMatrizSp">
+          <tr><th>Proveedor</th><th>Total</th></tr>
+        </thead>
+        <tbody id="tablaMatrizSp">
+          <tr><td colspan="2">Sin datos en el periodo</td></tr>
+        </tbody>
+        <tfoot id="totalesMatrizSp"></tfoot>
+      </table>
+    </div>
   </div>
 </section>
 
@@ -467,7 +455,7 @@
 
       const accionesPreferidas = [
         { modulo: "Peticiones", etiqueta: "Gestionar peticiones", detalle: "Solicitudes y seguimiento" },
-        { modulo: "Requisiciones", etiqueta: "Revisar requisiciones", detalle: "Compras, OC y facturas" },
+        { modulo: "Seguimiento SIIF", etiqueta: "Revisar seguimiento SIIF", detalle: "Requisiciones, OC y solicitudes de pago" },
         { modulo: "Vales", etiqueta: "Consultar vales", detalle: "Salidas de almacén" },
         { modulo: "Parque Vehicular", etiqueta: "Consultar unidades", detalle: "Estado del parque vehicular" },
         { modulo: "Acuerdos", etiqueta: "Revisar acuerdos", detalle: "Compromisos y fechas" },
@@ -489,8 +477,16 @@
 
       document.querySelectorAll(".dashboard-link-card").forEach(function (card) {
         const modulo = card.dataset.module;
-        if (modulo && !permitidos.includes(modulo)) {
+        const accesoModulo = !modulo || permitidos.includes(modulo);
+        const excepcionPersonal = card.dataset.indicadorPersonal === "true" &&
+          puedeVerIndicadoresPersonal(usuarioActivo);
+        if (!accesoModulo && !excepcionPersonal) {
           card.hidden = true;
+          return;
+        }
+        if (!accesoModulo && excepcionPersonal) {
+          card.removeAttribute("role");
+          card.removeAttribute("data-href");
           return;
         }
         function navegar() {
@@ -530,6 +526,17 @@
       return ["SuperAdmin", "Administrador del Sistema", "Admin", "Compras", "Director"].includes(rol);
     }
 
+    function puedeVerMatrizSolicitudesPago(usuario) {
+      const rol = String(usuario && usuario.rol || "").trim().toLowerCase();
+      return ["director", "admin", "superadmin"].includes(rol);
+    }
+
+    function puedeVerIndicadoresPersonal(usuario) {
+      const rol = String(usuario && usuario.rol || "").trim()
+        .normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
+      return ["coordinador", "jefe de almacen"].includes(rol);
+    }
+
     const dashboardClient = supabaseClient;
 
 let datosDashboard = {
@@ -539,12 +546,68 @@ let datosDashboard = {
   parque: [],
   usuarios: [],
   empleados: [],
-  tramites: []
+  tramites: [],
+  solicitudesPago: [],
+  ordenesCompra: []
 };
 
 let anioSeleccionadoDashboard = "";
 let fechaDesdeDashboard = "";
 let fechaHastaDashboard = "";
+
+    async function cargarSeguimientoSiifDashboard() {
+      const registros = [];
+      let desde = 0;
+      while (true) {
+        const resultado = await dashboardClient
+          .from("seguimiento_siif")
+          .select("*")
+          .order("fecha_req", { ascending: false })
+          .range(desde, desde + 999);
+        if (resultado.error) return resultado;
+        const bloque = resultado.data || [];
+        registros.push.apply(registros, bloque);
+        if (bloque.length < 1000) break;
+        desde += 1000;
+      }
+      return { data: registros, error: null, count: registros.length };
+    }
+
+    async function cargarSolicitudesPagoDashboard() {
+      const registros = [];
+      let desde = 0;
+      while (true) {
+        const resultado = await dashboardClient
+          .from("sp_siif")
+          .select("beneficiario,estatus,importe,fecha")
+          .order("fecha", { ascending: false })
+          .range(desde, desde + 999);
+        if (resultado.error) return resultado;
+        const bloque = resultado.data || [];
+        registros.push.apply(registros, bloque);
+        if (bloque.length < 1000) break;
+        desde += 1000;
+      }
+      return { data: registros, error: null, count: registros.length };
+    }
+
+    async function cargarOrdenesCompraDashboard() {
+      const registros = [];
+      let desde = 0;
+      while (true) {
+        const resultado = await dashboardClient
+          .from("oc_siif")
+          .select("folio,estatus,fecha")
+          .order("fecha", { ascending: false })
+          .range(desde, desde + 999);
+        if (resultado.error) return resultado;
+        const bloque = resultado.data || [];
+        registros.push.apply(registros, bloque);
+        if (bloque.length < 1000) break;
+        desde += 1000;
+      }
+      return { data: registros, error: null, count: registros.length };
+    }
 
     async function cargarDashboardReal() {
       const estadoActualizacion = document.getElementById("ultimaActualizacion");
@@ -558,7 +621,7 @@ let fechaHastaDashboard = "";
         ? (ETPermissions.obtenerModulosUsuario(usuarioActivo) || [])
         : [];
 
-      let peticionesRes, requisicionesRes, valesRes, parqueRes, usuariosRes, empleadosRes, tramitesRes;
+      let peticionesRes, requisicionesRes, solicitudesPagoRes, ordenesCompraRes, valesRes, parqueRes, usuariosRes, empleadosRes, tramitesRes;
       try {
         [
           peticionesRes,
@@ -574,19 +637,21 @@ let fechaHastaDashboard = "";
           dashboardClient.from("vales").select("*").order("created_at", { ascending: false }),
           dashboardClient.from("parque_vehicular").select("*").order("created_at", { ascending: false }),
           dashboardClient.from("usuarios").select("*").order("created_at", { ascending: false }),
-          modulosPermitidosConsulta.includes("Tramites Administrativos")
+          (modulosPermitidosConsulta.includes("Tramites Administrativos") || puedeVerIndicadoresPersonal(usuarioActivo))
             ? dashboardClient.from("empleados").select("id,num_empleado,nombre_completo,nombre,fecha_nac,activo")
             : Promise.resolve({ data: [], error: null }),
-          modulosPermitidosConsulta.includes("Tramites Administrativos")
-            ? dashboardClient.from("tramites_administrativos").select("id,num_empleado,empleado_nombre,tipo_tramite,fecha_inicio,fecha_fin")
+          (modulosPermitidosConsulta.includes("Tramites Administrativos") || puedeVerIndicadoresPersonal(usuarioActivo))
+            ? dashboardClient.from("tramites_administrativos").select("id,num_empleado,empleado_nombre,tipo_tramite,subtipo_incapacidad,motivo,fecha_inicio,fecha_fin")
             : Promise.resolve({ data: [], error: null })
         ]);
 
-        if (window.ETRequisiciones && typeof ETRequisiciones.listarSeguimientoSIIF === "function") {
-          requisicionesRes = await ETRequisiciones.listarSeguimientoSIIF();
-        } else {
-          requisicionesRes = await dashboardClient.from("seguimiento_siif").select("*").order("fecha_req", { ascending: false });
-        }
+        const puedeConsultarSiif = modulosPermitidosConsulta.includes("Seguimiento SIIF");
+        const sinDatosSiif = { data: [], error: null, count: 0 };
+        [requisicionesRes, solicitudesPagoRes, ordenesCompraRes] = await Promise.all([
+          puedeConsultarSiif ? cargarSeguimientoSiifDashboard() : Promise.resolve(sinDatosSiif),
+          puedeConsultarSiif ? cargarSolicitudesPagoDashboard() : Promise.resolve(sinDatosSiif),
+          puedeConsultarSiif ? cargarOrdenesCompraDashboard() : Promise.resolve(sinDatosSiif)
+        ]);
       } catch (err) {
         console.error("Error cargando datos del dashboard:", err);
         if (estadoActualizacion) estadoActualizacion.textContent = "No fue posible actualizar la información";
@@ -595,6 +660,8 @@ let fechaHastaDashboard = "";
 
   if (peticionesRes.error) console.error("Error peticiones:", peticionesRes.error);
   if (requisicionesRes.error) console.error("Error requisiciones:", requisicionesRes.error);
+  if (solicitudesPagoRes.error) console.error("Error solicitudes de pago:", solicitudesPagoRes.error);
+  if (ordenesCompraRes.error) console.error("Error órdenes de compra:", ordenesCompraRes.error);
   if (valesRes.error) console.error("Error vales:", valesRes.error);
   if (parqueRes.error) console.error("Error parque:", parqueRes.error);
   if (usuariosRes.error) console.error("Error usuarios:", usuariosRes.error);
@@ -603,6 +670,8 @@ let fechaHastaDashboard = "";
 
   datosDashboard.peticiones = peticionesRes.data || [];
   datosDashboard.requisiciones = requisicionesRes.data || [];
+  datosDashboard.solicitudesPago = solicitudesPagoRes.data || [];
+  datosDashboard.ordenesCompra = ordenesCompraRes.data || [];
   datosDashboard.vales = valesRes.data || [];
   datosDashboard.parque = parqueRes.data || [];
   datosDashboard.usuarios = usuariosRes.data || [];
@@ -624,6 +693,18 @@ function obtenerAnio(fecha) {
   return Number.isNaN(valor.getTime()) ? "" : valor.getFullYear().toString();
 }
 
+function obtenerFechaDashboard(item) {
+  return item && (item.fecha_req || item.fecha || item.fecha_oc || item.fecha_sp) || "";
+}
+
+function normalizarEstatusAlerta(valor) {
+  return String(valor || "").normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, " ")
+    .trim();
+}
+
 function llenarFiltroAnios() {
   const select = document.getElementById("filtroAnioDashboard");
 
@@ -635,7 +716,7 @@ function llenarFiltroAnios() {
   });
 
   datosDashboard.requisiciones.forEach(r => {
-    const anio = obtenerAnio(r.fecha);
+    const anio = obtenerAnio(obtenerFechaDashboard(r));
     if (anio) anios.add(anio);
   });
 
@@ -658,14 +739,14 @@ function llenarFiltroAnios() {
 function filtrarPorAnio(datos) {
   if (!anioSeleccionadoDashboard) return datos;
   return datos.filter(function (item) {
-    return obtenerAnio(item.fecha) === anioSeleccionadoDashboard;
+    return obtenerAnio(obtenerFechaDashboard(item)) === anioSeleccionadoDashboard;
   });
 }
 
 function filtrarPorRangoFechas(datos) {
   if (!fechaDesdeDashboard && !fechaHastaDashboard) return datos;
   return datos.filter(function (item) {
-    const fecha = String(item.fecha || "").split("T")[0];
+    const fecha = String(obtenerFechaDashboard(item)).split("T")[0];
     if (!fecha) return false;
     if (fechaDesdeDashboard && fecha < fechaDesdeDashboard) return false;
     if (fechaHastaDashboard && fecha > fechaHastaDashboard) return false;
@@ -692,6 +773,8 @@ function estadoVacioDashboard(mensaje) {
 function renderizarDashboard() {
   const peticiones = aplicarFiltros(datosDashboard.peticiones);
   const requisiciones = aplicarFiltros(datosDashboard.requisiciones);
+  const ordenesCompra = aplicarFiltros(datosDashboard.ordenesCompra);
+  const solicitudesPago = aplicarFiltros(datosDashboard.solicitudesPago);
   const vales = aplicarFiltros(datosDashboard.vales);
   const parque = datosDashboard.parque;
   const usuarios = datosDashboard.usuarios;
@@ -709,19 +792,20 @@ function renderizarDashboard() {
   });
 
   const puedeVerFinanciero = esRolFinanciero(usuarioActivo);
+  const puedeVerMatrizSp = puedeVerMatrizSolicitudesPago(usuarioActivo);
   const costoAnualCard = document.getElementById("kpiCostoAnualCard");
   const costoMensualCard = document.getElementById("kpiCostoMensualCard");
-  const rankingsOperativos = document.getElementById("seccionRankingsOperativos");
   const graficasOperativas = document.getElementById("seccionGraficasOperativas");
   const gastoProveedor = document.getElementById("seccionGastoProveedor");
+  const matrizSolicitudesPago = document.getElementById("seccionMatrizSolicitudesPago");
   const analisisHeading = document.getElementById("seccionAnalisisHeading");
   const labelKpiVales = document.getElementById("labelKpiVales");
 
   if (costoAnualCard) costoAnualCard.style.display = puedeVerFinanciero ? "" : "none";
   if (costoMensualCard) costoMensualCard.style.display = puedeVerFinanciero ? "" : "none";
-  if (rankingsOperativos) rankingsOperativos.style.display = puedeVerFinanciero ? "" : "none";
   if (graficasOperativas) graficasOperativas.style.display = puedeVerFinanciero ? "" : "none";
   if (gastoProveedor) gastoProveedor.style.display = puedeVerFinanciero ? "" : "none";
+  if (matrizSolicitudesPago) matrizSolicitudesPago.style.display = puedeVerMatrizSp ? "" : "none";
   if (analisisHeading) analisisHeading.style.display = puedeVerFinanciero ? "" : "none";
 
   if (labelKpiVales) {
@@ -734,6 +818,8 @@ function renderizarDashboard() {
   document.getElementById("kpiCostoAnual").textContent = moneda(kpis.costoAnual);
   document.getElementById("kpiCostoMensual").textContent = moneda(kpis.costoMensual);
   document.getElementById("kpiPeticiones").textContent = kpis.peticionesPendientes;
+  document.getElementById("kpiPeticionesPendienteProveedor").textContent =
+    kpis.peticionesPendientesProveedor;
   document.getElementById("kpiRequisiciones").textContent = kpis.requisicionesActivas;
   document.getElementById("kpiRequisicionesAutorizar").textContent = kpis.requisicionesPorAutorizar;
   document.getElementById("kpiRequisicionesXml").textContent = kpis.requisicionesConXml;
@@ -746,13 +832,14 @@ function renderizarDashboard() {
     String(ahoraOperativo.getDate()).padStart(2, "0")
   ].join("-");
   const cumpleanosSemana = ETLayout.obtenerCumpleanosSemana(empleados);
-  const tiposAusencia = ["Permiso especial", "Vacaciones", "Incapacidad"];
-  const empleadosAusentes = new Set(
-    tramites.filter(function (tramite) {
+  const tiposAusencia = ["Dias economicos", "Permiso especial", "Vacaciones", "Incapacidad"];
+  const tramitesActivosHoy = tramites.filter(function (tramite) {
       return tiposAusencia.includes(tramite.tipo_tramite) &&
-        String(tramite.fecha_inicio || "") <= hoyOperativo &&
-        String(tramite.fecha_fin || "") >= hoyOperativo;
-    }).map(function (tramite) {
+        String(tramite.fecha_inicio || "").slice(0, 10) <= hoyOperativo &&
+        String(tramite.fecha_fin || "").slice(0, 10) >= hoyOperativo;
+    });
+  const empleadosAusentes = new Set(
+    tramitesActivosHoy.map(function (tramite) {
       return String(tramite.num_empleado || tramite.empleado_nombre || "").trim();
     }).filter(Boolean)
   );
@@ -763,6 +850,29 @@ function renderizarDashboard() {
         }).join("\n")
       : "Nadie";
   document.getElementById("kpiAusentesHoy").textContent = empleadosAusentes.size;
+  const nombresEmpleados = new Map(empleados.map(function (empleado) {
+    return [
+      String(empleado.num_empleado || "").trim(),
+      empleado.nombre_completo || empleado.nombre || empleado.num_empleado
+    ];
+  }));
+  document.getElementById("listaAusentesHoy").innerHTML = tramitesActivosHoy.length
+    ? "<ul>" + tramitesActivosHoy.map(function (tramite) {
+        const nombre = tramite.empleado_nombre ||
+          nombresEmpleados.get(String(tramite.num_empleado || "").trim()) ||
+          ("Empleado " + (tramite.num_empleado || "sin número"));
+        const tipoAusencia = tramite.tipo_tramite === "Dias economicos"
+          ? "Días económicos"
+          : tramite.tipo_tramite;
+        const motivo = [
+          tipoAusencia,
+          tramite.subtipo_incapacidad,
+          tramite.motivo
+        ].filter(Boolean).join(" · ");
+        return "<li><strong>" + escaparHTML(nombre) + "</strong><span>" +
+          escaparHTML(motivo || "Ausencia") + "</span></li>";
+      }).join("") + "</ul>"
+    : "<span>No hay empleados ausentes.</span>";
 
   document.getElementById("kpiCostoAnualDesc").textContent =
     anioSeleccionadoDashboard ? "Año " + anioSeleccionadoDashboard : "Año " + anioEtiqueta;
@@ -775,26 +885,40 @@ function renderizarDashboard() {
           : "Total registrado")
       : "Activos";
 
-  document.getElementById("alertReqSinOC").textContent = kpis.reqSinOC;
-  document.getElementById("alertFacturas").textContent = kpis.facturasPendientes;
-  document.getElementById("alertVales").textContent = kpis.valesPendientes;
-  document.getElementById("alertTaller").textContent = kpis.unidadesTaller;
-  const hoyAlertas = new Date();
-  const peticionesVencidas = peticiones.filter(function (p) {
-    if (!p.fecha || p.estatus === "Recibido en Almacen" || p.estatus === "CANCELADO") return false;
-    const fecha = new Date(p.fecha + "T00:00:00");
-    if (Number.isNaN(fecha.getTime())) return false;
-    return Math.floor((hoyAlertas - fecha) / 86400000) > 7;
+  const requisicionesInicio = requisiciones.filter(function (fila) {
+    return normalizarEstatusAlerta(fila.estatus_requisicion) === "inicio de procedimiento";
+  }).length;
+  const ocPendientesAutorizar = ordenesCompra.filter(function (fila) {
+    return normalizarEstatusAlerta(fila.estatus).replace(/\s/g, "") === "llenadodeoc";
+  }).length;
+  const spEmitidas = solicitudesPago.filter(function (fila) {
+    return /^emitid[ao]$/.test(normalizarEstatusAlerta(fila.estatus));
+  }).length;
+  const spRechazadas = solicitudesPago.filter(function (fila) {
+    return /^rechazad[ao]$/.test(normalizarEstatusAlerta(fila.estatus));
+  }).length;
+  const spEnviadas = solicitudesPago.filter(function (fila) {
+    const estatus = normalizarEstatusAlerta(fila.estatus);
+    return estatus &&
+      !estatus.includes("cancelad") &&
+      !estatus.includes("emitid") &&
+      !estatus.includes("rechazad");
   }).length;
   const peticionesSinProveedor = peticiones.filter(function (p) {
-    return p.estatus !== "Recibido en Almacen" &&
-      p.estatus !== "CANCELADO" &&
+    return !normalizarEstatusAlerta(p.estatus).includes("cancelad") &&
       !String(p.proveedor || "").trim();
   }).length;
-  const alertPeticionesVencidas = document.getElementById("alertPeticionesVencidas");
-  const alertPeticionesSinProveedor = document.getElementById("alertPeticionesSinProveedor");
-  if (alertPeticionesVencidas) alertPeticionesVencidas.textContent = peticionesVencidas;
-  if (alertPeticionesSinProveedor) alertPeticionesSinProveedor.textContent = peticionesSinProveedor;
+  const valesSinSolventar = vales.filter(function (vale) {
+    const estatus = normalizarEstatusAlerta(vale.estatus);
+    return !estatus.includes("solventad") && !estatus.includes("cancelad");
+  }).length;
+  document.getElementById("alertReqInicioProcedimiento").textContent = requisicionesInicio;
+  document.getElementById("alertOcPendientesAutorizar").textContent = ocPendientesAutorizar;
+  document.getElementById("alertSpEmitidas").textContent = spEmitidas;
+  document.getElementById("alertSpRechazadas").textContent = spRechazadas;
+  document.getElementById("alertSpEnviadas").textContent = spEnviadas;
+  document.getElementById("alertPeticionesSinProveedor").textContent = peticionesSinProveedor;
+  document.getElementById("alertValesSinSolventar").textContent = valesSinSolventar;
 
   const resumenAtencion = document.getElementById("resumenAtencion");
   if (resumenAtencion) {
@@ -803,7 +927,7 @@ function renderizarDashboard() {
       : [];
     const totalAtencion =
       (modulosAtencion.includes("Peticiones") ? kpis.peticionesPendientes : 0) +
-      (modulosAtencion.includes("Requisiciones") ? kpis.requisicionesPorAutorizar : 0) +
+      (modulosAtencion.includes("Seguimiento SIIF") ? kpis.requisicionesPorAutorizar : 0) +
       (modulosAtencion.includes("Vales") ? kpis.valesPendientes : 0);
     resumenAtencion.classList.toggle("is-clear", totalAtencion === 0);
     resumenAtencion.innerHTML =
@@ -813,51 +937,61 @@ function renderizarDashboard() {
         : totalAtencion + (totalAtencion === 1 ? " pendiente requiere atención" : " pendientes requieren atención"));
   }
 
-  document.getElementById("rankingReparaciones").innerHTML =
-    kpis.reparacionesCostosas.map(function (r, i) {
-      return "<li><span><span class=\"rank\">" + (i + 1) + ".</span>" +
-        escaparHTML(r.concepto || "Sin concepto") + "</span><strong>" + moneda(r.monto) + "</strong></li>";
-    }).join("") || "<li>Sin datos en el periodo</li>";
-
-  document.getElementById("rankingPartes").innerHTML =
-    kpis.partesFrecuentes.map(function (p, i) {
-      return "<li><span><span class=\"rank\">" + (i + 1) + ".</span>" + escaparHTML(p[0]) + "</span><strong>" + p[1] + "</strong></li>";
-    }).join("") || "<li>Sin datos en el periodo</li>";
-
-  document.getElementById("rankingServicios").innerHTML =
-    kpis.serviciosFrecuentes.map(function (s, i) {
-      return "<li><span><span class=\"rank\">" + (i + 1) + ".</span>" + escaparHTML(s[0]) + "</span><strong>" + s[1] + "</strong></li>";
-    }).join("") || "<li>Sin datos en el periodo</li>";
-
-  document.getElementById("ultimasPeticiones").innerHTML =
-    peticiones.slice(0, 5).map(p => `
-      <div class="recent-item">
-        <strong>${escaparHTML(p.unidad || "Sin unidad")}</strong>
-        <span>${escaparHTML(p.peticion || "Sin petición")}</span>
-      </div>
-    `).join("") || estadoVacioDashboard("No hay peticiones en el periodo.");
-
-  document.getElementById("ultimosVales").innerHTML =
-    vales.slice(0, 5).map(v => `
-      <div class="recent-item">
-        <strong>${escaparHTML(v.folio || "Sin folio")}</strong>
-        <span>${escaparHTML(v.refaccion || "Sin descripción")}</span>
-      </div>
-    `).join("") || estadoVacioDashboard("No hay vales en el periodo.");
-
-  document.getElementById("ultimasReq").innerHTML =
-    requisiciones.slice(0, 5).map(r => `
-      <div class="recent-item">
-        <strong>${escaparHTML(r.numero || "Sin requisición")}</strong>
-        <span>${escaparHTML(r.concepto || "Sin concepto")}</span>
-      </div>
-    `).join("") || estadoVacioDashboard("No hay requisiciones en el periodo.");
-
   crearGraficaGastoMes(requisiciones);
   crearGraficaGastoDependencia(requisiciones);
   crearGraficaProveedor(requisiciones);
   crearGraficaUnidadesGasto(requisiciones);
   renderizarTablaGastoProveedor(datosDashboard.requisiciones);
+  renderizarMatrizSolicitudesPago(aplicarFiltros(datosDashboard.solicitudesPago));
+}
+
+function renderizarMatrizSolicitudesPago(solicitudes) {
+  const thead = document.getElementById("encabezadoMatrizSp");
+  const tbody = document.getElementById("tablaMatrizSp");
+  const tfoot = document.getElementById("totalesMatrizSp");
+  if (!thead || !tbody || !tfoot) return;
+
+  const estatus = Array.from(new Set((solicitudes || []).map(function (fila) {
+    return String(fila.estatus || "SIN ESTATUS").trim() || "SIN ESTATUS";
+  }))).sort(function (a, b) { return a.localeCompare(b, "es"); });
+
+  const proveedores = new Map();
+  const totalesEstatus = {};
+  (solicitudes || []).forEach(function (fila) {
+    const proveedor = String(fila.beneficiario || "SIN PROVEEDOR").trim() || "SIN PROVEEDOR";
+    const estado = String(fila.estatus || "SIN ESTATUS").trim() || "SIN ESTATUS";
+    const importe = Number(fila.importe || 0);
+    if (!proveedores.has(proveedor)) proveedores.set(proveedor, { total: 0, estatus: {} });
+    const acumulado = proveedores.get(proveedor);
+    acumulado.estatus[estado] = (acumulado.estatus[estado] || 0) + importe;
+    acumulado.total += importe;
+    totalesEstatus[estado] = (totalesEstatus[estado] || 0) + importe;
+  });
+
+  thead.innerHTML = "<tr><th>Proveedor</th>" +
+    estatus.map(function (estado) { return "<th>" + escaparHTML(estado) + "</th>"; }).join("") +
+    "<th>Total</th></tr>";
+
+  const filas = Array.from(proveedores.entries()).sort(function (a, b) {
+    return b[1].total - a[1].total;
+  });
+  tbody.innerHTML = filas.length ? filas.map(function (entrada) {
+    return "<tr><td><strong>" + escaparHTML(entrada[0]) + "</strong></td>" +
+      estatus.map(function (estado) {
+        const importe = entrada[1].estatus[estado] || 0;
+        return "<td>" + (importe ? moneda(importe) : "—") + "</td>";
+      }).join("") +
+      "<td><strong>" + moneda(entrada[1].total) + "</strong></td></tr>";
+  }).join("") : '<tr><td colspan="' + (estatus.length + 2) + '">Sin datos en el periodo</td></tr>';
+
+  const totalGeneral = filas.reduce(function (total, entrada) { return total + entrada[1].total; }, 0);
+  tfoot.innerHTML = filas.length
+    ? "<tr><td><strong>Total general</strong></td>" +
+      estatus.map(function (estado) {
+        return "<td><strong>" + moneda(totalesEstatus[estado] || 0) + "</strong></td>";
+      }).join("") +
+      "<td><strong>" + moneda(totalGeneral) + "</strong></td></tr>"
+    : "";
 }
 
 let graficaGastoMes = null;
@@ -1000,9 +1134,10 @@ function crearGraficaGastoMes(requisiciones) {
   const meses = {};
 
   requisiciones.forEach(r => {
-    if (!r.fecha) return;
+    const fechaRegistro = obtenerFechaDashboard(r);
+    if (!fechaRegistro) return;
 
-    const fechaCorta = String(r.fecha).split("T")[0];
+    const fechaCorta = String(fechaRegistro).split("T")[0];
     const fecha = new Date(fechaCorta + "T00:00:00");
     if (Number.isNaN(fecha.getTime())) return;
 

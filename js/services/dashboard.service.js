@@ -9,6 +9,10 @@
     return Number.isNaN(valor.getTime()) ? "" : valor.getFullYear().toString();
   }
 
+  function obtenerFechaRegistro(item) {
+    return item && (item.fecha_req || item.fecha || item.fecha_oc || item.fecha_sp) || "";
+  }
+
   function obtenerMes(fecha) {
     if (!fecha) return "";
     const fechaCorta = String(fecha).split("T")[0];
@@ -20,14 +24,14 @@
   function filtrarPorAnio(datos, anio) {
     if (!anio) return datos;
     return datos.filter(function (item) {
-      return obtenerAnio(item.fecha) === anio;
+      return obtenerAnio(obtenerFechaRegistro(item)) === anio;
     });
   }
 
   function filtrarPorRango(datos, desde, hasta) {
     if (!desde && !hasta) return datos;
     return datos.filter(function (item) {
-      const fecha = String(item.fecha || item.fecha_req || "").split("T")[0];
+      const fecha = String(obtenerFechaRegistro(item)).split("T")[0];
       if (!fecha) return false;
       if (desde && fecha < desde) return false;
       if (hasta && fecha > hasta) return false;
@@ -105,7 +109,7 @@
 
     const aniosEnDatos = {};
     requisicionesParaKpi.forEach(function (r) {
-      const anio = obtenerAnio(r.fecha);
+      const anio = obtenerAnio(obtenerFechaRegistro(r));
       if (anio) aniosEnDatos[anio] = true;
     });
     const unSoloAnio = Object.keys(aniosEnDatos).length === 1
@@ -115,11 +119,13 @@
     const costoAnual = unSoloAnio
       ? sumarMontos(requisicionesParaKpi)
       : sumarMontos(requisicionesParaKpi.filter(function (r) {
-          return obtenerAnio(r.fecha) === anioActual;
+          return obtenerAnio(obtenerFechaRegistro(r)) === anioActual;
         }));
 
     const costoMensual = sumarMontos(
-      requisicionesParaKpi.filter(function (r) { return obtenerMes(r.fecha) === mesActual; })
+      requisicionesParaKpi.filter(function (r) {
+        return obtenerMes(obtenerFechaRegistro(r)) === mesActual;
+      })
     );
 
     const requisicionesActivas = requisicionesOperativasParaKpi.filter(function (r) {
@@ -133,8 +139,7 @@
     }).length;
 
     const requisicionesConXml = requisicionesOperativasParaKpi.filter(function (r) {
-      const xml = String(r.xml || r.factura || "").trim();
-      return Boolean(xml);
+      return Boolean(r.numero_sp);
     }).length;
 
     const partesFrecuentes = topN(agruparConteo(vales, "refaccion"), 5);
@@ -149,6 +154,9 @@
       unidadesActivas: parque.filter(function (u) { return u.estatus === "ACTIVO"; }).length,
       unidadesTaller: parque.filter(function (u) { return u.estatus === "TALLER"; }).length,
       peticionesPendientes: peticiones.filter(function (p) { return p.estatus === "Pendiente"; }).length,
+      peticionesPendientesProveedor: peticiones.filter(function (p) {
+        return normalizarTextoDashboard(p.estatus) === "revisado por almacen";
+      }).length,
       requisicionesActivas: requisicionesActivas,
       requisicionesPorAutorizar: requisicionesPorAutorizar,
       requisicionesConXml: requisicionesConXml,
@@ -161,10 +169,9 @@
       usuariosActivos: usuarios.filter(function (u) { return u.activo === true; }).length,
       costoAnual: costoAnual,
       costoMensual: costoMensual,
-      reqSinOC: requisiciones.filter(function (r) { return !r.oc; }).length,
+      reqSinOC: requisicionesParaKpi.filter(function (r) { return !r.numero_oc; }).length,
       facturasPendientes: requisiciones.filter(function (r) {
-        const xml = String(r.xml || r.factura || "").trim();
-        return !xml;
+        return !estaCanceladoDashboard(r) && !r.numero_sp;
       }).length,
       partesFrecuentes: partesFrecuentes,
       serviciosFrecuentes: serviciosFrecuentes,
