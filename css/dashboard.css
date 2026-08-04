@@ -100,6 +100,7 @@
 }
 
 .dashboard-attention {
+  position: relative;
   display: inline-flex;
   align-items: center;
   gap: 9px;
@@ -112,6 +113,78 @@
   background: rgba(245, 158, 11, 0.1);
   font-size: 12px;
   font-weight: 750;
+  cursor: help;
+}
+
+.dashboard-attention:focus-visible {
+  outline: 2px solid currentColor;
+  outline-offset: 3px;
+}
+
+.dashboard-attention-tooltip {
+  position: absolute;
+  z-index: 80;
+  top: calc(100% + 10px);
+  right: 0;
+  width: min(300px, calc(100vw - 32px));
+  padding: 14px;
+  border: 1px solid var(--border-subtle);
+  border-radius: 14px;
+  color: var(--text-primary);
+  background: var(--bg-surface);
+  box-shadow: 0 18px 45px rgba(0, 0, 0, .28);
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(-6px);
+  transition: opacity .18s ease, transform .18s ease, visibility .18s ease;
+  pointer-events: none;
+}
+
+.dashboard-attention:hover .dashboard-attention-tooltip,
+.dashboard-attention:focus-visible .dashboard-attention-tooltip,
+.dashboard-attention:focus-within .dashboard-attention-tooltip {
+  opacity: 1;
+  visibility: visible;
+  transform: translateY(0);
+}
+
+.dashboard-attention-tooltip > strong {
+  display: block;
+  margin-bottom: 9px;
+  font-size: 13px;
+}
+
+.dashboard-attention-tooltip ul {
+  display: grid;
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.dashboard-attention-tooltip li {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid var(--border-subtle);
+  font-weight: 500;
+}
+
+.dashboard-attention-tooltip li:last-child {
+  padding-bottom: 0;
+  border-bottom: 0;
+}
+
+.dashboard-attention-tooltip li strong {
+  color: var(--text-primary);
+  font-size: 14px;
+}
+
+.dashboard-attention-tooltip > div > span {
+  color: var(--text-muted);
+  font-weight: 500;
 }
 
 .dashboard-attention.is-clear {

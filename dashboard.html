@@ -7,7 +7,7 @@
 
   <link rel="stylesheet" href="css/style.css?v=20260730-1">
   <link rel="stylesheet" href="css/design-system.css?v=20260727-5">
-  <link rel="stylesheet" href="css/dashboard.css">
+  <link rel="stylesheet" href="css/dashboard.css?v=20260803-1">
   <link rel="stylesheet" href="css/mobile-app.css">
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -52,9 +52,13 @@
       </div>
 
       <div class="dashboard-hero-side">
-        <div class="dashboard-attention" id="resumenAtencion" aria-live="polite">
+        <div class="dashboard-attention" id="resumenAtencion" aria-live="polite" tabindex="0" aria-describedby="detalleResumenAtencion">
           <span class="dashboard-attention-dot"></span>
           Calculando pendientes…
+          <div class="dashboard-attention-tooltip" id="detalleResumenAtencion" role="tooltip">
+            <strong>Resumen de pendientes</strong>
+            <div id="listaResumenAtencion">Calculando desglose…</div>
+          </div>
         </div>
         <div class="dashboard-actions" aria-label="Acciones del dashboard">
           <button type="button" class="btn-small dashboard-unit-search-button" onclick="abrirVentanaBuscadorUnidades()">Buscar unidad</button>
@@ -909,7 +913,27 @@ function renderizarDashboard() {
       '<span class="dashboard-attention-dot"></span>' +
       (totalAtencion === 0
         ? "Operación sin pendientes críticos"
-        : totalAtencion + (totalAtencion === 1 ? " pendiente requiere atención" : " pendientes requieren atención"));
+        : totalAtencion + (totalAtencion === 1 ? " pendiente requiere atención" : " pendientes requieren atención")) +
+      '<div class="dashboard-attention-tooltip" id="detalleResumenAtencion" role="tooltip">' +
+        '<strong>Resumen de pendientes</strong>' +
+        '<div id="listaResumenAtencion">' +
+          (totalAtencion === 0
+            ? '<span>No hay pendientes críticos.</span>'
+            : '<ul>' + [
+                modulosAtencion.includes("Peticiones")
+                  ? { etiqueta: "Peticiones sin atender", total: kpis.peticionesPendientes }
+                  : null,
+                modulosAtencion.includes("Seguimiento SIIF")
+                  ? { etiqueta: "Requisiciones por autorizar", total: kpis.requisicionesPorAutorizar }
+                  : null,
+                modulosAtencion.includes("Vales")
+                  ? { etiqueta: "Vales pendientes", total: kpis.valesPendientes }
+                  : null
+              ].filter(Boolean).map(function (pendiente) {
+                return '<li><span>' + pendiente.etiqueta + '</span><strong>' + pendiente.total + '</strong></li>';
+              }).join("") + '</ul>') +
+        '</div>' +
+      '</div>';
   }
 
   crearGraficaGastoMes(requisiciones);
