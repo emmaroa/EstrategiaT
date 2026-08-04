@@ -85,9 +85,22 @@
     }
     async function cargar() {
       if (!localStorage.getItem("usuarioActivo")) { estado.textContent = "No hay una sesión activa."; input.disabled = true; return; }
-      const respuesta = await supabaseClient.from("parque_vehicular").select("*").order("created_at", { ascending: false });
-      if (respuesta.error) { estado.textContent = "No fue posible cargar las unidades."; return; }
-      unidades = respuesta.data || []; estado.textContent = "Listo para buscar."; input.focus();
+      unidades = [];
+      let desde = 0;
+      while (true) {
+        const respuesta = await supabaseClient
+          .from("parque_vehicular")
+          .select("*")
+          .order("numero_consecutivo", { ascending: true })
+          .order("id", { ascending: true })
+          .range(desde, desde + 999);
+        if (respuesta.error) { estado.textContent = "No fue posible cargar las unidades."; return; }
+        const bloque = respuesta.data || [];
+        unidades.push.apply(unidades, bloque);
+        if (bloque.length < 1000) break;
+        desde += 1000;
+      }
+      estado.textContent = "Listo para buscar. " + unidades.length + " unidades cargadas."; input.focus();
     }
     input.addEventListener("input", function () { input.value = input.value.replace(/\D/g, "").slice(0, 4); });
     input.addEventListener("keydown", function (evento) { if (evento.key === "Enter") buscar(); });

@@ -610,14 +610,28 @@
         return;
       }
 
-      let data, count, error;
+      let data = [];
+      let count = 0;
+      let error = null;
       try {
-        ({ data, count, error } = await supabaseClient
-          .from("parque_vehicular")
-          .select("*", { count: "exact" })
-          .order("numero_consecutivo", {
-            ascending: true
-          }));
+        let desde = 0;
+        while (true) {
+          const resultado = await supabaseClient
+            .from("parque_vehicular")
+            .select("*", { count: desde === 0 ? "exact" : undefined })
+            .order("numero_consecutivo", { ascending: true })
+            .order("id", { ascending: true })
+            .range(desde, desde + 999);
+          if (resultado.error) {
+            error = resultado.error;
+            break;
+          }
+          const bloque = resultado.data || [];
+          data.push.apply(data, bloque);
+          if (desde === 0 && typeof resultado.count === "number") count = resultado.count;
+          if (bloque.length < 1000) break;
+          desde += 1000;
+        }
       } catch (err) {
         console.error("Error cargando parque vehicular:", err);
         return;
@@ -641,6 +655,7 @@
 
       const filtradas = parque.filter(function (u) {
         const coincideTexto =
+          (u.numero_economico || "").toString().toLowerCase().includes(texto) ||
           (u.numero_inventario || "").toString().toLowerCase().includes(texto) ||
           (u.unidad_patrulla || "").toLowerCase().includes(texto) ||
           (u.descripcion || "").toLowerCase().includes(texto) ||

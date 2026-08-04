@@ -9,6 +9,16 @@
   <title>Administración de Talleres | Portal Proveedor</title>
   <link rel="stylesheet" href="../css/style.css">
   <link rel="stylesheet" href="../css/design-system.css?v=20260727-5">
+  <style>
+    .portal-status-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(220px,1fr)); gap:14px; }
+    .portal-status-card { padding:16px; border:1px solid var(--border, #e5e7eb); border-radius:14px; background:var(--surface, #fff); }
+    .portal-status-card h3 { margin:0 0 12px; font-size:0.95rem; }
+    .portal-status-values { display:flex; justify-content:space-between; gap:12px; align-items:flex-end; }
+    .portal-status-values strong { font-size:1.35rem; }
+    .portal-status-values span { color:var(--muted); font-weight:700; text-align:right; }
+    .portal-status-track { height:7px; margin-top:12px; overflow:hidden; border-radius:999px; background:var(--surface-2, #eef2f7); }
+    .portal-status-bar { height:100%; border-radius:inherit; background:var(--primary, #2563eb); }
+  </style>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="../js/core/supabase.js"></script>
   <script src="../js/core/permissions.js?v=20260725-3"></script>
@@ -56,9 +66,24 @@
         <p>Confirmadas por proveedor</p>
       </div>
       <div class="kpi-card">
-        <span>Requisiciones</span>
+        <span>Trámites SIIF</span>
         <h2 id="kpiRequisicionesProveedor">0</h2>
-        <p>Seguimiento disponible</p>
+        <p>Asignados al proveedor</p>
+      </div>
+      <div class="kpi-card">
+        <span>Monto total SIIF</span>
+        <h2 id="kpiMontoSiifProveedor">$0.00</h2>
+        <p>Suma de los trámites visibles</p>
+      </div>
+      <div class="kpi-card">
+        <span>Con orden de compra</span>
+        <h2 id="kpiOrdenesCompraProveedor">0</h2>
+        <p>Trámites que ya tienen OC</p>
+      </div>
+      <div class="kpi-card">
+        <span>En solicitud de pago</span>
+        <h2 id="kpiSolicitudesPagoProveedor">0</h2>
+        <p>Etapa actual del trámite</p>
       </div>
       <div class="kpi-card">
         <span>Cotizaciones de almacén</span>
@@ -75,6 +100,16 @@
         <h2 id="kpiTotalCotizacionesConRequisicion">$0.00</h2>
         <p>Importe con requisición asignada</p>
       </div>
+    </section>
+
+    <section class="panel">
+      <div class="panel-header">
+        <div>
+          <h2>Trámites SIIF por estatus</h2>
+          <p>Cantidad y monto acumulado por estatus actual.</p>
+        </div>
+      </div>
+      <div class="portal-status-grid" id="resumenEstatusSiifProveedor"></div>
     </section>
 
     <section class="panel">
@@ -157,8 +192,8 @@
     <section class="panel">
       <div class="panel-header">
         <div>
-          <h2>Estatus de requisiciones</h2>
-          <p>Vista de consulta exclusiva para tus requisiciones.</p>
+          <h2>Detalle de trámites SIIF</h2>
+          <p>Vista de consulta exclusiva de los trámites asignados al proveedor.</p>
         </div>
         <button type="button" class="btn-secondary" id="btnExportarRequisicionesProveedor">Exportar hoja de cálculo</button>
       </div>
@@ -176,6 +211,7 @@
               <th>Requisición</th>
               <th>Unidad</th>
               <th>Concepto</th>
+              <th>Monto</th>
               <th>Orden de compra</th>
               <th>Estatus</th>
             </tr>
@@ -334,7 +370,7 @@
           .order("created_at", { ascending: false }),
         supabaseClient
           .from("seguimiento_siif")
-          .select("id,fecha_req,numero_req,unidad,concepto,numero_oc,estatus,proveedor")
+          .select("id,fecha_req,numero_req,unidad,concepto,monto,numero_oc,estatus,estatus_requisicion,estatus_oc,estatus_sp,etapa_actual,proveedor")
           .contains("proveedores", [proveedorVinculado])
           .order("fecha_req", { ascending: false }),
         ETCotizacionesAlmacen.listarPorProveedor(proveedorVinculado)
@@ -485,6 +521,33 @@
       return "amber";
     }
 
+    function renderizarResumenSiifProveedor() {
+      const contenedor = document.getElementById("resumenEstatusSiifProveedor");
+      const resumen = requisicionesProveedor.reduce(function (acumulado, tramite) {
+        const estatus = String(tramite.estatus || "Sin estatus").trim() || "Sin estatus";
+        if (!acumulado[estatus]) acumulado[estatus] = { cantidad: 0, monto: 0 };
+        acumulado[estatus].cantidad += 1;
+        acumulado[estatus].monto += Number(tramite.monto || 0);
+        return acumulado;
+      }, {});
+      const filas = Object.keys(resumen).map(function (estatus) {
+        return { estatus: estatus, cantidad: resumen[estatus].cantidad, monto: resumen[estatus].monto };
+      }).sort(function (a, b) {
+        return b.monto - a.monto || b.cantidad - a.cantidad || a.estatus.localeCompare(b.estatus, "es");
+      });
+      const montoMaximo = Math.max.apply(null, filas.map(function (fila) { return fila.monto; }).concat([0]));
+
+      contenedor.innerHTML = filas.length ? filas.map(function (fila) {
+        const porcentaje = montoMaximo > 0 ? Math.max(3, (fila.monto / montoMaximo) * 100) : 0;
+        return '<article class="portal-status-card">' +
+          "<h3>" + escaparPortal(fila.estatus) + "</h3>" +
+          '<div class="portal-status-values"><strong>' + fila.cantidad +
+          '</strong><span>' + escaparPortal(importePortal(fila.monto)) + "</span></div>" +
+          '<div class="portal-status-track" aria-hidden="true"><div class="portal-status-bar" style="width:' +
+          porcentaje.toFixed(2) + '%"></div></div></article>';
+      }).join("") : '<p class="helper-text">No hay trámites SIIF asignados a este proveedor.</p>';
+    }
+
     function renderizarPortalProveedor() {
       const tablaPeticiones = document.getElementById("tablaPeticionesProveedor");
       const tablaRequisiciones = document.getElementById("tablaRequisicionesProveedor");
@@ -553,10 +616,11 @@
               "<td><strong>" + escaparPortal(requisicion.numero_req || "—") + "</strong></td>" +
               "<td>" + escaparPortal(requisicion.unidad || "—") + "</td>" +
               "<td>" + escaparPortal(requisicion.concepto || "—") + "</td>" +
+              "<td><strong>" + escaparPortal(importePortal(requisicion.monto)) + "</strong></td>" +
               "<td>" + escaparPortal(requisicion.numero_oc || "Pendiente") + "</td>" +
               '<td><span class="badge status-badge blue">' + escaparPortal(requisicion.estatus || "—") + "</span></td></tr>";
           }).join("")
-        : '<tr><td colspan="6">No hay requisiciones que coincidan con los filtros.</td></tr>';
+        : '<tr><td colspan="7">No hay requisiciones que coincidan con los filtros.</td></tr>';
 
       document.getElementById("kpiPeticionesProveedor").textContent = peticionesProveedor.length;
       document.getElementById("kpiPendientesProveedor").textContent = peticionesProveedor.filter(function (p) {
@@ -566,6 +630,17 @@
         return p.estatus_proveedor === "Entregado a almacén";
       }).length;
       document.getElementById("kpiRequisicionesProveedor").textContent = requisicionesProveedor.length;
+      const montoTotalSiif = requisicionesProveedor.reduce(function (total, tramite) {
+        return total + Number(tramite.monto || 0);
+      }, 0);
+      document.getElementById("kpiMontoSiifProveedor").textContent = importePortal(montoTotalSiif);
+      document.getElementById("kpiOrdenesCompraProveedor").textContent = requisicionesProveedor.filter(function (tramite) {
+        return Boolean(String(tramite.numero_oc || "").trim());
+      }).length;
+      document.getElementById("kpiSolicitudesPagoProveedor").textContent = requisicionesProveedor.filter(function (tramite) {
+        return normalizarPortal(tramite.etapa_actual) === "solicitud de pago";
+      }).length;
+      renderizarResumenSiifProveedor();
       document.getElementById("kpiCotizacionesAlmacen").textContent = cotizacionesAlmacenProveedor.length;
       const totalSinTramite = cotizacionesAlmacenProveedor.reduce(function (acumulado, cotizacion) {
         return acumulado + (!String(cotizacion.requisicion || "").trim() ? Number(cotizacion.total || 0) : 0);
@@ -634,13 +709,14 @@
           r.numero_req,
           r.unidad,
           r.concepto,
+          Number(r.monto || 0),
           r.numero_oc,
           r.estatus
         ];
       });
       descargarCSV(
         nombreArchivoPortal("requisiciones"),
-        ["Fecha", "Requisición", "Unidad", "Concepto", "Orden de compra", "Estatus"],
+        ["Fecha", "Requisición", "Unidad", "Concepto", "Monto", "Orden de compra", "Estatus"],
         filas
       );
     }

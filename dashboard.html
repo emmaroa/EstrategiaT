@@ -649,6 +649,25 @@ let fechaHastaDashboard = "";
       return { data: registros, error: null, count: registros.length };
     }
 
+    async function cargarParqueDashboard() {
+      const registros = [];
+      let desde = 0;
+      while (true) {
+        const resultado = await dashboardClient
+          .from("parque_vehicular")
+          .select("*")
+          .order("numero_consecutivo", { ascending: true })
+          .order("id", { ascending: true })
+          .range(desde, desde + 999);
+        if (resultado.error) return resultado;
+        const bloque = resultado.data || [];
+        registros.push.apply(registros, bloque);
+        if (bloque.length < 1000) break;
+        desde += 1000;
+      }
+      return { data: registros, error: null, count: registros.length };
+    }
+
     async function cargarDashboardReal() {
       const estadoActualizacion = document.getElementById("ultimaActualizacion");
       if (estadoActualizacion) estadoActualizacion.textContent = "Actualizando información…";
@@ -675,7 +694,7 @@ let fechaHastaDashboard = "";
             ? ETPeticiones.listar()
             : dashboardClient.from("peticiones").select("*", { count: "exact" }).order("created_at", { ascending: false }),
           dashboardClient.from("vales").select("*").order("created_at", { ascending: false }),
-          dashboardClient.from("parque_vehicular").select("*").order("created_at", { ascending: false }),
+          cargarParqueDashboard(),
           dashboardClient.from("usuarios").select("*").order("created_at", { ascending: false }),
           (modulosPermitidosConsulta.includes("Tramites Administrativos") || puedeVerIndicadoresPersonal(usuarioActivo))
             ? dashboardClient.from("empleados").select("id,num_empleado,nombre_completo,nombre,fecha_nac,activo")
