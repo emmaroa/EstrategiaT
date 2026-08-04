@@ -444,6 +444,15 @@
       return rol === "coordinadorinfraestructura";
     }
 
+    function puedeVerProveedoresPeticion() {
+      const usuarioActivo = obtenerUsuarioActivoPeticion();
+      const rol = normalizarRolPeticion(usuarioActivo?.rol || usuarioActivo?.rol_original);
+      if (rol === "coordinador" || rol === "coordinadorinfraestructura") {
+        return usuarioActivo?.ver_proveedores_peticiones === true;
+      }
+      return !esRolTecnicoPeticion();
+    }
+
     function esDependenciaInfraestructura(dependencia) {
       return normalizarTextoPeticion(dependencia).includes("infraestructura");
     }
@@ -630,7 +639,7 @@
       const area = String(filtroArea?.value || "");
       const estatusFiltro = obtenerValorCanonicoEstatusPeticion(estatus);
       const vistaTecnico = esRolTecnicoPeticion();
-      const mostrarProveedor = !vistaTecnico;
+      const mostrarProveedor = puedeVerProveedoresPeticion();
 
       if (tablaPeticiones) tablaPeticiones.innerHTML = "";
 
@@ -1229,18 +1238,23 @@
     }
 
     function construirTextoPedido(p, unidad) {
-      const numeroInventario = unidad?.numero_inventario || p.unidad || "SIN INVENTARIO";
+      const numeroEconomico = unidad?.numero_economico || unidad?.numero_inventario || unidad?.unidad_patrulla || p.unidad || "SIN NUMERO";
+      const ultimosCuatro = String(numeroEconomico).replace(/\D/g, "").slice(-4) || String(numeroEconomico).slice(-4);
       const descripcion = unidad?.descripcion || p.unidad || "SIN DESCRIPCION";
-      const placas = unidad?.placa || "SIN PLACAS";
+      const marca = unidad?.marca || "SIN MARCA";
+      const modelo = unidad?.modelo || "SIN MODELO";
       const serie = unidad?.serie || "SIN SERIE";
+      const combustible = unidad?.combustible || "SIN COMBUSTIBLE";
       const dependencia = unidad?.dependencia || p.dependencia || "SIN DEPENDENCIA";
       const pedido = p.peticion || "SIN PEDIDO";
 
-      return numeroInventario + ", " +
-        descripcion + " con placas " + placas +
+      return ultimosCuatro + ":" + descripcion +
+        ", marca: " + marca +
+        ", modelo: " + modelo +
         ", serie " + serie +
-        " y dependencia " + dependencia +
-        ", " + pedido;
+        ", combustible " + combustible +
+        " de " + dependencia +
+        "\n(*" + pedido + "*)";
     }
 
     async function copiarTextoPedido(id) {

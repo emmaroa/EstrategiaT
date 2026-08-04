@@ -201,6 +201,13 @@
           <div id="areasPermitidasContainer" style="display:grid; grid-template-columns:repeat(auto-fit,minmax(180px,1fr)); gap:10px;"></div>
         </div>
 
+        <div class="input-group full" id="permisoProveedoresPeticionesGrupo" style="display:none;">
+          <label style="display:flex;align-items:center;gap:10px;padding:10px;border:1px solid #e5e7eb;border-radius:10px;">
+            <input type="checkbox" id="verProveedoresPeticionesUsuario">
+            Ver la columna Proveedor en Peticiones y Seguimiento de peticiones
+          </label>
+        </div>
+
         <div class="input-group full">
           <label>Permisos de módulos</label>
           <div id="permisosModulosContainer" style="display:grid; gap:10px;"></div>
@@ -226,6 +233,9 @@
     const tablaUsuarios = document.getElementById("tablaUsuarios");
     const permisosModulosContainer = document.getElementById("permisosModulosContainer");
     const areasPermitidasContainer = document.getElementById("areasPermitidasContainer");
+    const rolUsuarioForm = document.getElementById("rolUsuarioForm");
+    const permisoProveedoresPeticionesGrupo = document.getElementById("permisoProveedoresPeticionesGrupo");
+    const verProveedoresPeticionesUsuario = document.getElementById("verProveedoresPeticionesUsuario");
     const areasSeguimientoDisponibles = [
       "Electricas",
       "Maquinaria Pesada",
@@ -390,6 +400,16 @@
         .map(function (input) { return input.value; });
     }
 
+    function esRolCoordinadorUsuario(rol) {
+      return rol === "Coordinador" || rol === "Coordinador Infraestructura";
+    }
+
+    function actualizarVisibilidadPermisoProveedores() {
+      const esCoordinador = esRolCoordinadorUsuario(rolUsuarioForm.value);
+      permisoProveedoresPeticionesGrupo.style.display = esCoordinador ? "" : "none";
+      if (!esCoordinador) verProveedoresPeticionesUsuario.checked = false;
+    }
+
     function renderPermisosModulos(usuario) {
       if (!permisosModulosContainer) return;
 
@@ -468,6 +488,7 @@
         rol: document.getElementById("rolUsuarioForm").value,
         proveedor: document.getElementById("proveedorUsuario").value.trim() || null,
         activo: document.getElementById("activoUsuario").value === "true",
+        ver_proveedores_peticiones: verProveedoresPeticionesUsuario.checked,
         areas_permitidas: obtenerAreasPermitidasDesdeFormulario(),
         modulos_permitidos: obtenerPermisosModulosDesdeFormulario()
       };
@@ -518,6 +539,7 @@
           rol: nuevo.rol,
           proveedor: nuevo.proveedor,
           activo: nuevo.activo,
+          ver_proveedores_peticiones: nuevo.ver_proveedores_peticiones,
           areas_permitidas: nuevo.areas_permitidas,
           modulos_permitidos: nuevo.modulos_permitidos
         };
@@ -558,6 +580,8 @@
       document.getElementById("usuarioUsuario").value = u.usuario || "";
       document.getElementById("passwordUsuario").value = "";
       document.getElementById("rolUsuarioForm").value = u.rol || "";
+      verProveedoresPeticionesUsuario.checked = u.ver_proveedores_peticiones === true;
+      actualizarVisibilidadPermisoProveedores();
       ETProveedores.seleccionar(document.getElementById("proveedorUsuario"), u.proveedor || "");
       document.getElementById("activoUsuario").value = String(u.activo);
       renderPermisosModulos(u);
@@ -632,7 +656,11 @@
       document.getElementById("rolUsuarioForm").value = "";
       document.getElementById("proveedorUsuario").value = "";
       document.getElementById("activoUsuario").value = "true";
+      verProveedoresPeticionesUsuario.checked = false;
+      actualizarVisibilidadPermisoProveedores();
     }
+
+    rolUsuarioForm.addEventListener("change", actualizarVisibilidadPermisoProveedores);
 
     function registrarMovimientoUsuarios(accion, detalle) {
       if (typeof registrarAuditoria === "function") {

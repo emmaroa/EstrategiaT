@@ -97,7 +97,7 @@
               <th>Solicitante</th>
               <th>Area</th>
               <th>Dependencia</th>
-              <th>Proveedor</th>
+              <th id="columnaProveedorSeguimiento">Proveedor</th>
               <th>Estatus</th>
               <th>Acciones</th>
             </tr>
@@ -129,6 +129,12 @@
     const buscarPeticion = document.getElementById("buscarPeticion");
     const filtroEstatus = document.getElementById("filtroEstatus");
     const filtroArea = document.getElementById("filtroArea");
+    const rolUsuarioActivo = String(usuarioActivo?.rol || usuarioActivo?.rol_original || "")
+      .trim()
+      .toLowerCase()
+      .replace(/[\s_-]+/g, "");
+    const esCoordinador = rolUsuarioActivo === "coordinador" || rolUsuarioActivo === "coordinadorinfraestructura";
+    const mostrarProveedor = !esCoordinador || usuarioActivo?.ver_proveedores_peticiones === true;
 
     function obtenerUsuarioActivoSeguimiento() {
       try {
@@ -227,8 +233,11 @@
           (!area || p.area === area);
       });
 
+      const columnaProveedor = document.getElementById("columnaProveedorSeguimiento");
+      if (columnaProveedor) columnaProveedor.style.display = mostrarProveedor ? "" : "none";
+
       if (!filtradas.length) {
-        tablaPeticiones.innerHTML = '<tr><td colspan="9">No hay peticiones para las areas asignadas.</td></tr>';
+        tablaPeticiones.innerHTML = '<tr><td colspan="' + (mostrarProveedor ? "9" : "8") + '">No hay peticiones para las areas asignadas.</td></tr>';
       } else {
         tablaPeticiones.innerHTML = filtradas.map(function (p) {
           return "<tr>" +
@@ -238,7 +247,7 @@
             "<td>" + escapar(p.solicitante) + "</td>" +
             "<td>" + escapar(p.area) + "</td>" +
             "<td>" + escapar(p.dependencia || "Sin dependencia") + "</td>" +
-            "<td>" + escapar(p.proveedor || "Sin asignar") + "</td>" +
+            (mostrarProveedor ? "<td>" + escapar(p.proveedor || "Sin asignar") + "</td>" : "") +
             '<td><span class="badge status-badge ' + obtenerClaseEstatus(p.estatus) + '">' + escapar(p.estatus) + "</span></td>" +
             '<td><div class="action-grid">' +
               ETLayout.iconButton("ver", "Ver peticion", "verPeticion('" + p.id + "')") +
