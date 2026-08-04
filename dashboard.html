@@ -7,7 +7,7 @@
 
   <link rel="stylesheet" href="css/style.css?v=20260730-1">
   <link rel="stylesheet" href="css/design-system.css?v=20260727-5">
-  <link rel="stylesheet" href="css/dashboard.css?v=20260803-1">
+  <link rel="stylesheet" href="css/dashboard.css?v=20260803-3">
   <link rel="stylesheet" href="css/mobile-app.css">
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -62,11 +62,25 @@
         </div>
         <div class="dashboard-actions" aria-label="Acciones del dashboard">
           <button type="button" class="btn-small dashboard-unit-search-button" onclick="abrirVentanaBuscadorUnidades()">Buscar unidad</button>
-          <button type="button" class="btn-secondary" onclick="exportarDashboardCSV()">Exportar Excel</button>
-          <button type="button" class="btn-secondary" onclick="imprimirDashboard()">Imprimir / PDF</button>
+          <button type="button" class="btn-secondary dashboard-action-button" onclick="exportarDashboardCSV()">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v12m0 0 5-5m-5 5-5-5"/><path d="M5 20h14"/></svg>
+            <span>Exportar Excel</span>
+          </button>
+          <button type="button" class="btn-secondary dashboard-action-button" onclick="imprimirDashboard()">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 9V3h12v6"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><path d="M6 14h12v7H6Z"/></svg>
+            <span>Imprimir / PDF</span>
+          </button>
           <span id="etTemaContainer"></span>
-          <div class="user-badge" id="rolUsuario"></div>
-          <button type="button" class="topbar-logout" onclick="cerrarSesion()">Cerrar sesión</button>
+          <details class="dashboard-user-menu">
+            <summary aria-label="Abrir menú de usuario">
+              <span class="user-badge" id="rolUsuario"></span>
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m7 10 5 5 5-5"/></svg>
+            </summary>
+            <div class="dashboard-user-menu-popover">
+              <span>Cuenta activa</span>
+              <button type="button" onclick="cerrarSesion()">Cerrar sesión</button>
+            </div>
+          </details>
         </div>
       </div>
     </header>
@@ -103,7 +117,10 @@
       <p>Selecciona una tarjeta para abrir el módulo relacionado.</p>
     </div>
 
-    <section class="kpi-grid dashboard-kpi-grid">
+    <section class="dashboard-kpi-groups" aria-label="Indicadores generales">
+      <article class="dashboard-kpi-group dashboard-kpi-group-financial">
+        <div class="dashboard-kpi-group-heading"><span>Finanzas</span><small>Gasto del periodo</small></div>
+        <div class="dashboard-kpi-group-grid">
       <div class="kpi-card highlight-teal dashboard-kpi-card financial" id="kpiCostoAnualCard">
         <span class="dashboard-kpi-icon" aria-hidden="true">$</span>
         <span>Costo total anual</span>
@@ -116,6 +133,11 @@
         <h2 id="kpiCostoMensual">$0</h2>
         <p id="kpiCostoMensualDesc">Mes en curso</p>
       </div>
+        </div>
+      </article>
+      <article class="dashboard-kpi-group">
+        <div class="dashboard-kpi-group-heading"><span>Peticiones</span><small>Atención de solicitudes</small></div>
+        <div class="dashboard-kpi-group-grid">
       <div class="kpi-card dashboard-kpi-card dashboard-link-card priority" data-module="Peticiones" data-href="modulos/peticiones.html" role="link" tabindex="0">
         <span class="dashboard-kpi-icon" aria-hidden="true">P</span>
         <span>Peticiones pendientes</span>
@@ -128,6 +150,11 @@
         <h2 id="kpiPeticionesPendienteProveedor">0</h2>
         <p>Revisadas por almacén</p>
       </div>
+        </div>
+      </article>
+      <article class="dashboard-kpi-group dashboard-kpi-group-wide">
+        <div class="dashboard-kpi-group-heading"><span>Requisiciones y operación</span><small>Seguimiento administrativo</small></div>
+        <div class="dashboard-kpi-group-grid">
       <div class="kpi-card dashboard-kpi-card dashboard-link-card" data-module="Seguimiento SIIF" data-href="modulos/seguimiento-siif.html" role="link" tabindex="0">
         <span class="dashboard-kpi-icon" aria-hidden="true">R</span>
         <span>Requisiciones abiertas</span>
@@ -152,6 +179,11 @@
         <h2 id="kpiValesEmitidos">0</h2>
         <p id="kpiValesEmitidosDesc">Del periodo</p>
       </div>
+        </div>
+      </article>
+      <article class="dashboard-kpi-group">
+        <div class="dashboard-kpi-group-heading"><span>Personal</span><small>Disponibilidad del equipo</small></div>
+        <div class="dashboard-kpi-group-grid">
       <div class="kpi-card highlight-teal dashboard-kpi-card dashboard-link-card" data-module="Tramites Administrativos" data-indicador-personal="true" data-href="modulos/empleados.html" role="link" tabindex="0">
         <span class="dashboard-kpi-icon" aria-hidden="true">C</span>
         <span>Cumpleaños de la semana</span>
@@ -168,6 +200,8 @@
           <div id="listaAusentesHoy">No hay empleados ausentes.</div>
         </div>
       </div>
+        </div>
+      </article>
     </section>
 
     <section class="dashboard-action-grid">
@@ -269,6 +303,7 @@
     <div>
       <h2>Gráficas operativas</h2>
       <p>Resumen visual del comportamiento del sistema.</p>
+      <span class="dashboard-panel-summary" id="resumenGraficasOperativas">Preparando resumen…</span>
     </div>
     <button type="button" class="collapse-toggle" aria-expanded="true">Ocultar</button>
   </div>
@@ -305,13 +340,26 @@
     <div>
       <h2>Gasto por proveedor</h2>
       <p>Total anual y gasto del mes en curso por proveedor.</p>
+      <span class="dashboard-panel-summary" id="resumenGastoProveedor">Preparando resumen…</span>
     </div>
-    <button type="button" class="collapse-toggle" aria-expanded="true">Ocultar</button>
+    <div class="dashboard-panel-actions">
+      <button type="button" class="dashboard-export-icon" onclick="exportarTablaDashboard('tablaResumenGastoProveedor', 'gasto_por_proveedor')" aria-label="Exportar gasto por proveedor" title="Exportar gasto por proveedor">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v12m0 0 5-5m-5 5-5-5"/><path d="M5 20h14"/></svg>
+      </button>
+      <button type="button" class="collapse-toggle" aria-expanded="true">Ocultar</button>
+    </div>
   </div>
 
   <div class="panel-content">
+  <div class="dashboard-table-toolbar">
+    <label class="dashboard-table-search">
+      <span>Buscar proveedor</span>
+      <input type="search" id="buscarGastoProveedor" placeholder="Nombre del proveedor" autocomplete="off">
+    </label>
+    <span id="conteoGastoProveedor" aria-live="polite"></span>
+  </div>
   <div class="table-container proveedor-gasto-table">
-    <table>
+    <table id="tablaResumenGastoProveedor">
       <thead>
         <tr>
           <th><button type="button" class="table-sort" data-sort-proveedor="proveedor">Proveedor</button></th>
@@ -341,12 +389,25 @@
     <div>
       <h2>Solicitudes de pago por proveedor y estatus</h2>
       <p>Suma de importes registrada directamente en SP SIIF.</p>
+      <span class="dashboard-panel-summary" id="resumenSolicitudesPago">Preparando resumen…</span>
     </div>
-    <button type="button" class="collapse-toggle" aria-expanded="false">Mostrar</button>
+    <div class="dashboard-panel-actions">
+      <button type="button" class="dashboard-export-icon" onclick="exportarTablaDashboard('tablaResumenSolicitudesPago', 'solicitudes_pago_por_proveedor_y_estatus')" aria-label="Exportar solicitudes de pago por proveedor y estatus" title="Exportar solicitudes de pago por proveedor y estatus">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v12m0 0 5-5m-5 5-5-5"/><path d="M5 20h14"/></svg>
+      </button>
+      <button type="button" class="collapse-toggle" aria-expanded="false">Mostrar</button>
+    </div>
   </div>
   <div class="panel-content">
-    <div class="table-container">
-      <table>
+    <div class="dashboard-table-toolbar">
+      <label class="dashboard-table-search">
+        <span>Buscar proveedor</span>
+        <input type="search" id="buscarSolicitudesPago" placeholder="Nombre del proveedor" autocomplete="off">
+      </label>
+      <span id="conteoSolicitudesPago" aria-live="polite"></span>
+    </div>
+    <div class="table-container dashboard-matrix-table">
+      <table id="tablaResumenSolicitudesPago">
         <thead id="encabezadoMatrizSp">
           <tr><th>Proveedor</th><th>Total</th></tr>
         </thead>
@@ -510,7 +571,7 @@
       return ["director", "admin", "superadmin"].includes(rol);
     }
 
-    function puedeVerIndicadoresPersonal(usuario) {
+function puedeVerIndicadoresPersonal(usuario) {
       const rol = String(usuario && usuario.rol || "").trim()
         .normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
       return ["coordinador", "jefe de almacen"].includes(rol);
@@ -665,6 +726,15 @@ let fechaHastaDashboard = "";
   }
 }
 
+function actualizarVisibilidadGruposKpi() {
+  document.querySelectorAll(".dashboard-kpi-group").forEach(function (grupo) {
+    const tarjetas = Array.from(grupo.querySelectorAll(".dashboard-kpi-card"));
+    grupo.hidden = !tarjetas.some(function (tarjeta) {
+      return !tarjeta.hidden && tarjeta.style.display !== "none";
+    });
+  });
+}
+
 function obtenerAnio(fecha) {
   if (!fecha) return "";
   const fechaCorta = String(fecha).split("T")[0];
@@ -759,6 +829,15 @@ function renderizarDashboard() {
   const usuarios = datosDashboard.usuarios;
   const empleados = datosDashboard.empleados;
   const tramites = datosDashboard.tramites;
+  const resumenGraficas = document.getElementById("resumenGraficasOperativas");
+  if (resumenGraficas) {
+    const gastoVisible = requisiciones.reduce(function (total, fila) {
+      return total + Number(fila.monto || 0);
+    }, 0);
+    resumenGraficas.textContent = requisiciones.length +
+      (requisiciones.length === 1 ? " requisición" : " requisiciones") +
+      " · " + moneda(gastoVisible) + " acumulado";
+  }
 
   const kpis = ETDashboard.calcularKPIs({
     peticiones: datosDashboard.peticiones,
@@ -786,6 +865,7 @@ function renderizarDashboard() {
   if (gastoProveedor) gastoProveedor.style.display = puedeVerFinanciero ? "" : "none";
   if (matrizSolicitudesPago) matrizSolicitudesPago.style.display = puedeVerMatrizSp ? "" : "none";
   if (analisisHeading) analisisHeading.style.display = puedeVerFinanciero ? "" : "none";
+  actualizarVisibilidadGruposKpi();
 
   if (labelKpiVales) {
     labelKpiVales.textContent = puedeVerFinanciero ? "Vales emitidos" : "Vales activos";
@@ -950,13 +1030,31 @@ function renderizarMatrizSolicitudesPago(solicitudes) {
   const tfoot = document.getElementById("totalesMatrizSp");
   if (!thead || !tbody || !tfoot) return;
 
-  const estatus = Array.from(new Set((solicitudes || []).map(function (fila) {
+  const solicitudesBase = solicitudes || [];
+  const proveedoresBase = new Set(solicitudesBase.map(function (fila) {
+    return String(fila.beneficiario || "SIN PROVEEDOR").trim() || "SIN PROVEEDOR";
+  }));
+  const totalBase = solicitudesBase.reduce(function (total, fila) {
+    return total + Number(fila.importe || 0);
+  }, 0);
+  const resumen = document.getElementById("resumenSolicitudesPago");
+  if (resumen) {
+    resumen.textContent = proveedoresBase.size +
+      (proveedoresBase.size === 1 ? " proveedor" : " proveedores") +
+      " · " + moneda(totalBase) + " acumulado";
+  }
+
+  const solicitudesFiltradas = solicitudesBase.filter(function (fila) {
+    const proveedor = String(fila.beneficiario || "SIN PROVEEDOR");
+    return normalizarBusquedaDashboard(proveedor).includes(filtroSolicitudesPagoProveedor);
+  });
+  const estatus = Array.from(new Set(solicitudesFiltradas.map(function (fila) {
     return String(fila.estatus || "SIN ESTATUS").trim() || "SIN ESTATUS";
   }))).sort(function (a, b) { return a.localeCompare(b, "es"); });
 
   const proveedores = new Map();
   const totalesEstatus = {};
-  (solicitudes || []).forEach(function (fila) {
+  solicitudesFiltradas.forEach(function (fila) {
     const proveedor = String(fila.beneficiario || "SIN PROVEEDOR").trim() || "SIN PROVEEDOR";
     const estado = String(fila.estatus || "SIN ESTATUS").trim() || "SIN ESTATUS";
     const importe = Number(fila.importe || 0);
@@ -969,10 +1067,11 @@ function renderizarMatrizSolicitudesPago(solicitudes) {
 
   thead.innerHTML = "<tr><th>Proveedor</th>" +
     estatus.map(function (estado) { return "<th>" + escaparHTML(estado) + "</th>"; }).join("") +
-    "<th>Total</th></tr>";
+    '<th><button type="button" class="table-sort is-active" id="ordenarTotalSolicitudes" data-direction="' +
+      ordenMatrizSolicitudes + '">Total</button></th></tr>';
 
   const filas = Array.from(proveedores.entries()).sort(function (a, b) {
-    return b[1].total - a[1].total;
+    return (a[1].total - b[1].total) * (ordenMatrizSolicitudes === "asc" ? 1 : -1);
   });
   tbody.innerHTML = filas.length ? filas.map(function (entrada) {
     return "<tr><td><strong>" + escaparHTML(entrada[0]) + "</strong></td>" +
@@ -991,6 +1090,16 @@ function renderizarMatrizSolicitudesPago(solicitudes) {
       }).join("") +
       "<td><strong>" + moneda(totalGeneral) + "</strong></td></tr>"
     : "";
+
+  const conteo = document.getElementById("conteoSolicitudesPago");
+  if (conteo) conteo.textContent = filas.length + (filas.length === 1 ? " resultado" : " resultados");
+  const botonOrden = document.getElementById("ordenarTotalSolicitudes");
+  if (botonOrden) {
+    botonOrden.addEventListener("click", function () {
+      ordenMatrizSolicitudes = ordenMatrizSolicitudes === "desc" ? "asc" : "desc";
+      renderizarMatrizSolicitudesPago(aplicarFiltros(datosDashboard.solicitudesPago));
+    });
+  }
 }
 
 let graficaGastoMes = null;
@@ -1001,6 +1110,16 @@ let ordenTablaProveedor = {
   campo: "anual",
   direccion: "desc"
 };
+let filtroGastoProveedor = "";
+let filtroSolicitudesPagoProveedor = "";
+let ordenMatrizSolicitudes = "desc";
+
+function normalizarBusquedaDashboard(valor) {
+  return String(valor || "").normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .toLowerCase()
+    .trim();
+}
 
 function agruparSuma(datos, campo) {
   const acumulado = {};
@@ -1070,6 +1189,9 @@ function renderizarTablaGastoProveedor(requisiciones) {
   });
 
   const filas = Object.entries(acumulado)
+    .filter(function (fila) {
+      return normalizarBusquedaDashboard(fila[0]).includes(filtroGastoProveedor);
+    })
     .sort(function (a, b) {
       const campo = ordenTablaProveedor.campo;
       const direccion = ordenTablaProveedor.direccion === "asc" ? 1 : -1;
@@ -1090,12 +1212,27 @@ function renderizarTablaGastoProveedor(requisiciones) {
   }).join("") || '<tr><td colspan="3">Sin datos en el periodo</td></tr>';
 
   if (tfoot) {
+    const totalesVisibles = filas.reduce(function (resultado, fila) {
+      resultado.anual += fila[1].anual;
+      resultado.mensual += fila[1].mensual;
+      return resultado;
+    }, { anual: 0, mensual: 0 });
     tfoot.innerHTML = "<tr>" +
       "<td>Total general</td>" +
-      "<td>" + moneda(totales.anual) + "</td>" +
-      "<td>" + moneda(totales.mensual) + "</td>" +
+      "<td>" + moneda(totalesVisibles.anual) + "</td>" +
+      "<td>" + moneda(totalesVisibles.mensual) + "</td>" +
     "</tr>";
   }
+
+  const proveedoresTotales = Object.keys(acumulado).length;
+  const resumen = document.getElementById("resumenGastoProveedor");
+  if (resumen) {
+    resumen.textContent = proveedoresTotales +
+      (proveedoresTotales === 1 ? " proveedor" : " proveedores") +
+      " · " + moneda(totales.anual) + " acumulado";
+  }
+  const conteo = document.getElementById("conteoGastoProveedor");
+  if (conteo) conteo.textContent = filas.length + (filas.length === 1 ? " resultado" : " resultados");
 
   actualizarBotonesOrdenProveedor();
 }
@@ -1441,6 +1578,27 @@ function exportarDashboardCSV() {
   );
 }
 
+function exportarTablaDashboard(tablaId, nombreArchivo) {
+  const tabla = document.getElementById(tablaId);
+  if (!tabla) return;
+
+  const encabezados = Array.from(tabla.querySelectorAll("thead th")).map(function (celda, indice) {
+    return {
+      key: "columna_" + indice,
+      label: celda.textContent.trim()
+    };
+  });
+  const filas = Array.from(tabla.querySelectorAll("tbody tr, tfoot tr")).map(function (fila) {
+    const valores = Array.from(fila.querySelectorAll("th, td"));
+    return encabezados.reduce(function (registro, columna, indice) {
+      registro[columna.key] = valores[indice] ? valores[indice].textContent.trim() : "";
+      return registro;
+    }, {});
+  });
+
+  ETExport.exportarCSV(nombreArchivo, encabezados, filas);
+}
+
 function imprimirDashboard() {
   ETExport.exportarPDF();
 }
@@ -1591,6 +1749,22 @@ function abrirVentanaBuscadorUnidades() {
   if (!ventanaBuscadorUnidades) {
     ETLayout.toast("Permite las ventanas emergentes para abrir el buscador.", "warning");
   }
+}
+
+const buscarGastoProveedor = document.getElementById("buscarGastoProveedor");
+if (buscarGastoProveedor) {
+  buscarGastoProveedor.addEventListener("input", debounce(function () {
+    filtroGastoProveedor = normalizarBusquedaDashboard(this.value);
+    renderizarTablaGastoProveedor(datosDashboard.requisiciones);
+  }, 180));
+}
+
+const buscarSolicitudesPago = document.getElementById("buscarSolicitudesPago");
+if (buscarSolicitudesPago) {
+  buscarSolicitudesPago.addEventListener("input", debounce(function () {
+    filtroSolicitudesPagoProveedor = normalizarBusquedaDashboard(this.value);
+    renderizarMatrizSolicitudesPago(aplicarFiltros(datosDashboard.solicitudesPago));
+  }, 180));
 }
 
 inicializarPanelesDesplegables();
