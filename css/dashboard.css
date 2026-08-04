@@ -334,6 +334,10 @@
   margin: 0;
 }
 
+.dashboard-action-grid > .panel:only-child {
+  grid-column: 1 / -1;
+}
+
 .dashboard-action-grid .panel-header {
   margin-bottom: 14px;
 }
@@ -350,6 +354,10 @@
 
 .dashboard-vehicle-search .consulta-parque-busqueda input {
   text-align: left;
+}
+
+.dashboard-unit-search-button {
+  white-space: nowrap;
 }
 
 .dashboard-quick-actions {

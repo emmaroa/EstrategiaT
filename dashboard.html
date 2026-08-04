@@ -2,18 +2,20 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
   <title>Administración de Talleres | Dashboard</title>
 
   <link rel="stylesheet" href="css/style.css?v=20260730-1">
   <link rel="stylesheet" href="css/design-system.css?v=20260727-5">
   <link rel="stylesheet" href="css/dashboard.css">
+  <link rel="stylesheet" href="css/mobile-app.css">
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <script src="js/core/supabase.js"></script>
   <script src="js/core/permissions.js?v=20260730-1"></script>
   <script src="js/core/theme.js"></script>
   <script src="js/core/layout.js?v=20260728-4"></script>
+  <script src="js/core/mobile-app.js"></script>
   <script src="js/services/export.service.js"></script>
   <script src="js/services/peticiones.service.js?v=20260727-1"></script>
   <script src="js/services/dashboard.service.js?v=20260730-2"></script>
@@ -55,6 +57,7 @@
           Calculando pendientes…
         </div>
         <div class="dashboard-actions" aria-label="Acciones del dashboard">
+          <button type="button" class="btn-small dashboard-unit-search-button" onclick="abrirVentanaBuscadorUnidades()">Buscar unidad</button>
           <button type="button" class="btn-secondary" onclick="exportarDashboardCSV()">Exportar Excel</button>
           <button type="button" class="btn-secondary" onclick="imprimirDashboard()">Imprimir / PDF</button>
           <span id="etTemaContainer"></span>
@@ -164,34 +167,6 @@
     </section>
 
     <section class="dashboard-action-grid">
-    <article class="panel dashboard-vehicle-search">
-      <div class="panel-header">
-        <div>
-          <span class="dashboard-section-kicker">Consulta rápida</span>
-          <h2>Localiza una unidad</h2>
-          <p>Ingresa los últimos 4 dígitos del número económico para ver la ficha básica de la unidad.</p>
-        </div>
-      </div>
-
-      <div class="consulta-parque">
-        <div class="consulta-parque-busqueda">
-          <input
-            type="text"
-            id="consultaParqueDigitos"
-            maxlength="4"
-            inputmode="numeric"
-            pattern="[0-9]*"
-            placeholder="Ej. 3302"
-            autocomplete="off"
-          >
-          <button class="btn-small" type="button" onclick="consultarParqueVehicular()">Buscar</button>
-        </div>
-        <div id="consultaParqueResultado" class="consulta-parque-resultado">
-          <p class="consulta-parque-placeholder">Escribe 4 dígitos y presiona Buscar o Enter.</p>
-        </div>
-      </div>
-    </article>
-
     <article class="panel dashboard-quick-panel">
       <div class="panel-header">
         <div>
@@ -1578,18 +1553,20 @@ function consultarParqueVehicular() {
   }).join("");
 }
 
-const consultaParqueInput = document.getElementById("consultaParqueDigitos");
-if (consultaParqueInput) {
-  consultaParqueInput.addEventListener("keydown", function (e) {
-    if (e.key === "Enter") {
-      e.preventDefault();
-      consultarParqueVehicular();
-    }
-  });
-
-  consultaParqueInput.addEventListener("input", function () {
-    this.value = this.value.replace(/\D/g, "").slice(0, 4);
-  });
+let ventanaBuscadorUnidades = null;
+function abrirVentanaBuscadorUnidades() {
+  if (ventanaBuscadorUnidades && !ventanaBuscadorUnidades.closed) {
+    ventanaBuscadorUnidades.focus();
+    return;
+  }
+  ventanaBuscadorUnidades = window.open(
+    "buscador-unidades.html",
+    "buscadorUnidadesEstrategiaT",
+    "popup=yes,width=560,height=720,resizable=yes,scrollbars=yes"
+  );
+  if (!ventanaBuscadorUnidades) {
+    ETLayout.toast("Permite las ventanas emergentes para abrir el buscador.", "warning");
+  }
 }
 
 inicializarPanelesDesplegables();

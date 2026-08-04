@@ -1,4 +1,31 @@
 (function (global) {
+  function prepararEntornoMovil() {
+    const viewport = document.querySelector('meta[name="viewport"]');
+    if (viewport && !viewport.content.includes("viewport-fit")) {
+      viewport.content += ", viewport-fit=cover";
+    }
+
+    const scriptActual = document.currentScript;
+    if (!scriptActual || !scriptActual.src) return;
+
+    if (!document.querySelector('link[data-et-mobile-styles]')) {
+      const estilos = document.createElement("link");
+      estilos.rel = "stylesheet";
+      estilos.href = new URL("../../css/mobile-app.css", scriptActual.src).href;
+      estilos.dataset.etMobileStyles = "true";
+      document.head.appendChild(estilos);
+    }
+
+    if (!document.querySelector('script[data-et-mobile-runtime]')) {
+      const runtime = document.createElement("script");
+      runtime.src = new URL("mobile-app.js", scriptActual.src).href;
+      runtime.dataset.etMobileRuntime = "true";
+      document.head.appendChild(runtime);
+    }
+  }
+
+  prepararEntornoMovil();
+
   const MODULOS_IMPLEMENTADOS = [
     "Dashboard",
     "Parque Vehicular",

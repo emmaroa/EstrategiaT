@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Buscador de unidades</title>
+  <link rel="stylesheet" href="css/variables.css">
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/design-system.css">
+  <style>
+    body { min-height: 100vh; margin: 0; background: var(--bg-main); color: var(--text-primary); }
+    .unit-finder { width: min(100%, 560px); min-height: 100vh; margin: 0 auto; padding: 24px; }
+    .unit-finder-header { margin-bottom: 20px; }
+    .unit-finder-kicker { color: var(--color-teal); font-size: 11px; font-weight: 800; letter-spacing: .1em; text-transform: uppercase; }
+    .unit-finder-header h1 { margin: 4px 0 6px; font-size: 26px; }
+    .unit-finder-header p { margin: 0; color: var(--text-muted); }
+    .unit-finder .consulta-parque-busqueda { max-width: none; }
+    .unit-finder-status { min-height: 20px; margin: 12px 0 0; color: var(--text-muted); font-size: 13px; }
+    .consulta-parque-resultado { margin-top: 18px; }
+    .consulta-parque-card .btn-secondary { width: 100%; margin-top: 14px; }
+    @media (max-width: 520px) { .unit-finder { padding: 18px; } }
+  </style>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="js/core/supabase.js"></script>
+</head>
+<body>
+  <main class="unit-finder">
+    <header class="unit-finder-header">
+      <span class="unit-finder-kicker">Consulta rápida</span>
+      <h1>Buscar unidad</h1>
+      <p>Ingresa los últimos 4 dígitos del número económico.</p>
+    </header>
+    <div class="consulta-parque-busqueda">
+      <label class="sr-only" for="digitosUnidad">Últimos 4 dígitos del número económico</label>
+      <input type="text" id="digitosUnidad" maxlength="4" inputmode="numeric" pattern="[0-9]*" placeholder="Ej. 3302" autocomplete="off" autofocus>
+      <button class="btn-small" id="buscarUnidad" type="button">Buscar</button>
+    </div>
+    <p class="unit-finder-status" id="estadoBusqueda" aria-live="polite">Cargando unidades…</p>
+    <section id="resultadoUnidad" class="consulta-parque-resultado" aria-live="polite"></section>
+  </main>
+  <script>
+    let unidades = [];
+    const input = document.getElementById("digitosUnidad");
+    const resultado = document.getElementById("resultadoUnidad");
+    const estado = document.getElementById("estadoBusqueda");
+
+    function escaparHTML(valor) {
+      return String(valor == null ? "" : valor).replace(/[&<>"']/g, function (caracter) {
+        return { "&": "&amp;", "<": "&lt;", ">": "&gt;", "\"": "&quot;", "'": "&#039;" }[caracter];
+      });
+    }
+    function valor(unidad, campos, respaldo) {
+      for (const campo of campos) if (unidad[campo]) return unidad[campo];
+      return respaldo;
+    }
+    function numeroEconomico(unidad) { return valor(unidad, ["numero_economico", "numero_inventario", "unidad_patrulla"], "—"); }
+    function serie(unidad) { return valor(unidad, ["serie", "numero_serie", "vin"], "Sin serie registrada"); }
+    function tipo(unidad) { return valor(unidad, ["tipo_vehiculo", "tipo", "grupo", "categoria"], "Sin tipo registrado"); }
+    function anio(unidad) { return valor(unidad, ["anio", "ano", "año", "anio_modelo", "modelo_anio"], "Sin año registrado"); }
+    function textoCopiable(unidad) {
+      return [numeroEconomico(unidad), unidad.descripcion || "SIN DATO", unidad.modelo || "SIN DATO", serie(unidad), unidad.combustible || "SIN DATO", tipo(unidad), unidad.dependencia || "SIN DATO"].join(", ");
+    }
+    async function copiar(unidad) {
+      try {
+        await navigator.clipboard.writeText(textoCopiable(unidad));
+        estado.textContent = "Datos copiados al portapapeles.";
+      } catch (_) {
+        const area = document.createElement("textarea");
+        area.value = textoCopiable(unidad); document.body.appendChild(area); area.select();
+        document.execCommand("copy"); area.remove(); estado.textContent = "Datos copiados al portapapeles.";
+      }
+    }
+    function buscar() {
+      const digitos = input.value.replace(/\D/g, "").slice(-4);
+      if (digitos.length !== 4) { resultado.innerHTML = '<p class="consulta-parque-error">Ingresa exactamente 4 dígitos.</p>'; return; }
+      const halladas = unidades.filter(function (unidad) {
+        return [unidad.numero_economico, unidad.numero_inventario, unidad.unidad_patrulla].some(function (dato) { return String(dato || "").endsWith(digitos); });
+      });
+      if (!halladas.length) { resultado.innerHTML = '<p class="consulta-parque-error">No se encontró ninguna unidad con esa terminación.</p>'; return; }
+      resultado.innerHTML = halladas.map(function (unidad, indice) {
+        return '<article class="consulta-parque-card"><div class="consulta-parque-card-header"><strong>No. económico: ' + escaparHTML(numeroEconomico(unidad)) + '</strong><span class="badge blue">' + escaparHTML(unidad.estatus || "Sin estatus") + '</span></div><dl class="consulta-parque-dl"><div><dt>Serie</dt><dd>' + escaparHTML(serie(unidad)) + '</dd></div><div><dt>Modelo</dt><dd>' + escaparHTML(unidad.modelo || "Sin modelo") + '</dd></div><div><dt>Descripción</dt><dd>' + escaparHTML(unidad.descripcion || "Sin descripción") + '</dd></div><div><dt>Año</dt><dd>' + escaparHTML(anio(unidad)) + '</dd></div><div><dt>Dependencia</dt><dd>' + escaparHTML(unidad.dependencia || "Sin dependencia") + '</dd></div><div><dt>Tipo</dt><dd>' + escaparHTML(tipo(unidad)) + '</dd></div><div><dt>Combustible</dt><dd>' + escaparHTML(unidad.combustible || "Sin dato") + '</dd></div></dl><button type="button" class="btn-secondary" data-copy="' + indice + '">Copiar datos</button></article>';
+      }).join("");
+      resultado.querySelectorAll("[data-copy]").forEach(function (boton) { boton.addEventListener("click", function () { copiar(halladas[Number(boton.dataset.copy)]); }); });
+      estado.textContent = halladas.length === 1 ? "1 unidad encontrada." : halladas.length + " unidades encontradas.";
+    }
+    async function cargar() {
+      if (!localStorage.getItem("usuarioActivo")) { estado.textContent = "No hay una sesión activa."; input.disabled = true; return; }
+      const respuesta = await supabaseClient.from("parque_vehicular").select("*").order("created_at", { ascending: false });
+      if (respuesta.error) { estado.textContent = "No fue posible cargar las unidades."; return; }
+      unidades = respuesta.data || []; estado.textContent = "Listo para buscar."; input.focus();
+    }
+    input.addEventListener("input", function () { input.value = input.value.replace(/\D/g, "").slice(0, 4); });
+    input.addEventListener("keydown", function (evento) { if (evento.key === "Enter") buscar(); });
+    document.getElementById("buscarUnidad").addEventListener("click", buscar);
+    cargar();
+  </script>
+</body>
+</html>
