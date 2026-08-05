@@ -11,13 +11,24 @@
   <link rel="stylesheet" href="../css/design-system.css?v=20260727-5">
   <style>
     .portal-status-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(220px,1fr)); gap:14px; }
-    .portal-status-card { padding:16px; border:1px solid var(--border, #e5e7eb); border-radius:14px; background:var(--surface, #fff); }
+    .portal-status-card { --portal-status-accent:var(--color-info, #3b82f6); padding:16px; border:1px solid var(--border-subtle, #e5e7eb); border-radius:14px; background:var(--bg-card, #fff); }
+    .portal-status-card.is-success { --portal-status-accent:var(--color-success, #22c55e); }
+    .portal-status-card.is-cancelled { --portal-status-accent:var(--color-danger, #ef4444); }
+    .portal-status-card.is-warning { --portal-status-accent:var(--color-warning, #f59e0b); }
     .portal-status-card h3 { margin:0 0 12px; font-size:0.95rem; }
     .portal-status-values { display:flex; justify-content:space-between; gap:12px; align-items:flex-end; }
     .portal-status-values strong { font-size:1.35rem; }
-    .portal-status-values span { color:var(--muted); font-weight:700; text-align:right; }
-    .portal-status-track { height:7px; margin-top:12px; overflow:hidden; border-radius:999px; background:var(--surface-2, #eef2f7); }
-    .portal-status-bar { height:100%; border-radius:inherit; background:var(--primary, #2563eb); }
+    .portal-status-values span { color:var(--text-secondary, #475569); font-weight:700; text-align:right; }
+    .portal-status-track { height:7px; margin-top:12px; overflow:hidden; border-radius:999px; background:color-mix(in srgb, var(--portal-status-accent) 18%, transparent); }
+    .portal-status-bar { height:100%; border-radius:inherit; background:var(--portal-status-accent); }
+    [data-theme="dark"] .portal-proveedor-body .portal-status-card {
+      background:linear-gradient(145deg, color-mix(in srgb, var(--portal-status-accent) 15%, #111827), #0f172a 76%);
+      border-color:color-mix(in srgb, var(--portal-status-accent) 45%, #334155);
+      box-shadow:0 10px 24px rgba(0, 0, 0, .25);
+    }
+    [data-theme="dark"] .portal-proveedor-body .portal-status-card h3 { color:color-mix(in srgb, var(--portal-status-accent) 82%, white); }
+    [data-theme="dark"] .portal-proveedor-body .portal-status-values strong { color:#f8fafc; }
+    [data-theme="dark"] .portal-proveedor-body .portal-status-values span { color:#e2e8f0; }
   </style>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="../js/core/supabase.js"></script>
@@ -27,7 +38,7 @@
   <script src="../js/services/cotizaciones-almacen.service.js?v=20260727-1"></script>
   <script src="../login.js?v=20260725-3"></script>
 </head>
-<body class="dashboard-body">
+<body class="dashboard-body portal-proveedor-body">
   <aside class="sidebar">
     <div class="sidebar-logo">
       <div class="mini-logo">E</div>
@@ -94,11 +105,6 @@
         <span>Total de cotizaciones sin trámite</span>
         <h2 id="kpiTotalCotizacionesSinTramite">$0.00</h2>
         <p>Importe sin número de requisición</p>
-      </div>
-      <div class="kpi-card">
-        <span>Total de requisiciones</span>
-        <h2 id="kpiTotalCotizacionesConRequisicion">$0.00</h2>
-        <p>Importe con requisición asignada</p>
       </div>
     </section>
 
@@ -213,6 +219,7 @@
               <th>Concepto</th>
               <th>Monto</th>
               <th>Orden de compra</th>
+              <th>Folio solicitud de pago</th>
               <th>Estatus</th>
             </tr>
           </thead>
@@ -370,7 +377,7 @@
           .order("created_at", { ascending: false }),
         supabaseClient
           .from("seguimiento_siif")
-          .select("id,fecha_req,numero_req,unidad,concepto,monto,numero_oc,estatus,estatus_requisicion,estatus_oc,estatus_sp,etapa_actual,proveedor")
+          .select("id,fecha_req,numero_req,unidad,concepto,monto,numero_oc,numero_sp,estatus,estatus_requisicion,estatus_oc,estatus_sp,etapa_actual,proveedor")
           .contains("proveedores", [proveedorVinculado])
           .order("fecha_req", { ascending: false }),
         ETCotizacionesAlmacen.listarPorProveedor(proveedorVinculado)
@@ -525,13 +532,20 @@
       const contenedor = document.getElementById("resumenEstatusSiifProveedor");
       const resumen = requisicionesProveedor.reduce(function (acumulado, tramite) {
         const estatus = String(tramite.estatus || "Sin estatus").trim() || "Sin estatus";
-        if (!acumulado[estatus]) acumulado[estatus] = { cantidad: 0, monto: 0 };
-        acumulado[estatus].cantidad += 1;
-        acumulado[estatus].monto += Number(tramite.monto || 0);
+        const claveEstatus = normalizarPortal(estatus);
+        if (!acumulado[claveEstatus]) {
+          acumulado[claveEstatus] = {
+            estatus: claveEstatus.includes("cancelad") ? "CANCELADA" : estatus,
+            cantidad: 0,
+            monto: 0
+          };
+        }
+        acumulado[claveEstatus].cantidad += 1;
+        acumulado[claveEstatus].monto += Number(tramite.monto || 0);
         return acumulado;
       }, {});
-      const filas = Object.keys(resumen).map(function (estatus) {
-        return { estatus: estatus, cantidad: resumen[estatus].cantidad, monto: resumen[estatus].monto };
+      const filas = Object.keys(resumen).map(function (claveEstatus) {
+        return resumen[claveEstatus];
       }).sort(function (a, b) {
         return b.monto - a.monto || b.cantidad - a.cantidad || a.estatus.localeCompare(b.estatus, "es");
       });
@@ -539,13 +553,31 @@
 
       contenedor.innerHTML = filas.length ? filas.map(function (fila) {
         const porcentaje = montoMaximo > 0 ? Math.max(3, (fila.monto / montoMaximo) * 100) : 0;
-        return '<article class="portal-status-card">' +
+        const estatusNormalizado = normalizarPortal(fila.estatus);
+        const tono = estatusNormalizado.includes("cancelad")
+          ? "is-cancelled"
+          : (["emitida", "pagada", "finalizada", "finalizado"].includes(estatusNormalizado) ? "is-success" : "is-warning");
+        return '<article class="portal-status-card ' + tono + '">' +
           "<h3>" + escaparPortal(fila.estatus) + "</h3>" +
           '<div class="portal-status-values"><strong>' + fila.cantidad +
           '</strong><span>' + escaparPortal(importePortal(fila.monto)) + "</span></div>" +
           '<div class="portal-status-track" aria-hidden="true"><div class="portal-status-bar" style="width:' +
           porcentaje.toFixed(2) + '%"></div></div></article>';
       }).join("") : '<p class="helper-text">No hay trámites SIIF asignados a este proveedor.</p>';
+    }
+
+    function tramiteSiifCancelado(tramite) {
+      return [tramite.estatus, tramite.estatus_requisicion, tramite.estatus_oc, tramite.estatus_sp]
+        .some(function (estatus) { return normalizarPortal(estatus).includes("cancelad"); });
+    }
+
+    function documentoSiifProveedor(tramite) {
+      const numeroSolicitud = String(tramite.numero_sp || "").trim();
+      if (numeroSolicitud) {
+        return '<span class="badge status-badge green">Solicitud de pago</span>' +
+          '<small style="display:block;margin-top:5px;">' + escaparPortal(numeroSolicitud) + "</small>";
+      }
+      return '<span class="badge status-badge amber">Pendiente</span>';
     }
 
     function renderizarPortalProveedor() {
@@ -618,9 +650,10 @@
               "<td>" + escaparPortal(requisicion.concepto || "—") + "</td>" +
               "<td><strong>" + escaparPortal(importePortal(requisicion.monto)) + "</strong></td>" +
               "<td>" + escaparPortal(requisicion.numero_oc || "Pendiente") + "</td>" +
+              "<td>" + documentoSiifProveedor(requisicion) + "</td>" +
               '<td><span class="badge status-badge blue">' + escaparPortal(requisicion.estatus || "—") + "</span></td></tr>";
           }).join("")
-        : '<tr><td colspan="7">No hay requisiciones que coincidan con los filtros.</td></tr>';
+        : '<tr><td colspan="8">No hay requisiciones que coincidan con los filtros.</td></tr>';
 
       document.getElementById("kpiPeticionesProveedor").textContent = peticionesProveedor.length;
       document.getElementById("kpiPendientesProveedor").textContent = peticionesProveedor.filter(function (p) {
@@ -629,7 +662,9 @@
       document.getElementById("kpiEntregadasProveedor").textContent = peticionesProveedor.filter(function (p) {
         return p.estatus_proveedor === "Entregado a almacén";
       }).length;
-      document.getElementById("kpiRequisicionesProveedor").textContent = requisicionesProveedor.length;
+      document.getElementById("kpiRequisicionesProveedor").textContent = requisicionesProveedor.filter(function (tramite) {
+        return !tramiteSiifCancelado(tramite);
+      }).length;
       const montoTotalSiif = requisicionesProveedor.reduce(function (total, tramite) {
         return total + Number(tramite.monto || 0);
       }, 0);
@@ -645,13 +680,8 @@
       const totalSinTramite = cotizacionesAlmacenProveedor.reduce(function (acumulado, cotizacion) {
         return acumulado + (!String(cotizacion.requisicion || "").trim() ? Number(cotizacion.total || 0) : 0);
       }, 0);
-      const totalConRequisicion = cotizacionesAlmacenProveedor.reduce(function (acumulado, cotizacion) {
-        return acumulado + (String(cotizacion.requisicion || "").trim() ? Number(cotizacion.total || 0) : 0);
-      }, 0);
       document.getElementById("kpiTotalCotizacionesSinTramite").textContent =
         importePortal(totalSinTramite);
-      document.getElementById("kpiTotalCotizacionesConRequisicion").textContent =
-        importePortal(totalConRequisicion);
     }
 
     function protegerCeldaCSV(valor) {
