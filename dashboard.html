@@ -1004,9 +1004,10 @@ function renderizarDashboard() {
       ? ETPermissions.obtenerModulosUsuario(usuarioActivo)
       : [];
     const totalAtencion =
-      (modulosAtencion.includes("Peticiones") ? kpis.peticionesPendientes : 0) +
-      (modulosAtencion.includes("Seguimiento SIIF") ? kpis.requisicionesPorAutorizar : 0) +
-      (modulosAtencion.includes("Vales") ? kpis.valesPendientes : 0);
+      (modulosAtencion.includes("Peticiones")
+        ? kpis.peticionesPendientes + kpis.peticionesPendientesProveedor
+        : 0) +
+      (modulosAtencion.includes("Seguimiento SIIF") ? kpis.requisicionesPorAutorizar : 0);
     resumenAtencion.classList.toggle("is-clear", totalAtencion === 0);
     resumenAtencion.innerHTML =
       '<span class="dashboard-attention-dot"></span>' +
@@ -1022,11 +1023,11 @@ function renderizarDashboard() {
                 modulosAtencion.includes("Peticiones")
                   ? { etiqueta: "Peticiones sin atender", total: kpis.peticionesPendientes }
                   : null,
+                modulosAtencion.includes("Peticiones")
+                  ? { etiqueta: "Pendientes de asignar proveedor", total: kpis.peticionesPendientesProveedor }
+                  : null,
                 modulosAtencion.includes("Seguimiento SIIF")
                   ? { etiqueta: "Requisiciones por autorizar", total: kpis.requisicionesPorAutorizar }
-                  : null,
-                modulosAtencion.includes("Vales")
-                  ? { etiqueta: "Vales pendientes", total: kpis.valesPendientes }
                   : null
               ].filter(Boolean).map(function (pendiente) {
                 return '<li><span>' + pendiente.etiqueta + '</span><strong>' + pendiente.total + '</strong></li>';
