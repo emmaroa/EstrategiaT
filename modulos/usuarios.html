@@ -8,7 +8,7 @@
   <link rel="stylesheet" href="../css/design-system.css?v=20260727-5"/>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="../js/core/supabase.js"></script>
-  <script src="../js/core/permissions.js?v=20260727-1"></script>
+  <script src="../js/core/permissions.js?v=20260805-1"></script>
   <script src="../js/core/theme.js"></script>
   <script src="../js/core/layout.js?v=20260725-3"></script>
   <script src="../js/services/proveedores.service.js?v=20260728-1"></script>
@@ -249,6 +249,7 @@
       "Parque Vehicular",
       "Acuerdos",
       "Peticiones",
+      "Gestión de Cotizaciones",
       "Seguimiento Peticiones",
       "Seguimiento SIIF",
       "Importar SIIF",
@@ -502,7 +503,10 @@
 
       if (nuevo.rol === "Proveedor") {
         nuevo.areas_permitidas = [];
-        nuevo.modulos_permitidos = [{ modulo: "Portal Proveedor", permiso: "editar" }];
+        nuevo.modulos_permitidos = [
+          { modulo: "Portal Proveedor", permiso: "editar" },
+          { modulo: "Cotizaciones Proveedor", permiso: "editar" }
+        ];
       }
       if (nuevo.rol === "Coordinador Infraestructura") {
         nuevo.areas_permitidas = [];

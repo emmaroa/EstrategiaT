@@ -7,6 +7,8 @@
       DASHBOARD: "Dashboard",
       PARQUE: "Parque Vehicular",
       PETICIONES: "Peticiones",
+      GESTION_COTIZACIONES: "Gestión de Cotizaciones",
+      COTIZACIONES_PROVEEDOR: "Cotizaciones Proveedor",
       SEGUIMIENTO_PETICIONES: "Seguimiento Peticiones",
       REQUISICIONES: "Requisiciones",
       SEGUIMIENTO_SIIF: "Seguimiento SIIF",
@@ -35,6 +37,8 @@
     [MODULOS.DASHBOARD]: "dashboard.html",
     [MODULOS.PARQUE]: "modulos/parque-vehicular.html",
     [MODULOS.PETICIONES]: "modulos/peticiones.html",
+    [MODULOS.GESTION_COTIZACIONES]: "modulos/peticiones.html?vista=cotizaciones",
+    [MODULOS.COTIZACIONES_PROVEEDOR]: "modulos/portal-proveedor.html?vista=cotizaciones",
     [MODULOS.SEGUIMIENTO_PETICIONES]: "modulos/seguimiento-peticiones.html",
     [MODULOS.REQUISICIONES]: "modulos/seguimiento-siif.html",
     [MODULOS.SEGUIMIENTO_SIIF]: "modulos/seguimiento-siif.html",
@@ -63,6 +67,8 @@
     [MODULOS.DASHBOARD]: "Indicadores ejecutivos y KPIs operativos.",
     [MODULOS.PARQUE]: "Expediente digital de unidades y seguimiento de flota.",
     [MODULOS.PETICIONES]: "Solicitudes de refacciones al almacén.",
+    [MODULOS.GESTION_COTIZACIONES]: "Gestión interna de partidas, requisiciones y montos de cotizaciones.",
+    [MODULOS.COTIZACIONES_PROVEEDOR]: "Gestión privada de cotizaciones del proveedor.",
     [MODULOS.SEGUIMIENTO_PETICIONES]: "Consulta de peticiones por area para coordinadores.",
     [MODULOS.REQUISICIONES]: "Requisiciones, órdenes de compra y pagos.",
     [MODULOS.SEGUIMIENTO_SIIF]: "Vista unificada de requisiciones, órdenes de compra y solicitudes de pago.",
@@ -100,7 +106,7 @@
       MODULOS.DASHBOARD,
       MODULOS.VALES
     ],
-    Proveedor: [MODULOS.PORTAL_PROVEEDOR],
+    Proveedor: [MODULOS.PORTAL_PROVEEDOR, MODULOS.COTIZACIONES_PROVEEDOR],
     "Moderador de Acuerdos": [
       MODULOS.DASHBOARD,
       MODULOS.ACUERDOS
@@ -183,6 +189,7 @@
       MODULOS.DASHBOARD, 
       MODULOS.PARQUE, 
       MODULOS.PETICIONES, 
+      MODULOS.GESTION_COTIZACIONES,
       MODULOS.SEGUIMIENTO_PETICIONES,
       MODULOS.ACUERDOS,
       MODULOS.REQUISICIONES, 
@@ -208,6 +215,7 @@
     [
       MODULOS.DASHBOARD, 
       MODULOS.PETICIONES, 
+      MODULOS.GESTION_COTIZACIONES,
       MODULOS.REQUISICIONES, 
       MODULOS.SEGUIMIENTO_SIIF,
       MODULOS.IMPORTAR_SIIF,
@@ -409,7 +417,7 @@
   function obtenerModulosUsuario(usuario) {
     const permisosModulos = obtenerPermisosModulosUsuario(usuario);
     const rol = normalizarRol((usuario || {}).rol || (usuario || {}).cargo || (usuario || {}).tipo || "");
-    if (rol === "Proveedor") return [MODULOS.PORTAL_PROVEEDOR];
+    if (rol === "Proveedor") return [MODULOS.PORTAL_PROVEEDOR, MODULOS.COTIZACIONES_PROVEEDOR];
 
     if (permisosModulos.length) {
       const modulos = permisosModulos
@@ -450,7 +458,7 @@
   function obtenerPermisoModuloUsuario(usuario, modulo) {
     const rol = normalizarRol((usuario || {}).rol || (usuario || {}).cargo || (usuario || {}).tipo || "");
     if (rol === "Proveedor") {
-      return modulo === MODULOS.PORTAL_PROVEEDOR ? "editar" : "none";
+      return [MODULOS.PORTAL_PROVEEDOR, MODULOS.COTIZACIONES_PROVEEDOR].includes(modulo) ? "editar" : "none";
     }
 
     const permisosModulos = obtenerPermisosModulosUsuario(usuario);

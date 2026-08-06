@@ -124,6 +124,18 @@
       .single();
   }
 
+  async function actualizarInterna(id, payload) {
+    const client = getClient();
+    if (!client) return sinConexion();
+
+    return client
+      .from("cotizaciones_almacen")
+      .update(payload)
+      .eq("id", id)
+      .select()
+      .single();
+  }
+
   global.ETCotizacionesAlmacen = {
     listar,
     listarPorProveedor,
@@ -132,6 +144,7 @@
     actualizar,
     crearDesdePeticion,
     buscarUnidadParque,
-    actualizarDatosInternos
+    actualizarDatosInternos,
+    actualizarInterna
   };
 })(window);

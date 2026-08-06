@@ -135,6 +135,23 @@
       </div>
         </div>
       </article>
+      <article class="dashboard-kpi-group" id="grupoKpiCotizacionesSinRequisicion">
+        <div class="dashboard-kpi-group-heading"><span>Cotizaciones</span><small>Pendientes de vincular</small></div>
+        <div class="dashboard-kpi-group-grid">
+      <div class="kpi-card dashboard-kpi-card dashboard-link-card priority" data-href="modulos/peticiones.html?vista=cotizaciones" role="link" tabindex="0">
+        <span class="dashboard-kpi-icon" aria-hidden="true">C</span>
+        <span>Número total sin requisición</span>
+        <h2 id="kpiDashboardCotizacionesSinRequisicion">0</h2>
+        <p>Cotizaciones pendientes de vincular</p>
+      </div>
+      <div class="kpi-card dashboard-kpi-card dashboard-link-card financial" data-href="modulos/peticiones.html?vista=cotizaciones" role="link" tabindex="0">
+        <span class="dashboard-kpi-icon" aria-hidden="true">$</span>
+        <span>Monto total sin requisición</span>
+        <h2 id="kpiDashboardMontoSinRequisicion">$0</h2>
+        <p>Importe pendiente de vincular</p>
+      </div>
+        </div>
+      </article>
       <article class="dashboard-kpi-group">
         <div class="dashboard-kpi-group-heading"><span>Peticiones</span><small>Atención de solicitudes</small></div>
         <div class="dashboard-kpi-group-grid">
@@ -571,6 +588,12 @@
       return ["director", "admin", "superadmin"].includes(rol);
     }
 
+    function puedeVerKpisCotizaciones(usuario) {
+      const rol = String(usuario && usuario.rol || "").trim()
+        .normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
+      return ["admin", "superadmin", "administrador del sistema", "director"].includes(rol);
+    }
+
 function puedeVerIndicadoresPersonal(usuario) {
       const rol = String(usuario && usuario.rol || "").trim()
         .normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
@@ -588,7 +611,8 @@ let datosDashboard = {
   empleados: [],
   tramites: [],
   solicitudesPago: [],
-  ordenesCompra: []
+  ordenesCompra: [],
+  cotizaciones: []
 };
 
 let anioSeleccionadoDashboard = "";
@@ -680,7 +704,7 @@ let fechaHastaDashboard = "";
         ? (ETPermissions.obtenerModulosUsuario(usuarioActivo) || [])
         : [];
 
-      let peticionesRes, requisicionesRes, solicitudesPagoRes, ordenesCompraRes, valesRes, parqueRes, usuariosRes, empleadosRes, tramitesRes;
+      let peticionesRes, requisicionesRes, solicitudesPagoRes, ordenesCompraRes, valesRes, parqueRes, usuariosRes, empleadosRes, tramitesRes, cotizacionesRes;
       try {
         [
           peticionesRes,
@@ -688,7 +712,8 @@ let fechaHastaDashboard = "";
           parqueRes,
           usuariosRes,
           empleadosRes,
-          tramitesRes
+          tramitesRes,
+          cotizacionesRes
         ] = await Promise.all([
           window.ETPeticiones && typeof ETPeticiones.listar === "function"
             ? ETPeticiones.listar()
@@ -701,6 +726,9 @@ let fechaHastaDashboard = "";
             : Promise.resolve({ data: [], error: null }),
           (modulosPermitidosConsulta.includes("Tramites Administrativos") || puedeVerIndicadoresPersonal(usuarioActivo))
             ? dashboardClient.from("tramites_administrativos").select("id,num_empleado,empleado_nombre,tipo_tramite,subtipo_incapacidad,motivo,fecha_inicio,fecha_fin")
+            : Promise.resolve({ data: [], error: null }),
+          puedeVerKpisCotizaciones(usuarioActivo)
+            ? dashboardClient.from("cotizaciones_almacen").select("id,requisicion,total,fecha_cotizacion")
             : Promise.resolve({ data: [], error: null })
         ]);
 
@@ -726,6 +754,7 @@ let fechaHastaDashboard = "";
   if (usuariosRes.error) console.error("Error usuarios:", usuariosRes.error);
   if (empleadosRes.error) console.error("Error empleados:", empleadosRes.error);
   if (tramitesRes.error) console.error("Error tramites:", tramitesRes.error);
+  if (cotizacionesRes.error) console.error("Error cotizaciones:", cotizacionesRes.error);
 
   datosDashboard.peticiones = peticionesRes.data || [];
   datosDashboard.requisiciones = requisicionesRes.data || [];
@@ -736,6 +765,7 @@ let fechaHastaDashboard = "";
   datosDashboard.usuarios = usuariosRes.data || [];
   datosDashboard.empleados = empleadosRes.data || [];
   datosDashboard.tramites = tramitesRes.data || [];
+  datosDashboard.cotizaciones = cotizacionesRes.data || [];
 
   llenarFiltroAnios();
   renderizarDashboard();
@@ -848,6 +878,7 @@ function renderizarDashboard() {
   const usuarios = datosDashboard.usuarios;
   const empleados = datosDashboard.empleados;
   const tramites = datosDashboard.tramites;
+  const cotizaciones = datosDashboard.cotizaciones;
   const resumenGraficas = document.getElementById("resumenGraficasOperativas");
   if (resumenGraficas) {
     const gastoVisible = requisiciones.reduce(function (total, fila) {
@@ -870,6 +901,7 @@ function renderizarDashboard() {
 
   const puedeVerFinanciero = esRolFinanciero(usuarioActivo);
   const puedeVerMatrizSp = puedeVerMatrizSolicitudesPago(usuarioActivo);
+  const puedeVerCotizaciones = puedeVerKpisCotizaciones(usuarioActivo);
   const costoAnualCard = document.getElementById("kpiCostoAnualCard");
   const costoMensualCard = document.getElementById("kpiCostoMensualCard");
   const graficasOperativas = document.getElementById("seccionGraficasOperativas");
@@ -877,6 +909,7 @@ function renderizarDashboard() {
   const matrizSolicitudesPago = document.getElementById("seccionMatrizSolicitudesPago");
   const analisisHeading = document.getElementById("seccionAnalisisHeading");
   const labelKpiVales = document.getElementById("labelKpiVales");
+  const grupoCotizaciones = document.getElementById("grupoKpiCotizacionesSinRequisicion");
 
   if (costoAnualCard) costoAnualCard.style.display = puedeVerFinanciero ? "" : "none";
   if (costoMensualCard) costoMensualCard.style.display = puedeVerFinanciero ? "" : "none";
@@ -884,6 +917,7 @@ function renderizarDashboard() {
   if (gastoProveedor) gastoProveedor.style.display = puedeVerFinanciero ? "" : "none";
   if (matrizSolicitudesPago) matrizSolicitudesPago.style.display = puedeVerMatrizSp ? "" : "none";
   if (analisisHeading) analisisHeading.style.display = puedeVerFinanciero ? "" : "none";
+  if (grupoCotizaciones) grupoCotizaciones.style.display = puedeVerCotizaciones ? "" : "none";
   actualizarVisibilidadGruposKpi();
 
   if (labelKpiVales) {
@@ -902,6 +936,13 @@ function renderizarDashboard() {
   document.getElementById("kpiRequisicionesAutorizar").textContent = kpis.requisicionesPorAutorizar;
   document.getElementById("kpiRequisicionesXml").textContent = kpis.requisicionesConXml;
   document.getElementById("kpiValesEmitidos").textContent = puedeVerFinanciero ? kpis.valesEmitidos : kpis.valesActivos;
+  const cotizacionesSinRequisicion = cotizaciones.filter(function (cotizacion) {
+    return !String(cotizacion.requisicion || "").trim();
+  });
+  document.getElementById("kpiDashboardCotizacionesSinRequisicion").textContent = cotizacionesSinRequisicion.length;
+  document.getElementById("kpiDashboardMontoSinRequisicion").textContent = moneda(cotizacionesSinRequisicion.reduce(function (total, cotizacion) {
+    return total + Number(cotizacion.total || 0);
+  }, 0));
 
   const ahoraOperativo = new Date();
   const hoyOperativo = [

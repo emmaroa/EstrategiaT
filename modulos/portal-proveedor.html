@@ -34,18 +34,21 @@
     .portal-module-actions { display:flex; align-items:center; justify-content:flex-end; gap:8px; flex-wrap:wrap; }
     .portal-collapse-button { min-width:42px; padding-inline:12px; font-size:18px; line-height:1; }
     .portal-module.is-collapsed .portal-collapse-button { transform:rotate(-90deg); }
-    .portal-quick-nav { display:grid; gap:6px; margin:8px 0 16px; padding:12px; border:1px solid var(--border-subtle); border-radius:14px; background:var(--bg-card); }
-    .portal-quick-nav strong { padding:0 8px 5px; color:var(--text-muted); font-size:11px; letter-spacing:.08em; text-transform:uppercase; }
-    .portal-quick-nav a { padding:9px 10px; border-radius:9px; color:var(--text-secondary); font-size:13px; font-weight:700; text-decoration:none; }
-    .portal-quick-nav a:hover, .portal-quick-nav a:focus-visible { color:var(--text-primary); background:var(--bg-card-hover); }
     .portal-siif-updated { display:inline-flex; margin-top:9px; padding:6px 10px; border:1px solid color-mix(in srgb, var(--color-info) 35%, var(--border-subtle)); border-radius:999px; background:color-mix(in srgb, var(--color-info) 10%, transparent); color:var(--text-secondary); font-size:12px; font-weight:700; }
+    #kpisCotizaciones, #moduloCotizaciones { display:none; }
+    .portal-cotizaciones-view #kpisPortalGeneral,
+    .portal-cotizaciones-view #moduloResumenSiif,
+    .portal-cotizaciones-view #moduloPeticiones,
+    .portal-cotizaciones-view #moduloSeguimientoSiif { display:none; }
+    .portal-cotizaciones-view #kpisCotizaciones { display:grid; }
+    .portal-cotizaciones-view #moduloCotizaciones { display:block; }
   </style>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="../js/core/supabase.js"></script>
   <script src="../js/core/permissions.js?v=20260725-3"></script>
   <script src="../js/core/theme.js"></script>
   <script src="../js/core/layout.js?v=20260725-3"></script>
-  <script src="../js/services/cotizaciones-almacen.service.js?v=20260727-1"></script>
+  <script src="../js/services/cotizaciones-almacen.service.js?v=20260805-1"></script>
   <script src="../login.js?v=20260725-3"></script>
 </head>
 <body class="dashboard-body portal-proveedor-body">
@@ -58,26 +61,19 @@
       </div>
     </div>
     <nav id="etNav"></nav>
-    <div class="portal-quick-nav" aria-label="Accesos del portal">
-      <strong>Acceso rápido</strong>
-      <a href="#moduloResumenSiif">Resumen SIIF</a>
-      <a href="#moduloPeticiones">Peticiones</a>
-      <a href="#moduloCotizaciones">Cotizaciones</a>
-      <a href="#moduloSeguimientoSiif">Seguimiento SIIF</a>
-    </div>
     <button type="button" class="logout" id="etLogout">Cerrar sesión</button>
   </aside>
 
   <main class="main-content">
     <header class="topbar">
       <div>
-        <h1>Portal de proveedores</h1>
+        <h1 id="tituloPortalProveedor">Portal de proveedores</h1>
         <p id="nombreProveedorPortal">Consulta tus solicitudes y requisiciones asignadas.</p>
       </div>
       <span id="etTemaContainer"></span>
     </header>
 
-    <section class="kpi-grid">
+    <section class="kpi-grid" id="kpisPortalGeneral">
       <div class="kpi-card">
         <span>Peticiones asignadas</span>
         <h2 id="kpiPeticionesProveedor">0</h2>
@@ -113,16 +109,14 @@
         <h2 id="kpiSolicitudesPagoProveedor">0</h2>
         <p>Etapa actual del trámite</p>
       </div>
-      <div class="kpi-card">
-        <span>Cotizaciones de almacén</span>
-        <h2 id="kpiCotizacionesAlmacen">0</h2>
-        <p>Con y sin petición</p>
-      </div>
-      <div class="kpi-card">
-        <span>Total de cotizaciones sin trámite</span>
-        <h2 id="kpiTotalCotizacionesSinTramite">$0.00</h2>
-        <p>Importe sin número de requisición</p>
-      </div>
+    </section>
+
+    <section class="kpi-grid" id="kpisCotizaciones" aria-label="Indicadores de cotizaciones">
+      <div class="kpi-card"><span>Total de cotizaciones</span><h2 id="kpiCotizacionesAlmacen">0</h2><p>Registros privados del proveedor</p></div>
+      <div class="kpi-card"><span>Sin trámite</span><h2 id="kpiCotizacionesSinTramite">0</h2><p>Sin requisición asignada</p></div>
+      <div class="kpi-card"><span>Con requisición</span><h2 id="kpiCotizacionesConTramite">0</h2><p>Vinculadas a un trámite</p></div>
+      <div class="kpi-card"><span>Pendientes de revisión</span><h2 id="kpiCotizacionesPendientes">0</h2><p>Requieren atención</p></div>
+      <div class="kpi-card"><span>Monto sin trámite</span><h2 id="kpiTotalCotizacionesSinTramite">$0.00</h2><p>Importe sin requisición</p></div>
     </section>
 
     <section class="panel portal-module" id="moduloResumenSiif">
@@ -188,6 +182,13 @@
         <select id="filtroEstatusCotizacionesAlmacen" aria-label="Filtrar cotizaciones por estatus">
           <option value="">Todos los estatus</option>
         </select>
+        <select id="filtroTramiteCotizacionesAlmacen" aria-label="Filtrar cotizaciones por trámite">
+          <option value="">Con y sin trámite</option>
+          <option value="sin-tramite">Sin trámite</option>
+          <option value="con-tramite">Con requisición</option>
+        </select>
+        <label>Desde <input type="date" id="fechaDesdeCotizacionesAlmacen" aria-label="Cotizaciones desde"></label>
+        <label>Hasta <input type="date" id="fechaHastaCotizacionesAlmacen" aria-label="Cotizaciones hasta"></label>
       </div>
       <div class="table-container">
         <table>
@@ -206,6 +207,7 @@
               <th>Total</th>
               <th>Estatus</th>
               <th>Requisición</th>
+              <th>Notas</th>
               <th>Acciones</th>
             </tr>
           </thead>
@@ -328,8 +330,8 @@
           </div>
         </div>
         <div class="input-group full">
-          <label for="cotizacionObservaciones">Observaciones</label>
-          <textarea id="cotizacionObservaciones" rows="3" maxlength="2000"></textarea>
+          <label for="cotizacionObservaciones">Notas / observaciones</label>
+          <textarea id="cotizacionObservaciones" rows="3" maxlength="2000" placeholder="Agrega notas, indicaciones o detalles de esta cotización"></textarea>
         </div>
       </div>
       <div class="modal-actions">
@@ -348,7 +350,13 @@
       window.location.href = "../dashboard.html";
     }
 
-    ETLayout.inicializar("Portal Proveedor");
+    const vistaCotizacionesProveedor = new URLSearchParams(window.location.search).get("vista") === "cotizaciones";
+    document.body.classList.toggle("portal-cotizaciones-view", vistaCotizacionesProveedor);
+    if (vistaCotizacionesProveedor) {
+      document.getElementById("tituloPortalProveedor").textContent = "Gestión privada de cotizaciones";
+    }
+
+    ETLayout.inicializar(vistaCotizacionesProveedor ? "Cotizaciones Proveedor" : "Portal Proveedor");
 
     function inicializarModulosPortal() {
       document.querySelectorAll(".portal-module").forEach(function (modulo) {
@@ -374,16 +382,6 @@
         encabezado.appendChild(acciones);
       });
 
-      document.querySelectorAll(".portal-quick-nav a").forEach(function (enlace) {
-        enlace.addEventListener("click", function () {
-          const modulo = document.querySelector(enlace.getAttribute("href"));
-          if (!modulo) return;
-          modulo.classList.remove("is-collapsed");
-          const boton = modulo.querySelector(".portal-collapse-button");
-          boton?.setAttribute("aria-expanded", "true");
-          boton?.setAttribute("aria-label", "Contraer módulo");
-        });
-      });
     }
 
     inicializarModulosPortal();
@@ -429,6 +427,9 @@
     const filtroEstatusRequisicionProveedor = document.getElementById("filtroEstatusRequisicionProveedor");
     const buscarCotizacionesAlmacen = document.getElementById("buscarCotizacionesAlmacen");
     const filtroEstatusCotizacionesAlmacen = document.getElementById("filtroEstatusCotizacionesAlmacen");
+    const filtroTramiteCotizacionesAlmacen = document.getElementById("filtroTramiteCotizacionesAlmacen");
+    const fechaDesdeCotizacionesAlmacen = document.getElementById("fechaDesdeCotizacionesAlmacen");
+    const fechaHastaCotizacionesAlmacen = document.getElementById("fechaHastaCotizacionesAlmacen");
 
     function escaparPortal(valor) {
       return String(valor ?? "")
@@ -625,6 +626,9 @@
     function obtenerCotizacionesFiltradasProveedor() {
       const texto = normalizarPortal(buscarCotizacionesAlmacen?.value);
       const estatus = String(filtroEstatusCotizacionesAlmacen?.value || "");
+      const tramite = String(filtroTramiteCotizacionesAlmacen?.value || "");
+      const fechaDesde = String(fechaDesdeCotizacionesAlmacen?.value || "");
+      const fechaHasta = String(fechaHastaCotizacionesAlmacen?.value || "");
       return cotizacionesAlmacenProveedor.filter(function (cotizacion) {
         const contenido = normalizarPortal([
           cotizacion.folio,
@@ -635,10 +639,17 @@
           cotizacion.numero_serie,
           cotizacion.dependencia,
           cotizacion.requisicion,
+          cotizacion.observaciones,
           JSON.stringify(cotizacion.materiales || []),
           cotizacion.estatus
         ].join(" "));
-        return contenido.includes(texto) && (!estatus || cotizacion.estatus === estatus);
+        const tieneTramite = Boolean(String(cotizacion.requisicion || "").trim());
+        const fecha = String(cotizacion.fecha_cotizacion || cotizacion.fecha_entrega || "").slice(0, 10);
+        return contenido.includes(texto) &&
+          (!estatus || cotizacion.estatus === estatus) &&
+          (!tramite || (tramite === "con-tramite" ? tieneTramite : !tieneTramite)) &&
+          (!fechaDesde || fecha >= fechaDesde) &&
+          (!fechaHasta || fecha <= fechaHasta);
       });
     }
 
@@ -760,6 +771,7 @@
               '<td><span class="badge status-badge ' + tonoCotizacionPortal(cotizacion.estatus) + '">' +
                 escaparPortal(cotizacion.estatus || "Pendiente de revisión") + "</span></td>" +
               "<td>" + escaparPortal(cotizacion.requisicion || "Pendiente") + "</td>" +
+              "<td>" + escaparPortal(cotizacion.observaciones || "Sin notas") + "</td>" +
               '<td><div class="action-grid">' +
                 '<button type="button" class="btn-secondary" onclick="imprimirCotizacionAlmacen(\'' +
                 cotizacion.id + '\')">Imprimir</button>' +
@@ -767,7 +779,7 @@
                 cotizacion.id + '\')" ' + (cotizacion.estatus === "Requisición generada" ? "disabled" : "") +
                 '>Editar</button></div></td></tr>';
           }).join("")
-        : '<tr><td colspan="14">No hay cotizaciones que coincidan con los filtros.</td></tr>';
+        : '<tr><td colspan="15">No hay cotizaciones que coincidan con los filtros.</td></tr>';
 
       tablaRequisiciones.innerHTML = requisicionesFiltradas.length
         ? requisicionesFiltradas.map(function (requisicion) {
@@ -808,6 +820,15 @@
       }).length;
       renderizarResumenSiifProveedor();
       document.getElementById("kpiCotizacionesAlmacen").textContent = cotizacionesAlmacenProveedor.length;
+      document.getElementById("kpiCotizacionesSinTramite").textContent = cotizacionesAlmacenProveedor.filter(function (cotizacion) {
+        return !String(cotizacion.requisicion || "").trim();
+      }).length;
+      document.getElementById("kpiCotizacionesConTramite").textContent = cotizacionesAlmacenProveedor.filter(function (cotizacion) {
+        return Boolean(String(cotizacion.requisicion || "").trim());
+      }).length;
+      document.getElementById("kpiCotizacionesPendientes").textContent = cotizacionesAlmacenProveedor.filter(function (cotizacion) {
+        return normalizarPortal(cotizacion.estatus).includes("pendiente");
+      }).length;
       const totalSinTramite = cotizacionesAlmacenProveedor.reduce(function (acumulado, cotizacion) {
         return acumulado + (!String(cotizacion.requisicion || "").trim() ? Number(cotizacion.total || 0) : 0);
       }, 0);
@@ -904,12 +925,13 @@
           Number(cotizacion.subtotal || 0),
           Number(cotizacion.iva || 0),
           Number(cotizacion.total || 0),
-          cotizacion.estatus
+          cotizacion.estatus,
+          cotizacion.observaciones
         ];
       });
       descargarCSV(
         nombreArchivoPortal("cotizaciones-sin-tramite"),
-        ["Folio", "Fecha cotización", "Fecha entrega", "Origen", "Unidad", "Dependencia", "Materiales", "Subtotal", "IVA", "Total", "Estatus"],
+        ["Folio", "Fecha cotización", "Fecha entrega", "Origen", "Unidad", "Dependencia", "Materiales", "Subtotal", "IVA", "Total", "Estatus", "Notas"],
         filas
       );
     }
@@ -1063,6 +1085,7 @@
           '<div class="campo"><span>Dependencia</span><strong>' + escaparPortal(cotizacion.dependencia || "Pendiente") + "</strong></div>" +
           '<div class="campo"><span>Estatus</span><strong>' + escaparPortal(cotizacion.estatus || "—") + "</strong></div>" +
           '<div class="campo"><span>Requisición</span><strong>' + escaparPortal(cotizacion.requisicion || "Pendiente") + "</strong></div>" +
+          '<div class="campo" style="grid-column:1/-1"><span>Notas / observaciones</span><strong>' + escaparPortal(cotizacion.observaciones || "Sin notas") + "</strong></div>" +
         "</div>" +
         "<h2>Material entregado</h2>" +
         "<table><thead><tr><th>Cantidad</th><th>Artículo</th><th>Precio unitario</th><th>Importe</th></tr></thead>" +
@@ -1253,7 +1276,10 @@
       buscarRequisicionesProveedor,
       filtroEstatusRequisicionProveedor,
       buscarCotizacionesAlmacen,
-      filtroEstatusCotizacionesAlmacen
+      filtroEstatusCotizacionesAlmacen,
+      filtroTramiteCotizacionesAlmacen,
+      fechaDesdeCotizacionesAlmacen,
+      fechaHastaCotizacionesAlmacen
     ].forEach(function (control) {
       control?.addEventListener(control.tagName === "INPUT" ? "input" : "change", renderizarPortalProveedor);
     });

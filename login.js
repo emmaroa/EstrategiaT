@@ -22,7 +22,7 @@
         Almacen: ["Dashboard", "Peticiones", "Vales"],
         "Jefe de Almacen": ["Dashboard", "Peticiones", "Vales"],
         "Técnico vales": ["Dashboard", "Vales"],
-        Proveedor: ["Portal Proveedor"],
+        Proveedor: ["Portal Proveedor", "Cotizaciones Proveedor"],
         Consulta: ["Dashboard", "Parque Vehicular", "Peticiones", "Seguimiento SIIF", "Vales"],
         Coordinador: ["Dashboard", "Seguimiento Peticiones"],
         "Coordinador Infraestructura": ["Dashboard", "Peticiones"],
@@ -124,7 +124,7 @@
 
   function obtenerModulosUsuario(data) {
     if (normalizarRolLogin(data && data.rol) === "Proveedor") {
-      return ["Portal Proveedor"];
+      return ["Portal Proveedor", "Cotizaciones Proveedor"];
     }
 
     if (window.ETPermissions && typeof window.ETPermissions.obtenerModulosUsuario === "function") {
@@ -291,6 +291,8 @@
       "Dashboard": "dashboard.html",
       "Parque Vehicular": "modulos/parque-vehicular.html",
       "Peticiones": "modulos/peticiones.html",
+      "Gestión de Cotizaciones": "modulos/peticiones.html?vista=cotizaciones",
+      "Cotizaciones Proveedor": "modulos/portal-proveedor.html?vista=cotizaciones",
       "Requisiciones": "modulos/seguimiento-siif.html",
       "Seguimiento SIIF": "modulos/seguimiento-siif.html",
       "Importar SIIF": "modulos/importar-siif.html",
