@@ -29,6 +29,15 @@
     [data-theme="dark"] .portal-proveedor-body .portal-status-card h3 { color:color-mix(in srgb, var(--portal-status-accent) 82%, white); }
     [data-theme="dark"] .portal-proveedor-body .portal-status-values strong { color:#f8fafc; }
     [data-theme="dark"] .portal-proveedor-body .portal-status-values span { color:#e2e8f0; }
+    .portal-module { scroll-margin-top:20px; }
+    .portal-module.is-collapsed > :not(.panel-header) { display:none; }
+    .portal-module-actions { display:flex; align-items:center; justify-content:flex-end; gap:8px; flex-wrap:wrap; }
+    .portal-collapse-button { min-width:42px; padding-inline:12px; font-size:18px; line-height:1; }
+    .portal-module.is-collapsed .portal-collapse-button { transform:rotate(-90deg); }
+    .portal-quick-nav { display:grid; gap:6px; margin:8px 0 16px; padding:12px; border:1px solid var(--border-subtle); border-radius:14px; background:var(--bg-card); }
+    .portal-quick-nav strong { padding:0 8px 5px; color:var(--text-muted); font-size:11px; letter-spacing:.08em; text-transform:uppercase; }
+    .portal-quick-nav a { padding:9px 10px; border-radius:9px; color:var(--text-secondary); font-size:13px; font-weight:700; text-decoration:none; }
+    .portal-quick-nav a:hover, .portal-quick-nav a:focus-visible { color:var(--text-primary); background:var(--bg-card-hover); }
   </style>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="../js/core/supabase.js"></script>
@@ -48,6 +57,13 @@
       </div>
     </div>
     <nav id="etNav"></nav>
+    <div class="portal-quick-nav" aria-label="Accesos del portal">
+      <strong>Acceso rápido</strong>
+      <a href="#moduloResumenSiif">Resumen SIIF</a>
+      <a href="#moduloPeticiones">Peticiones</a>
+      <a href="#moduloCotizaciones">Cotizaciones</a>
+      <a href="#moduloSeguimientoSiif">Seguimiento SIIF</a>
+    </div>
     <button type="button" class="logout" id="etLogout">Cerrar sesión</button>
   </aside>
 
@@ -108,7 +124,7 @@
       </div>
     </section>
 
-    <section class="panel">
+    <section class="panel portal-module" id="moduloResumenSiif">
       <div class="panel-header">
         <div>
           <h2>Trámites SIIF por estatus</h2>
@@ -118,7 +134,7 @@
       <div class="portal-status-grid" id="resumenEstatusSiifProveedor"></div>
     </section>
 
-    <section class="panel">
+    <section class="panel portal-module" id="moduloPeticiones">
       <div class="panel-header">
         <div>
           <h2>Peticiones asignadas</h2>
@@ -156,7 +172,7 @@
       </div>
     </section>
 
-    <section class="panel">
+    <section class="panel portal-module" id="moduloCotizaciones">
       <div class="panel-header">
         <div>
           <h2>Cotizaciones entregadas a almacén</h2>
@@ -195,11 +211,11 @@
       </div>
     </section>
 
-    <section class="panel">
+    <section class="panel portal-module" id="moduloSeguimientoSiif">
       <div class="panel-header">
         <div>
           <h2>Detalle de trámites SIIF</h2>
-          <p>Vista de consulta exclusiva de los trámites asignados al proveedor.</p>
+          <p>Seguimiento de tus trámites y de las requisiciones que aún no tienen proveedor.</p>
         </div>
         <button type="button" class="btn-secondary" id="btnExportarRequisicionesProveedor">Exportar hoja de cálculo</button>
       </div>
@@ -220,6 +236,8 @@
               <th>Monto</th>
               <th>Orden de compra</th>
               <th>Folio solicitud de pago</th>
+              <th>Etapa</th>
+              <th>Proveedor</th>
               <th>Estatus</th>
             </tr>
           </thead>
@@ -329,12 +347,48 @@
 
     ETLayout.inicializar("Portal Proveedor");
 
+    function inicializarModulosPortal() {
+      document.querySelectorAll(".portal-module").forEach(function (modulo) {
+        const encabezado = modulo.querySelector(":scope > .panel-header");
+        if (!encabezado) return;
+        const acciones = document.createElement("div");
+        acciones.className = "portal-module-actions";
+        Array.from(encabezado.children).slice(1).forEach(function (control) {
+          acciones.appendChild(control);
+        });
+        const boton = document.createElement("button");
+        boton.type = "button";
+        boton.className = "btn-secondary portal-collapse-button";
+        boton.textContent = "⌄";
+        boton.setAttribute("aria-label", "Contraer módulo");
+        boton.setAttribute("aria-expanded", "true");
+        boton.addEventListener("click", function () {
+          const colapsado = modulo.classList.toggle("is-collapsed");
+          boton.setAttribute("aria-expanded", String(!colapsado));
+          boton.setAttribute("aria-label", colapsado ? "Expandir módulo" : "Contraer módulo");
+        });
+        acciones.appendChild(boton);
+        encabezado.appendChild(acciones);
+      });
+
+      document.querySelectorAll(".portal-quick-nav a").forEach(function (enlace) {
+        enlace.addEventListener("click", function () {
+          const modulo = document.querySelector(enlace.getAttribute("href"));
+          if (!modulo) return;
+          modulo.classList.remove("is-collapsed");
+          const boton = modulo.querySelector(".portal-collapse-button");
+          boton?.setAttribute("aria-expanded", "true");
+          boton?.setAttribute("aria-label", "Contraer módulo");
+        });
+      });
+    }
+
+    inicializarModulosPortal();
+
     const proveedorVinculado = String(usuarioProveedor?.proveedor || "").trim();
     let peticionesProveedor = [];
     let requisicionesProveedor = [];
     let requisicionesSiifSinProveedorBuscadas = [];
-    let temporizadorBusquedaSiif = null;
-    let secuenciaBusquedaSiif = 0;
     let cotizacionesAlmacenProveedor = [];
     let unidadCotizacionSeleccionada = null;
     let cotizacionAlmacenEditandoId = null;
@@ -372,7 +426,7 @@
 
       document.getElementById("nombreProveedorPortal").textContent = proveedorVinculado;
 
-      const [peticionesResultado, requisicionesResultado, cotizacionesResultado] = await Promise.all([
+      const [peticionesResultado, requisicionesResultado, requisicionesInicialesResultado, requisicionesSinProveedorResultado, cotizacionesResultado] = await Promise.all([
         supabaseClient
           .from("peticiones")
           .select("id,fecha,unidad,peticion,solicitante,estatus,estatus_proveedor,nota_proveedor,fecha_entrega_proveedor,proveedor")
@@ -383,6 +437,16 @@
           .select("id,fecha_req,numero_req,unidad,concepto,monto,numero_oc,numero_sp,estatus,estatus_requisicion,estatus_oc,estatus_sp,etapa_actual,proveedor")
           .contains("proveedores", [proveedorVinculado])
           .order("fecha_req", { ascending: false }),
+        supabaseClient
+          .from("requis_siif")
+          .select("id,fecha,folio,dependencia,justificacion,importe,estatus,proveedor")
+          .eq("proveedor", proveedorVinculado)
+          .order("fecha", { ascending: false }),
+        supabaseClient
+          .from("requis_siif")
+          .select("id,fecha,folio,dependencia,justificacion,importe,estatus,proveedor")
+          .or("proveedor.is.null,proveedor.eq.")
+          .order("fecha", { ascending: false }),
         ETCotizacionesAlmacen.listarPorProveedor(proveedorVinculado)
       ]);
 
@@ -394,6 +458,10 @@
         console.error(requisicionesResultado.error);
         alert("No se pudieron cargar las requisiciones.");
       }
+      if (requisicionesInicialesResultado.error || requisicionesSinProveedorResultado.error) {
+        console.error(requisicionesInicialesResultado.error || requisicionesSinProveedorResultado.error);
+        alert("No se pudieron cargar las requisiciones SIIF iniciales.");
+      }
       if (cotizacionesResultado.error) {
         console.error(cotizacionesResultado.error);
         alert("No se pudieron cargar las cotizaciones de almacén.");
@@ -403,10 +471,14 @@
         peticionesResultado.data || [],
         "fecha"
       );
-      requisicionesProveedor = ordenarRegistrosDescendente(
-        requisicionesResultado.data || [],
-        "fecha_req"
-      );
+      const requisicionesAsignadas = new Map();
+      (requisicionesResultado.data || []).concat(
+        (requisicionesInicialesResultado.data || []).map(normalizarRequisicionInicialSiif)
+      ).forEach(function (requisicion) { requisicionesAsignadas.set(requisicion.id, requisicion); });
+      requisicionesProveedor = ordenarRegistrosDescendente(Array.from(requisicionesAsignadas.values()), "fecha_req");
+      requisicionesSiifSinProveedorBuscadas = (requisicionesSinProveedorResultado.data || [])
+        .filter(function (requisicion) { return !String(requisicion.proveedor || "").trim(); })
+        .map(normalizarRequisicionInicialSiif);
       cotizacionesAlmacenProveedor = ordenarRegistrosDescendente(
         cotizacionesResultado.data || [],
         "fecha_entrega"
@@ -438,6 +510,26 @@
         .toLowerCase();
     }
 
+    function normalizarRequisicionInicialSiif(tramite) {
+      return {
+        id: tramite.id,
+        fecha_req: tramite.fecha,
+        numero_req: tramite.folio,
+        unidad: "",
+        concepto: tramite.justificacion,
+        monto: tramite.importe,
+        numero_oc: null,
+        numero_sp: null,
+        estatus: tramite.estatus,
+        estatus_requisicion: tramite.estatus,
+        estatus_oc: null,
+        estatus_sp: null,
+        etapa_actual: "Requisición",
+        proveedor: tramite.proveedor || null,
+        dependencia: tramite.dependencia
+      };
+    }
+
     function poblarSelectPortal(select, valores, etiqueta) {
       if (!select) return;
       const actual = select.value;
@@ -460,7 +552,7 @@
       );
       poblarSelectPortal(
         filtroEstatusRequisicionProveedor,
-        requisicionesProveedor.map(function (r) { return r.estatus; }),
+        requisicionesProveedor.concat(requisicionesSiifSinProveedorBuscadas).map(function (r) { return r.estatus; }),
         "Todos los estatus"
       );
       poblarSelectPortal(
@@ -499,34 +591,6 @@
         ].join(" "));
         return contenido.includes(texto) && (!estatus || r.estatus === estatus);
       });
-    }
-
-    async function buscarRequisicionSiifSinProveedor() {
-      const numeroRequisicion = String(buscarRequisicionesProveedor?.value || "").trim();
-      const numeroNormalizado = numeroRequisicion.replace(/\D/g, "").replace(/^0+/, "") || "0";
-      const secuenciaActual = ++secuenciaBusquedaSiif;
-      requisicionesSiifSinProveedorBuscadas = [];
-      renderizarPortalProveedor();
-      if (!numeroRequisicion || !/\d/.test(numeroRequisicion)) return;
-
-      const resultado = await supabaseClient
-        .from("seguimiento_siif")
-        .select("id,fecha_req,numero_req,unidad,concepto,monto,numero_oc,numero_sp,estatus,estatus_requisicion,estatus_oc,estatus_sp,etapa_actual,proveedor,proveedores")
-        .ilike("numero_req", "%" + numeroNormalizado + "%")
-        .is("proveedor", null)
-        .limit(50);
-
-      if (secuenciaActual !== secuenciaBusquedaSiif) return;
-      if (resultado.error) {
-        console.error("No se pudo buscar la requisición SIIF sin proveedor:", resultado.error);
-        return;
-      }
-      requisicionesSiifSinProveedorBuscadas = (resultado.data || []).filter(function (tramite) {
-        const folioNormalizado = String(tramite.numero_req || "").replace(/\D/g, "").replace(/^0+/, "") || "0";
-        const proveedores = Array.isArray(tramite.proveedores) ? tramite.proveedores.filter(Boolean) : [];
-        return folioNormalizado === numeroNormalizado && !tramite.proveedor && proveedores.length === 0;
-      });
-      renderizarPortalProveedor();
     }
 
     function obtenerCotizacionesFiltradasProveedor() {
@@ -686,9 +750,12 @@
               "<td><strong>" + escaparPortal(importePortal(requisicion.monto)) + "</strong></td>" +
               "<td>" + escaparPortal(requisicion.numero_oc || "Pendiente") + "</td>" +
               "<td>" + documentoSiifProveedor(requisicion) + "</td>" +
+              '<td><span class="badge status-badge blue">' + escaparPortal(requisicion.etapa_actual || "Requisición") + "</span></td>" +
+              '<td><span class="badge status-badge ' + (requisicion.proveedor ? "green" : "amber") + '">' +
+                escaparPortal(requisicion.proveedor || "Sin asignar") + "</span></td>" +
               '<td><span class="badge status-badge blue">' + escaparPortal(requisicion.estatus || "—") + "</span></td></tr>";
           }).join("")
-        : '<tr><td colspan="8">No hay requisiciones que coincidan con los filtros.</td></tr>';
+        : '<tr><td colspan="10">No hay requisiciones que coincidan con los filtros.</td></tr>';
 
       document.getElementById("kpiPeticionesProveedor").textContent = peticionesProveedor.length;
       document.getElementById("kpiPendientesProveedor").textContent = peticionesProveedor.filter(function (p) {
@@ -776,12 +843,15 @@
           r.concepto,
           Number(r.monto || 0),
           r.numero_oc,
+          r.numero_sp,
+          r.etapa_actual,
+          r.proveedor || "Sin asignar",
           r.estatus
         ];
       });
       descargarCSV(
         nombreArchivoPortal("requisiciones"),
-        ["Fecha", "Requisición", "Unidad", "Concepto", "Monto", "Orden de compra", "Estatus"],
+        ["Fecha", "Requisición", "Unidad", "Concepto", "Monto", "Orden de compra", "Folio solicitud de pago", "Etapa", "Proveedor", "Estatus"],
         filas
       );
     }
@@ -1122,18 +1192,12 @@
       buscarPeticionesProveedor,
       filtroEstatusPeticionProveedor,
       filtroEntregaPeticionProveedor,
+      buscarRequisicionesProveedor,
       filtroEstatusRequisicionProveedor,
       buscarCotizacionesAlmacen,
       filtroEstatusCotizacionesAlmacen
     ].forEach(function (control) {
       control?.addEventListener(control.tagName === "INPUT" ? "input" : "change", renderizarPortalProveedor);
-    });
-    buscarRequisicionesProveedor?.addEventListener("input", function () {
-      clearTimeout(temporizadorBusquedaSiif);
-      secuenciaBusquedaSiif += 1;
-      requisicionesSiifSinProveedorBuscadas = [];
-      renderizarPortalProveedor();
-      temporizadorBusquedaSiif = setTimeout(buscarRequisicionSiifSinProveedor, 350);
     });
     document.getElementById("btnExportarPeticionesProveedor")
       ?.addEventListener("click", exportarPeticionesProveedor);
