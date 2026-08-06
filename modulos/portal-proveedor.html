@@ -503,25 +503,29 @@
 
     async function buscarRequisicionSiifSinProveedor() {
       const numeroRequisicion = String(buscarRequisicionesProveedor?.value || "").trim();
+      const numeroNormalizado = numeroRequisicion.replace(/\D/g, "").replace(/^0+/, "") || "0";
       const secuenciaActual = ++secuenciaBusquedaSiif;
       requisicionesSiifSinProveedorBuscadas = [];
       renderizarPortalProveedor();
-      if (!numeroRequisicion) return;
+      if (!numeroRequisicion || !/\d/.test(numeroRequisicion)) return;
 
       const resultado = await supabaseClient
         .from("seguimiento_siif")
         .select("id,fecha_req,numero_req,unidad,concepto,monto,numero_oc,numero_sp,estatus,estatus_requisicion,estatus_oc,estatus_sp,etapa_actual,proveedor,proveedores")
-        .eq("numero_req", numeroRequisicion)
+        .ilike("numero_req", "%" + numeroNormalizado + "%")
         .is("proveedor", null)
-        .is("proveedores", null)
-        .limit(10);
+        .limit(50);
 
       if (secuenciaActual !== secuenciaBusquedaSiif) return;
       if (resultado.error) {
         console.error("No se pudo buscar la requisición SIIF sin proveedor:", resultado.error);
         return;
       }
-      requisicionesSiifSinProveedorBuscadas = resultado.data || [];
+      requisicionesSiifSinProveedorBuscadas = (resultado.data || []).filter(function (tramite) {
+        const folioNormalizado = String(tramite.numero_req || "").replace(/\D/g, "").replace(/^0+/, "") || "0";
+        const proveedores = Array.isArray(tramite.proveedores) ? tramite.proveedores.filter(Boolean) : [];
+        return folioNormalizado === numeroNormalizado && !tramite.proveedor && proveedores.length === 0;
+      });
       renderizarPortalProveedor();
     }
 
