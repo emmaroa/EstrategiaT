@@ -332,6 +332,9 @@
     const proveedorVinculado = String(usuarioProveedor?.proveedor || "").trim();
     let peticionesProveedor = [];
     let requisicionesProveedor = [];
+    let requisicionesSiifSinProveedorBuscadas = [];
+    let temporizadorBusquedaSiif = null;
+    let secuenciaBusquedaSiif = 0;
     let cotizacionesAlmacenProveedor = [];
     let unidadCotizacionSeleccionada = null;
     let cotizacionAlmacenEditandoId = null;
@@ -486,12 +489,40 @@
     function obtenerRequisicionesFiltradasProveedor() {
       const texto = normalizarPortal(buscarRequisicionesProveedor?.value);
       const estatus = String(filtroEstatusRequisicionProveedor?.value || "");
-      return requisicionesProveedor.filter(function (r) {
+      const unificadas = new Map();
+      requisicionesProveedor.concat(requisicionesSiifSinProveedorBuscadas).forEach(function (requisicion) {
+        unificadas.set(requisicion.id, requisicion);
+      });
+      return Array.from(unificadas.values()).filter(function (r) {
         const contenido = normalizarPortal([
           r.fecha_req, r.numero_req, r.unidad, r.concepto, r.numero_oc, r.estatus
         ].join(" "));
         return contenido.includes(texto) && (!estatus || r.estatus === estatus);
       });
+    }
+
+    async function buscarRequisicionSiifSinProveedor() {
+      const numeroRequisicion = String(buscarRequisicionesProveedor?.value || "").trim();
+      const secuenciaActual = ++secuenciaBusquedaSiif;
+      requisicionesSiifSinProveedorBuscadas = [];
+      renderizarPortalProveedor();
+      if (!numeroRequisicion) return;
+
+      const resultado = await supabaseClient
+        .from("seguimiento_siif")
+        .select("id,fecha_req,numero_req,unidad,concepto,monto,numero_oc,numero_sp,estatus,estatus_requisicion,estatus_oc,estatus_sp,etapa_actual,proveedor,proveedores")
+        .eq("numero_req", numeroRequisicion)
+        .is("proveedor", null)
+        .is("proveedores", null)
+        .limit(10);
+
+      if (secuenciaActual !== secuenciaBusquedaSiif) return;
+      if (resultado.error) {
+        console.error("No se pudo buscar la requisición SIIF sin proveedor:", resultado.error);
+        return;
+      }
+      requisicionesSiifSinProveedorBuscadas = resultado.data || [];
+      renderizarPortalProveedor();
     }
 
     function obtenerCotizacionesFiltradasProveedor() {
@@ -1087,12 +1118,18 @@
       buscarPeticionesProveedor,
       filtroEstatusPeticionProveedor,
       filtroEntregaPeticionProveedor,
-      buscarRequisicionesProveedor,
       filtroEstatusRequisicionProveedor,
       buscarCotizacionesAlmacen,
       filtroEstatusCotizacionesAlmacen
     ].forEach(function (control) {
       control?.addEventListener(control.tagName === "INPUT" ? "input" : "change", renderizarPortalProveedor);
+    });
+    buscarRequisicionesProveedor?.addEventListener("input", function () {
+      clearTimeout(temporizadorBusquedaSiif);
+      secuenciaBusquedaSiif += 1;
+      requisicionesSiifSinProveedorBuscadas = [];
+      renderizarPortalProveedor();
+      temporizadorBusquedaSiif = setTimeout(buscarRequisicionSiifSinProveedor, 350);
     });
     document.getElementById("btnExportarPeticionesProveedor")
       ?.addEventListener("click", exportarPeticionesProveedor);
