@@ -180,6 +180,7 @@
           <h2>Cotizaciones entregadas a almacén</h2>
           <p>Consulta las cotizaciones enviadas desde peticiones o registra entregas que no tengan petición.</p>
         </div>
+        <button type="button" class="btn-secondary" id="btnExportarCotizacionesSinTramite">Exportar cotizaciones sin trámite</button>
         <button type="button" class="btn-small" id="btnNuevaCotizacionAlmacen">Registrar entrega sin petición</button>
       </div>
       <div class="filters">
@@ -884,6 +885,35 @@
       );
     }
 
+    function exportarCotizacionesSinTramite() {
+      const cotizaciones = obtenerCotizacionesFiltradasProveedor().filter(function (cotizacion) {
+        return !String(cotizacion.requisicion || "").trim();
+      });
+      const filas = cotizaciones.map(function (cotizacion) {
+        const materiales = (cotizacion.materiales || []).map(function (material) {
+          return String(material.cantidad || 0) + " x " + String(material.item || "");
+        }).join(" | ");
+        return [
+          cotizacion.folio,
+          fechaPortal(cotizacion.fecha_cotizacion),
+          fechaPortal(cotizacion.fecha_entrega),
+          cotizacion.origen || "Sin petición",
+          cotizacion.unidad,
+          cotizacion.dependencia,
+          materiales,
+          Number(cotizacion.subtotal || 0),
+          Number(cotizacion.iva || 0),
+          Number(cotizacion.total || 0),
+          cotizacion.estatus
+        ];
+      });
+      descargarCSV(
+        nombreArchivoPortal("cotizaciones-sin-tramite"),
+        ["Folio", "Fecha cotización", "Fecha entrega", "Origen", "Unidad", "Dependencia", "Materiales", "Subtotal", "IVA", "Total", "Estatus"],
+        filas
+      );
+    }
+
     async function marcarEntregadaProveedor(id) {
       const peticion = peticionesProveedor.find(function (item) { return item.id === id; });
       if (!peticion || peticion.estatus_proveedor === "Entregado a almacén") return;
@@ -1231,6 +1261,8 @@
       ?.addEventListener("click", exportarPeticionesProveedor);
     document.getElementById("btnExportarRequisicionesProveedor")
       ?.addEventListener("click", exportarRequisicionesProveedor);
+    document.getElementById("btnExportarCotizacionesSinTramite")
+      ?.addEventListener("click", exportarCotizacionesSinTramite);
     document.getElementById("btnNuevaCotizacionAlmacen")
       ?.addEventListener("click", function () { abrirCotizacionAlmacen(); });
     document.getElementById("btnGuardarCotizacionAlmacen")
