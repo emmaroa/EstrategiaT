@@ -159,6 +159,7 @@
               <th>Área</th>
               <th>Dependencia</th>
               <th id="columnaProveedorPeticion">Proveedor</th>
+              <th>Fecha estimada de entrega</th>
               <th>Cotizada</th>
               <th>Estatus</th>
               <th>Acciones</th>
@@ -367,11 +368,18 @@
           <select id="estatus">
             <option value="Pendiente">Pendiente</option>
             <option value="Revisado por almacen">Revisado por almacen</option>
+            <option value="En cotización">En cotización</option>
             <option value="Pedido a proveedor">Pedido a proveedor</option>
             <option value="Recibido Parcial">Recibido Parcial</option>
             <option value="Recibido en Almacen">Recibido en Almacen</option>
             <option value="CANCELADO">CANCELADO</option>
           </select>
+        </div>
+
+        <div class="input-group">
+          <label for="fechaEstimadaEntrega">Fecha estimada de entrega</label>
+          <input type="date" id="fechaEstimadaEntrega" disabled aria-disabled="true">
+          <small id="ayudaFechaEstimadaEntrega" class="helper-text">Asigna primero un proveedor.</small>
         </div>
 
         <div class="input-group">
@@ -478,6 +486,8 @@
     const areaSelect = document.getElementById("area");
     const dependenciaInput = document.getElementById("dependencia");
     const proveedorInput = document.getElementById("proveedor");
+    const fechaEstimadaEntregaInput = document.getElementById("fechaEstimadaEntrega");
+    const ayudaFechaEstimadaEntrega = document.getElementById("ayudaFechaEstimadaEntrega");
     const estatusSelect = document.getElementById("estatus");
     const fechaInput = document.getElementById("fecha");
     const peticionInput = document.getElementById("peticion");
@@ -591,6 +601,27 @@
       const usuarioActivo = obtenerUsuarioActivoPeticion();
       const rol = normalizarRolPeticion(usuarioActivo?.rol || usuarioActivo?.rol_original);
       return ["superadmin", "admin", "jefe", "jefes"].includes(rol);
+    }
+
+    function puedeCapturarFechaEstimadaEntrega() {
+      const usuarioActivo = obtenerUsuarioActivoPeticion();
+      const rol = normalizarRolPeticion(usuarioActivo?.rol || usuarioActivo?.rol_original);
+      return ["superadmin", "admin", "director"].includes(rol);
+    }
+
+    function actualizarEstadoFechaEstimadaEntrega() {
+      if (!fechaEstimadaEntregaInput) return;
+      const tieneProveedor = Boolean(String(proveedorInput?.value || "").trim());
+      const tienePermiso = puedeCapturarFechaEstimadaEntrega();
+      const habilitado = tieneProveedor && tienePermiso;
+      fechaEstimadaEntregaInput.disabled = !habilitado;
+      fechaEstimadaEntregaInput.setAttribute("aria-disabled", habilitado ? "false" : "true");
+      if (ayudaFechaEstimadaEntrega) {
+        ayudaFechaEstimadaEntrega.textContent = !tienePermiso
+          ? "Solo Admin, SuperAdmin o Director pueden capturar esta fecha."
+          : (tieneProveedor ? "Fecha prevista para la entrega del proveedor." : "Asigna primero un proveedor.");
+      }
+      if (!tieneProveedor) fechaEstimadaEntregaInput.value = "";
     }
 
     function puedeGenerarRequisicion() {
@@ -806,7 +837,7 @@
       if (filtroProveedor) filtroProveedor.style.display = mostrarProveedor ? "" : "none";
 
       if (!filtradasVisibles.length) {
-        tablaPeticiones.innerHTML = '<tr><td colspan="' + (mostrarProveedor ? "10" : "9") + '">No hay peticiones registradas.</td></tr>';
+        tablaPeticiones.innerHTML = '<tr><td colspan="' + (mostrarProveedor ? "11" : "10") + '">No hay peticiones registradas.</td></tr>';
       } else {
         const mostrarTextoPedido = puedeCopiarTextoPedido();
         const puedeEnviarCotizacion = puedeAccionPeticion("editar");
@@ -826,6 +857,7 @@
             "<td>" + p.area + "</td>" +
             "<td>" + (p.dependencia || "Sin dependencia") + "</td>" +
             (mostrarProveedor ? "<td>" + (p.proveedor || "Sin asignar") + "</td>" : "") +
+            "<td>" + (p.fecha_estimada_entrega ? formatearFecha(p.fecha_estimada_entrega) : "Sin definir") + "</td>" +
             '<td><span class="badge status-badge ' + (cotizacion ? "green" : "gray") + '">' +
               (cotizacion ? "✓ Sí" : "No") + "</span></td>" +
             '<td><span class="badge status-badge ' + obtenerClaseEstatusPeticion(p.estatus) + '">' + p.estatus + "</span></td>" +
@@ -905,6 +937,8 @@
         proveedorInput.disabled = capturaRestringida;
         proveedorInput.setAttribute("aria-disabled", capturaRestringida ? "true" : "false");
       }
+      if (fechaEstimadaEntregaInput) fechaEstimadaEntregaInput.value = "";
+      actualizarEstadoFechaEstimadaEntrega();
 
       if (estatusSelect) {
         estatusSelect.value = "Pendiente";
@@ -954,6 +988,7 @@
         }
       }
       unidadInput?.focus();
+      actualizarEstadoFechaEstimadaEntrega();
     }
 
     function cerrarModal() {
@@ -1059,6 +1094,16 @@
           : estatusSelect.value,
         observaciones: observacionesInput.value.trim() || null
       };
+      nuevaPeticion.fecha_estimada_entrega = puedeCapturarFechaEstimadaEntrega()
+        ? (nuevaPeticion.proveedor && fechaEstimadaEntregaInput?.value
+          ? fechaEstimadaEntregaInput.value
+          : null)
+        : (peticionExistente?.fecha_estimada_entrega || null);
+      if (puedeCapturarFechaEstimadaEntrega() && nuevaPeticion.proveedor && !nuevaPeticion.fecha_estimada_entrega) {
+        alert("Captura la fecha estimada de entrega para el proveedor asignado.");
+        fechaEstimadaEntregaInput?.focus();
+        return;
+      }
       if (normalizarTextoPeticion(nuevaPeticion.estatus) === "recibido en almacen") {
         nuevaPeticion.estatus_proveedor = "Entregado a almacén";
         nuevaPeticion.fecha_entrega_proveedor =
@@ -1123,6 +1168,7 @@
       proveedorInput.value = "";
       estatusSelect.value = "Pendiente";
       observacionesInput.value = "";
+      if (fechaEstimadaEntregaInput) fechaEstimadaEntregaInput.value = "";
       if (fechaInput) fechaInput.value = obtenerFechaActualLocal();
       if (proveedorInput) proveedorInput.value = "";
       infoUnidadPeticion.textContent = "";
@@ -1141,6 +1187,7 @@
         fechaInput.disabled = true;
         fechaInput.setAttribute("aria-disabled", "true");
       }
+      actualizarEstadoFechaEstimadaEntrega();
     }
 
     function obtenerPeticionPorId(id) {
@@ -1518,6 +1565,8 @@
       areaSelect.value = p.area;
       dependenciaInput.value = p.dependencia || "";
       proveedorInput.value = obtenerNombreCanonicoProveedor(p.proveedor);
+      fechaEstimadaEntregaInput.value = String(p.fecha_estimada_entrega || "").split("T")[0];
+      actualizarEstadoFechaEstimadaEntrega();
       estatusSelect.value = p.estatus;
       observacionesInput.value = p.observaciones || "";
     }
@@ -1965,6 +2014,7 @@
       ?.addEventListener("click", exportarGestionCotizaciones);
     document.getElementById("materialesCotizacionInterna")
       ?.addEventListener("input", calcularTotalesCotizacionInterna);
+    proveedorInput?.addEventListener("change", actualizarEstadoFechaEstimadaEntrega);
 
     inicializarPeticiones();
   </script>
