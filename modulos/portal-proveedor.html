@@ -38,6 +38,7 @@
     .portal-quick-nav strong { padding:0 8px 5px; color:var(--text-muted); font-size:11px; letter-spacing:.08em; text-transform:uppercase; }
     .portal-quick-nav a { padding:9px 10px; border-radius:9px; color:var(--text-secondary); font-size:13px; font-weight:700; text-decoration:none; }
     .portal-quick-nav a:hover, .portal-quick-nav a:focus-visible { color:var(--text-primary); background:var(--bg-card-hover); }
+    .portal-siif-updated { display:inline-flex; margin-top:9px; padding:6px 10px; border:1px solid color-mix(in srgb, var(--color-info) 35%, var(--border-subtle)); border-radius:999px; background:color-mix(in srgb, var(--color-info) 10%, transparent); color:var(--text-secondary); font-size:12px; font-weight:700; }
   </style>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="../js/core/supabase.js"></script>
@@ -129,6 +130,7 @@
         <div>
           <h2>Trámites SIIF por estatus</h2>
           <p>Cantidad y monto acumulado por estatus actual.</p>
+          <span class="portal-siif-updated" id="fechaActualizacionSiifProveedor">Consultando actualización de SIIF…</span>
         </div>
       </div>
       <div class="portal-status-grid" id="resumenEstatusSiifProveedor"></div>
@@ -384,6 +386,32 @@
     }
 
     inicializarModulosPortal();
+
+    async function cargarFechaActualizacionSiifProveedor() {
+      const leyenda = document.getElementById("fechaActualizacionSiifProveedor");
+      const resultado = await supabaseClient
+        .from("importaciones_siif")
+        .select("created_at")
+        .in("estado", ["Procesada", "Procesada con errores"])
+        .order("created_at", { ascending: false })
+        .limit(1)
+        .maybeSingle();
+
+      if (resultado.error || !resultado.data?.created_at) {
+        if (resultado.error) console.error("No se pudo consultar la última actualización de SIIF:", resultado.error);
+        leyenda.textContent = "Sin fecha de actualización de SIIF disponible";
+        return;
+      }
+      const fecha = new Intl.DateTimeFormat("es-MX", {
+        day: "numeric",
+        month: "long",
+        year: "numeric",
+        timeZone: "America/Hermosillo"
+      }).format(new Date(resultado.data.created_at));
+      leyenda.textContent = "Datos de SIIF actualizados al día " + fecha;
+    }
+
+    cargarFechaActualizacionSiifProveedor();
 
     const proveedorVinculado = String(usuarioProveedor?.proveedor || "").trim();
     let peticionesProveedor = [];
