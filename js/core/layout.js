@@ -51,7 +51,7 @@
   ];
 
   const GRUPOS_NAVEGACION = [
-    { nombre: "General", modulos: ["Dashboard"] },
+    { nombre: "General", modulos: ["Dashboard", "Portal Proveedor"] },
     {
       nombre: "Operación",
       modulos: ["Parque Vehicular", "Peticiones", "Gestión de Cotizaciones", "Cotizaciones Proveedor", "Seguimiento Peticiones", "Acuerdos", "Vales"]
@@ -186,9 +186,10 @@
         const ruta = global.ETPermissions.obtenerRutaModulo(modulo, desdeModulo);
         const active = modulo === moduloActivo ? " active" : "";
         const current = modulo === moduloActivo ? ' aria-current="page"' : "";
+        const etiquetaModulo = modulo === "Portal Proveedor" ? "Dashboard proveedor" : modulo;
         return '<a href="' + ruta + '" class="nav-item' + active + '" title="' + modulo + '"' + current + ">" +
           iconoModulo(modulo) +
-          '<span class="et-nav-label">' + modulo + "</span>" +
+          '<span class="et-nav-label">' + etiquetaModulo + "</span>" +
           "</a>";
       }).join("");
 

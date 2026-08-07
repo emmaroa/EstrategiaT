@@ -40,8 +40,58 @@
     .portal-cotizaciones-view #moduloResumenSiif,
     .portal-cotizaciones-view #moduloPeticiones,
     .portal-cotizaciones-view #moduloSeguimientoSiif { display:none; }
+    .portal-cotizaciones-view #guiaPortalProveedor { display:none; }
     .portal-cotizaciones-view #kpisCotizaciones { display:grid; }
     .portal-cotizaciones-view #moduloCotizaciones { display:block; }
+    .portal-welcome { margin-bottom:18px; padding:20px; border:1px solid color-mix(in srgb, var(--color-info, #3b82f6) 28%, var(--border-subtle, #e5e7eb)); border-radius:18px; background:linear-gradient(135deg, color-mix(in srgb, var(--color-info, #3b82f6) 10%, var(--bg-card, #fff)), var(--bg-card, #fff)); }
+    .portal-welcome h2 { margin:0 0 5px; font-size:1.15rem; }
+    .portal-welcome > p { margin:0; color:var(--text-secondary, #475569); }
+    .portal-next-actions { display:grid; grid-template-columns:repeat(3, minmax(0, 1fr)); gap:12px; margin-top:16px; }
+    .portal-next-action { display:flex; align-items:center; gap:12px; min-height:74px; padding:13px 15px; border:1px solid var(--border-subtle, #e5e7eb); border-radius:14px; background:var(--bg-card, #fff); color:var(--text-primary, #0f172a); text-align:left; text-decoration:none; cursor:pointer; }
+    .portal-next-action:hover { border-color:var(--color-info, #3b82f6); transform:translateY(-1px); }
+    .portal-next-action strong { display:block; margin-bottom:3px; }
+    .portal-next-action small { display:block; color:var(--text-secondary, #64748b); line-height:1.3; }
+    .portal-action-count { display:grid; flex:0 0 38px; width:38px; height:38px; place-items:center; border-radius:12px; background:color-mix(in srgb, var(--color-info, #3b82f6) 14%, transparent); color:var(--color-info, #2563eb); font-size:1.05rem; font-weight:800; }
+    .portal-action-count.is-warning { background:color-mix(in srgb, var(--color-warning, #f59e0b) 16%, transparent); color:#b45309; }
+    .portal-petition-actions { display:flex; align-items:center; justify-content:flex-end; gap:8px; min-width:285px; }
+    .portal-action-button { display:inline-flex; align-items:center; justify-content:center; gap:7px; min-height:38px; padding:8px 12px; border-radius:10px; font-size:.84rem; font-weight:750; line-height:1; white-space:nowrap; transition:border-color .16s ease, background .16s ease, box-shadow .16s ease, transform .16s ease; }
+    .portal-action-button svg { width:17px; height:17px; fill:none; stroke:currentColor; stroke-width:1.9; stroke-linecap:round; stroke-linejoin:round; }
+    .portal-action-button:hover:not(:disabled) { transform:translateY(-1px); }
+    .portal-action-button.is-detail { border:1px solid var(--border-subtle, #cbd5e1); background:var(--bg-card, #fff); color:var(--text-primary, #334155); }
+    .portal-action-button.is-detail:hover { border-color:var(--color-info, #3b82f6); color:var(--color-info, #2563eb); box-shadow:0 4px 12px color-mix(in srgb, var(--color-info, #3b82f6) 12%, transparent); }
+    .portal-action-button.is-confirm { border:1px solid #15803d; background:#15803d; color:#fff; box-shadow:0 4px 12px rgba(21, 128, 61, .18); }
+    .portal-action-button.is-confirm:hover:not(:disabled) { background:#166534; border-color:#166534; box-shadow:0 6px 16px rgba(21, 128, 61, .25); }
+    .portal-action-button.is-complete { border:1px solid color-mix(in srgb, var(--color-success, #22c55e) 35%, transparent); background:color-mix(in srgb, var(--color-success, #22c55e) 12%, transparent); color:#15803d; box-shadow:none; cursor:default; opacity:1; }
+    .portal-quote-actions { display:flex; align-items:center; justify-content:flex-end; gap:7px; min-width:310px; }
+    .portal-action-button.is-edit { border:1px solid color-mix(in srgb, var(--color-info, #3b82f6) 45%, var(--border-subtle, #cbd5e1)); background:color-mix(in srgb, var(--color-info, #3b82f6) 9%, var(--bg-card, #fff)); color:var(--color-info, #2563eb); }
+    .portal-action-button.is-edit:hover:not(:disabled) { border-color:var(--color-info, #2563eb); background:color-mix(in srgb, var(--color-info, #3b82f6) 15%, var(--bg-card, #fff)); }
+    .portal-action-button.is-print { border:1px solid var(--border-subtle, #cbd5e1); background:transparent; color:var(--text-secondary, #475569); }
+    .portal-action-button.is-print:hover { background:color-mix(in srgb, var(--text-secondary, #64748b) 8%, transparent); color:var(--text-primary, #0f172a); }
+    .portal-action-button.is-locked { border:1px solid var(--border-subtle, #e2e8f0); background:color-mix(in srgb, var(--text-secondary, #64748b) 7%, transparent); color:var(--text-secondary, #64748b); cursor:not-allowed; opacity:.75; }
+    .portal-section-kicker { margin:0 0 4px; color:var(--color-info, #2563eb); font-size:.75rem; font-weight:800; letter-spacing:.06em; text-transform:uppercase; }
+    .portal-proveedor-body #kpisPortalGeneral { grid-template-columns:repeat(4, minmax(160px, 1fr)); }
+    .portal-kpi { position:relative; overflow:hidden; min-height:142px; padding:18px; border-top:3px solid var(--portal-kpi-color, #3b82f6); }
+    .portal-kpi::after { content:""; position:absolute; top:-32px; right:-28px; width:105px; height:105px; border-radius:50%; background:color-mix(in srgb, var(--portal-kpi-color, #3b82f6) 11%, transparent); }
+    .portal-kpi-head { position:relative; z-index:1; display:flex; align-items:center; justify-content:space-between; gap:10px; }
+    .portal-kpi-icon { display:grid; width:38px; height:38px; place-items:center; border-radius:11px; background:color-mix(in srgb, var(--portal-kpi-color, #3b82f6) 13%, transparent); color:var(--portal-kpi-color, #2563eb); }
+    .portal-kpi-icon svg { width:20px; height:20px; fill:none; stroke:currentColor; stroke-width:1.9; stroke-linecap:round; stroke-linejoin:round; }
+    .portal-kpi h2 { position:relative; z-index:1; margin:13px 0 4px; font-size:1.75rem; }
+    .portal-kpi p { position:relative; z-index:1; margin:0; }
+    .portal-kpi.is-warning { --portal-kpi-color:#f59e0b; }
+    .portal-kpi.is-success { --portal-kpi-color:#16a34a; }
+    .portal-kpi.is-money { --portal-kpi-color:#0f766e; }
+    .portal-kpi.is-process { --portal-kpi-color:#7c3aed; }
+    @media (max-width:900px) {
+      .portal-next-actions { grid-template-columns:1fr; }
+      .portal-proveedor-body #kpisPortalGeneral { grid-template-columns:repeat(2, minmax(0, 1fr)); }
+    }
+    @media (max-width:560px) {
+      .portal-proveedor-body #kpisPortalGeneral { grid-template-columns:1fr 1fr; }
+      .portal-welcome { padding:16px; }
+      .portal-petition-actions { min-width:0; flex-direction:column; align-items:stretch; }
+      .portal-quote-actions { min-width:0; flex-direction:column; align-items:stretch; }
+      .portal-action-button { width:100%; }
+    }
   </style>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="../js/core/supabase.js"></script>
@@ -79,42 +129,34 @@
       </div>
     </header>
 
-    <section class="kpi-grid" id="kpisPortalGeneral">
-      <div class="kpi-card">
-        <span>Peticiones asignadas</span>
-        <h2 id="kpiPeticionesProveedor">0</h2>
-        <p>Total visible</p>
+    <section class="portal-welcome" id="guiaPortalProveedor" aria-labelledby="tituloGuiaPortal">
+      <h2 id="tituloGuiaPortal">¿Qué necesitas hacer hoy?</h2>
+      <p>Empieza por tus pendientes. También puedes consultar el avance de un trámite cuando lo necesites.</p>
+      <div class="portal-next-actions">
+        <a class="portal-next-action" href="#moduloPeticiones" id="accesoEntregasPendientes">
+          <span class="portal-action-count is-warning" id="resumenPendientesEntrega">0</span>
+          <span><strong>Confirmar entregas</strong><small>Revisa materiales que todavía aparecen pendientes.</small></span>
+        </a>
+        <a class="portal-next-action" href="portal-proveedor.html?vista=cotizaciones">
+          <span class="portal-action-count" id="resumenCotizacionesPendientes">0</span>
+          <span><strong>Gestionar cotizaciones</strong><small>Registra una entrega o revisa tus cotizaciones.</small></span>
+        </a>
+        <a class="portal-next-action" href="#moduloSeguimientoSiif">
+          <span class="portal-action-count" id="resumenTramitesActivos">0</span>
+          <span><strong>Consultar trámites</strong><small>Consulta requisición, orden de compra y pago.</small></span>
+        </a>
       </div>
-      <div class="kpi-card">
-        <span>Pendientes de entrega</span>
-        <h2 id="kpiPendientesProveedor">0</h2>
-        <p>Por entregar al almacén</p>
-      </div>
-      <div class="kpi-card">
-        <span>Entregadas</span>
-        <h2 id="kpiEntregadasProveedor">0</h2>
-        <p>Confirmadas por proveedor</p>
-      </div>
-      <div class="kpi-card">
-        <span>Trámites SIIF</span>
-        <h2 id="kpiRequisicionesProveedor">0</h2>
-        <p>Asignados al proveedor</p>
-      </div>
-      <div class="kpi-card">
-        <span>Monto total SIIF</span>
-        <h2 id="kpiMontoSiifProveedor">$0.00</h2>
-        <p>Suma de los trámites visibles</p>
-      </div>
-      <div class="kpi-card">
-        <span>Con orden de compra</span>
-        <h2 id="kpiOrdenesCompraProveedor">0</h2>
-        <p>Trámites que ya tienen OC</p>
-      </div>
-      <div class="kpi-card">
-        <span>En solicitud de pago</span>
-        <h2 id="kpiSolicitudesPagoProveedor">0</h2>
-        <p>Etapa actual del trámite</p>
-      </div>
+    </section>
+
+    <section class="kpi-grid" id="kpisPortalGeneral" aria-label="Indicadores principales del proveedor">
+      <div class="kpi-card portal-kpi is-warning"><div class="portal-kpi-head"><span>Entregas pendientes</span><span class="portal-kpi-icon"><svg viewBox="0 0 24 24"><path d="M3 7h11v10H3zM14 10h4l3 3v4h-7z"/><circle cx="7" cy="18" r="2"/><circle cx="18" cy="18" r="2"/></svg></span></div><h2 id="kpiPendientesProveedor">0</h2><p>Requieren tu confirmación</p></div>
+      <div class="kpi-card portal-kpi is-success"><div class="portal-kpi-head"><span>Entregas confirmadas</span><span class="portal-kpi-icon"><svg viewBox="0 0 24 24"><path d="m5 12 4 4L19 6"/></svg></span></div><h2 id="kpiEntregadasProveedor">0</h2><p>Material recibido por almacén</p></div>
+      <div class="kpi-card portal-kpi is-warning"><div class="portal-kpi-head"><span>Cotizaciones por revisar</span><span class="portal-kpi-icon"><svg viewBox="0 0 24 24"><path d="M5 3h14v18H5zM8 8h8M8 12h6"/></svg></span></div><h2 id="kpiCotizacionesPendientesDashboard">0</h2><p>Pendientes de validación interna</p></div>
+      <div class="kpi-card portal-kpi"><div class="portal-kpi-head"><span>Trámites activos</span><span class="portal-kpi-icon"><svg viewBox="0 0 24 24"><path d="M4 6h16M4 12h16M4 18h16"/><circle cx="8" cy="6" r="2"/></svg></span></div><h2 id="kpiRequisicionesProveedor">0</h2><p>Sin incluir cancelados</p></div>
+      <div class="kpi-card portal-kpi is-money"><div class="portal-kpi-head"><span>Cartera activa SIIF</span><span class="portal-kpi-icon"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M15 8h-4a2 2 0 0 0 0 4h2a2 2 0 0 1 0 4H9M12 6v12"/></svg></span></div><h2 id="kpiMontoSiifProveedor">$0.00</h2><p>Importe activo, sin cancelados</p></div>
+      <div class="kpi-card portal-kpi is-process"><div class="portal-kpi-head"><span>Con orden de compra</span><span class="portal-kpi-icon"><svg viewBox="0 0 24 24"><path d="M4 5h16v14H4zM8 9h8M8 13h5"/></svg></span></div><h2 id="kpiOrdenesCompraProveedor">0</h2><p>Trámites que ya tienen OC</p></div>
+      <div class="kpi-card portal-kpi is-success"><div class="portal-kpi-head"><span>En proceso de pago</span><span class="portal-kpi-icon"><svg viewBox="0 0 24 24"><path d="M4 7h16v10H4zM8 12h8"/></svg></span></div><h2 id="kpiSolicitudesPagoProveedor">0</h2><p>Con solicitud de pago generada</p></div>
+      <div class="kpi-card portal-kpi"><div class="portal-kpi-head"><span>Total de peticiones</span><span class="portal-kpi-icon"><svg viewBox="0 0 24 24"><path d="M6 3h9l3 3v15H6zM15 3v4h4M9 12h6M9 16h6"/></svg></span></div><h2 id="kpiPeticionesProveedor">0</h2><p>Histórico asignado visible</p></div>
     </section>
 
     <section class="kpi-grid" id="kpisCotizaciones" aria-label="Indicadores de cotizaciones">
@@ -160,12 +202,8 @@
           <thead>
             <tr>
               <th>Fecha</th>
-              <th>Unidad</th>
-              <th>Petición</th>
-              <th>Solicitante</th>
-              <th>Estatus interno</th>
-              <th>Entrega proveedor</th>
-              <th>Nota</th>
+              <th>Pedido</th>
+              <th>Entrega</th>
               <th>Acciones</th>
             </tr>
           </thead>
@@ -201,19 +239,10 @@
           <thead>
             <tr>
               <th>Folio</th>
-              <th>Fecha cotización</th>
               <th>Fecha entrega</th>
-              <th>Origen</th>
-              <th>Petición</th>
               <th>Unidad</th>
-              <th>Dependencia</th>
-              <th>Materiales</th>
-              <th>Subtotal</th>
-              <th>IVA</th>
               <th>Total</th>
               <th>Estatus</th>
-              <th>Requisición</th>
-              <th>Notas</th>
               <th>Acciones</th>
             </tr>
           </thead>
@@ -242,14 +271,11 @@
             <tr>
               <th>Fecha</th>
               <th>Requisición</th>
-              <th>Unidad</th>
               <th>Concepto</th>
               <th>Monto</th>
-              <th>Orden de compra</th>
-              <th>Folio solicitud de pago</th>
               <th>Etapa</th>
-              <th>Proveedor</th>
               <th>Estatus</th>
+              <th>Detalle</th>
             </tr>
           </thead>
           <tbody id="tablaRequisicionesProveedor"></tbody>
@@ -298,8 +324,8 @@
         </div>
         <div class="input-group">
           <label for="cotizacionUnidad">Número de inventario</label>
-          <input type="text" id="cotizacionUnidad" maxlength="100" placeholder="Número de inventario, 0 o STOCK" required>
-          <small id="cotizacionInfoUnidad">Se buscará en la columna número de inventario del parque vehicular.</small>
+          <input type="text" id="cotizacionUnidad" maxlength="100" placeholder="Inventario completo, últimos 4 dígitos, 0 o STOCK" required>
+          <small id="cotizacionInfoUnidad">Captura el inventario completo o sus últimos 4 dígitos.</small>
         </div>
         <div class="input-group">
           <label for="cotizacionDependencia">Dependencia</label>
@@ -438,6 +464,8 @@
     let requisicionesSiifSinProveedorBuscadas = [];
     let cotizacionesAlmacenProveedor = [];
     let unidadCotizacionSeleccionada = null;
+    let busquedaUnidadCotizacionActual = 0;
+    let temporizadorBusquedaUnidadCotizacion = null;
     let cotizacionAlmacenEditandoId = null;
     let peticionNotaId = null;
     const buscarPeticionesProveedor = document.getElementById("buscarPeticionesProveedor");
@@ -715,13 +743,15 @@
         const claveEstatus = normalizarPortal(estatus);
         if (!acumulado[claveEstatus]) {
           acumulado[claveEstatus] = {
-            estatus: claveEstatus.includes("cancelad") ? "CANCELADA" : estatus,
+            estatus: (claveEstatus.includes("cancel") || claveEstatus.includes("canel")) ? "CANCELADA" : estatus,
             cantidad: 0,
             monto: 0
           };
         }
         acumulado[claveEstatus].cantidad += 1;
-        acumulado[claveEstatus].monto += Number(tramite.monto || 0);
+        if (!tramiteSiifCancelado(tramite)) {
+          acumulado[claveEstatus].monto += Number(tramite.monto || 0);
+        }
         return acumulado;
       }, {});
       const filas = Object.keys(resumen).map(function (claveEstatus) {
@@ -734,7 +764,7 @@
       contenedor.innerHTML = filas.length ? filas.map(function (fila) {
         const porcentaje = montoMaximo > 0 ? Math.max(3, (fila.monto / montoMaximo) * 100) : 0;
         const estatusNormalizado = normalizarPortal(fila.estatus);
-        const tono = estatusNormalizado.includes("cancelad")
+        const tono = (estatusNormalizado.includes("cancel") || estatusNormalizado.includes("canel"))
           ? "is-cancelled"
           : (["emitida", "pagada", "finalizada", "finalizado"].includes(estatusNormalizado) ? "is-success" : "is-warning");
         return '<article class="portal-status-card ' + tono + '">' +
@@ -748,7 +778,10 @@
 
     function tramiteSiifCancelado(tramite) {
       return [tramite.estatus, tramite.estatus_requisicion, tramite.estatus_oc, tramite.estatus_sp]
-        .some(function (estatus) { return normalizarPortal(estatus).includes("cancelad"); });
+        .some(function (estatus) {
+          const texto = normalizarPortal(estatus);
+          return texto.includes("cancel") || texto.includes("canel");
+        });
     }
 
     function documentoSiifProveedor(tramite) {
@@ -758,6 +791,90 @@
           '<small style="display:block;margin-top:5px;">' + escaparPortal(numeroSolicitud) + "</small>";
       }
       return '<span class="badge status-badge amber">Pendiente</span>';
+    }
+
+    function verDetallePeticionProveedor(id) {
+      const peticion = peticionesProveedor.find(function (item) { return String(item.id) === String(id); });
+      if (!peticion) return;
+      const entregada = peticion.estatus_proveedor === "Entregado a almacén";
+      ETLayout.abrirFichaDetalle({
+        eyebrow: "Petición asignada",
+        title: peticion.peticion || "Petición sin descripción",
+        subtitle: peticion.unidad || "Sin unidad",
+        status: { label: peticion.estatus_proveedor || "Pendiente de entrega", tone: entregada ? "green" : "amber" },
+        sections: [{ title: "Información", fields: [
+          { label: "Fecha", value: fechaPortal(peticion.fecha) },
+          { label: "Unidad", value: peticion.unidad },
+          { label: "Solicitante", value: peticion.solicitante },
+          { label: "Estatus interno", value: peticion.estatus },
+          { label: "Fecha de entrega", value: fechaPortal(peticion.fecha_entrega_proveedor) },
+          { label: "Nota del proveedor", value: peticion.nota_proveedor, wide: true }
+        ] }],
+        actions: [
+          { label: "Agregar nota", onClick: function () { abrirNotaProveedor(peticion.id); } },
+          ...(entregada ? [] : [{ label: "Confirmar entrega", variant: "primary", onClick: function () { marcarEntregadaProveedor(peticion.id); } }])
+        ]
+      });
+    }
+
+    function verDetalleCotizacionProveedor(id) {
+      const cotizacion = cotizacionesAlmacenProveedor.find(function (item) { return String(item.id) === String(id); });
+      if (!cotizacion) return;
+      const peticion = peticionesProveedor.find(function (item) { return item.id === cotizacion.peticion_id; });
+      const materiales = (cotizacion.materiales || []).map(function (material) {
+        return material.cantidad + " × " + material.item + " — " + importePortal(material.precio_unitario);
+      }).join("\n");
+      ETLayout.abrirFichaDetalle({
+        eyebrow: "Cotización",
+        title: cotizacion.folio || "Sin folio",
+        subtitle: cotizacion.unidad || "Sin unidad",
+        status: { label: cotizacion.estatus || "Pendiente de revisión", tone: tonoCotizacionPortal(cotizacion.estatus) },
+        sections: [
+          { title: "Datos generales", fields: [
+            { label: "Fecha de cotización", value: fechaPortal(cotizacion.fecha_cotizacion) },
+            { label: "Fecha de entrega", value: fechaPortal(cotizacion.fecha_entrega) },
+            { label: "Origen", value: cotizacion.origen },
+            { label: "Petición", value: peticion?.peticion },
+            { label: "Unidad", value: cotizacion.unidad },
+            { label: "Dependencia", value: cotizacion.dependencia }
+          ] },
+          { title: "Importes y seguimiento", fields: [
+            { label: "Subtotal", value: importePortal(cotizacion.subtotal) },
+            { label: "IVA", value: importePortal(cotizacion.iva) },
+            { label: "Total", value: importePortal(cotizacion.total) },
+            { label: "Requisición", value: cotizacion.requisicion },
+            { label: "Materiales", value: materiales, wide: true },
+            { label: "Notas", value: cotizacion.observaciones, wide: true }
+          ] }
+        ],
+        actions: [
+          { label: "Imprimir", onClick: function () { imprimirCotizacionAlmacen(cotizacion.id); } },
+          ...(cotizacion.estatus === "Requisición generada" ? [] : [{ label: "Editar", variant: "primary", onClick: function () { editarCotizacionAlmacen(cotizacion.id); } }])
+        ]
+      });
+    }
+
+    function verDetalleRequisicionProveedor(id) {
+      const requisicion = requisicionesProveedor.concat(requisicionesSiifSinProveedorBuscadas)
+        .find(function (item) { return String(item.id) === String(id); });
+      if (!requisicion) return;
+      ETLayout.abrirFichaDetalle({
+        eyebrow: "Trámite SIIF",
+        title: requisicion.numero_req || "Sin número de requisición",
+        subtitle: requisicion.concepto || "Sin concepto",
+        status: { label: requisicion.estatus || "Sin estatus", tone: tramiteSiifCancelado(requisicion) ? "red" : "blue" },
+        sections: [{ title: "Seguimiento", fields: [
+          { label: "Fecha", value: fechaPortal(requisicion.fecha_req) },
+          { label: "Unidad", value: requisicion.unidad },
+          { label: "Dependencia", value: requisicion.dependencia },
+          { label: "Monto", value: importePortal(requisicion.monto) },
+          { label: "Orden de compra", value: requisicion.numero_oc },
+          { label: "Solicitud de pago", value: requisicion.numero_sp },
+          { label: "Etapa actual", value: requisicion.etapa_actual },
+          { label: "Proveedor", value: requisicion.proveedor },
+          { label: "Concepto", value: requisicion.concepto, wide: true }
+        ] }]
+      });
     }
 
     function renderizarPortalProveedor() {
@@ -773,21 +890,24 @@
             const entregada = peticion.estatus_proveedor === "Entregado a almacén";
             return "<tr>" +
               "<td>" + fechaPortal(peticion.fecha) + "</td>" +
-              "<td>" + escaparPortal(peticion.unidad || "—") + "</td>" +
-              "<td>" + escaparPortal(peticion.peticion || "—") + "</td>" +
-              "<td>" + escaparPortal(peticion.solicitante || "—") + "</td>" +
-              '<td><span class="badge status-badge blue">' + escaparPortal(peticion.estatus || "—") + "</span></td>" +
+              "<td><strong>" + escaparPortal(peticion.peticion || "—") + "</strong>" +
+                '<small style="display:block;margin-top:5px;">Unidad: ' + escaparPortal(peticion.unidad || "—") + "</small></td>" +
               '<td><span class="badge status-badge ' + (entregada ? "green" : "amber") + '">' +
                 escaparPortal(peticion.estatus_proveedor || "Pendiente de entrega") + "</span>" +
                 (peticion.fecha_entrega_proveedor ? "<small style=\"display:block;margin-top:5px;\">" + fechaPortal(peticion.fecha_entrega_proveedor) + "</small>" : "") +
               "</td>" +
-              "<td>" + escaparPortal(peticion.nota_proveedor || "Sin nota") + "</td>" +
-              '<td><div class="action-grid">' +
-                '<button type="button" class="btn-small" onclick="marcarEntregadaProveedor(\'' + peticion.id + '\')" ' + (entregada ? "disabled" : "") + '>Entregado</button>' +
-                '<button type="button" class="btn-secondary" onclick="abrirNotaProveedor(\'' + peticion.id + '\')">Nota</button>' +
+              '<td><div class="portal-petition-actions">' +
+                '<button type="button" class="portal-action-button is-detail" onclick="verDetallePeticionProveedor(\'' + peticion.id + '\')">' +
+                  '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M2 12s3.5-6 10-6 10 6 10 6-3.5 6-10 6S2 12 2 12Z"/><circle cx="12" cy="12" r="3"/></svg>' +
+                  '<span>Ver detalle</span></button>' +
+                (entregada
+                  ? '<button type="button" class="portal-action-button is-complete" disabled>' +
+                      '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="m5 12 4 4L19 6"/></svg><span>Entrega confirmada</span></button>'
+                  : '<button type="button" class="portal-action-button is-confirm" onclick="marcarEntregadaProveedor(\'' + peticion.id + '\')">' +
+                      '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="m5 12 4 4L19 6"/></svg><span>Confirmar entrega</span></button>') +
               "</div></td></tr>";
           }).join("")
-        : '<tr><td colspan="8">No hay peticiones que coincidan con los filtros.</td></tr>';
+        : '<tr><td colspan="4">No hay peticiones que coincidan con los filtros.</td></tr>';
 
       tablaCotizaciones.innerHTML = cotizacionesFiltradas.length
         ? cotizacionesFiltradas.map(function (cotizacion) {
@@ -799,45 +919,37 @@
             }).join("<br>");
             return "<tr>" +
               "<td><strong>" + escaparPortal(cotizacion.folio || "—") + "</strong></td>" +
-              "<td>" + fechaPortal(cotizacion.fecha_cotizacion) + "</td>" +
               "<td>" + fechaPortal(cotizacion.fecha_entrega) + "</td>" +
-              "<td>" + escaparPortal(cotizacion.origen || "Sin petición") + "</td>" +
-              "<td>" + escaparPortal(peticion?.peticion || "—") + "</td>" +
               "<td><strong>" + escaparPortal(cotizacion.unidad || "—") + "</strong></td>" +
-              "<td>" + escaparPortal(cotizacion.dependencia || "Pendiente") + "</td>" +
-              "<td>" + (materiales || "—") + "</td>" +
-              "<td>" + escaparPortal(importePortal(cotizacion.subtotal)) + "</td>" +
-              "<td>" + escaparPortal(importePortal(cotizacion.iva)) + "</td>" +
               "<td><strong>" + escaparPortal(importePortal(cotizacion.total)) + "</strong></td>" +
               '<td><span class="badge status-badge ' + tonoCotizacionPortal(cotizacion.estatus) + '">' +
                 escaparPortal(cotizacion.estatus || "Pendiente de revisión") + "</span></td>" +
-              "<td>" + escaparPortal(cotizacion.requisicion || "Pendiente") + "</td>" +
-              "<td>" + escaparPortal(cotizacion.observaciones || "Sin notas") + "</td>" +
-              '<td><div class="action-grid">' +
-                '<button type="button" class="btn-secondary" onclick="imprimirCotizacionAlmacen(\'' +
-                cotizacion.id + '\')">Imprimir</button>' +
-                '<button type="button" class="btn-secondary" onclick="editarCotizacionAlmacen(\'' +
-                cotizacion.id + '\')" ' + (cotizacion.estatus === "Requisición generada" ? "disabled" : "") +
-                '>Editar</button></div></td></tr>';
+              '<td><div class="portal-quote-actions">' +
+                '<button type="button" class="portal-action-button is-detail" onclick="verDetalleCotizacionProveedor(\'' + cotizacion.id + '\')">' +
+                  '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M2 12s3.5-6 10-6 10 6 10 6-3.5 6-10 6S2 12 2 12Z"/><circle cx="12" cy="12" r="3"/></svg><span>Ver</span></button>' +
+                (cotizacion.estatus === "Requisición generada"
+                  ? '<button type="button" class="portal-action-button is-locked" disabled title="No se puede editar porque ya tiene requisición">' +
+                      '<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="10" width="14" height="10" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/></svg><span>Bloqueada</span></button>'
+                  : '<button type="button" class="portal-action-button is-edit" onclick="editarCotizacionAlmacen(\'' + cotizacion.id + '\')">' +
+                      '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 20h9M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg><span>Editar</span></button>') +
+                '<button type="button" class="portal-action-button is-print" onclick="imprimirCotizacionAlmacen(\'' + cotizacion.id + '\')">' +
+                  '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 9V3h12v6M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2M6 14h12v7H6z"/></svg><span>Imprimir</span></button>' +
+                '</div></td></tr>';
           }).join("")
-        : '<tr><td colspan="15">No hay cotizaciones que coincidan con los filtros.</td></tr>';
+        : '<tr><td colspan="6">No hay cotizaciones que coincidan con los filtros.</td></tr>';
 
       tablaRequisiciones.innerHTML = requisicionesFiltradas.length
         ? requisicionesFiltradas.map(function (requisicion) {
             return "<tr>" +
               "<td>" + fechaPortal(requisicion.fecha_req) + "</td>" +
               "<td><strong>" + escaparPortal(requisicion.numero_req || "—") + "</strong></td>" +
-              "<td>" + escaparPortal(requisicion.unidad || "—") + "</td>" +
               "<td>" + escaparPortal(requisicion.concepto || "—") + "</td>" +
               "<td><strong>" + escaparPortal(importePortal(requisicion.monto)) + "</strong></td>" +
-              "<td>" + escaparPortal(requisicion.numero_oc || "Pendiente") + "</td>" +
-              "<td>" + documentoSiifProveedor(requisicion) + "</td>" +
               '<td><span class="badge status-badge blue">' + escaparPortal(requisicion.etapa_actual || "Requisición") + "</span></td>" +
-              '<td><span class="badge status-badge ' + (requisicion.proveedor ? "green" : "amber") + '">' +
-                escaparPortal(requisicion.proveedor || "Sin asignar") + "</span></td>" +
-              '<td><span class="badge status-badge blue">' + escaparPortal(requisicion.estatus || "—") + "</span></td></tr>";
+              '<td><span class="badge status-badge blue">' + escaparPortal(requisicion.estatus || "—") + "</span></td>" +
+              '<td><button type="button" class="btn-secondary" onclick="verDetalleRequisicionProveedor(\'' + requisicion.id + '\')">Ver detalle</button></td></tr>';
           }).join("")
-        : '<tr><td colspan="10">No hay requisiciones que coincidan con los filtros.</td></tr>';
+        : '<tr><td colspan="7">No hay requisiciones que coincidan con los filtros.</td></tr>';
 
       document.getElementById("kpiPeticionesProveedor").textContent = peticionesProveedor.length;
       document.getElementById("kpiPendientesProveedor").textContent = peticionesProveedor.filter(function (p) {
@@ -850,14 +962,23 @@
         return !tramiteSiifCancelado(tramite);
       }).length;
       const montoTotalSiif = requisicionesProveedor.reduce(function (total, tramite) {
-        return total + Number(tramite.monto || 0);
+        return total + (tramiteSiifCancelado(tramite) ? 0 : Number(tramite.monto || 0));
       }, 0);
       document.getElementById("kpiMontoSiifProveedor").textContent = importePortal(montoTotalSiif);
       document.getElementById("kpiOrdenesCompraProveedor").textContent = requisicionesProveedor.filter(function (tramite) {
         return Boolean(String(tramite.numero_oc || "").trim());
       }).length;
       document.getElementById("kpiSolicitudesPagoProveedor").textContent = requisicionesProveedor.filter(function (tramite) {
-        return normalizarPortal(tramite.etapa_actual) === "solicitud de pago";
+        const tieneSolicitudPago = Boolean(String(tramite.numero_sp || "").trim()) ||
+          normalizarPortal(tramite.etapa_actual).includes("solicitud de pago");
+        const yaPagado = normalizarPortal(tramite.estatus).includes("pagad");
+        return tieneSolicitudPago && !yaPagado && !tramiteSiifCancelado(tramite);
+      }).length;
+      document.getElementById("resumenPendientesEntrega").textContent = peticionesProveedor.filter(function (peticion) {
+        return peticion.estatus_proveedor !== "Entregado a almacén";
+      }).length;
+      document.getElementById("resumenTramitesActivos").textContent = requisicionesProveedor.filter(function (tramite) {
+        return !tramiteSiifCancelado(tramite);
       }).length;
       renderizarResumenSiifProveedor();
       document.getElementById("kpiCotizacionesAlmacen").textContent = cotizacionesAlmacenProveedor.length;
@@ -868,6 +989,12 @@
         return Boolean(String(cotizacion.requisicion || "").trim());
       }).length;
       document.getElementById("kpiCotizacionesPendientes").textContent = cotizacionesAlmacenProveedor.filter(function (cotizacion) {
+        return normalizarPortal(cotizacion.estatus).includes("pendiente");
+      }).length;
+      document.getElementById("kpiCotizacionesPendientesDashboard").textContent = cotizacionesAlmacenProveedor.filter(function (cotizacion) {
+        return normalizarPortal(cotizacion.estatus).includes("pendiente");
+      }).length;
+      document.getElementById("resumenCotizacionesPendientes").textContent = cotizacionesAlmacenProveedor.filter(function (cotizacion) {
         return normalizarPortal(cotizacion.estatus).includes("pendiente");
       }).length;
       const totalSinTramite = cotizacionesAlmacenProveedor.reduce(function (acumulado, cotizacion) {
@@ -1064,7 +1191,7 @@
       document.getElementById("cotizacionUnidad").value = cotizacion?.unidad || "";
       document.getElementById("cotizacionDependencia").value = cotizacion?.dependencia || "";
       document.getElementById("cotizacionInfoUnidad").textContent =
-        "Se buscará en la columna número de inventario del parque vehicular.";
+        "Captura el inventario completo o sus últimos 4 dígitos.";
       document.getElementById("materialesCotizacionAlmacen").innerHTML = "";
       (cotizacion?.materiales || [null]).forEach(function (material) {
         agregarMaterialCotizacion(material);
@@ -1212,6 +1339,7 @@
       const valor = input.value.trim();
       const dependenciaInput = document.getElementById("cotizacionDependencia");
       const info = document.getElementById("cotizacionInfoUnidad");
+      const numeroBusqueda = ++busquedaUnidadCotizacionActual;
       unidadCotizacionSeleccionada = null;
 
       if (/^(0|stock)$/i.test(valor)) {
@@ -1228,10 +1356,19 @@
       }
 
       info.textContent = "Buscando unidad...";
-      const unidad = await ETCotizacionesAlmacen.buscarUnidadParque(valor);
+      const coincidencias = await ETCotizacionesAlmacen.buscarUnidadesParque(valor);
+      if (numeroBusqueda !== busquedaUnidadCotizacionActual) return;
+      if (coincidencias.length > 1) {
+        dependenciaInput.value = "";
+        info.textContent = "Hay " + coincidencias.length + " unidades que terminan igual. Captura más dígitos para identificarla.";
+        return;
+      }
+      const unidad = coincidencias[0];
       if (!unidad) {
         dependenciaInput.value = "";
-        info.textContent = "Número de inventario no encontrado en el parque vehicular.";
+        info.textContent = valor.length < 4
+          ? "Captura al menos los últimos 4 dígitos del inventario."
+          : "Número de inventario no encontrado en el parque vehicular.";
         return;
       }
 
@@ -1247,10 +1384,10 @@
     async function guardarCotizacionAlmacen() {
       const fechaCotizacion = document.getElementById("cotizacionFechaCotizacion").value;
       const fechaEntrega = document.getElementById("cotizacionFechaEntrega").value;
-      const unidad = document.getElementById("cotizacionUnidad").value.trim();
       const observaciones = document.getElementById("cotizacionObservaciones").value.trim();
-      const esStock = /^(0|stock)$/i.test(unidad);
       await resolverUnidadCotizacion();
+      const unidad = document.getElementById("cotizacionUnidad").value.trim();
+      const esStock = /^(0|stock)$/i.test(unidad);
       const materiales = obtenerMaterialesCotizacion();
 
       if (!fechaCotizacion || !fechaEntrega || !unidad) {
@@ -1336,8 +1473,20 @@
       ?.addEventListener("click", guardarCotizacionAlmacen);
     document.getElementById("btnAgregarMaterialCotizacion")
       ?.addEventListener("click", function () { agregarMaterialCotizacion(); });
+    document.getElementById("accesoEntregasPendientes")
+      ?.addEventListener("click", function () {
+        filtroEntregaPeticionProveedor.value = "pendiente";
+        renderizarPortalProveedor();
+      });
     document.getElementById("cotizacionUnidad")
       ?.addEventListener("blur", resolverUnidadCotizacion);
+    document.getElementById("cotizacionUnidad")
+      ?.addEventListener("input", function () {
+        clearTimeout(temporizadorBusquedaUnidadCotizacion);
+        const valor = this.value.trim();
+        if (!/^(0|stock)$/i.test(valor) && valor.length < 4) return;
+        temporizadorBusquedaUnidadCotizacion = setTimeout(resolverUnidadCotizacion, 450);
+      });
 
     cargarPortalProveedor();
   </script>

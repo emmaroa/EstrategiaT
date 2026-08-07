@@ -88,22 +88,42 @@
     });
   }
 
-  async function buscarUnidadParque(valor) {
+  function normalizarClaveUnidad(valor) {
+    return String(valor || "")
+      .trim()
+      .toLocaleLowerCase("es")
+      .replace(/[^a-z0-9]/g, "");
+  }
+
+  async function buscarUnidadesParque(valor) {
     const client = getClient();
     const buscado = String(valor || "").trim();
-    if (!client || !buscado || /^(0|stock)$/i.test(buscado)) return null;
+    if (!client || !buscado || /^(0|stock)$/i.test(buscado)) return [];
 
     const { data, error } = await client
       .from("parque_vehicular")
       .select("id,numero_inventario,unidad_patrulla,serie,vin,dependencia,descripcion");
 
-    if (error) return null;
-    const clave = buscado.toLocaleLowerCase("es");
-    return (data || []).find(function (unidad) {
-      return String(unidad.numero_inventario || "")
-        .trim()
-        .toLocaleLowerCase("es") === clave;
-    }) || null;
+    if (error) return [];
+    const clave = normalizarClaveUnidad(buscado);
+    if (!clave) return [];
+
+    const coincidenciasExactas = (data || []).filter(function (unidad) {
+      return [unidad.numero_inventario, unidad.unidad_patrulla]
+        .some(function (campo) { return normalizarClaveUnidad(campo) === clave; });
+    });
+    if (coincidenciasExactas.length) return coincidenciasExactas;
+
+    if (clave.length < 4) return [];
+    return (data || []).filter(function (unidad) {
+      return [unidad.numero_inventario, unidad.unidad_patrulla]
+        .some(function (campo) { return normalizarClaveUnidad(campo).endsWith(clave); });
+    });
+  }
+
+  async function buscarUnidadParque(valor) {
+    const coincidencias = await buscarUnidadesParque(valor);
+    return coincidencias.length === 1 ? coincidencias[0] : null;
   }
 
   async function actualizarDatosInternos(id, payload) {
@@ -143,6 +163,7 @@
     crear,
     actualizar,
     crearDesdePeticion,
+    buscarUnidadesParque,
     buscarUnidadParque,
     actualizarDatosInternos,
     actualizarInterna
