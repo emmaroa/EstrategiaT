@@ -70,7 +70,13 @@
         <h1 id="tituloPortalProveedor">Portal de proveedores</h1>
         <p id="nombreProveedorPortal">Consulta tus solicitudes y requisiciones asignadas.</p>
       </div>
-      <span id="etTemaContainer"></span>
+      <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;">
+        <label id="selectorProveedorPortalGrupo" style="display:none;align-items:center;gap:8px;font-weight:700;">
+          Proveedor
+          <select id="selectorProveedorPortal" aria-label="Seleccionar proveedor activo"></select>
+        </label>
+        <span id="etTemaContainer"></span>
+      </div>
     </header>
 
     <section class="kpi-grid" id="kpisPortalGeneral">
@@ -351,12 +357,17 @@
     }
 
     const vistaCotizacionesProveedor = new URLSearchParams(window.location.search).get("vista") === "cotizaciones";
+    const vistaSeguimientoSiifProveedor = new URLSearchParams(window.location.search).get("vista") === "seguimiento-siif";
     document.body.classList.toggle("portal-cotizaciones-view", vistaCotizacionesProveedor);
     if (vistaCotizacionesProveedor) {
       document.getElementById("tituloPortalProveedor").textContent = "Gestión privada de cotizaciones";
+    } else if (vistaSeguimientoSiifProveedor) {
+      document.getElementById("tituloPortalProveedor").textContent = "Seguimiento de trámites SIIF";
     }
 
-    ETLayout.inicializar(vistaCotizacionesProveedor ? "Cotizaciones Proveedor" : "Portal Proveedor");
+    ETLayout.inicializar(vistaCotizacionesProveedor
+      ? "Cotizaciones Proveedor"
+      : (vistaSeguimientoSiifProveedor ? "Seguimiento de trámites SIIF" : "Portal Proveedor"));
 
     function inicializarModulosPortal() {
       document.querySelectorAll(".portal-module").forEach(function (modulo) {
@@ -412,7 +423,16 @@
 
     cargarFechaActualizacionSiifProveedor();
 
-    const proveedorVinculado = String(usuarioProveedor?.proveedor || "").trim();
+    const proveedoresVinculados = Array.from(new Set(
+      (Array.isArray(usuarioProveedor?.proveedores_permitidos)
+        ? usuarioProveedor.proveedores_permitidos
+        : []).concat(usuarioProveedor?.proveedor || [])
+        .map(function (proveedor) { return String(proveedor || "").trim(); })
+        .filter(Boolean)
+    ));
+    const claveProveedorActivo = "proveedorActivoPortal:" + String(usuarioProveedor?.id || usuarioProveedor?.usuario || "");
+    let proveedorVinculado = sessionStorage.getItem(claveProveedorActivo) || proveedoresVinculados[0] || "";
+    if (!proveedoresVinculados.includes(proveedorVinculado)) proveedorVinculado = proveedoresVinculados[0] || "";
     let peticionesProveedor = [];
     let requisicionesProveedor = [];
     let requisicionesSiifSinProveedorBuscadas = [];
@@ -430,6 +450,27 @@
     const filtroTramiteCotizacionesAlmacen = document.getElementById("filtroTramiteCotizacionesAlmacen");
     const fechaDesdeCotizacionesAlmacen = document.getElementById("fechaDesdeCotizacionesAlmacen");
     const fechaHastaCotizacionesAlmacen = document.getElementById("fechaHastaCotizacionesAlmacen");
+    const selectorProveedorPortal = document.getElementById("selectorProveedorPortal");
+
+    function inicializarSelectorProveedorPortal() {
+      if (!selectorProveedorPortal) return;
+      selectorProveedorPortal.innerHTML = "";
+      proveedoresVinculados.forEach(function (proveedor) {
+        selectorProveedorPortal.add(new Option(proveedor, proveedor));
+      });
+      selectorProveedorPortal.value = proveedorVinculado;
+      const grupo = document.getElementById("selectorProveedorPortalGrupo");
+      if (grupo) grupo.style.display = proveedoresVinculados.length > 1 ? "flex" : "none";
+      selectorProveedorPortal.addEventListener("change", async function () {
+        proveedorVinculado = selectorProveedorPortal.value;
+        sessionStorage.setItem(claveProveedorActivo, proveedorVinculado);
+        peticionNotaId = null;
+        cotizacionAlmacenEditandoId = null;
+        await cargarPortalProveedor();
+      });
+    }
+
+    inicializarSelectorProveedorPortal();
 
     function escaparPortal(valor) {
       return String(valor ?? "")

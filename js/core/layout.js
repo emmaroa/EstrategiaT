@@ -33,6 +33,7 @@
     "Peticiones",
     "Gestión de Cotizaciones",
     "Cotizaciones Proveedor",
+    "Seguimiento de trámites SIIF",
     "Seguimiento Peticiones",
     "Requisiciones",
     "Seguimiento SIIF",
@@ -57,7 +58,7 @@
     },
     {
       nombre: "Administración",
-      modulos: ["Requisiciones", "Seguimiento SIIF", "Requisiciones SIIF", "Órdenes de Compra SIIF", "Solicitudes de Pago SIIF", "Importar SIIF", "Tiempo Extra", "Tramites Administrativos", "Generar Textos"]
+      modulos: ["Requisiciones", "Seguimiento SIIF", "Seguimiento de trámites SIIF", "Requisiciones SIIF", "Órdenes de Compra SIIF", "Solicitudes de Pago SIIF", "Importar SIIF", "Tiempo Extra", "Tramites Administrativos", "Generar Textos"]
     },
     { nombre: "Sistema", modulos: ["Usuarios", "Auditoría"] }
   ];
@@ -71,6 +72,7 @@
     "Seguimiento Peticiones": '<circle cx="11" cy="11" r="7"/><path d="m16 16 5 5M8 11l2 2 4-4"/>',
     "Requisiciones": '<path d="M7 3h8l4 4v14H7Z"/><path d="M15 3v5h5M10 13h6M10 17h6"/>',
     "Seguimiento SIIF": '<path d="M4 6h16M4 12h16M4 18h16"/><circle cx="7" cy="6" r="2"/><circle cx="13" cy="12" r="2"/><circle cx="18" cy="18" r="2"/>',
+    "Seguimiento de trámites SIIF": '<path d="M4 6h16M4 12h16M4 18h16"/><circle cx="7" cy="6" r="2"/><circle cx="13" cy="12" r="2"/><circle cx="18" cy="18" r="2"/>',
     "Importar SIIF": '<path d="M12 3v12M7 8l5-5 5 5"/><path d="M5 14v6h14v-6"/>',
     "Requisiciones SIIF": '<path d="M6 3h12v18H6Z"/><path d="M9 8h6M9 12h6M9 16h4"/>',
     "Órdenes de Compra SIIF": '<path d="M4 5h16v14H4Z"/><path d="M8 9h8M8 13h5"/>',
@@ -318,6 +320,38 @@
         "<span>Inicio</span>" +
       "</a>";
     primerBloque.insertBefore(breadcrumb, primerBloque.firstChild);
+
+    if (!header.querySelector(".dashboard-unit-search-button")) {
+      const botonBuscarUnidad = document.createElement("button");
+      botonBuscarUnidad.type = "button";
+      botonBuscarUnidad.className = "btn-small dashboard-unit-search-button";
+      botonBuscarUnidad.textContent = "Buscar unidad";
+      botonBuscarUnidad.setAttribute("aria-label", "Buscar vehículo por número económico");
+      botonBuscarUnidad.addEventListener("click", function () {
+        const rutaBuscador = esRutaDeModulo(global.location.pathname)
+          ? "../buscador-unidades.html"
+          : "buscador-unidades.html";
+        const buscador = global.open(
+          rutaBuscador,
+          "buscadorUnidadesEstrategiaT",
+          "popup=yes,width=560,height=720,resizable=yes,scrollbars=yes"
+        );
+        if (buscador) {
+          buscador.focus();
+        } else {
+          mostrarToast("Permite las ventanas emergentes para abrir el buscador.", "warning");
+        }
+      });
+
+      const accionesEncabezado = Array.from(header.children).find(function (elemento) {
+        return elemento !== primerBloque && elemento.tagName === "DIV";
+      });
+      if (accionesEncabezado) {
+        accionesEncabezado.insertBefore(botonBuscarUnidad, accionesEncabezado.firstChild);
+      } else {
+        header.appendChild(botonBuscarUnidad);
+      }
+    }
   }
 
   const FUENTES_BUSQUEDA_GLOBAL = [

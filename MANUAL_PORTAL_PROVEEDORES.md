@@ -11,6 +11,8 @@ El Portal de Proveedores permite consultar las peticiones asignadas a su empresa
 
 La información mostrada pertenece únicamente al proveedor vinculado con la cuenta que inició sesión.
 
+Una misma cuenta puede estar vinculada con varios proveedores. Cuando esto ocurra, aparecerá un selector **Proveedor** en el encabezado; el proveedor seleccionado determina qué peticiones, trámites y cotizaciones se consultan o actualizan.
+
 ## 2. Requisitos de acceso
 
 Para utilizar el portal necesita:
@@ -49,6 +51,17 @@ El menú del proveedor incluye dos opciones:
 - **Cotizaciones Proveedor:** consulta y administración privada de cotizaciones entregadas al almacén.
 
 Los módulos pueden contraerse o expandirse mediante el botón ubicado en su encabezado. El selector de tema permite cambiar la apariencia del sistema.
+
+### Cambiar de proveedor activo
+
+Si su cuenta administra más de un proveedor:
+
+1. Abra el selector **Proveedor** ubicado en el encabezado.
+2. Seleccione la empresa con la que desea trabajar.
+3. Espere a que el portal vuelva a cargar la información.
+4. Verifique el nombre mostrado antes de confirmar entregas, agregar notas o registrar cotizaciones.
+
+El portal recuerda la selección durante la sesión. Los registros de proveedores diferentes no se mezclan en una misma vista.
 
 ## 5. Portal Proveedor
 

@@ -184,8 +184,9 @@
         </div>
 
         <div class="input-group">
-          <label>Proveedor vinculado</label>
-          <select id="proveedorUsuario" data-proveedor-select data-proveedor-placeholder="Sin proveedor vinculado"></select>
+          <label>Proveedores vinculados</label>
+          <select id="proveedorUsuario" multiple size="6" data-proveedor-select data-proveedor-placeholder="Sin proveedores vinculados"></select>
+          <small class="helper-text">Puedes seleccionar más de un proveedor. En computadora usa Ctrl o Cmd para seleccionar varios.</small>
         </div>
 
         <div class="input-group">
@@ -482,12 +483,16 @@
     }
 
     async function guardarUsuario() {
+      const proveedoresSeleccionados = Array.from(document.getElementById("proveedorUsuario").selectedOptions)
+        .map(function (opcion) { return opcion.value.trim(); })
+        .filter(Boolean);
       const nuevo = {
         nombre: document.getElementById("nombreUsuario").value.trim(),
         usuario: document.getElementById("usuarioUsuario").value.trim(),
         password: document.getElementById("passwordUsuario").value.trim(),
         rol: document.getElementById("rolUsuarioForm").value,
-        proveedor: document.getElementById("proveedorUsuario").value.trim() || null,
+        proveedor: proveedoresSeleccionados[0] || null,
+        proveedores_permitidos: proveedoresSeleccionados,
         activo: document.getElementById("activoUsuario").value === "true",
         ver_proveedores_peticiones: verProveedoresPeticionesUsuario.checked,
         areas_permitidas: obtenerAreasPermitidasDesdeFormulario(),
@@ -505,7 +510,8 @@
         nuevo.areas_permitidas = [];
         nuevo.modulos_permitidos = [
           { modulo: "Portal Proveedor", permiso: "editar" },
-          { modulo: "Cotizaciones Proveedor", permiso: "editar" }
+          { modulo: "Cotizaciones Proveedor", permiso: "editar" },
+          { modulo: "Seguimiento de trámites SIIF", permiso: "editar" }
         ];
       }
       if (nuevo.rol === "Coordinador Infraestructura") {
@@ -542,6 +548,7 @@
           usuario: nuevo.usuario,
           rol: nuevo.rol,
           proveedor: nuevo.proveedor,
+          proveedores_permitidos: nuevo.proveedores_permitidos,
           activo: nuevo.activo,
           ver_proveedores_peticiones: nuevo.ver_proveedores_peticiones,
           areas_permitidas: nuevo.areas_permitidas,
@@ -586,7 +593,12 @@
       document.getElementById("rolUsuarioForm").value = u.rol || "";
       verProveedoresPeticionesUsuario.checked = u.ver_proveedores_peticiones === true;
       actualizarVisibilidadPermisoProveedores();
-      ETProveedores.seleccionar(document.getElementById("proveedorUsuario"), u.proveedor || "");
+      ETProveedores.seleccionar(
+        document.getElementById("proveedorUsuario"),
+        Array.isArray(u.proveedores_permitidos) && u.proveedores_permitidos.length
+          ? u.proveedores_permitidos
+          : (u.proveedor ? [u.proveedor] : [])
+      );
       document.getElementById("activoUsuario").value = String(u.activo);
       renderPermisosModulos(u);
       renderAreasPermitidas(u);

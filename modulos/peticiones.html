@@ -1099,11 +1099,6 @@
           ? fechaEstimadaEntregaInput.value
           : null)
         : (peticionExistente?.fecha_estimada_entrega || null);
-      if (puedeCapturarFechaEstimadaEntrega() && nuevaPeticion.proveedor && !nuevaPeticion.fecha_estimada_entrega) {
-        alert("Captura la fecha estimada de entrega para el proveedor asignado.");
-        fechaEstimadaEntregaInput?.focus();
-        return;
-      }
       if (normalizarTextoPeticion(nuevaPeticion.estatus) === "recibido en almacen") {
         nuevaPeticion.estatus_proveedor = "Entregado a almacén";
         nuevaPeticion.fecha_entrega_proveedor =

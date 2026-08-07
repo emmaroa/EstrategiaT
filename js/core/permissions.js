@@ -9,6 +9,7 @@
       PETICIONES: "Peticiones",
       GESTION_COTIZACIONES: "Gestión de Cotizaciones",
       COTIZACIONES_PROVEEDOR: "Cotizaciones Proveedor",
+      SEGUIMIENTO_SIIF_PROVEEDOR: "Seguimiento de trámites SIIF",
       SEGUIMIENTO_PETICIONES: "Seguimiento Peticiones",
       REQUISICIONES: "Requisiciones",
       SEGUIMIENTO_SIIF: "Seguimiento SIIF",
@@ -39,6 +40,7 @@
     [MODULOS.PETICIONES]: "modulos/peticiones.html",
     [MODULOS.GESTION_COTIZACIONES]: "modulos/peticiones.html?vista=cotizaciones",
     [MODULOS.COTIZACIONES_PROVEEDOR]: "modulos/portal-proveedor.html?vista=cotizaciones",
+    [MODULOS.SEGUIMIENTO_SIIF_PROVEEDOR]: "modulos/portal-proveedor.html?vista=seguimiento-siif#moduloSeguimientoSiif",
     [MODULOS.SEGUIMIENTO_PETICIONES]: "modulos/seguimiento-peticiones.html",
     [MODULOS.REQUISICIONES]: "modulos/seguimiento-siif.html",
     [MODULOS.SEGUIMIENTO_SIIF]: "modulos/seguimiento-siif.html",
@@ -69,6 +71,7 @@
     [MODULOS.PETICIONES]: "Solicitudes de refacciones al almacén.",
     [MODULOS.GESTION_COTIZACIONES]: "Gestión interna de partidas, requisiciones y montos de cotizaciones.",
     [MODULOS.COTIZACIONES_PROVEEDOR]: "Gestión privada de cotizaciones del proveedor.",
+    [MODULOS.SEGUIMIENTO_SIIF_PROVEEDOR]: "Seguimiento privado de requisiciones, órdenes de compra y solicitudes de pago del proveedor.",
     [MODULOS.SEGUIMIENTO_PETICIONES]: "Consulta de peticiones por area para coordinadores.",
     [MODULOS.REQUISICIONES]: "Requisiciones, órdenes de compra y pagos.",
     [MODULOS.SEGUIMIENTO_SIIF]: "Vista unificada de requisiciones, órdenes de compra y solicitudes de pago.",
@@ -106,7 +109,7 @@
       MODULOS.DASHBOARD,
       MODULOS.VALES
     ],
-    Proveedor: [MODULOS.PORTAL_PROVEEDOR, MODULOS.COTIZACIONES_PROVEEDOR],
+    Proveedor: [MODULOS.PORTAL_PROVEEDOR, MODULOS.COTIZACIONES_PROVEEDOR, MODULOS.SEGUIMIENTO_SIIF_PROVEEDOR],
     "Moderador de Acuerdos": [
       MODULOS.DASHBOARD,
       MODULOS.ACUERDOS
@@ -417,7 +420,7 @@
   function obtenerModulosUsuario(usuario) {
     const permisosModulos = obtenerPermisosModulosUsuario(usuario);
     const rol = normalizarRol((usuario || {}).rol || (usuario || {}).cargo || (usuario || {}).tipo || "");
-    if (rol === "Proveedor") return [MODULOS.PORTAL_PROVEEDOR, MODULOS.COTIZACIONES_PROVEEDOR];
+    if (rol === "Proveedor") return [MODULOS.PORTAL_PROVEEDOR, MODULOS.COTIZACIONES_PROVEEDOR, MODULOS.SEGUIMIENTO_SIIF_PROVEEDOR];
 
     if (permisosModulos.length) {
       const modulos = permisosModulos
@@ -458,7 +461,7 @@
   function obtenerPermisoModuloUsuario(usuario, modulo) {
     const rol = normalizarRol((usuario || {}).rol || (usuario || {}).cargo || (usuario || {}).tipo || "");
     if (rol === "Proveedor") {
-      return [MODULOS.PORTAL_PROVEEDOR, MODULOS.COTIZACIONES_PROVEEDOR].includes(modulo) ? "editar" : "none";
+      return [MODULOS.PORTAL_PROVEEDOR, MODULOS.COTIZACIONES_PROVEEDOR, MODULOS.SEGUIMIENTO_SIIF_PROVEEDOR].includes(modulo) ? "editar" : "none";
     }
 
     const permisosModulos = obtenerPermisosModulosUsuario(usuario);

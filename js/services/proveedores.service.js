@@ -22,13 +22,15 @@
 
   function seleccionar(select, valor) {
     if (!select) return;
-    const nombre = limpiar(valor);
-    if (nombre && !Array.from(select.options).some(function (opcion) {
-      return opcion.value === nombre;
-    })) {
-      select.add(new Option(nombre + " (histórico)", nombre));
-    }
-    select.value = nombre;
+    const nombres = (Array.isArray(valor) ? valor : [valor]).map(limpiar).filter(Boolean);
+    nombres.forEach(function (nombre) {
+      if (!Array.from(select.options).some(function (opcion) { return opcion.value === nombre; })) {
+        select.add(new Option(nombre + " (histórico)", nombre));
+      }
+    });
+    Array.from(select.options).forEach(function (opcion) {
+      opcion.selected = nombres.includes(opcion.value);
+    });
   }
 
   async function poblarSelect(select, valor) {
@@ -38,7 +40,7 @@
     try {
       const proveedores = await listarActivos();
       select.innerHTML = "";
-      select.add(new Option(placeholder, ""));
+      if (!select.multiple) select.add(new Option(placeholder, ""));
       proveedores.forEach(function (proveedor) {
         const nombre = limpiar(proveedor.razon_social);
         if (nombre) select.add(new Option(nombre, nombre));
