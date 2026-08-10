@@ -20,6 +20,9 @@
     .cotizaciones-provider-track { height:12px; overflow:hidden; border-radius:999px; background:color-mix(in srgb, var(--color-teal) 14%, var(--bg-card)); }
     .cotizaciones-provider-bar { height:100%; min-width:3px; border-radius:inherit; background:linear-gradient(90deg, var(--color-teal), var(--color-info)); }
     .cotizaciones-provider-amount { color:var(--text-primary); font-size:13px; font-weight:800; text-align:right; }
+    .cotizaciones-materials-cell { min-width:240px; max-width:360px; white-space:normal; }
+    .cotizaciones-materials-list { display:grid; gap:4px; margin:0; padding-left:18px; }
+    .cotizaciones-materials-list li { line-height:1.35; }
     @media(max-width:700px) { .cotizaciones-provider-row { grid-template-columns:1fr auto; } .cotizaciones-provider-track { grid-column:1 / -1; grid-row:2; } }
   </style>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -190,7 +193,7 @@
         <button type="button" class="btn-secondary" id="btnExportarGestionCotizaciones">Exportar tabla</button>
       </div>
       <div class="filters">
-        <input type="search" id="buscarGestionCotizaciones" placeholder="Buscar folio, proveedor, unidad o requisición..." aria-label="Buscar cotizaciones">
+        <input type="search" id="buscarGestionCotizaciones" placeholder="Buscar folio, proveedor, unidad, material o requisición..." aria-label="Buscar cotizaciones, incluyendo materiales">
         <select id="filtroProveedorGestionCotizaciones" aria-label="Filtrar por proveedor"><option value="">Todos los proveedores</option></select>
         <select id="filtroEstatusGestionCotizaciones" aria-label="Filtrar por estatus"><option value="">Todos los estatus</option></select>
         <select id="filtroTramiteGestionCotizaciones" aria-label="Filtrar por trámite"><option value="">Con y sin requisición</option><option value="sin-tramite">Sin requisición</option><option value="con-tramite">Con requisición</option></select>
@@ -207,6 +210,7 @@
               <th>Fecha</th>
               <th>Unidad</th>
               <th>Dependencia</th>
+              <th>Materiales</th>
               <th>Total</th>
               <th>Partida</th>
               <th>Requisición</th>
@@ -1696,6 +1700,36 @@
       });
     }
 
+    function obtenerMaterialesNormalizadosCotizacion(cotizacion) {
+      const materiales = Array.isArray(cotizacion?.materiales) ? cotizacion.materiales : [];
+      return materiales.map(function (material) {
+        return {
+          cantidad: Number(material?.cantidad || 0),
+          item: String(material?.item || material?.descripcion || material?.material || "").trim(),
+          precio: Number(material?.precio_unitario ?? material?.precio ?? 0)
+        };
+      }).filter(function (material) {
+        return material.item || material.cantidad || material.precio;
+      });
+    }
+
+    function textoMaterialesCotizacion(cotizacion, incluirPrecio) {
+      return obtenerMaterialesNormalizadosCotizacion(cotizacion).map(function (material) {
+        const cantidad = material.cantidad ? material.cantidad + " × " : "";
+        const precio = incluirPrecio ? " @ " + monedaCotizacionInterna(material.precio) : "";
+        return cantidad + (material.item || "Material sin descripción") + precio;
+      }).join("; ");
+    }
+
+    function htmlMaterialesCotizacion(cotizacion) {
+      const materiales = obtenerMaterialesNormalizadosCotizacion(cotizacion);
+      if (!materiales.length) return '<span class="helper-text">Sin materiales</span>';
+      return '<ul class="cotizaciones-materials-list">' + materiales.map(function (material) {
+        const cantidad = material.cantidad ? material.cantidad + " × " : "";
+        return "<li>" + escaparCotizacionInterna(cantidad + (material.item || "Material sin descripción")) + "</li>";
+      }).join("") + "</ul>";
+    }
+
     function obtenerCotizacionesGestionFiltradas() {
       const texto = normalizarTextoPeticion(buscarGestionCotizaciones?.value);
       const proveedor = String(filtroProveedorGestionCotizaciones?.value || "");
@@ -1707,7 +1741,8 @@
       return cotizacionesAlmacen.filter(function (cotizacion) {
         const contenido = normalizarTextoPeticion([
           cotizacion.folio, cotizacion.proveedor, cotizacion.unidad,
-          cotizacion.dependencia, cotizacion.requisicion, cotizacion.partida
+          cotizacion.dependencia, cotizacion.requisicion, cotizacion.partida,
+          textoMaterialesCotizacion(cotizacion, false)
         ].join(" "));
         const tieneTramite = Boolean(String(cotizacion.requisicion || "").trim());
         const tienePartida = Boolean(String(cotizacion.partida || "").trim());
@@ -1787,6 +1822,7 @@
               "<td>" + formatearFecha(cotizacion.fecha_cotizacion) + "</td>" +
               "<td>" + escaparCotizacionInterna(cotizacion.unidad || "—") + "</td>" +
               "<td>" + escaparCotizacionInterna(cotizacion.dependencia || "Pendiente") + "</td>" +
+              '<td class="cotizaciones-materials-cell">' + htmlMaterialesCotizacion(cotizacion) + "</td>" +
               "<td><strong>" + escaparCotizacionInterna(monedaCotizacionInterna(cotizacion.total)) + "</strong></td>" +
               "<td>" + escaparCotizacionInterna(cotizacion.partida || "Pendiente") + "</td>" +
               "<td>" + escaparCotizacionInterna(cotizacion.requisicion || "Pendiente") + "</td>" +
@@ -1797,7 +1833,7 @@
                 : '<span class="badge status-badge gray">Solo vista</span>') + "</td>" +
             "</tr>";
           }).join("")
-        : '<tr><td colspan="11">No hay cotizaciones registradas.</td></tr>';
+        : '<tr><td colspan="12">No hay cotizaciones registradas.</td></tr>';
     }
 
     function abrirDatosInternosCotizacion(id) {
@@ -1940,10 +1976,11 @@
     }
 
     function exportarGestionCotizaciones() {
-      const encabezados = ["Folio", "Proveedor", "Fecha", "Unidad", "Dependencia", "Total", "Partida", "Requisición", "Estatus"];
+      const encabezados = ["Folio", "Proveedor", "Fecha", "Unidad", "Dependencia", "Materiales", "Total", "Partida", "Requisición", "Estatus"];
       const filas = obtenerCotizacionesGestionFiltradas().map(function (cotizacion) {
         return [cotizacion.folio, cotizacion.proveedor, cotizacion.fecha_cotizacion, cotizacion.unidad,
-          cotizacion.dependencia, Number(cotizacion.total || 0), cotizacion.partida,
+          cotizacion.dependencia, textoMaterialesCotizacion(cotizacion, true),
+          Number(cotizacion.total || 0), cotizacion.partida,
           cotizacion.requisicion, cotizacion.estatus];
       });
       const proteger = function (valor) {
