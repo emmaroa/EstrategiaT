@@ -4,6 +4,7 @@
   "private": true,
   "description": "Aplicación móvil multiplataforma de Administración de Talleres",
   "scripts": {
+    "verify": "node scripts/verify-project.js",
     "mobile:build": "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/build-mobile.ps1",
     "mobile:sync": "npm run mobile:build && cap sync",
     "mobile:android": "npm run mobile:sync && cap open android",

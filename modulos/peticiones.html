@@ -28,7 +28,7 @@
   <script src="../js/core/theme.js"></script>
   <script src="../js/core/layout.js?v=20260725-3"></script>
   <script src="../js/services/peticiones.service.js?v=20260727-1"></script>
-  <script src="../js/services/cotizaciones-almacen.service.js?v=20260805-1"></script>
+  <script src="../js/services/cotizaciones-almacen.service.js?v=20260810-1"></script>
   <script src="../login.js?v=20260727-1"></script>
 </head>
 <body class="dashboard-body">
@@ -1833,6 +1833,39 @@
       document.getElementById("modalDatosInternosCotizacion").setAttribute("aria-hidden", "true");
     }
 
+    async function completarUnidadCotizacionInterna() {
+      const unidadInput = document.getElementById("unidadCotizacionInterna");
+      const serieInput = document.getElementById("serieCotizacionInterna");
+      const dependenciaInput = document.getElementById("dependenciaCotizacionInterna");
+      const valor = String(unidadInput?.value || "").trim();
+
+      if (!valor || !window.ETCotizacionesAlmacen) return null;
+
+      const coincidencias = await ETCotizacionesAlmacen.buscarUnidadesParque(valor);
+      if (!coincidencias.length) {
+        dependenciaInput.value = "";
+        serieInput.value = "";
+        dependenciaInput.placeholder = "Unidad no encontrada";
+        return null;
+      }
+
+      if (coincidencias.length > 1) {
+        dependenciaInput.value = "";
+        serieInput.value = "";
+        dependenciaInput.placeholder = "Escribe más dígitos; hay varias coincidencias";
+        return null;
+      }
+
+      const unidad = coincidencias[0];
+      dependenciaInput.value = unidad.dependencia || "";
+      dependenciaInput.placeholder = unidad.dependencia ? "" : "Unidad sin dependencia registrada";
+      serieInput.value = unidad.serie || unidad.vin || "";
+
+      const identificador = unidad.numero_economico || unidad.numero_inventario || unidad.unidad_patrulla;
+      if (identificador) unidadInput.value = identificador;
+      return unidad;
+    }
+
     async function guardarDatosInternosCotizacion() {
       if (!puedeEditarGestionCotizaciones() || !cotizacionInternaId) return;
       const cotizacion = cotizacionesAlmacen.find(function (item) {
@@ -1843,6 +1876,7 @@
       const proveedor = document.getElementById("proveedorCotizacionInterna").value.trim();
       const fechaCotizacion = document.getElementById("fechaCotizacionInterna").value;
       const fechaEntrega = document.getElementById("fechaEntregaCotizacionInterna").value;
+      await completarUnidadCotizacionInterna();
       const unidad = document.getElementById("unidadCotizacionInterna").value.trim();
       const lineasMateriales = document.getElementById("materialesCotizacionInterna").value.split(/\r?\n/).filter(function (linea) { return linea.trim(); });
       const materiales = obtenerMaterialesCotizacionInterna();
@@ -2009,6 +2043,8 @@
       ?.addEventListener("click", exportarGestionCotizaciones);
     document.getElementById("materialesCotizacionInterna")
       ?.addEventListener("input", calcularTotalesCotizacionInterna);
+    document.getElementById("unidadCotizacionInterna")
+      ?.addEventListener("blur", completarUnidadCotizacionInterna);
     proveedorInput?.addEventListener("change", actualizarEstadoFechaEstimadaEntrega);
 
     inicializarPeticiones();

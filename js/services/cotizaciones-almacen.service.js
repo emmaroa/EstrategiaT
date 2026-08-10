@@ -102,21 +102,23 @@
 
     const { data, error } = await client
       .from("parque_vehicular")
-      .select("id,numero_inventario,unidad_patrulla,serie,vin,dependencia,descripcion");
+      .select("id,numero_economico,numero_inventario,unidad_patrulla,serie,vin,dependencia,descripcion");
 
     if (error) return [];
     const clave = normalizarClaveUnidad(buscado);
     if (!clave) return [];
 
     const coincidenciasExactas = (data || []).filter(function (unidad) {
-      return [unidad.numero_inventario, unidad.unidad_patrulla]
+      return [unidad.numero_economico, unidad.numero_inventario, unidad.unidad_patrulla]
         .some(function (campo) { return normalizarClaveUnidad(campo) === clave; });
     });
     if (coincidenciasExactas.length) return coincidenciasExactas;
 
-    if (clave.length < 4) return [];
+    // Dos o más caracteres permiten buscar por los últimos dígitos sin
+    // convertir una sola tecla en una consulta ambigua de toda la flotilla.
+    if (clave.length < 2) return [];
     return (data || []).filter(function (unidad) {
-      return [unidad.numero_inventario, unidad.unidad_patrulla]
+      return [unidad.numero_economico, unidad.numero_inventario, unidad.unidad_patrulla]
         .some(function (campo) { return normalizarClaveUnidad(campo).endsWith(clave); });
     });
   }
