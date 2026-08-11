@@ -1832,14 +1832,18 @@
 
       poblarProveedoresGestionCotizaciones();
       const cotizacionesFiltradas = obtenerCotizacionesGestionFiltradas();
-      document.getElementById("kpiCotInternasTotal").textContent = cotizacionesAlmacen.length;
-      document.getElementById("kpiCotInternasSinTramite").textContent = cotizacionesAlmacen.filter(function (cotizacion) { return !String(cotizacion.requisicion || "").trim(); }).length;
-      document.getElementById("kpiCotInternasMontoSinTramite").textContent = monedaCotizacionInterna(cotizacionesAlmacen.reduce(function (total, cotizacion) {
+      const cotizacionesParaKpis = cotizacionesAlmacen.filter(function (cotizacion) {
+        const estatus = normalizarTextoPeticion(cotizacion.estatus);
+        return estatus !== "requisicion generada" && estatus !== "rechazada";
+      });
+      document.getElementById("kpiCotInternasTotal").textContent = cotizacionesParaKpis.length;
+      document.getElementById("kpiCotInternasSinTramite").textContent = cotizacionesParaKpis.filter(function (cotizacion) { return !String(cotizacion.requisicion || "").trim(); }).length;
+      document.getElementById("kpiCotInternasMontoSinTramite").textContent = monedaCotizacionInterna(cotizacionesParaKpis.reduce(function (total, cotizacion) {
         return total + (!String(cotizacion.requisicion || "").trim() ? Number(cotizacion.total || 0) : 0);
       }, 0));
-      document.getElementById("kpiCotInternasConTramite").textContent = cotizacionesAlmacen.filter(function (cotizacion) { return Boolean(String(cotizacion.requisicion || "").trim()); }).length;
-      document.getElementById("kpiCotInternasSinPartida").textContent = cotizacionesAlmacen.filter(function (cotizacion) { return !String(cotizacion.partida || "").trim(); }).length;
-      document.getElementById("kpiCotInternasMonto").textContent = monedaCotizacionInterna(cotizacionesAlmacen.reduce(function (total, cotizacion) { return total + Number(cotizacion.total || 0); }, 0));
+      document.getElementById("kpiCotInternasConTramite").textContent = cotizacionesParaKpis.filter(function (cotizacion) { return Boolean(String(cotizacion.requisicion || "").trim()); }).length;
+      document.getElementById("kpiCotInternasSinPartida").textContent = cotizacionesParaKpis.filter(function (cotizacion) { return !String(cotizacion.partida || "").trim(); }).length;
+      document.getElementById("kpiCotInternasMonto").textContent = monedaCotizacionInterna(cotizacionesParaKpis.reduce(function (total, cotizacion) { return total + Number(cotizacion.total || 0); }, 0));
       renderizarGraficaMontoProveedorCotizaciones();
 
       tabla.innerHTML = cotizacionesFiltradas.length

@@ -728,7 +728,7 @@ let fechaHastaDashboard = "";
             ? dashboardClient.from("tramites_administrativos").select("id,num_empleado,empleado_nombre,tipo_tramite,subtipo_incapacidad,motivo,fecha_inicio,fecha_fin")
             : Promise.resolve({ data: [], error: null }),
           puedeVerKpisCotizaciones(usuarioActivo)
-            ? dashboardClient.from("cotizaciones_almacen").select("id,requisicion,total,fecha_cotizacion")
+            ? dashboardClient.from("cotizaciones_almacen").select("id,requisicion,total,fecha_cotizacion,estatus")
             : Promise.resolve({ data: [], error: null })
         ]);
 
@@ -937,7 +937,10 @@ function renderizarDashboard() {
   document.getElementById("kpiRequisicionesXml").textContent = kpis.requisicionesConXml;
   document.getElementById("kpiValesEmitidos").textContent = puedeVerFinanciero ? kpis.valesEmitidos : kpis.valesActivos;
   const cotizacionesSinRequisicion = cotizaciones.filter(function (cotizacion) {
-    return !String(cotizacion.requisicion || "").trim();
+    const estatus = String(cotizacion.estatus || "").normalize("NFD")
+      .replace(/[\u0300-\u036f]/g, "").trim().toLowerCase();
+    return !String(cotizacion.requisicion || "").trim() &&
+      estatus !== "requisicion generada" && estatus !== "rechazada";
   });
   document.getElementById("kpiDashboardCotizacionesSinRequisicion").textContent = cotizacionesSinRequisicion.length;
   document.getElementById("kpiDashboardMontoSinRequisicion").textContent = moneda(cotizacionesSinRequisicion.reduce(function (total, cotizacion) {
