@@ -85,6 +85,7 @@
 
       <div class="filters">
         <input type="search" id="buscarSiif" placeholder="Buscar requisición, unidad, concepto, proveedor, OC o SP..." aria-label="Buscar seguimiento SIIF">
+        <input type="text" id="filtroImporteSiif" inputmode="decimal" placeholder="Importe exacto, ej. 12500.50" aria-label="Filtrar por importe exacto">
         <select id="filtroEtapaSiif" aria-label="Filtrar por etapa">
           <option value="">Todas las etapas</option>
           <option value="Requisición">Requisición</option>
@@ -159,6 +160,7 @@
     const filtroEtapaSiif = document.getElementById("filtroEtapaSiif");
     const filtroDependenciaSiif = document.getElementById("filtroDependenciaSiif");
     const filtroProveedorSiif = document.getElementById("filtroProveedorSiif");
+    const filtroImporteSiif = document.getElementById("filtroImporteSiif");
 
     function escaparSiif(valor) {
       return String(valor ?? "")
@@ -185,6 +187,21 @@
         style: "currency",
         currency: "MXN"
       });
+    }
+
+    function importeFiltroSiif(valor) {
+      let texto = String(valor || "").trim().replace(/[$\s]/g, "");
+      if (!texto) return null;
+      if (texto.includes(",") && texto.includes(".")) {
+        texto = texto.replace(/,/g, "");
+      } else if (texto.includes(",")) {
+        const partes = texto.split(",");
+        texto = partes.length === 2 && partes[1].length <= 2
+          ? partes[0] + "." + partes[1]
+          : texto.replace(/,/g, "");
+      }
+      const importe = Number(texto);
+      return Number.isFinite(importe) ? importe : NaN;
     }
 
     function tonoEtapaSiif(etapa) {
@@ -281,6 +298,7 @@
       const etapa = filtroEtapaSiif.value;
       const dependencia = filtroDependenciaSiif.value;
       const proveedor = filtroProveedorSiif.value;
+      const importeBuscado = importeFiltroSiif(filtroImporteSiif.value);
       return seguimientoSiif.filter(function (fila) {
         const contenido = normalizarSiif([
           fila.numero_req, fila.oficio_req, fila.unidad, fila.dependencia,
@@ -290,7 +308,9 @@
         return contenido.includes(texto) &&
           (!etapa || fila.etapa_actual === etapa) &&
           (!dependencia || fila.dependencia === dependencia) &&
-          (!proveedor || (fila.proveedores || [fila.proveedor]).includes(proveedor));
+          (!proveedor || (fila.proveedores || [fila.proveedor]).includes(proveedor)) &&
+          (importeBuscado === null || (Number.isFinite(importeBuscado) &&
+            Math.abs(Number(fila.monto || 0) - importeBuscado) < 0.005));
       });
     }
 
@@ -418,7 +438,7 @@
       URL.revokeObjectURL(url);
     }
 
-    [buscarSiif, filtroEtapaSiif, filtroDependenciaSiif, filtroProveedorSiif].forEach(function (control) {
+    [buscarSiif, filtroImporteSiif, filtroEtapaSiif, filtroDependenciaSiif, filtroProveedorSiif].forEach(function (control) {
       control.addEventListener(control.tagName === "INPUT" ? "input" : "change", function () {
         paginaSiif = 1;
         renderizarSeguimientoSiif();

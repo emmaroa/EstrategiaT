@@ -23,6 +23,10 @@
     .cotizaciones-materials-cell { min-width:240px; max-width:360px; white-space:normal; }
     .cotizaciones-materials-list { display:grid; gap:4px; margin:0; padding-left:18px; }
     .cotizaciones-materials-list li { line-height:1.35; }
+    .peticion-view-note { position:relative; width:36px; height:36px; }
+    .peticion-view-note .action-btn { margin:0; }
+    .peticion-note-indicator { position:absolute; top:-5px; right:-5px; display:flex; align-items:center; justify-content:center; width:17px; height:17px; border:2px solid var(--bg-card); border-radius:50%; background:var(--color-warning); color:#111827; pointer-events:none; z-index:1; }
+    .peticion-note-indicator svg { width:9px; height:9px; fill:none; stroke:currentColor; stroke-width:2; }
     @media(max-width:700px) { .cotizaciones-provider-row { grid-template-columns:1fr auto; } .cotizaciones-provider-track { grid-column:1 / -1; grid-row:2; } }
   </style>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -679,6 +683,22 @@
       return AREAS_PETICION.includes(peticion?.area) ? "" : (peticion?.area || "");
     }
 
+    function botonVerPeticionConNota(peticion) {
+      const nota = String(peticion?.nota_proveedor || peticion?.observaciones || "").trim();
+      const boton = ETLayout.iconButton(
+        "ver",
+        nota ? "Ver petición. Tiene una nota" : "Ver petición",
+        "verPeticion('" + peticion.id + "')"
+      );
+      if (!nota) return boton;
+
+      return '<span class="peticion-view-note" title="Esta petición tiene una nota: ' +
+        escaparCotizacionInterna(nota) + '">' + boton +
+        '<span class="peticion-note-indicator" aria-hidden="true">' +
+          '<svg viewBox="0 0 16 16"><path d="M3 2.5h10v8H7l-3 3v-3H3z"/></svg>' +
+        "</span></span>";
+    }
+
     function normalizarPeticion(peticion) {
       return Object.assign({}, peticion, {
         estatus: normalizarEstatusPeticion(peticion?.estatus),
@@ -866,7 +886,7 @@
               (cotizacion ? "✓ Sí" : "No") + "</span></td>" +
             '<td><span class="badge status-badge ' + obtenerClaseEstatusPeticion(p.estatus) + '">' + p.estatus + "</span></td>" +
             '<td><div class="action-grid">' +
-              ETLayout.iconButton("ver", "Ver peticion", "verPeticion('" + p.id + "')") +
+              botonVerPeticionConNota(p) +
               ETLayout.iconButton("historial", "Ver historial", "verHistorialPeticion('" + p.id + "')") +
               (mostrarTextoPedido ? ETLayout.iconButton("copiar", "Copiar texto pedido", "copiarTextoPedido('" + p.id + "')") : "") +
               (puedeEditar ? ETLayout.iconButton("editar", "Editar peticion", "editarPeticion('" + p.id + "')", "edit") : "") +
@@ -1270,9 +1290,17 @@
       alert(existente ? "El proveedor ya existe en el catálogo." : "Proveedor guardado correctamente.");
     }
 
-    function verPeticion(id) {
+    async function verPeticion(id) {
       const p = obtenerPeticionPorId(id);
       if (!p) return;
+
+      let descripcionUnidad = "";
+      if (esPeticionStock(p.unidad)) {
+        descripcionUnidad = "Petición para stock de almacén";
+      } else if (p.unidad) {
+        const unidadParque = await ETPeticiones.buscarUnidadParque(p.unidad);
+        descripcionUnidad = String(unidadParque?.descripcion || "").trim();
+      }
 
       const acciones = [
         {
@@ -1302,7 +1330,7 @@
       ETLayout.abrirFichaDetalle({
         eyebrow: "Petición de almacén",
         title: p.unidad || "Sin unidad",
-        subtitle: "Registrada el " + formatearFecha(p.fecha),
+        subtitle: descripcionUnidad || "Unidad sin descripción registrada",
         status: {
           label: p.estatus || "Sin estatus",
           tone: obtenerClaseEstatusPeticion(p.estatus)
