@@ -6,12 +6,22 @@
   <title>Administración de Talleres | Auditoría</title>
   <link rel="stylesheet" href="../css/style.css">
   <link rel="stylesheet" href="../css/design-system.css?v=20260727-5">
+  <style>
+    .audit-changes { min-width:320px; }
+    .audit-changes summary { cursor:pointer; color:var(--color-info); font-weight:700; }
+    .audit-diff { width:100%; margin-top:8px; border-collapse:collapse; font-size:12px; }
+    .audit-diff th, .audit-diff td { padding:6px 8px; border:1px solid var(--border-color); vertical-align:top; white-space:normal; }
+    .audit-diff th { background:var(--bg-soft); text-align:left; }
+    .audit-before { color:var(--color-danger); }
+    .audit-after { color:var(--color-success); }
+    .audit-no-changes { color:var(--text-secondary); font-size:12px; }
+  </style>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="../js/core/supabase.js"></script>
   <script src="../js/core/permissions.js"></script>
   <script src="../js/core/theme.js"></script>
   <script src="../js/core/layout.js?v=20260724-3"></script>
-  <script src="../login.js"></script>
+  <script src="../login.js?v=20260811-1"></script>
 </head>
 <body class="dashboard-body">
 
@@ -109,6 +119,7 @@
               <th>Módulo</th>
               <th>Acción</th>
               <th>Detalle</th>
+              <th>Cambios</th>
             </tr>
           </thead>
 
@@ -168,6 +179,71 @@
       const minuto = String(date.getMinutes()).padStart(2, "0");
       const segundo = String(date.getSeconds()).padStart(2, "0");
       return dia + "/" + mes + "/" + anio + " " + hora + ":" + minuto + ":" + segundo;
+    }
+
+    function escaparAuditoria(valor) {
+      return String(valor ?? "")
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
+    }
+
+    function obtenerMetadataAuditoria(registro) {
+      if (registro?.metadata && typeof registro.metadata === "object") return registro.metadata;
+      if (typeof registro?.metadata === "string") {
+        try { return JSON.parse(registro.metadata) || {}; } catch (_) { return {}; }
+      }
+      return {};
+    }
+
+    function valorAuditoria(valor) {
+      if (valor === null || valor === undefined || valor === "") return "Sin valor";
+      if (typeof valor === "boolean") return valor ? "Sí" : "No";
+      if (Array.isArray(valor)) {
+        return valor.map(function (item) {
+          return typeof item === "object" ? JSON.stringify(item) : String(item);
+        }).join(", ") || "Sin valor";
+      }
+      if (typeof valor === "object") return JSON.stringify(valor);
+      return String(valor);
+    }
+
+    function etiquetaCampoAuditoria(campo) {
+      return String(campo || "")
+        .replace(/_/g, " ")
+        .replace(/\b\w/g, function (letra) { return letra.toUpperCase(); });
+    }
+
+    function obtenerCambiosAuditoria(registro) {
+      const metadata = obtenerMetadataAuditoria(registro);
+      const antes = metadata.antes || metadata.before || null;
+      const despues = metadata.despues || metadata.after || null;
+      if (!antes || !despues || typeof antes !== "object" || typeof despues !== "object") return [];
+
+      const ignorados = new Set(["id", "created_at", "updated_at"]);
+      return Array.from(new Set(Object.keys(antes).concat(Object.keys(despues))))
+        .filter(function (campo) { return !ignorados.has(campo); })
+        .filter(function (campo) {
+          return JSON.stringify(antes[campo] ?? null) !== JSON.stringify(despues[campo] ?? null);
+        })
+        .map(function (campo) {
+          return { campo: campo, antes: antes[campo], despues: despues[campo] };
+        });
+    }
+
+    function renderCambiosAuditoria(registro) {
+      const cambios = obtenerCambiosAuditoria(registro);
+      if (!cambios.length) return '<span class="audit-no-changes">Sin comparativo disponible</span>';
+      return '<details class="audit-changes"><summary>' + cambios.length +
+        (cambios.length === 1 ? " campo modificado" : " campos modificados") +
+        '</summary><table class="audit-diff"><thead><tr><th>Campo</th><th>Antes</th><th>Nuevo</th></tr></thead><tbody>' +
+        cambios.map(function (cambio) {
+          return "<tr><th>" + escaparAuditoria(etiquetaCampoAuditoria(cambio.campo)) +
+            '</th><td class="audit-before">' + escaparAuditoria(valorAuditoria(cambio.antes)) +
+            '</td><td class="audit-after">' + escaparAuditoria(valorAuditoria(cambio.despues)) + "</td></tr>";
+        }).join("") + "</tbody></table></details>";
     }
 
     async function cargarAuditoriaSupabase() {
@@ -247,7 +323,8 @@
           String(a.rol || "").toLowerCase().includes(texto) ||
           String(a.modulo || "").toLowerCase().includes(texto) ||
           String(a.accion || "").toLowerCase().includes(texto) ||
-          String(a.detalle || "").toLowerCase().includes(texto);
+          String(a.detalle || "").toLowerCase().includes(texto) ||
+          JSON.stringify(obtenerMetadataAuditoria(a)).toLowerCase().includes(texto);
 
         const coincideModulo = modulo === "" || String(a.modulo || "") === modulo;
         const coincideAccion = accion === "" || String(a.accion || "").includes(accion);
@@ -259,14 +336,15 @@
         const fila = document.createElement("tr");
 
         fila.innerHTML = `
-          <td>${a.fecha}</td>
-          <td><strong>${a.usuario}</strong></td>
-          <td>${a.rol}</td>
+          <td>${escaparAuditoria(a.fecha)}</td>
+          <td><strong>${escaparAuditoria(a.usuario)}</strong></td>
+          <td>${escaparAuditoria(a.rol)}</td>
           <td>
-            <span class="badge blue">${a.modulo}</span>
+            <span class="badge blue">${escaparAuditoria(a.modulo)}</span>
           </td>
-          <td>${a.accion}</td>
-          <td>${a.detalle}</td>
+          <td>${escaparAuditoria(a.accion)}</td>
+          <td>${escaparAuditoria(a.detalle)}</td>
+          <td>${renderCambiosAuditoria(a)}</td>
         `;
 
         tablaAuditoria.appendChild(fila);

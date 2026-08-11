@@ -32,7 +32,7 @@
   <script src="../js/core/layout.js?v=20260725-3"></script>
   <script src="../js/services/peticiones.service.js?v=20260727-1"></script>
   <script src="../js/services/cotizaciones-almacen.service.js?v=20260810-1"></script>
-  <script src="../login.js?v=20260727-1"></script>
+  <script src="../login.js?v=20260811-1"></script>
 </head>
 <body class="dashboard-body">
 
@@ -1926,7 +1926,7 @@
       }
       const partida = document.getElementById("partidaCotizacionInterna").value;
       const requisicion = document.getElementById("requisicionCotizacionInterna").value.trim();
-      const { error } = await ETCotizacionesAlmacen.actualizarInterna(cotizacion.id, {
+      const datosActualizadosCotizacion = {
         folio: folio,
         proveedor: proveedor,
         fecha_cotizacion: fechaCotizacion,
@@ -1940,7 +1940,11 @@
         requisicion: requisicion || null,
         materiales: materiales,
         observaciones: document.getElementById("observacionesCotizacionInterna").value.trim() || null
-      });
+      };
+      const { data: cotizacionActualizada, error } = await ETCotizacionesAlmacen.actualizarInterna(
+        cotizacion.id,
+        datosActualizadosCotizacion
+      );
       if (error) {
         alert("No se pudieron guardar los datos internos: " + error.message);
         return;
@@ -1948,7 +1952,11 @@
       if (typeof registrarAuditoria === "function") {
         registrarAuditoria("Gestión de Cotizaciones", "Editó cotización", folio, {
           entidad_tipo: "cotizaciones_almacen",
-          entidad_id: cotizacion.id
+          entidad_id: cotizacion.id,
+          metadata: {
+            antes: cotizacion,
+            despues: cotizacionActualizada || Object.assign({}, cotizacion, datosActualizadosCotizacion)
+          }
         });
       }
       cerrarDatosInternosCotizacion();

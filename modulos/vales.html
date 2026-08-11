@@ -13,7 +13,7 @@
   <script src="../js/core/theme.js"></script>
   <script src="../js/core/layout.js?v=20260727-3"></script>
   <script src="../js/services/proveedores.service.js?v=20260728-1"></script>
-  <script src="../login.js?v=20260725-1"></script>
+  <script src="../login.js?v=20260811-1"></script>
 </head>
 
 <body class="dashboard-body">
@@ -628,6 +628,7 @@ unidadVale?.addEventListener("blur", async function () {
 
         registrarAuditoria("Vales", "Creó nuevo vale", nuevo.folio + " - Unidad " + nuevo.unidad);
       } else {
+        const valeAnterior = obtenerValePorId(idEditandoVale);
         const { data: valeActualizado, error } = await supabaseClient
           .from("vales")
           .update(nuevo)
@@ -647,7 +648,11 @@ unidadVale?.addEventListener("blur", async function () {
           return;
         }
 
-        registrarAuditoria("Vales", "Editó vale", nuevo.folio + " - Unidad " + nuevo.unidad);
+        registrarAuditoria("Vales", "Editó vale", nuevo.folio + " - Unidad " + nuevo.unidad, {
+          entidad_tipo: "vales",
+          entidad_id: idEditandoVale,
+          metadata: { antes: valeAnterior || null, despues: Object.assign({}, valeAnterior || {}, nuevo) }
+        });
       }
 
       cerrarModalVale();

@@ -4,6 +4,8 @@
   const LOGIN_SUPABASE_KEY = "sb_publishable_f_1SKtetMWPSNmZ5eSRaOw_RYtHenaR";
 
   let loginSupabaseClient = null;
+  const DURACION_SESION_MS = 8 * 60 * 60 * 1000;
+  let temporizadorExpiracionSesion = null;
 
   if (typeof supabase !== "undefined") {
     loginSupabaseClient = supabase.createClient(
@@ -85,8 +87,62 @@
     }
   }
 
-  function obtenerUsuarioActivo() {
+  function obtenerUsuarioActivoAlmacenado() {
     return parseJSON(localStorage.getItem("usuarioActivo"));
+  }
+
+  function esSesionVigente(usuario) {
+    const expiraEn = Number(usuario && usuario.sesion_expira_en);
+    return Number.isFinite(expiraEn) && expiraEn > Date.now();
+  }
+
+  function obtenerUsuarioActivo() {
+    const usuario = obtenerUsuarioActivoAlmacenado();
+    if (!usuario) return null;
+    if (esSesionVigente(usuario)) return usuario;
+    localStorage.removeItem("usuarioActivo");
+    return null;
+  }
+
+  function esPantallaLogin() {
+    const ruta = String(window.location.pathname || "").toLowerCase();
+    return ruta.endsWith("/index.html") || (!ruta.includes("/modulos/") && !ruta.endsWith("/dashboard.html"));
+  }
+
+  function cerrarSesionExpirada() {
+    if (temporizadorExpiracionSesion) {
+      clearTimeout(temporizadorExpiracionSesion);
+      temporizadorExpiracionSesion = null;
+    }
+    localStorage.removeItem("usuarioActivo");
+    if (!esPantallaLogin()) {
+      alert("Tu sesión de 8 horas terminó. Inicia sesión nuevamente.");
+      window.location.replace(resolverRutaLogin());
+    }
+  }
+
+  function programarExpiracionSesion(usuario) {
+    if (temporizadorExpiracionSesion) clearTimeout(temporizadorExpiracionSesion);
+    temporizadorExpiracionSesion = null;
+    if (!usuario) return;
+
+    const restante = Number(usuario.sesion_expira_en) - Date.now();
+    if (!Number.isFinite(restante) || restante <= 0) {
+      cerrarSesionExpirada();
+      return;
+    }
+
+    temporizadorExpiracionSesion = setTimeout(cerrarSesionExpirada, restante);
+  }
+
+  function validarVigenciaSesion() {
+    const usuario = obtenerUsuarioActivoAlmacenado();
+    if (!usuario) return;
+    if (!esSesionVigente(usuario)) {
+      cerrarSesionExpirada();
+      return;
+    }
+    programarExpiracionSesion(usuario);
   }
 
   function formatearFechaHoraAuditoria(fecha) {
@@ -189,6 +245,7 @@
     }
 
     const rolNormalizado = normalizarRolLogin(data.rol);
+    const inicioSesion = Date.now();
     const usuarioActivo = {
       id: data.id,
       nombre: data.nombre,
@@ -201,10 +258,13 @@
       proveedores_permitidos: Array.isArray(data.proveedores_permitidos)
         ? data.proveedores_permitidos
         : (data.proveedor ? [data.proveedor] : []),
-      modulos: obtenerModulosUsuario(data)
+      modulos: obtenerModulosUsuario(data),
+      sesion_iniciada_en: inicioSesion,
+      sesion_expira_en: inicioSesion + DURACION_SESION_MS
     };
 
     localStorage.setItem("usuarioActivo", JSON.stringify(usuarioActivo));
+    programarExpiracionSesion(usuarioActivo);
 
     if (typeof registrarAuditoria === "function") {
       registrarAuditoria("Login", "Inicio de sesión", usuarioActivo.usuario);
@@ -327,6 +387,10 @@
     if (usuarioActivo && typeof registrarAuditoria === "function") {
       registrarAuditoria("Login", "Cierre de sesión", usuarioActivo.usuario);
     }
+    if (temporizadorExpiracionSesion) {
+      clearTimeout(temporizadorExpiracionSesion);
+      temporizadorExpiracionSesion = null;
+    }
     localStorage.removeItem("usuarioActivo");
     window.location.href = resolverRutaLogin();
   };
@@ -403,5 +467,11 @@
     if (!usuarioActivo) return true;
     return usuarioActivo.rol === "Solo Lectura" || usuarioActivo.rol === "Consulta";
   };
+
+  validarVigenciaSesion();
+  document.addEventListener("visibilitychange", function () {
+    if (!document.hidden) validarVigenciaSesion();
+  });
+  window.addEventListener("focus", validarVigenciaSesion);
 
 })();

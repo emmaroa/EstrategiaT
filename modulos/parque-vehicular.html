@@ -13,7 +13,7 @@
   <script src="../js/core/permissions.js?v=20260727-4"></script>
   <script src="../js/core/theme.js"></script>
   <script src="../js/core/layout.js?v=20260724-3"></script>
-  <script src="../login.js"></script>
+  <script src="../login.js?v=20260811-1"></script>
 </head>
 
 <body class="dashboard-body">
@@ -783,6 +783,7 @@
           registrarAuditoria("Parque Vehicular", "Creó unidad", nueva.unidad_patrulla || nueva.numero_inventario);
         }
       } else {
+        const unidadAnterior = obtenerUnidadPorId(idEditandoUnidad);
         const { error } = await supabaseClient
           .from("parque_vehicular")
           .update(nueva)
@@ -795,7 +796,11 @@
         }
 
         if (typeof registrarAuditoria === "function") {
-          registrarAuditoria("Parque Vehicular", "Editó unidad", nueva.unidad_patrulla || nueva.numero_inventario);
+          registrarAuditoria("Parque Vehicular", "Editó unidad", nueva.unidad_patrulla || nueva.numero_inventario, {
+            entidad_tipo: "parque_vehicular",
+            entidad_id: idEditandoUnidad,
+            metadata: { antes: unidadAnterior || null, despues: Object.assign({}, unidadAnterior || {}, nueva) }
+          });
         }
       }
 
