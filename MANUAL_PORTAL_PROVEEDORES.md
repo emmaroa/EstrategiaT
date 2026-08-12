@@ -181,7 +181,7 @@ Esta vista muestra:
 
 ### 6.2 Consultar cotizaciones
 
-La tabla incluye folio, fecha de entrega, unidad, número de requisición, total, estatus y acciones.
+La tabla incluye folio, fecha de entrega, unidad, número de requisición, total, estatus, notas y acciones.
 
 Puede localizar registros mediante:
 
@@ -254,7 +254,7 @@ Si no se abre, permita las ventanas emergentes para el sitio e inténtelo nuevam
 
 1. Aplique los filtros de búsqueda, estatus y fecha que necesite.
 2. Seleccione **Exportar todas las cotizaciones**.
-3. El sistema descargará exclusivamente las cotizaciones del proveedor activo que coincidan con los filtros, tanto con trámite como sin trámite. El archivo identifica al proveedor e incluye todos los datos disponibles: petición, unidad, serie, dependencia, materiales con cantidades y precios, importes, partida, número de requisición, confirmación en portal, estatus, notas y fechas de registro.
+3. El sistema descargará exclusivamente las cotizaciones sin trámite del proveedor activo que coincidan con los filtros. El archivo incluye proveedor, folio, fechas de cotización y entrega, unidad, dependencia, materiales, total, número de requisición, estatus y notas.
 
 ## 7. Significado de estatus frecuentes
 
