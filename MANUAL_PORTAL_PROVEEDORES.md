@@ -150,7 +150,7 @@ Esta sección permite consultar el avance administrativo de los trámites. La ta
 - Proveedor asignado.
 - Estatus.
 
-También pueden aparecer requisiciones que todavía no tienen proveedor, como referencia para su localización y seguimiento.
+Sólo aparecen requisiciones vinculadas con el proveedor activo permitido para la cuenta. Las requisiciones sin proveedor o asignadas a otra empresa no son visibles.
 
 #### Buscar y filtrar trámites
 
@@ -166,6 +166,8 @@ Seleccione **Exportar hoja de cálculo**. El archivo descargado respetará la b�
 
 La opción **Cotizaciones Proveedor** muestra exclusivamente las cotizaciones vinculadas con la empresa del usuario.
 
+Si la cuenta tiene varios proveedores permitidos, sólo se muestran las cotizaciones del proveedor activo seleccionado en el encabezado; nunca se mezclan cotizaciones de otros proveedores.
+
 ### 6.1 Indicadores de cotizaciones
 
 Esta vista muestra:
@@ -173,12 +175,13 @@ Esta vista muestra:
 - **Total de cotizaciones.**
 - **Sin trámite:** cotizaciones sin requisición asignada.
 - **Con requisición:** cotizaciones vinculadas a un trámite.
+- **Requisiciones por cotizar:** cotizaciones con número de requisición que todavía no se confirman como cotizadas en el portal de compras.
 - **Pendientes de revisión.**
 - **Monto sin trámite:** importe acumulado de cotizaciones sin requisición.
 
 ### 6.2 Consultar cotizaciones
 
-La tabla incluye folio, fechas, origen, petición relacionada, unidad, dependencia, materiales, importes, estatus, requisición y notas.
+La tabla incluye folio, fecha de entrega, unidad, número de requisición, total, estatus y acciones.
 
 Puede localizar registros mediante:
 
@@ -247,11 +250,11 @@ El comprobante contiene proveedor, folio, fechas, unidad, dependencia, estatus, 
 
 Si no se abre, permita las ventanas emergentes para el sitio e inténtelo nuevamente.
 
-### 6.6 Exportar cotizaciones sin trámite
+### 6.6 Exportar cotizaciones
 
 1. Aplique los filtros de búsqueda, estatus y fecha que necesite.
-2. Seleccione **Exportar cotizaciones sin trámite**.
-3. El sistema descargará únicamente las cotizaciones filtradas que todavía no tengan requisición.
+2. Seleccione **Exportar todas las cotizaciones**.
+3. El sistema descargará exclusivamente las cotizaciones del proveedor activo que coincidan con los filtros, tanto con trámite como sin trámite. El archivo identifica al proveedor e incluye todos los datos disponibles: petición, unidad, serie, dependencia, materiales con cantidades y precios, importes, partida, número de requisición, confirmación en portal, estatus, notas y fechas de registro.
 
 ## 7. Significado de estatus frecuentes
 
