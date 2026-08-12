@@ -627,6 +627,11 @@
         });
     }
 
+    function cotizacionTieneRequisicion(cotizacion) {
+      return Boolean(String(cotizacion?.requisicion || "").trim()) ||
+        normalizarPortal(cotizacion?.estatus).includes("requisicion generada");
+    }
+
     function normalizarRequisicionInicialSiif(tramite) {
       return {
         id: tramite.id,
@@ -727,7 +732,7 @@
           JSON.stringify(cotizacion.materiales || []),
           cotizacion.estatus
         ].join(" "));
-        const tieneTramite = Boolean(String(cotizacion.requisicion || "").trim());
+        const tieneTramite = cotizacionTieneRequisicion(cotizacion);
         const fecha = String(cotizacion.fecha_cotizacion || cotizacion.fecha_entrega || "").slice(0, 10);
         return cotizacionPerteneceAlUsuario(cotizacion) &&
           contenido.includes(texto) &&
@@ -1006,10 +1011,10 @@
       renderizarResumenSiifProveedor();
       document.getElementById("kpiCotizacionesAlmacen").textContent = cotizacionesAlmacenProveedor.length;
       document.getElementById("kpiCotizacionesSinTramite").textContent = cotizacionesAlmacenProveedor.filter(function (cotizacion) {
-        return !String(cotizacion.requisicion || "").trim();
+        return !cotizacionTieneRequisicion(cotizacion);
       }).length;
       document.getElementById("kpiCotizacionesConTramite").textContent = cotizacionesAlmacenProveedor.filter(function (cotizacion) {
-        return Boolean(String(cotizacion.requisicion || "").trim());
+        return cotizacionTieneRequisicion(cotizacion);
       }).length;
       document.getElementById("kpiCotizacionesPendientesPortalCompras").textContent = cotizacionesAlmacenProveedor.filter(function (cotizacion) {
         return Boolean(String(cotizacion.requisicion || "").trim()) && !cotizacion.cotizado_portal_compras;
@@ -1024,7 +1029,7 @@
         return normalizarPortal(cotizacion.estatus).includes("pendiente");
       }).length;
       const totalSinTramite = cotizacionesAlmacenProveedor.reduce(function (acumulado, cotizacion) {
-        return acumulado + (!String(cotizacion.requisicion || "").trim() ? Number(cotizacion.total || 0) : 0);
+        return acumulado + (!cotizacionTieneRequisicion(cotizacion) ? Number(cotizacion.total || 0) : 0);
       }, 0);
       document.getElementById("kpiTotalCotizacionesSinTramite").textContent =
         importePortal(totalSinTramite);

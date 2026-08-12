@@ -104,14 +104,13 @@
       <div class="kpi-card"><span>Monto total sin requisición</span><h2 id="kpiCotInternasMontoSinTramite">$0.00</h2><p>Importe pendiente de vincular</p></div>
       <div class="kpi-card"><span>Con requisición</span><h2 id="kpiCotInternasConTramite">0</h2><p>Trámite asignado</p></div>
       <div class="kpi-card"><span>Sin partida</span><h2 id="kpiCotInternasSinPartida">0</h2><p>Requieren clasificación</p></div>
-      <div class="kpi-card"><span>Monto total</span><h2 id="kpiCotInternasMonto">$0.00</h2><p>Importe acumulado</p></div>
     </section>
 
     <section class="chart-card" id="graficaMontoProveedorCotizaciones" aria-labelledby="tituloGraficaMontoProveedorCotizaciones">
       <div class="panel-header">
         <div>
-          <h2 id="tituloGraficaMontoProveedorCotizaciones">Monto total por proveedor</h2>
-          <p>Importe acumulado de las cotizaciones registradas.</p>
+          <h2 id="tituloGraficaMontoProveedorCotizaciones">Monto sin requisición por proveedor</h2>
+          <p>Importe pendiente de vincular; no incluye cotizaciones con requisición generada.</p>
         </div>
       </div>
       <div class="cotizaciones-provider-chart" id="barrasMontoProveedorCotizaciones"></div>
@@ -1758,6 +1757,11 @@
       }).join("") + "</ul>";
     }
 
+    function cotizacionTieneRequisicion(cotizacion) {
+      return Boolean(String(cotizacion?.requisicion || "").trim()) ||
+        normalizarTextoPeticion(cotizacion?.estatus).includes("requisicion generada");
+    }
+
     function obtenerCotizacionesGestionFiltradas() {
       const texto = normalizarTextoPeticion(buscarGestionCotizaciones?.value);
       const proveedor = String(filtroProveedorGestionCotizaciones?.value || "");
@@ -1772,7 +1776,7 @@
           cotizacion.dependencia, cotizacion.requisicion, cotizacion.partida,
           textoMaterialesCotizacion(cotizacion, false)
         ].join(" "));
-        const tieneTramite = Boolean(String(cotizacion.requisicion || "").trim());
+        const tieneTramite = cotizacionTieneRequisicion(cotizacion);
         const tienePartida = Boolean(String(cotizacion.partida || "").trim());
         const fecha = String(cotizacion.fecha_cotizacion || cotizacion.fecha_entrega || "").slice(0, 10);
         return contenido.includes(texto) &&
@@ -1805,7 +1809,11 @@
     function renderizarGraficaMontoProveedorCotizaciones() {
       const contenedor = document.getElementById("barrasMontoProveedorCotizaciones");
       if (!contenedor) return;
-      const acumulado = cotizacionesAlmacen.reduce(function (resultado, cotizacion) {
+      const cotizacionesPendientes = cotizacionesAlmacen.filter(function (cotizacion) {
+        return normalizarTextoPeticion(cotizacion.estatus) !== "rechazada" &&
+          !cotizacionTieneRequisicion(cotizacion);
+      });
+      const acumulado = cotizacionesPendientes.reduce(function (resultado, cotizacion) {
         const proveedor = String(cotizacion.proveedor || "Sin proveedor").trim() || "Sin proveedor";
         resultado[proveedor] = (resultado[proveedor] || 0) + Number(cotizacion.total || 0);
         return resultado;
@@ -1832,18 +1840,20 @@
 
       poblarProveedoresGestionCotizaciones();
       const cotizacionesFiltradas = obtenerCotizacionesGestionFiltradas();
-      const cotizacionesParaKpis = cotizacionesAlmacen.filter(function (cotizacion) {
-        const estatus = normalizarTextoPeticion(cotizacion.estatus);
-        return estatus !== "requisicion generada" && estatus !== "rechazada";
+      const cotizacionesValidas = cotizacionesAlmacen.filter(function (cotizacion) {
+        return normalizarTextoPeticion(cotizacion.estatus) !== "rechazada";
       });
-      document.getElementById("kpiCotInternasTotal").textContent = cotizacionesParaKpis.length;
-      document.getElementById("kpiCotInternasSinTramite").textContent = cotizacionesParaKpis.filter(function (cotizacion) { return !String(cotizacion.requisicion || "").trim(); }).length;
-      document.getElementById("kpiCotInternasMontoSinTramite").textContent = monedaCotizacionInterna(cotizacionesParaKpis.reduce(function (total, cotizacion) {
-        return total + (!String(cotizacion.requisicion || "").trim() ? Number(cotizacion.total || 0) : 0);
+      const cotizacionesConRequisicion = cotizacionesValidas.filter(cotizacionTieneRequisicion);
+      const cotizacionesSinRequisicion = cotizacionesValidas.filter(function (cotizacion) {
+        return !cotizacionTieneRequisicion(cotizacion);
+      });
+      document.getElementById("kpiCotInternasTotal").textContent = cotizacionesValidas.length;
+      document.getElementById("kpiCotInternasSinTramite").textContent = cotizacionesSinRequisicion.length;
+      document.getElementById("kpiCotInternasMontoSinTramite").textContent = monedaCotizacionInterna(cotizacionesSinRequisicion.reduce(function (total, cotizacion) {
+        return total + Number(cotizacion.total || 0);
       }, 0));
-      document.getElementById("kpiCotInternasConTramite").textContent = cotizacionesParaKpis.filter(function (cotizacion) { return Boolean(String(cotizacion.requisicion || "").trim()); }).length;
-      document.getElementById("kpiCotInternasSinPartida").textContent = cotizacionesParaKpis.filter(function (cotizacion) { return !String(cotizacion.partida || "").trim(); }).length;
-      document.getElementById("kpiCotInternasMonto").textContent = monedaCotizacionInterna(cotizacionesParaKpis.reduce(function (total, cotizacion) { return total + Number(cotizacion.total || 0); }, 0));
+      document.getElementById("kpiCotInternasConTramite").textContent = cotizacionesConRequisicion.length;
+      document.getElementById("kpiCotInternasSinPartida").textContent = cotizacionesValidas.filter(function (cotizacion) { return !String(cotizacion.partida || "").trim(); }).length;
       renderizarGraficaMontoProveedorCotizaciones();
 
       tabla.innerHTML = cotizacionesFiltradas.length
