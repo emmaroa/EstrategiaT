@@ -181,13 +181,14 @@ Esta vista muestra:
 
 ### 6.2 Consultar cotizaciones
 
-La tabla incluye folio, fecha de entrega, unidad, número de requisición, total, estatus, notas y acciones.
+La tabla incluye folio, fecha de entrega, unidad, número de requisición, materiales, total, estatus, notas y acciones. Materiales y notas se muestran de forma compacta; coloque el cursor sobre el texto para consultar el contenido completo.
 
 Puede localizar registros mediante:
 
 - Buscador por unidad, descripción o documento.
 - Filtro de estatus.
 - Filtro **Con y sin trámite**, **Sin trámite** o **Con requisición**.
+- El buscador permite localizar cotizaciones por número de requisición, monto, folio, unidad, materiales o notas. La requisición puede escribirse con o sin guiones o espacios.
 - Fechas **Desde** y **Hasta**.
 
 Los filtros se aplican inmediatamente.

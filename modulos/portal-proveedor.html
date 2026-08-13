@@ -63,6 +63,9 @@
     .portal-action-button.is-confirm:hover:not(:disabled) { background:#166534; border-color:#166534; box-shadow:0 6px 16px rgba(21, 128, 61, .25); }
     .portal-action-button.is-complete { border:1px solid color-mix(in srgb, var(--color-success, #22c55e) 35%, transparent); background:color-mix(in srgb, var(--color-success, #22c55e) 12%, transparent); color:#15803d; box-shadow:none; cursor:default; opacity:1; }
     .portal-quote-actions { display:flex; align-items:center; justify-content:flex-end; gap:7px; min-width:310px; }
+    .portal-table-materials { min-width:180px; max-width:260px; line-height:1.35; }
+    .portal-table-notes { width:160px; max-width:160px; }
+    .portal-table-clamp { display:-webkit-box; overflow:hidden; -webkit-box-orient:vertical; -webkit-line-clamp:2; line-clamp:2; overflow-wrap:anywhere; color:var(--text-secondary, #475569); line-height:1.35; }
     .portal-action-button.is-edit { border:1px solid color-mix(in srgb, var(--color-info, #3b82f6) 45%, var(--border-subtle, #cbd5e1)); background:color-mix(in srgb, var(--color-info, #3b82f6) 9%, var(--bg-card, #fff)); color:var(--color-info, #2563eb); }
     .portal-action-button.is-edit:hover:not(:disabled) { border-color:var(--color-info, #2563eb); background:color-mix(in srgb, var(--color-info, #3b82f6) 15%, var(--bg-card, #fff)); }
     .portal-action-button.is-print { border:1px solid var(--border-subtle, #cbd5e1); background:transparent; color:var(--text-secondary, #475569); }
@@ -223,7 +226,7 @@
         <button type="button" class="btn-small" id="btnNuevaCotizacionAlmacen">Registrar entrega sin petición</button>
       </div>
       <div class="filters">
-        <input type="search" id="buscarCotizacionesAlmacen" placeholder="Buscar por unidad, descripción o documento..." aria-label="Buscar cotizaciones de almacén">
+        <input type="search" id="buscarCotizacionesAlmacen" placeholder="Buscar por requisición, folio, unidad, material, monto o notas..." aria-label="Buscar cotizaciones por requisición, folio, unidad, material, monto o notas">
         <select id="filtroEstatusCotizacionesAlmacen" aria-label="Filtrar cotizaciones por estatus">
           <option value="">Todos los estatus</option>
         </select>
@@ -234,8 +237,6 @@
         </select>
         <label>Desde <input type="date" id="fechaDesdeCotizacionesAlmacen" aria-label="Cotizaciones desde"></label>
         <label>Hasta <input type="date" id="fechaHastaCotizacionesAlmacen" aria-label="Cotizaciones hasta"></label>
-        <label>Monto mínimo <input type="number" id="montoMinimoCotizacionesAlmacen" min="0" step="0.01" placeholder="0.00" aria-label="Monto mínimo"></label>
-        <label>Monto máximo <input type="number" id="montoMaximoCotizacionesAlmacen" min="0" step="0.01" placeholder="Sin límite" aria-label="Monto máximo"></label>
       </div>
       <div class="table-container">
         <table>
@@ -245,6 +246,7 @@
               <th>Fecha entrega</th>
               <th>Unidad</th>
               <th>Requisición</th>
+              <th>Materiales</th>
               <th>Total</th>
               <th>Estatus</th>
               <th>Notas</th>
@@ -482,8 +484,6 @@
     const filtroTramiteCotizacionesAlmacen = document.getElementById("filtroTramiteCotizacionesAlmacen");
     const fechaDesdeCotizacionesAlmacen = document.getElementById("fechaDesdeCotizacionesAlmacen");
     const fechaHastaCotizacionesAlmacen = document.getElementById("fechaHastaCotizacionesAlmacen");
-    const montoMinimoCotizacionesAlmacen = document.getElementById("montoMinimoCotizacionesAlmacen");
-    const montoMaximoCotizacionesAlmacen = document.getElementById("montoMaximoCotizacionesAlmacen");
     const selectorProveedorPortal = document.getElementById("selectorProveedorPortal");
 
     function inicializarSelectorProveedorPortal() {
@@ -719,13 +719,13 @@
 
     function obtenerCotizacionesFiltradasProveedor() {
       const texto = normalizarPortal(buscarCotizacionesAlmacen?.value);
+      const textoRequisicion = texto.replace(/[^a-z0-9]/g, "");
       const estatus = String(filtroEstatusCotizacionesAlmacen?.value || "");
       const tramite = String(filtroTramiteCotizacionesAlmacen?.value || "");
       const fechaDesde = String(fechaDesdeCotizacionesAlmacen?.value || "");
       const fechaHasta = String(fechaHastaCotizacionesAlmacen?.value || "");
-      const montoMinimo = montoMinimoCotizacionesAlmacen?.value === "" ? null : Number(montoMinimoCotizacionesAlmacen.value);
-      const montoMaximo = montoMaximoCotizacionesAlmacen?.value === "" ? null : Number(montoMaximoCotizacionesAlmacen.value);
       return cotizacionesAlmacenProveedor.filter(function (cotizacion) {
+        const requisicionNormalizada = normalizarPortal(cotizacion.requisicion).replace(/[^a-z0-9]/g, "");
         const contenido = normalizarPortal([
           cotizacion.folio,
           cotizacion.fecha_cotizacion,
@@ -735,21 +735,20 @@
           cotizacion.numero_serie,
           cotizacion.dependencia,
           cotizacion.requisicion,
+          cotizacion.total,
+          importePortal(cotizacion.total),
           cotizacion.observaciones,
           JSON.stringify(cotizacion.materiales || []),
           cotizacion.estatus
         ].join(" "));
         const tieneTramite = cotizacionTieneRequisicion(cotizacion);
         const fecha = String(cotizacion.fecha_cotizacion || cotizacion.fecha_entrega || "").slice(0, 10);
-        const monto = Number(cotizacion.total || 0);
         return cotizacionPerteneceAlUsuario(cotizacion) &&
-          contenido.includes(texto) &&
+          (contenido.includes(texto) || Boolean(textoRequisicion && requisicionNormalizada.includes(textoRequisicion))) &&
           (!estatus || cotizacion.estatus === estatus) &&
           (!tramite || (tramite === "con-tramite" ? tieneTramite : !tieneTramite)) &&
           (!fechaDesde || fecha >= fechaDesde) &&
-          (!fechaHasta || fecha <= fechaHasta) &&
-          (montoMinimo === null || monto >= montoMinimo) &&
-          (montoMaximo === null || monto <= montoMaximo);
+          (!fechaHasta || fecha <= fechaHasta);
       });
     }
 
@@ -949,15 +948,20 @@
             const materiales = (cotizacion.materiales || []).map(function (material) {
               return escaparPortal(material.cantidad) + " × " + escaparPortal(material.item);
             }).join("<br>");
+            const materialesTexto = (cotizacion.materiales || []).map(function (material) {
+              return String(material.cantidad || 0) + " × " + String(material.item || "");
+            }).join("; ") || "Sin materiales";
+            const notasTexto = String(cotizacion.observaciones || "Sin notas");
             return "<tr>" +
               "<td><strong>" + escaparPortal(cotizacion.folio || "—") + "</strong></td>" +
               "<td>" + fechaPortal(cotizacion.fecha_entrega) + "</td>" +
               "<td><strong>" + escaparPortal(cotizacion.unidad || "—") + "</strong></td>" +
               "<td><strong>" + escaparPortal(cotizacion.requisicion || "Sin requisición") + "</strong></td>" +
+              '<td class="portal-table-materials"><div class="portal-table-clamp" title="' + escaparPortal(materialesTexto) + '">' + materiales + "</div></td>" +
               "<td><strong>" + escaparPortal(importePortal(cotizacion.total)) + "</strong></td>" +
               '<td><span class="badge status-badge ' + tonoCotizacionPortal(cotizacion.estatus) + '">' +
                 escaparPortal(cotizacion.estatus || "Pendiente de revisión") + "</span></td>" +
-              "<td>" + escaparPortal(cotizacion.observaciones || "Sin notas") + "</td>" +
+              '<td class="portal-table-notes"><div class="portal-table-clamp" title="' + escaparPortal(notasTexto) + '">' + escaparPortal(notasTexto) + "</div></td>" +
               '<td><div class="portal-quote-actions">' +
                 '<button type="button" class="portal-action-button is-detail" onclick="verDetalleCotizacionProveedor(\'' + cotizacion.id + '\')">' +
                   '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M2 12s3.5-6 10-6 10 6 10 6-3.5 6-10 6S2 12 2 12Z"/><circle cx="12" cy="12" r="3"/></svg><span>Ver</span></button>' +
@@ -970,7 +974,7 @@
                   '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 9V3h12v6M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2M6 14h12v7H6z"/></svg><span>Imprimir</span></button>' +
                 '</div></td></tr>';
           }).join("")
-        : '<tr><td colspan="8">No hay cotizaciones que coincidan con los filtros.</td></tr>';
+        : '<tr><td colspan="9">No hay cotizaciones que coincidan con los filtros.</td></tr>';
 
       tablaRequisiciones.innerHTML = requisicionesFiltradas.length
         ? requisicionesFiltradas.map(function (requisicion) {
@@ -1497,9 +1501,7 @@
       filtroEstatusCotizacionesAlmacen,
       filtroTramiteCotizacionesAlmacen,
       fechaDesdeCotizacionesAlmacen,
-      fechaHastaCotizacionesAlmacen,
-      montoMinimoCotizacionesAlmacen,
-      montoMaximoCotizacionesAlmacen
+      fechaHastaCotizacionesAlmacen
     ].forEach(function (control) {
       control?.addEventListener(control.tagName === "INPUT" ? "input" : "change", renderizarPortalProveedor);
     });
