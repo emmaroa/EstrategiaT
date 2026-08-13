@@ -35,14 +35,18 @@
     .portal-collapse-button { min-width:42px; padding-inline:12px; font-size:18px; line-height:1; }
     .portal-module.is-collapsed .portal-collapse-button { transform:rotate(-90deg); }
     .portal-siif-updated { display:inline-flex; margin-top:9px; padding:6px 10px; border:1px solid color-mix(in srgb, var(--color-info) 35%, var(--border-subtle)); border-radius:999px; background:color-mix(in srgb, var(--color-info) 10%, transparent); color:var(--text-secondary); font-size:12px; font-weight:700; }
-    #kpisCotizaciones, #moduloCotizaciones { display:none; }
+    #kpisCotizaciones, #moduloCotizaciones, #moduloResumenSiif, #moduloPeticiones, #moduloSeguimientoSiif { display:none; }
+    .portal-peticiones-view #guiaPortalProveedor,
+    .portal-peticiones-view #kpisPortalGeneral,
+    .portal-cotizaciones-view #guiaPortalProveedor,
     .portal-cotizaciones-view #kpisPortalGeneral,
-    .portal-cotizaciones-view #moduloResumenSiif,
-    .portal-cotizaciones-view #moduloPeticiones,
-    .portal-cotizaciones-view #moduloSeguimientoSiif { display:none; }
-    .portal-cotizaciones-view #guiaPortalProveedor { display:none; }
-    .portal-cotizaciones-view #kpisCotizaciones { display:grid; }
+    .portal-siif-view #guiaPortalProveedor,
+    .portal-siif-view #kpisPortalGeneral { display:none; }
+    .portal-peticiones-view #moduloPeticiones { display:block; }
     .portal-cotizaciones-view #moduloCotizaciones { display:block; }
+    .portal-dashboard-view #kpisCotizaciones { display:grid; }
+    .portal-siif-view #moduloResumenSiif,
+    .portal-siif-view #moduloSeguimientoSiif { display:block; }
     .portal-welcome { margin-bottom:18px; padding:20px; border:1px solid color-mix(in srgb, var(--color-info, #3b82f6) 28%, var(--border-subtle, #e5e7eb)); border-radius:18px; background:linear-gradient(135deg, color-mix(in srgb, var(--color-info, #3b82f6) 10%, var(--bg-card, #fff)), var(--bg-card, #fff)); }
     .portal-welcome h2 { margin:0 0 5px; font-size:1.15rem; }
     .portal-welcome > p { margin:0; color:var(--text-secondary, #475569); }
@@ -98,11 +102,11 @@
   </style>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="../js/core/supabase.js"></script>
-  <script src="../js/core/permissions.js?v=20260725-3"></script>
+  <script src="../js/core/permissions.js?v=20260812-1"></script>
   <script src="../js/core/theme.js"></script>
-  <script src="../js/core/layout.js?v=20260725-3"></script>
+  <script src="../js/core/layout.js?v=20260812-1"></script>
   <script src="../js/services/cotizaciones-almacen.service.js?v=20260805-1"></script>
-  <script src="../login.js?v=20260811-1"></script>
+  <script src="../login.js?v=20260812-1"></script>
 </head>
 <body class="dashboard-body portal-proveedor-body">
   <aside class="sidebar">
@@ -136,7 +140,7 @@
       <h2 id="tituloGuiaPortal">¿Qué necesitas hacer hoy?</h2>
       <p>Empieza por tus pendientes. También puedes consultar el avance de un trámite cuando lo necesites.</p>
       <div class="portal-next-actions">
-        <a class="portal-next-action" href="#moduloPeticiones" id="accesoEntregasPendientes">
+        <a class="portal-next-action" href="portal-proveedor.html?vista=peticiones" id="accesoEntregasPendientes">
           <span class="portal-action-count is-warning" id="resumenPendientesEntrega">0</span>
           <span><strong>Confirmar entregas</strong><small>Revisa materiales que todavía aparecen pendientes.</small></span>
         </a>
@@ -144,7 +148,7 @@
           <span class="portal-action-count" id="resumenCotizacionesPendientes">0</span>
           <span><strong>Gestionar cotizaciones</strong><small>Registra una entrega o revisa tus cotizaciones.</small></span>
         </a>
-        <a class="portal-next-action" href="#moduloSeguimientoSiif">
+        <a class="portal-next-action" href="portal-proveedor.html?vista=seguimiento-siif">
           <span class="portal-action-count" id="resumenTramitesActivos">0</span>
           <span><strong>Consultar trámites</strong><small>Consulta requisición, orden de compra y pago.</small></span>
         </a>
@@ -219,8 +223,8 @@
     <section class="panel portal-module" id="moduloCotizaciones">
       <div class="panel-header">
         <div>
-          <h2>Cotizaciones entregadas a almacén</h2>
-          <p>Consulta las cotizaciones enviadas desde peticiones o registra entregas que no tengan petición.</p>
+          <h2>Cotizaciones sin requisición</h2>
+          <p>Consulta y exporta las cotizaciones del proveedor que todavía no tienen requisición.</p>
         </div>
         <button type="button" class="btn-secondary" id="btnExportarCotizaciones">Exportar cotizaciones sin trámite</button>
         <button type="button" class="btn-small" id="btnNuevaCotizacionAlmacen">Registrar entrega sin petición</button>
@@ -389,18 +393,29 @@
       window.location.href = "../dashboard.html";
     }
 
-    const vistaCotizacionesProveedor = new URLSearchParams(window.location.search).get("vista") === "cotizaciones";
-    const vistaSeguimientoSiifProveedor = new URLSearchParams(window.location.search).get("vista") === "seguimiento-siif";
+    const vistaPortalProveedor = new URLSearchParams(window.location.search).get("vista") || "dashboard";
+    const vistaPeticionesProveedor = vistaPortalProveedor === "peticiones";
+    const vistaCotizacionesProveedor = vistaPortalProveedor === "cotizaciones";
+    const vistaSeguimientoSiifProveedor = vistaPortalProveedor === "seguimiento-siif";
+    document.body.classList.toggle("portal-dashboard-view", vistaPortalProveedor === "dashboard");
+    document.body.classList.toggle("portal-peticiones-view", vistaPeticionesProveedor);
     document.body.classList.toggle("portal-cotizaciones-view", vistaCotizacionesProveedor);
+    document.body.classList.toggle("portal-siif-view", vistaSeguimientoSiifProveedor);
     if (vistaCotizacionesProveedor) {
-      document.getElementById("tituloPortalProveedor").textContent = "Gestión privada de cotizaciones";
+      document.getElementById("tituloPortalProveedor").textContent = "Cotizaciones sin requisición";
+    } else if (vistaPeticionesProveedor) {
+      document.getElementById("tituloPortalProveedor").textContent = "Peticiones de almacén";
     } else if (vistaSeguimientoSiifProveedor) {
       document.getElementById("tituloPortalProveedor").textContent = "Seguimiento de trámites SIIF";
+    } else {
+      document.getElementById("tituloPortalProveedor").textContent = "Dashboard de proveedores";
     }
 
     ETLayout.inicializar(vistaCotizacionesProveedor
       ? "Cotizaciones Proveedor"
-      : (vistaSeguimientoSiifProveedor ? "Seguimiento de trámites SIIF" : "Portal Proveedor"));
+      : (vistaPeticionesProveedor
+        ? "Peticiones de almacén"
+        : (vistaSeguimientoSiifProveedor ? "Seguimiento de trámites SIIF" : "Portal Proveedor")));
 
     function inicializarModulosPortal() {
       document.querySelectorAll(".portal-module").forEach(function (modulo) {
@@ -744,6 +759,7 @@
         const tieneTramite = cotizacionTieneRequisicion(cotizacion);
         const fecha = String(cotizacion.fecha_cotizacion || cotizacion.fecha_entrega || "").slice(0, 10);
         return cotizacionPerteneceAlUsuario(cotizacion) &&
+          (!vistaCotizacionesProveedor || !tieneTramite) &&
           (contenido.includes(texto) || Boolean(textoRequisicion && requisicionNormalizada.includes(textoRequisicion))) &&
           (!estatus || cotizacion.estatus === estatus) &&
           (!tramite || (tramite === "con-tramite" ? tieneTramite : !tieneTramite)) &&

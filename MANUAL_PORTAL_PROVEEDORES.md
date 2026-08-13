@@ -45,10 +45,12 @@ Por seguridad, cierre la sesión al terminar, especialmente si utiliza un equipo
 
 ## 4. Navegación principal
 
-El menú del proveedor incluye dos opciones:
+El menú del proveedor está dividido en cuatro vistas para evitar mezclar procesos:
 
-- **Portal Proveedor:** resumen general, peticiones asignadas y seguimiento de trámites SIIF.
-- **Cotizaciones Proveedor:** consulta y administración privada de cotizaciones entregadas al almacén.
+- **Dashboard proveedor:** indicadores generales y accesos a los pendientes.
+- **Peticiones de almacén:** solicitudes asignadas, confirmación de entrega y notas.
+- **Cotizaciones sin requisición:** consulta, captura y exportación de cotizaciones pendientes de vincular.
+- **Seguimiento de trámites SIIF:** resumen por estatus y detalle de requisiciones, órdenes de compra y solicitudes de pago.
 
 Los módulos pueden contraerse o expandirse mediante el botón ubicado en su encabezado. El selector de tema permite cambiar la apariencia del sistema.
 

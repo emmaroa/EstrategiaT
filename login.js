@@ -24,7 +24,7 @@
         Almacen: ["Dashboard", "Peticiones", "Vales"],
         "Jefe de Almacen": ["Dashboard", "Peticiones", "Vales"],
         "Técnico vales": ["Dashboard", "Vales"],
-        Proveedor: ["Portal Proveedor", "Cotizaciones Proveedor", "Seguimiento de trámites SIIF"],
+        Proveedor: ["Portal Proveedor", "Peticiones de almacén", "Cotizaciones Proveedor", "Seguimiento de trámites SIIF"],
         Consulta: ["Dashboard", "Parque Vehicular", "Peticiones", "Seguimiento SIIF", "Vales"],
         Coordinador: ["Dashboard", "Seguimiento Peticiones"],
         "Coordinador Infraestructura": ["Dashboard", "Peticiones"],
@@ -180,7 +180,7 @@
 
   function obtenerModulosUsuario(data) {
     if (normalizarRolLogin(data && data.rol) === "Proveedor") {
-      return ["Portal Proveedor", "Cotizaciones Proveedor", "Seguimiento de trámites SIIF"];
+      return ["Portal Proveedor", "Peticiones de almacén", "Cotizaciones Proveedor", "Seguimiento de trámites SIIF"];
     }
 
     if (window.ETPermissions && typeof window.ETPermissions.obtenerModulosUsuario === "function") {
@@ -356,6 +356,7 @@
       "Peticiones": "modulos/peticiones.html",
       "Gestión de Cotizaciones": "modulos/peticiones.html?vista=cotizaciones",
       "Cotizaciones Proveedor": "modulos/portal-proveedor.html?vista=cotizaciones",
+      "Peticiones de almacén": "modulos/portal-proveedor.html?vista=peticiones",
       "Seguimiento de trámites SIIF": "modulos/portal-proveedor.html?vista=seguimiento-siif#moduloSeguimientoSiif",
       "Requisiciones": "modulos/seguimiento-siif.html",
       "Seguimiento SIIF": "modulos/seguimiento-siif.html",

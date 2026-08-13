@@ -25,6 +25,7 @@
       TRAMITES_ADMINISTRATIVOS: "Tramites Administrativos",
       GENERAR_TEXTOS: "Generar Textos",
       PORTAL_PROVEEDOR: "Portal Proveedor",
+      PETICIONES_PROVEEDOR: "Peticiones de almacén",
       INVENTARIO: "Inventario",
       COMPRAS: "Compras",
       PROVEEDORES: "Proveedores",
@@ -56,6 +57,7 @@
     [MODULOS.TRAMITES_ADMINISTRATIVOS]: "modulos/tramites-administrativos.html",
     [MODULOS.GENERAR_TEXTOS]: "modulos/generar-textos.html",
     [MODULOS.PORTAL_PROVEEDOR]: "modulos/portal-proveedor.html?v=20260728-1",
+    [MODULOS.PETICIONES_PROVEEDOR]: "modulos/portal-proveedor.html?vista=peticiones",
     [MODULOS.INVENTARIO]: "modulos/inventario.html",
     [MODULOS.COMPRAS]: "modulos/compras.html",
     [MODULOS.PROVEEDORES]: "modulos/proveedores.html",
@@ -94,6 +96,7 @@
     [MODULOS.TRAMITES_ADMINISTRATIVOS]: "Registro y reportes de permisos, vacaciones, dias economicos e incapacidades.",
     [MODULOS.GENERAR_TEXTOS]: "Generador de descripciones para solicitudes de pago."
     ,[MODULOS.PORTAL_PROVEEDOR]: "Consulta y actualización de entregas asignadas al proveedor."
+    ,[MODULOS.PETICIONES_PROVEEDOR]: "Peticiones de almacén asignadas al proveedor."
   };
 
   const PERMISOS = {
@@ -109,7 +112,7 @@
       MODULOS.DASHBOARD,
       MODULOS.VALES
     ],
-    Proveedor: [MODULOS.PORTAL_PROVEEDOR, MODULOS.COTIZACIONES_PROVEEDOR, MODULOS.SEGUIMIENTO_SIIF_PROVEEDOR],
+    Proveedor: [MODULOS.PORTAL_PROVEEDOR, MODULOS.PETICIONES_PROVEEDOR, MODULOS.COTIZACIONES_PROVEEDOR, MODULOS.SEGUIMIENTO_SIIF_PROVEEDOR],
     "Moderador de Acuerdos": [
       MODULOS.DASHBOARD,
       MODULOS.ACUERDOS
@@ -420,7 +423,12 @@
   function obtenerModulosUsuario(usuario) {
     const permisosModulos = obtenerPermisosModulosUsuario(usuario);
     const rol = normalizarRol((usuario || {}).rol || (usuario || {}).cargo || (usuario || {}).tipo || "");
-    if (rol === "Proveedor") return [MODULOS.PORTAL_PROVEEDOR, MODULOS.COTIZACIONES_PROVEEDOR, MODULOS.SEGUIMIENTO_SIIF_PROVEEDOR];
+    if (rol === "Proveedor") return [
+      MODULOS.PORTAL_PROVEEDOR,
+      MODULOS.PETICIONES_PROVEEDOR,
+      MODULOS.COTIZACIONES_PROVEEDOR,
+      MODULOS.SEGUIMIENTO_SIIF_PROVEEDOR
+    ];
 
     if (permisosModulos.length) {
       const modulos = permisosModulos

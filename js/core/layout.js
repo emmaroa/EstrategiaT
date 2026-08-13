@@ -33,6 +33,7 @@
     "Peticiones",
     "Gestión de Cotizaciones",
     "Cotizaciones Proveedor",
+    "Peticiones de almacén",
     "Seguimiento de trámites SIIF",
     "Seguimiento Peticiones",
     "Requisiciones",
@@ -51,14 +52,15 @@
   ];
 
   const GRUPOS_NAVEGACION = [
-    { nombre: "General", modulos: ["Dashboard", "Portal Proveedor"] },
+    { nombre: "Portal proveedor", modulos: ["Portal Proveedor", "Peticiones de almacén", "Cotizaciones Proveedor", "Seguimiento de trámites SIIF"] },
+    { nombre: "General", modulos: ["Dashboard"] },
     {
       nombre: "Operación",
-      modulos: ["Parque Vehicular", "Peticiones", "Gestión de Cotizaciones", "Cotizaciones Proveedor", "Seguimiento Peticiones", "Acuerdos", "Vales"]
+      modulos: ["Parque Vehicular", "Peticiones", "Gestión de Cotizaciones", "Seguimiento Peticiones", "Acuerdos", "Vales"]
     },
     {
       nombre: "Administración",
-      modulos: ["Requisiciones", "Seguimiento SIIF", "Seguimiento de trámites SIIF", "Requisiciones SIIF", "Órdenes de Compra SIIF", "Solicitudes de Pago SIIF", "Importar SIIF", "Tiempo Extra", "Tramites Administrativos", "Generar Textos"]
+      modulos: ["Requisiciones", "Seguimiento SIIF", "Requisiciones SIIF", "Órdenes de Compra SIIF", "Solicitudes de Pago SIIF", "Importar SIIF", "Tiempo Extra", "Tramites Administrativos", "Generar Textos"]
     },
     { nombre: "Sistema", modulos: ["Usuarios", "Auditoría"] }
   ];
@@ -69,6 +71,7 @@
     "Peticiones": '<path d="M6 3h9l3 3v15H6Z"/><path d="M15 3v4h4M9 12h6M9 16h6"/>',
     "Gestión de Cotizaciones": '<path d="M4 5h16v14H4Z"/><path d="M7 9h10M7 13h6M16 16h2"/>',
     "Cotizaciones Proveedor": '<path d="M4 5h16v14H4Z"/><path d="M7 9h10M7 13h6M16 16h2"/>',
+    "Peticiones de almacén": '<path d="M3 7h11v10H3zM14 10h4l3 3v4h-7z"/><circle cx="7" cy="18" r="2"/><circle cx="18" cy="18" r="2"/>',
     "Seguimiento Peticiones": '<circle cx="11" cy="11" r="7"/><path d="m16 16 5 5M8 11l2 2 4-4"/>',
     "Requisiciones": '<path d="M7 3h8l4 4v14H7Z"/><path d="M15 3v5h5M10 13h6M10 17h6"/>',
     "Seguimiento SIIF": '<path d="M4 6h16M4 12h16M4 18h16"/><circle cx="7" cy="6" r="2"/><circle cx="13" cy="12" r="2"/><circle cx="18" cy="18" r="2"/>',
@@ -186,7 +189,9 @@
         const ruta = global.ETPermissions.obtenerRutaModulo(modulo, desdeModulo);
         const active = modulo === moduloActivo ? " active" : "";
         const current = modulo === moduloActivo ? ' aria-current="page"' : "";
-        const etiquetaModulo = modulo === "Portal Proveedor" ? "Dashboard proveedor" : modulo;
+        const etiquetaModulo = modulo === "Portal Proveedor"
+          ? "Dashboard proveedor"
+          : (modulo === "Cotizaciones Proveedor" ? "Cotizaciones sin requisición" : modulo);
         return '<a href="' + ruta + '" class="nav-item' + active + '" title="' + modulo + '"' + current + ">" +
           iconoModulo(modulo) +
           '<span class="et-nav-label">' + etiquetaModulo + "</span>" +
