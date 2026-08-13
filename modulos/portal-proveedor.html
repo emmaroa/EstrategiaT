@@ -229,20 +229,15 @@
       <div class="panel-header">
         <div>
           <h2>Cotizaciones sin requisición</h2>
-          <p>Consulta y exporta las cotizaciones del proveedor que todavía no tienen requisición.</p>
+          <p>Consulta y exporta las cotizaciones del proveedor, tengan o no una requisición asignada.</p>
         </div>
-        <button type="button" class="btn-secondary" id="btnExportarCotizaciones">Exportar todas las cotizaciones</button>
+        <button type="button" class="btn-secondary" id="btnExportarCotizaciones">Exportar datos</button>
         <button type="button" class="btn-small" id="btnNuevaCotizacionAlmacen">Registrar entrega sin petición</button>
       </div>
       <div class="filters">
         <input type="search" id="buscarCotizacionesAlmacen" placeholder="Buscar por requisición, folio, unidad, material, monto o notas..." aria-label="Buscar cotizaciones por requisición, folio, unidad, material, monto o notas">
         <select id="filtroEstatusCotizacionesAlmacen" aria-label="Filtrar cotizaciones por estatus">
           <option value="">Todos los estatus</option>
-        </select>
-        <select id="filtroTramiteCotizacionesAlmacen" aria-label="Filtrar cotizaciones por trámite">
-          <option value="">Con y sin trámite</option>
-          <option value="sin-tramite">Sin trámite</option>
-          <option value="con-tramite">Con requisición</option>
         </select>
         <label>Desde <input type="date" id="fechaDesdeCotizacionesAlmacen" aria-label="Cotizaciones desde"></label>
         <label>Hasta <input type="date" id="fechaHastaCotizacionesAlmacen" aria-label="Cotizaciones hasta"></label>
@@ -502,7 +497,6 @@
     const filtroEstatusRequisicionProveedor = document.getElementById("filtroEstatusRequisicionProveedor");
     const buscarCotizacionesAlmacen = document.getElementById("buscarCotizacionesAlmacen");
     const filtroEstatusCotizacionesAlmacen = document.getElementById("filtroEstatusCotizacionesAlmacen");
-    const filtroTramiteCotizacionesAlmacen = document.getElementById("filtroTramiteCotizacionesAlmacen");
     const fechaDesdeCotizacionesAlmacen = document.getElementById("fechaDesdeCotizacionesAlmacen");
     const fechaHastaCotizacionesAlmacen = document.getElementById("fechaHastaCotizacionesAlmacen");
     const selectorProveedorPortal = document.getElementById("selectorProveedorPortal");
@@ -771,7 +765,6 @@
       const texto = normalizarPortal(buscarCotizacionesAlmacen?.value);
       const textoRequisicion = texto.replace(/[^a-z0-9]/g, "");
       const estatus = String(filtroEstatusCotizacionesAlmacen?.value || "");
-      const tramite = String(filtroTramiteCotizacionesAlmacen?.value || "");
       const fechaDesde = String(fechaDesdeCotizacionesAlmacen?.value || "");
       const fechaHasta = String(fechaHastaCotizacionesAlmacen?.value || "");
       return cotizacionesAlmacenProveedor.filter(function (cotizacion) {
@@ -791,13 +784,10 @@
           JSON.stringify(cotizacion.materiales || []),
           cotizacion.estatus
         ].join(" "));
-        const tieneTramite = cotizacionTieneRequisicion(cotizacion);
         const fecha = String(cotizacion.fecha_cotizacion || cotizacion.fecha_entrega || "").slice(0, 10);
         return cotizacionPerteneceAlUsuario(cotizacion) &&
-          (!vistaCotizacionesProveedor || !tieneTramite) &&
           (contenido.includes(texto) || Boolean(textoRequisicion && requisicionNormalizada.includes(textoRequisicion))) &&
           (!estatus || cotizacion.estatus === estatus) &&
-          (!tramite || (tramite === "con-tramite" ? tieneTramite : !tieneTramite)) &&
           (!fechaDesde || fecha >= fechaDesde) &&
           (!fechaHasta || fecha <= fechaHasta);
       });
@@ -1173,7 +1163,7 @@
     }
 
     function exportarCotizaciones() {
-      const cotizaciones = cotizacionesAlmacenProveedor.filter(cotizacionPerteneceAlUsuario);
+      const cotizaciones = obtenerCotizacionesFiltradasProveedor();
       const filas = cotizaciones.map(function (cotizacion) {
         const materiales = (cotizacion.materiales || []).map(function (material) {
           const cantidad = Number(material.cantidad || 0);
@@ -1197,7 +1187,7 @@
         ];
       });
       descargarCSV(
-        nombreArchivoPortal("todas-las-cotizaciones"),
+        nombreArchivoPortal("datos-cotizaciones"),
         ["Proveedor", "Folio", "Fecha de cotización", "Fecha de entrega", "Unidad", "Dependencia", "Materiales", "Total", "Número de requisición", "Estatus", "Notas"],
         filas
       );
@@ -1554,7 +1544,6 @@
       filtroEstatusRequisicionProveedor,
       buscarCotizacionesAlmacen,
       filtroEstatusCotizacionesAlmacen,
-      filtroTramiteCotizacionesAlmacen,
       fechaDesdeCotizacionesAlmacen,
       fechaHastaCotizacionesAlmacen
     ].forEach(function (control) {

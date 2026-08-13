@@ -195,7 +195,7 @@ Puede localizar registros mediante:
 
 - Buscador por unidad, descripción o documento.
 - Filtro de estatus.
-- Filtro **Con y sin trámite**, **Sin trámite** o **Con requisición**.
+- La tabla muestra cotizaciones con y sin requisición asignada.
 - El buscador permite localizar cotizaciones por número de requisición, monto, folio, unidad, materiales o notas. La requisición puede escribirse con o sin guiones o espacios.
 - Fechas **Desde** y **Hasta**.
 
@@ -262,8 +262,8 @@ Si no se abre, permita las ventanas emergentes para el sitio e inténtelo nuevam
 ### 6.6 Exportar cotizaciones
 
 1. Aplique los filtros de búsqueda, estatus y fecha que necesite.
-2. Seleccione **Exportar todas las cotizaciones**.
-3. El sistema descargará todas las cotizaciones del proveedor activo, independientemente de los filtros visuales. Incluye registros pendientes, con requisición, con requisición generada, validados y rechazados. El archivo contiene proveedor, folio, fechas de cotización y entrega, unidad, dependencia, materiales, total, número de requisición, estatus y notas.
+2. Seleccione **Exportar datos**.
+3. El sistema descargará las cotizaciones que muestra la tabla de acuerdo con la búsqueda y los filtros activos. El archivo contiene proveedor, folio, fechas de cotización y entrega, unidad, dependencia, materiales, total, número de requisición, estatus y notas.
 
 ## 7. Significado de estatus frecuentes
 
