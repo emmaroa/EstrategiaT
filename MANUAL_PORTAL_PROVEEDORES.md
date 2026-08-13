@@ -103,6 +103,7 @@ La tabla presenta:
 - Estatus interno.
 - Estatus y fecha de entrega del proveedor.
 - Nota del proveedor.
+- Debajo del número de unidad se muestra su descripción, modelo, serie, combustible y año cuando esos datos existen en el parque vehicular.
 - Acciones disponibles.
 
 #### Buscar y filtrar peticiones
@@ -177,9 +178,14 @@ Esta vista muestra:
 - **Total de cotizaciones.**
 - **Sin trámite:** cotizaciones sin requisición asignada.
 - **Con requisición:** cotizaciones vinculadas a un trámite.
+- **Monto con requisición:** importe acumulado de las cotizaciones que ya tienen número o estatus de requisición generada.
 - **Requisiciones por cotizar:** cotizaciones con número de requisición que todavía no se confirman como cotizadas en el portal de compras.
 - **Pendientes de revisión.**
 - **Monto sin trámite:** importe acumulado de cotizaciones sin requisición.
+
+### Notificaciones de requisición generada
+
+Todos los módulos del proveedor muestran una campana de notificaciones en la esquina superior derecha. Cuando existen alertas nuevas aparece un contador; al pulsar la campana se despliega el listado, desde donde pueden abrirse y marcarse como leídas. Se genera una alerta cuando una cotización cambia de **Pendiente de revisión** a **Requisición generada**.
 
 ### 6.2 Consultar cotizaciones
 
@@ -257,7 +263,7 @@ Si no se abre, permita las ventanas emergentes para el sitio e inténtelo nuevam
 
 1. Aplique los filtros de búsqueda, estatus y fecha que necesite.
 2. Seleccione **Exportar todas las cotizaciones**.
-3. El sistema descargará exclusivamente las cotizaciones sin trámite del proveedor activo que coincidan con los filtros. El archivo incluye proveedor, folio, fechas de cotización y entrega, unidad, dependencia, materiales, total, número de requisición, estatus y notas.
+3. El sistema descargará todas las cotizaciones del proveedor activo, independientemente de los filtros visuales. Incluye registros pendientes, con requisición, con requisición generada, validados y rechazados. El archivo contiene proveedor, folio, fechas de cotización y entrega, unidad, dependencia, materiales, total, número de requisición, estatus y notas.
 
 ## 7. Significado de estatus frecuentes
 

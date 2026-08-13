@@ -32,6 +32,7 @@
     "Acuerdos",
     "Peticiones",
     "Gestión de Cotizaciones",
+    "Portal Proveedor",
     "Cotizaciones Proveedor",
     "Peticiones de almacén",
     "Seguimiento de trámites SIIF",
@@ -715,6 +716,94 @@
         }
       });
     }
+  }
+
+  function escaparNotificacion(valor) {
+    return String(valor == null ? "" : valor)
+      .replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;")
+      .replace(/"/g, "&quot;").replace(/'/g, "&#039;");
+  }
+
+  async function prepararNotificacionesProveedor(usuario) {
+    const rol = String(usuario && usuario.rol || "").trim().toLowerCase();
+    const client = global.supabaseClient;
+    const header = document.querySelector(".topbar, .page-header");
+    if (rol !== "proveedor" || !client || !header || document.querySelector(".et-notifications")) return;
+
+    const acciones = document.getElementById("etTemaContainer")?.parentElement || header;
+    const contenedor = document.createElement("div");
+    contenedor.className = "et-notifications";
+    contenedor.innerHTML =
+      '<button type="button" class="et-notifications-trigger" aria-label="Notificaciones" aria-expanded="false">' +
+        '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9M10 21h4"/></svg>' +
+        '<span class="et-notifications-badge" hidden>0</span>' +
+      '</button>' +
+      '<section class="et-notifications-panel" hidden>' +
+        '<div class="et-notifications-header"><strong>Notificaciones</strong><button type="button" data-read-all>Marcar todas como leídas</button></div>' +
+        '<div class="et-notifications-list"><p class="et-notifications-empty">Cargando…</p></div>' +
+      '</section>';
+    acciones.insertBefore(contenedor, document.getElementById("etTemaContainer") || null);
+
+    const trigger = contenedor.querySelector(".et-notifications-trigger");
+    const panel = contenedor.querySelector(".et-notifications-panel");
+    const lista = contenedor.querySelector(".et-notifications-list");
+    const badge = contenedor.querySelector(".et-notifications-badge");
+    let notificaciones = [];
+
+    function renderizar() {
+      const nuevas = notificaciones.filter(function (item) { return !item.leida; }).length;
+      badge.hidden = nuevas === 0;
+      badge.textContent = nuevas > 99 ? "99+" : String(nuevas);
+      trigger.classList.toggle("has-new", nuevas > 0);
+      lista.innerHTML = notificaciones.length ? notificaciones.map(function (item) {
+        return '<button type="button" class="et-notification-item' + (item.leida ? "" : " is-new") + '" data-notification-id="' + escaparNotificacion(item.id) + '">' +
+          '<strong>' + escaparNotificacion(item.titulo || "Actualización") + '</strong>' +
+          '<span>' + escaparNotificacion(item.mensaje || "") + '</span>' +
+          '<small>' + escaparNotificacion(new Date(item.created_at).toLocaleString("es-MX")) + '</small>' +
+        '</button>';
+      }).join("") : '<p class="et-notifications-empty">No hay notificaciones recientes.</p>';
+    }
+
+    async function cargar() {
+      const resultado = await client.from("notificaciones")
+        .select("id,titulo,mensaje,leida,enlace,created_at")
+        .eq("usuario_id", usuario.id).order("created_at", { ascending: false }).limit(20);
+      if (resultado.error) {
+        console.error("No se pudieron cargar las notificaciones:", resultado.error);
+        lista.innerHTML = '<p class="et-notifications-empty">No fue posible cargar las notificaciones.</p>';
+        return;
+      }
+      notificaciones = resultado.data || [];
+      renderizar();
+    }
+
+    trigger.addEventListener("click", function (event) {
+      event.stopPropagation();
+      panel.hidden = !panel.hidden;
+      trigger.setAttribute("aria-expanded", String(!panel.hidden));
+    });
+    document.addEventListener("click", function (event) {
+      if (!contenedor.contains(event.target)) {
+        panel.hidden = true;
+        trigger.setAttribute("aria-expanded", "false");
+      }
+    });
+    lista.addEventListener("click", async function (event) {
+      const boton = event.target.closest("[data-notification-id]");
+      if (!boton) return;
+      const id = boton.dataset.notificationId;
+      const item = notificaciones.find(function (fila) { return fila.id === id; });
+      if (item && !item.leida) {
+        const resultado = await client.from("notificaciones").update({ leida: true }).eq("id", id).eq("usuario_id", usuario.id);
+        if (!resultado.error) { item.leida = true; renderizar(); }
+      }
+      if (item && item.enlace) global.location.href = esRutaDeModulo(global.location.pathname) ? item.enlace.replace(/^modulos\//, "") : item.enlace;
+    });
+    contenedor.querySelector("[data-read-all]").addEventListener("click", async function () {
+      const resultado = await client.from("notificaciones").update({ leida: true }).eq("usuario_id", usuario.id).eq("leida", false);
+      if (!resultado.error) { notificaciones.forEach(function (item) { item.leida = true; }); renderizar(); }
+    });
+    await cargar();
   }
 
   function aplicarBusquedaDesdeURL() {
@@ -1737,6 +1826,7 @@ permitidos = permitidos.filter(function (m) {
     prepararSidebar(usuario);
     prepararEncabezado(moduloActivo);
     prepararBusquedaGlobal(usuario);
+    prepararNotificacionesProveedor(usuario);
     prepararFiltros();
     prepararTablas();
     prepararFormularios();

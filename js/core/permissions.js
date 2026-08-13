@@ -469,7 +469,7 @@
   function obtenerPermisoModuloUsuario(usuario, modulo) {
     const rol = normalizarRol((usuario || {}).rol || (usuario || {}).cargo || (usuario || {}).tipo || "");
     if (rol === "Proveedor") {
-      return [MODULOS.PORTAL_PROVEEDOR, MODULOS.COTIZACIONES_PROVEEDOR, MODULOS.SEGUIMIENTO_SIIF_PROVEEDOR].includes(modulo) ? "editar" : "none";
+      return [MODULOS.PORTAL_PROVEEDOR, MODULOS.PETICIONES_PROVEEDOR, MODULOS.COTIZACIONES_PROVEEDOR, MODULOS.SEGUIMIENTO_SIIF_PROVEEDOR].includes(modulo) ? "editar" : "none";
     }
 
     const permisosModulos = obtenerPermisosModulosUsuario(usuario);

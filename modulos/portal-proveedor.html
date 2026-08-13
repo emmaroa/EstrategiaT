@@ -41,7 +41,10 @@
     .portal-cotizaciones-view #guiaPortalProveedor,
     .portal-cotizaciones-view #kpisPortalGeneral,
     .portal-siif-view #guiaPortalProveedor,
-    .portal-siif-view #kpisPortalGeneral { display:none; }
+    .portal-siif-view #kpisPortalGeneral,
+    .portal-peticiones-view .portal-dashboard-only,
+    .portal-cotizaciones-view .portal-dashboard-only,
+    .portal-siif-view .portal-dashboard-only { display:none; }
     .portal-peticiones-view #moduloPeticiones { display:block; }
     .portal-cotizaciones-view #moduloCotizaciones { display:block; }
     .portal-dashboard-view #kpisCotizaciones { display:grid; }
@@ -70,6 +73,7 @@
     .portal-table-materials { min-width:180px; max-width:260px; line-height:1.35; }
     .portal-table-notes { width:160px; max-width:160px; }
     .portal-table-clamp { display:-webkit-box; overflow:hidden; -webkit-box-orient:vertical; -webkit-line-clamp:2; line-clamp:2; overflow-wrap:anywhere; color:var(--text-secondary, #475569); line-height:1.35; }
+    .portal-unit-detail { max-width:620px; margin:7px 0 0; color:var(--text-secondary, #475569); font-size:.82rem; line-height:1.45; }
     .portal-action-button.is-edit { border:1px solid color-mix(in srgb, var(--color-info, #3b82f6) 45%, var(--border-subtle, #cbd5e1)); background:color-mix(in srgb, var(--color-info, #3b82f6) 9%, var(--bg-card, #fff)); color:var(--color-info, #2563eb); }
     .portal-action-button.is-edit:hover:not(:disabled) { border-color:var(--color-info, #2563eb); background:color-mix(in srgb, var(--color-info, #3b82f6) 15%, var(--bg-card, #fff)); }
     .portal-action-button.is-print { border:1px solid var(--border-subtle, #cbd5e1); background:transparent; color:var(--text-secondary, #475569); }
@@ -173,6 +177,7 @@
       <div class="kpi-card"><span>Requisiciones por cotizar</span><h2 id="kpiCotizacionesPendientesPortalCompras">0</h2><p>Cotizaciones con requisición pendientes en portal de compras</p></div>
       <div class="kpi-card"><span>Pendientes de revisión</span><h2 id="kpiCotizacionesPendientes">0</h2><p>Requieren atención</p></div>
       <div class="kpi-card"><span>Monto sin trámite</span><h2 id="kpiTotalCotizacionesSinTramite">$0.00</h2><p>Importe sin requisición</p></div>
+      <div class="kpi-card"><span>Monto con requisición</span><h2 id="kpiTotalCotizacionesConTramite">$0.00</h2><p>Importe vinculado a requisiciones</p></div>
     </section>
 
     <section class="panel portal-module" id="moduloResumenSiif">
@@ -226,7 +231,7 @@
           <h2>Cotizaciones sin requisición</h2>
           <p>Consulta y exporta las cotizaciones del proveedor que todavía no tienen requisición.</p>
         </div>
-        <button type="button" class="btn-secondary" id="btnExportarCotizaciones">Exportar cotizaciones sin trámite</button>
+        <button type="button" class="btn-secondary" id="btnExportarCotizaciones">Exportar todas las cotizaciones</button>
         <button type="button" class="btn-small" id="btnNuevaCotizacionAlmacen">Registrar entrega sin petición</button>
       </div>
       <div class="filters">
@@ -482,6 +487,7 @@
     let proveedorVinculado = sessionStorage.getItem(claveProveedorActivo) || proveedoresVinculados[0] || "";
     if (!proveedoresVinculados.includes(proveedorVinculado)) proveedorVinculado = proveedoresVinculados[0] || "";
     let peticionesProveedor = [];
+    let unidadesParqueProveedor = [];
     let requisicionesProveedor = [];
     let cotizacionesAlmacenProveedor = [];
     let unidadCotizacionSeleccionada = null;
@@ -546,7 +552,7 @@
 
       document.getElementById("nombreProveedorPortal").textContent = proveedorVinculado;
 
-      const [peticionesResultado, requisicionesResultado, requisicionesInicialesResultado, cotizacionesResultado] = await Promise.all([
+      const [peticionesResultado, requisicionesResultado, requisicionesInicialesResultado, cotizacionesResultado, unidadesResultado] = await Promise.all([
         supabaseClient
           .from("peticiones")
           .select("id,fecha,unidad,peticion,solicitante,estatus,estatus_proveedor,nota_proveedor,fecha_entrega_proveedor,proveedor")
@@ -562,7 +568,10 @@
           .select("id,fecha,folio,dependencia,justificacion,importe,estatus,proveedor")
           .eq("proveedor", proveedorVinculado)
           .order("fecha", { ascending: false }),
-        ETCotizacionesAlmacen.listarPorProveedor(proveedorVinculado)
+        ETCotizacionesAlmacen.listarPorProveedor(proveedorVinculado),
+        supabaseClient
+          .from("parque_vehicular")
+          .select("id,numero_economico,numero_inventario,unidad_patrulla,descripcion,modelo,serie,vin,combustible")
       ]);
 
       if (peticionesResultado.error) {
@@ -581,11 +590,15 @@
         console.error(cotizacionesResultado.error);
         alert("No se pudieron cargar las cotizaciones de almacén.");
       }
+      if (unidadesResultado.error) {
+        console.error(unidadesResultado.error);
+      }
 
       peticionesProveedor = ordenarRegistrosDescendente(
         peticionesResultado.data || [],
         "fecha"
       );
+      unidadesParqueProveedor = unidadesResultado.data || [];
       const requisicionesAsignadas = new Map();
       (requisicionesResultado.data || []).concat(
         (requisicionesInicialesResultado.data || []).map(normalizarRequisicionInicialSiif)
@@ -650,6 +663,28 @@
     function cotizacionTieneRequisicion(cotizacion) {
       return Boolean(String(cotizacion?.requisicion || "").trim()) ||
         normalizarPortal(cotizacion?.estatus).includes("requisicion generada");
+    }
+
+    function obtenerDetalleUnidadPeticion(numeroUnidad) {
+      const clave = normalizarPortal(numeroUnidad).replace(/[^a-z0-9]/g, "");
+      if (!clave || clave === "0" || clave === "stock") return null;
+      return unidadesParqueProveedor.find(function (unidad) {
+        return [unidad.numero_economico, unidad.numero_inventario, unidad.unidad_patrulla].some(function (valor) {
+          return normalizarPortal(valor).replace(/[^a-z0-9]/g, "") === clave;
+        });
+      }) || null;
+    }
+
+    function descripcionUnidadPeticion(numeroUnidad) {
+      const unidad = obtenerDetalleUnidadPeticion(numeroUnidad);
+      if (!unidad) return "Descripción: sin datos disponibles de la unidad.";
+      const modelo = String(unidad.modelo || "Sin dato");
+      const coincidenciaAnio = modelo.match(/(?:19|20)\d{2}/);
+      return "Descripción: " + (unidad.descripcion || "Sin dato") +
+        ". Modelo: " + modelo +
+        ". Serie: " + (unidad.serie || unidad.vin || "Sin dato") +
+        ". Combustible: " + (unidad.combustible || "Sin dato") +
+        ". Año: " + (coincidenciaAnio ? coincidenciaAnio[0] : "Sin dato") + ".";
     }
 
     function normalizarRequisicionInicialSiif(tramite) {
@@ -935,10 +970,12 @@
       tablaPeticiones.innerHTML = peticionesFiltradas.length
         ? peticionesFiltradas.map(function (peticion) {
             const entregada = peticion.estatus_proveedor === "Entregado a almacén";
+            const detalleUnidad = descripcionUnidadPeticion(peticion.unidad);
             return "<tr>" +
               "<td>" + fechaPortal(peticion.fecha) + "</td>" +
               "<td><strong>" + escaparPortal(peticion.peticion || "—") + "</strong>" +
-                '<small style="display:block;margin-top:5px;">Unidad: ' + escaparPortal(peticion.unidad || "—") + "</small></td>" +
+                '<small style="display:block;margin-top:5px;">Unidad: ' + escaparPortal(peticion.unidad || "—") + "</small>" +
+                '<p class="portal-unit-detail">' + escaparPortal(detalleUnidad) + "</p></td>" +
               '<td><span class="badge status-badge ' + (entregada ? "green" : "amber") + '">' +
                 escaparPortal(peticion.estatus_proveedor || "Pendiente de entrega") + "</span>" +
                 (peticion.fecha_entrega_proveedor ? "<small style=\"display:block;margin-top:5px;\">" + fechaPortal(peticion.fecha_entrega_proveedor) + "</small>" : "") +
@@ -1059,6 +1096,10 @@
       }, 0);
       document.getElementById("kpiTotalCotizacionesSinTramite").textContent =
         importePortal(totalSinTramite);
+      const totalConTramite = cotizacionesAlmacenProveedor.reduce(function (acumulado, cotizacion) {
+        return acumulado + (cotizacionTieneRequisicion(cotizacion) ? Number(cotizacion.total || 0) : 0);
+      }, 0);
+      document.getElementById("kpiTotalCotizacionesConTramite").textContent = importePortal(totalConTramite);
     }
 
     function protegerCeldaCSV(valor) {
@@ -1132,9 +1173,7 @@
     }
 
     function exportarCotizaciones() {
-      const cotizaciones = obtenerCotizacionesFiltradasProveedor().filter(function (cotizacion) {
-        return !cotizacionTieneRequisicion(cotizacion);
-      });
+      const cotizaciones = cotizacionesAlmacenProveedor.filter(cotizacionPerteneceAlUsuario);
       const filas = cotizaciones.map(function (cotizacion) {
         const materiales = (cotizacion.materiales || []).map(function (material) {
           const cantidad = Number(material.cantidad || 0);
@@ -1158,7 +1197,7 @@
         ];
       });
       descargarCSV(
-        nombreArchivoPortal("cotizaciones-sin-tramite"),
+        nombreArchivoPortal("todas-las-cotizaciones"),
         ["Proveedor", "Folio", "Fecha de cotización", "Fecha de entrega", "Unidad", "Dependencia", "Materiales", "Total", "Número de requisición", "Estatus", "Notas"],
         filas
       );

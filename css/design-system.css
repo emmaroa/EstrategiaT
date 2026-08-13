@@ -182,6 +182,23 @@ textarea {
   line-height: 1.15;
 }
 
+.et-notifications { position:relative; flex:0 0 auto; }
+.et-notifications-trigger { position:relative; display:grid; width:40px; height:40px; place-items:center; padding:0; border:1px solid var(--border-subtle, #cbd5e1); border-radius:12px; background:var(--bg-card, #fff); color:var(--text-primary, #334155); cursor:pointer; }
+.et-notifications-trigger svg { width:20px; height:20px; fill:none; stroke:currentColor; stroke-width:1.8; stroke-linecap:round; stroke-linejoin:round; }
+.et-notifications-trigger.has-new { color:#b45309; border-color:#f59e0b; background:color-mix(in srgb, #f59e0b 10%, var(--bg-card, #fff)); }
+.et-notifications-badge { position:absolute; top:-6px; right:-6px; min-width:18px; height:18px; padding:0 4px; border:2px solid var(--bg-card, #fff); border-radius:999px; background:#dc2626; color:#fff; font-size:10px; font-weight:800; line-height:14px; text-align:center; }
+.et-notifications-panel { position:absolute; z-index:1200; top:calc(100% + 10px); right:0; width:min(380px, calc(100vw - 28px)); max-height:480px; overflow:hidden; border:1px solid var(--border-subtle, #cbd5e1); border-radius:16px; background:var(--bg-card, #fff); box-shadow:0 20px 45px rgba(15, 23, 42, .22); }
+.et-notifications-header { display:flex; align-items:center; justify-content:space-between; gap:12px; padding:14px 16px; border-bottom:1px solid var(--border-subtle, #e2e8f0); }
+.et-notifications-header button { padding:0; border:0; background:transparent; color:var(--color-info, #2563eb); font-size:12px; font-weight:700; cursor:pointer; }
+.et-notifications-list { max-height:410px; overflow:auto; }
+.et-notification-item { display:block; width:100%; padding:13px 16px; border:0; border-bottom:1px solid var(--border-subtle, #e2e8f0); background:transparent; color:inherit; text-align:left; cursor:pointer; }
+.et-notification-item:hover { background:color-mix(in srgb, var(--color-info, #3b82f6) 7%, transparent); }
+.et-notification-item.is-new { border-left:3px solid #f59e0b; background:color-mix(in srgb, #f59e0b 8%, transparent); }
+.et-notification-item strong, .et-notification-item span, .et-notification-item small { display:block; }
+.et-notification-item span { margin-top:4px; color:var(--text-secondary, #475569); font-size:13px; line-height:1.4; }
+.et-notification-item small { margin-top:7px; color:var(--text-muted, #64748b); font-size:11px; }
+.et-notifications-empty { margin:0; padding:24px 16px; color:var(--text-secondary, #64748b); text-align:center; }
+
 .panel-header h2,
 .card h2 {
   letter-spacing: -0.015em;
