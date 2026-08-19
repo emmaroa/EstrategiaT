@@ -40,12 +40,23 @@ El contenido web preparado se copia a `www` y después se sincroniza con los pro
 
 ## Estructura
 
-- `modulos/`: interfaces funcionales.
-- `js/core/`: configuración, permisos, navegación y comportamiento compartido.
-- `js/services/`: acceso a datos por dominio.
-- `supabase/migrations/`: evolución versionada de la base de datos.
-- `templates/`: plantillas Excel y Word.
-- `android/`: proyecto móvil nativo.
+- `index.html`: acceso a la aplicación.
+- `dashboard.html`: panel principal.
+- `buscador-unidades.html`: buscador global de unidades.
+- `modulos/`: pantallas funcionales organizadas por proceso.
+- `css/`: estilos globales y estilos específicos de módulos.
+- `js/core/`: autenticación, permisos, navegación, tema y conexión compartida.
+- `js/services/`: acceso a datos y reglas por dominio.
+- `js/modules/`: lógica de pantallas con comportamiento amplio.
+- `supabase/migrations/`: evolución ordenada de la base de datos.
+- `templates/`: documentos base agrupados por módulo.
+- `assets/`: imágenes, íconos y otros recursos visuales.
+- `scripts/`: verificación, empaquetado móvil y utilidades de desarrollo.
+- `docs/`: documentación comercial, operativa y técnica.
+- `android/`: proyecto nativo generado por Capacitor.
+- `www/`: salida web generada para Capacitor; no editar directamente.
+
+Consulta [docs/README.md](docs/README.md) para conocer el mapa completo de documentación.
 
 ## Seguridad antes de producción
 
@@ -53,6 +64,6 @@ El estado actual requiere migrar el inicio de sesión a Supabase Auth y reemplaz
 
 ## Documentos comerciales
 
-- `FICHA_COMERCIAL_ESTRATEGIAT.md`
-- `PORTAFOLIO_COMERCIAL_ESTRATEGIAT.md`
-- `PLAN_PREPARACION_VENTA.md`
+- [Ficha comercial](docs/comercial/ficha-comercial.md)
+- [Portafolio comercial](docs/comercial/portafolio-comercial.md)
+- [Plan de preparación para venta](docs/comercial/plan-preparacion-venta.md)

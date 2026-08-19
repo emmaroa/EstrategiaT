@@ -1,0 +1,58 @@
+﻿<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>EstrategiaT | Mi perfil</title>
+  <link rel="stylesheet" href="../css/style.css">
+  <link rel="stylesheet" href="../css/design-system.css?v=20260819-14">
+  <link rel="stylesheet" href="../css/perfil.css?v=20260819-2">
+  <link rel="stylesheet" href="../css/mobile-app.css">
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="../js/core/supabase.js"></script>
+  <script src="../js/core/permissions.js"></script>
+  <script src="../js/core/theme.js"></script>
+  <script src="../js/core/layout.js?v=20260819-14"></script>
+  <script src="../js/core/auth.js?v=20260819-3"></script>
+</head>
+<body class="dashboard-body">
+  <aside class="sidebar">
+    <div class="sidebar-logo"><div class="mini-logo">E</div><div><h3>Administración de Talleres</h3><small id="etModuleName">Mi perfil</small></div></div>
+    <nav id="etNav"></nav>
+    <button type="button" class="logout" id="etLogout">Cerrar sesión</button>
+  </aside>
+
+  <main class="main-content">
+    <div class="profile-shell">
+      <header class="profile-heading">
+        <span class="dashboard-section-kicker">Cuenta y preferencias</span>
+        <h1>Mi perfil</h1>
+        <p>Configura la información que ves al entrar y administra tu contraseña.</p>
+      </header>
+
+      <div class="profile-grid">
+        <section class="panel profile-card">
+          <h2>Seguridad</h2>
+          <p>Cambia tu contraseña sin intervención del administrador.</p>
+          <form id="passwordForm" class="profile-password-form">
+            <label class="input-group">Nueva contraseña<input id="nuevaPassword" type="password" minlength="8" autocomplete="new-password" required></label>
+            <label class="input-group">Confirmar contraseña<input id="confirmarPassword" type="password" minlength="8" autocomplete="new-password" required></label>
+            <button class="btn-secondary" type="submit">Actualizar contraseña</button>
+          </form>
+        </section>
+
+        <section class="panel profile-card profile-card-wide">
+          <h2>Indicadores del dashboard</h2>
+          <p>Selecciona los indicadores importantes para tu trabajo. Los indicadores sin permiso seguirán ocultos.</p>
+          <div id="listaKpis" class="profile-kpis"></div>
+          <div class="profile-actions">
+            <button id="seleccionarTodosKpis" type="button" class="btn-secondary">Seleccionar todos</button>
+            <button id="guardarPreferencias" type="button" class="btn-small">Guardar preferencias</button>
+          </div>
+        </section>
+      </div>
+    </div>
+  </main>
+  <script src="../js/modules/mi-perfil.js?v=20260819-4"></script>
+</body>
+</html>

@@ -8,10 +8,9 @@
   let temporizadorExpiracionSesion = null;
 
   if (typeof supabase !== "undefined") {
-    loginSupabaseClient = supabase.createClient(
-      LOGIN_SUPABASE_URL,
-      LOGIN_SUPABASE_KEY
-    );
+    loginSupabaseClient = supabase.createClient(LOGIN_SUPABASE_URL, LOGIN_SUPABASE_KEY, {
+      auth: { persistSession: false }
+    });
   }
 
   const permisos = window.ETPermissions
@@ -258,6 +257,8 @@
       proveedores_permitidos: Array.isArray(data.proveedores_permitidos)
         ? data.proveedores_permitidos
         : (data.proveedor ? [data.proveedor] : []),
+      avatar_url: localStorage.getItem("etAvatar_" + data.id) || "",
+      dashboard_kpis: parseJSON(localStorage.getItem("etDashboardKpis_" + data.id)) || [],
       modulos: obtenerModulosUsuario(data),
       sesion_iniciada_en: inicioSesion,
       sesion_expira_en: inicioSesion + DURACION_SESION_MS
@@ -269,6 +270,7 @@
     if (typeof registrarAuditoria === "function") {
       registrarAuditoria("Login", "Inicio de sesión", usuarioActivo.usuario);
     }
+
 
     window.location.href = rolNormalizado === "Proveedor"
       ? "modulos/portal-proveedor.html?v=20260728-1"
@@ -446,6 +448,7 @@
         : "index.html";
       return false;
     }
+
 
     const rolNormalizado = normalizarRolLogin(usuarioActivo.rol);
     const modulosPermitidos = window.ETPermissions && typeof window.ETPermissions.obtenerModulosUsuario === "function"

@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="es">
 <head>
   <meta charset="UTF-8">
@@ -6,15 +6,15 @@
   <script>window.location.replace("seguimiento-siif.html");</script>
   <title>Administración de Talleres | Requisiciones</title>
   <link rel="stylesheet" href="../css/style.css">
-  <link rel="stylesheet" href="../css/design-system.css?v=20260727-5">
+  <link rel="stylesheet" href="../css/design-system.css?v=20260819-14">
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="../js/core/supabase.js"></script>
   <script src="../js/core/permissions.js?v=20260727-4"></script>
   <script src="../js/core/theme.js"></script>
-  <script src="../js/core/layout.js?v=20260724-3"></script>
+  <script src="../js/core/layout.js?v=20260819-14"></script>
   <script src="../js/services/requisiciones.service.js"></script>
   <script src="../js/services/proveedores.service.js?v=20260728-1"></script>
-  <script src="../login.js?v=20260811-1"></script>
+  <script src="../js/core/auth.js?v=20260819-3"></script>
 </head>
 <body class="dashboard-body">
 
@@ -38,7 +38,7 @@
         <p>Seguimiento de requisiciones, órdenes de compra, facturas y pagos.</p>
       </div>
 
-      <div style="display:flex;gap:12px;align-items:center;">
+      <div class="et-header-actions">
         <span id="etTemaContainer"></span>
         <button type="button" class="btn-small" id="btnNuevaRequisicion" aria-haspopup="dialog" onclick="abrirModalRequisicion()">+ Nueva requisición</button>
       </div>

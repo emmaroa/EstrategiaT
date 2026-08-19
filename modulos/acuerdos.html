@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="es">
 <head>
   <meta charset="UTF-8">
@@ -6,15 +6,15 @@
   <title>Administración de Talleres | Acuerdos</title>
 
   <link rel="stylesheet" href="../css/style.css">
-  <link rel="stylesheet" href="../css/acuerdos.css">
-  <link rel="stylesheet" href="../css/design-system.css?v=20260727-5">
+  <link rel="stylesheet" href="../css/acuerdos.css?v=20260818-1">
+  <link rel="stylesheet" href="../css/design-system.css?v=20260819-14">
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="../js/core/supabase.js"></script>
   <script src="../js/core/permissions.js"></script>
   <script src="../js/core/theme.js"></script>
-  <script src="../js/core/layout.js?v=20260724-3"></script>
-  <script src="../login.js?v=20260811-1"></script>
+  <script src="../js/core/layout.js?v=20260819-14"></script>
+  <script src="../js/core/auth.js?v=20260819-3"></script>
 </head>
 
 <body class="dashboard-body">
@@ -41,7 +41,7 @@
         <p>Control y seguimiento de compromisos institucionales.</p>
       </div>
 
-      <div style="display:flex;gap:12px;align-items:center;">
+      <div class="et-header-actions">
         <span id="etTemaContainer"></span>
         <button type="button" class="btn-small" id="btnNuevoAcuerdo" aria-haspopup="dialog">+ Nuevo acuerdo</button>
       </div>
@@ -189,17 +189,17 @@
 
       <div class="form-grid">
         <div class="input-group full">
-          <label>Título del acuerdo</label>
-          <input id="titulo" type="text" placeholder="Ej. Enviar oficio de seguimiento">
+          <label for="titulo">Título del acuerdo</label>
+          <input id="titulo" type="text" maxlength="180" required placeholder="Ej. Enviar oficio de seguimiento">
         </div>
 
         <div class="input-group full">
-          <label>Descripción</label>
-          <textarea id="descripcion" placeholder="Describe el acuerdo o compromiso"></textarea>
+          <label for="descripcion">Descripción</label>
+          <textarea id="descripcion" maxlength="2000" rows="5" placeholder="Describe el acuerdo, resultado esperado o compromiso"></textarea>
         </div>
 
         <div class="input-group">
-          <label>Categoría</label>
+          <label for="categoria">Categoría</label>
           <select id="categoria">
             <option value="Oficios">Oficios</option>
             <option value="Compras">Compras</option>
@@ -215,7 +215,7 @@
         </div>
 
         <div class="input-group">
-          <label>Prioridad</label>
+          <label for="prioridad">Prioridad</label>
           <select id="prioridad">
             <option value="Media">Media</option>
             <option value="Alta">Alta</option>
@@ -224,8 +224,14 @@
         </div>
 
         <div class="input-group">
-          <label>Fecha compromiso</label>
+          <label for="fechaCompromiso">Fecha compromiso</label>
           <input id="fechaCompromiso" type="date">
+        </div>
+
+        <div class="input-group">
+          <label for="asignadoA">Responsable</label>
+          <select id="asignadoA" aria-label="Seleccionar responsable del acuerdo"></select>
+          <small class="helper-text">La persona responsable podrá actualizar el seguimiento.</small>
         </div>
       </div>
 
@@ -261,7 +267,7 @@
     </div>
   </div>
 
-  <script src="../js/services/acuerdos.js"></script>
+  <script src="../js/services/acuerdos.js?v=20260818-4"></script>
   <script>
     if (window.ETLayout) {
       ETLayout.inicializar("Acuerdos");

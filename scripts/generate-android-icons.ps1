@@ -2,7 +2,7 @@ $ErrorActionPreference = "Stop"
 Add-Type -AssemblyName System.Drawing
 
 $projectRoot = Split-Path -Parent $PSScriptRoot
-$sourcePath = Join-Path $projectRoot "assets\app-icon-workshop.png"
+$sourcePath = Join-Path $projectRoot "assets\icons\app-icon-workshop.png"
 $resourceRoot = Join-Path $projectRoot "android\app\src\main\res"
 
 if (-not (Test-Path -LiteralPath $sourcePath)) { throw "No se encontró el icono fuente: $sourcePath" }

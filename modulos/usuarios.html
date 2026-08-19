@@ -1,18 +1,18 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="es">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Administración de Talleres | Usuarios</title>
   <link rel="stylesheet" href="../css/style.css"/>
-  <link rel="stylesheet" href="../css/design-system.css?v=20260727-5"/>
+  <link rel="stylesheet" href="../css/design-system.css?v=20260819-14"/>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="../js/core/supabase.js"></script>
   <script src="../js/core/permissions.js?v=20260805-1"></script>
   <script src="../js/core/theme.js"></script>
-  <script src="../js/core/layout.js?v=20260725-3"></script>
+  <script src="../js/core/layout.js?v=20260819-14"></script>
   <script src="../js/services/proveedores.service.js?v=20260728-1"></script>
-  <script src="../login.js?v=20260811-1"></script>
+  <script src="../js/core/auth.js?v=20260819-3"></script>
 </head>
 
 <body class="dashboard-body">
@@ -37,7 +37,7 @@
         <p>Alta, edición de roles y control de accesos.</p>
       </div>
 
-      <div style="display:flex;gap:12px;align-items:center;">
+      <div class="et-header-actions">
         <span id="etTemaContainer"></span>
         <button type="button" class="btn-small" aria-haspopup="dialog" onclick="abrirModalUsuario()">+ Nuevo usuario</button>
       </div>
@@ -555,9 +555,7 @@
           modulos_permitidos: nuevo.modulos_permitidos
         };
 
-        if (nuevo.password) {
-          datosActualizados.password = nuevo.password;
-        }
+        if (nuevo.password) datosActualizados.password = nuevo.password;
 
         const { error } = await supabaseClient
           .from("usuarios")

@@ -29,4 +29,4 @@ CREATE TABLE IF NOT EXISTS acuerdos_historial (
 );
 
 CREATE INDEX IF NOT EXISTS idx_acuerdos_estado ON acuerdos (estado);
-CREATE INDEX IF NOT EXISTS idx_acuerdos_created_at ON acuerdos (created_at DESC);
+CREATE INDEX IF NOT EXISTS idx_acuerdos_creado_en ON acuerdos (creado_en DESC);

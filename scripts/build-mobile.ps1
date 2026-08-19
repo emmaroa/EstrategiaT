@@ -13,7 +13,7 @@ if (Test-Path -LiteralPath $resolvedOutputDirectory) {
 }
 New-Item -ItemType Directory -Path $resolvedOutputDirectory | Out-Null
 
-$rootFiles = @("index.html", "dashboard.html", "buscador-unidades.html", "login.js", "CNAME")
+$rootFiles = @("index.html", "dashboard.html", "buscador-unidades.html", "CNAME")
 foreach ($file in $rootFiles) {
   $source = Join-Path $resolvedProjectRoot $file
   if (Test-Path -LiteralPath $source) { Copy-Item -LiteralPath $source -Destination $resolvedOutputDirectory }

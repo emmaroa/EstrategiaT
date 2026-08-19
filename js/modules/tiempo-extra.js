@@ -879,7 +879,7 @@
   }
 
   async function generarGeneradorIndividual(empleado) {
-    const buffer = await cargarArchivoComoArrayBuffer("../templates/GENERADOR_DE_TIEMPO_XTRA.xlsx");
+    const buffer = await cargarArchivoComoArrayBuffer("../templates/tiempo-extra/GENERADOR_DE_TIEMPO_XTRA.xlsx");
     const workbook = new ExcelJS.Workbook();
     await workbook.xlsx.load(buffer);
 
@@ -917,7 +917,7 @@
       return;
     }
 
-    const buffer = await cargarArchivoComoArrayBuffer("../templates/RELACION_SEMANAL_TIEMPO_EXTRA.xlsx");
+    const buffer = await cargarArchivoComoArrayBuffer("../templates/tiempo-extra/RELACION_SEMANAL_TIEMPO_EXTRA.xlsx");
     const workbook = new ExcelJS.Workbook();
     await workbook.xlsx.load(buffer);
 
@@ -960,7 +960,7 @@
     }
 
     const counts = obtenerCounts();
-    const buffer = await cargarArchivoComoArrayBuffer("../templates/OFICIO_TIEMPO_EXTRA.docx");
+    const buffer = await cargarArchivoComoArrayBuffer("../templates/tiempo-extra/OFICIO_TIEMPO_EXTRA.docx");
     const zip = new PizZip(buffer);
     const doc = new window.docxtemplater(zip, {
       paragraphLoop: true,
@@ -1027,7 +1027,7 @@
   }
 
   async function agregarGeneradorAlZip(zip, empleado) {
-    const buffer = await cargarArchivoComoArrayBuffer("../templates/GENERADOR_DE_TIEMPO_XTRA.xlsx");
+    const buffer = await cargarArchivoComoArrayBuffer("../templates/tiempo-extra/GENERADOR_DE_TIEMPO_XTRA.xlsx");
     const workbook = new ExcelJS.Workbook();
     await workbook.xlsx.load(buffer);
 
@@ -1055,7 +1055,7 @@
   }
 
   async function agregarRelacionSemanalAlZip(zip) {
-    const buffer = await cargarArchivoComoArrayBuffer("../templates/RELACION_SEMANAL_TIEMPO_EXTRA.xlsx");
+    const buffer = await cargarArchivoComoArrayBuffer("../templates/tiempo-extra/RELACION_SEMANAL_TIEMPO_EXTRA.xlsx");
     const workbook = new ExcelJS.Workbook();
     await workbook.xlsx.load(buffer);
 
@@ -1079,7 +1079,7 @@
   }
 
   async function agregarOficioAlZip(zip) {
-    const buffer = await cargarArchivoComoArrayBuffer("../templates/OFICIO_TIEMPO_EXTRA.docx");
+    const buffer = await cargarArchivoComoArrayBuffer("../templates/tiempo-extra/OFICIO_TIEMPO_EXTRA.docx");
     const docZip = new PizZip(buffer);
     const doc = new window.docxtemplater(docZip, {
       paragraphLoop: true,

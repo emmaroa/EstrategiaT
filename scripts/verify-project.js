@@ -28,7 +28,7 @@ function normalizeRoute(route) {
 }
 
 const requiredFiles = [
-  "index.html", "dashboard.html", "login.js", "js/core/supabase.js",
+  "index.html", "dashboard.html", "js/core/auth.js", "js/core/supabase.js",
   "js/core/permissions.js", "js/core/layout.js", "capacitor.config.json"
 ];
 
@@ -65,9 +65,9 @@ sqlFiles.forEach((file) => {
   }
 });
 
-const login = read("login.js");
+const login = read("js/core/auth.js");
 if (/\.eq\(["']password["']/i.test(login)) {
-  warnings.push("login.js: el acceso todavía compara contraseñas desde el cliente; migrar a Supabase Auth");
+  warnings.push("js/core/auth.js: el acceso todavía compara contraseñas desde el cliente; migrar a Supabase Auth");
 }
 
 const config = JSON.parse(read("capacitor.config.json"));

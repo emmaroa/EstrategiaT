@@ -1,14 +1,9 @@
 const db = window.supabaseClient || window.supabase?.client || window.SupabaseClient;
 
-const USUARIO_ACTUAL = {
-  id: "91cd00d7-d49c-437a-b640-7020b25c53c2",
-  usuario: "efigueroa",
-  rol: "super_admin"
-};
-
 let acuerdos = [];
 let usuarios = [];
 let acuerdoSeleccionadoParaTurnar = null;
+let acuerdoEditandoId = null;
 
 const ESTADOS = [
   "Nuevo",
@@ -42,6 +37,9 @@ document.addEventListener("DOMContentLoaded", () => {
   const filtroEstado = document.getElementById("filtroEstado");
   const filtroPrioridad = document.getElementById("filtroPrioridad");
   const filtroCategoria = document.getElementById("filtroCategoria");
+  const parametros = new URLSearchParams(window.location.search);
+  const estadoInicial = parametros.get("estado");
+  if (estadoInicial && filtroEstado && ESTADOS.includes(estadoInicial)) filtroEstado.value = estadoInicial;
 
   if (btnNuevo) btnNuevo.addEventListener("click", abrirModal);
   if (btnCerrar) btnCerrar.addEventListener("click", cerrarModal);
@@ -90,8 +88,17 @@ document.addEventListener("DOMContentLoaded", () => {
 function abrirModal() {
   if (typeof esSoloLectura === "function" && esSoloLectura()) return;
   const modal = document.getElementById("modalAcuerdo");
+  const usuarioActivo = obtenerUsuarioActivo();
+  const responsable = document.getElementById("asignadoA");
+  if (!acuerdoEditandoId) {
+    limpiarFormulario();
+    if (responsable && usuarioActivo?.id) responsable.value = usuarioActivo.id;
+  }
+  if (responsable) responsable.disabled = !puedeTurnarAcuerdos(usuarioActivo);
   modal?.classList.add("show");
   modal?.setAttribute("aria-hidden", "false");
+  document.getElementById("modalAcuerdoTitulo").textContent = acuerdoEditandoId ? "Editar acuerdo" : "Nuevo acuerdo";
+  document.getElementById("guardarAcuerdo").textContent = acuerdoEditandoId ? "Guardar cambios" : "Guardar acuerdo";
   document.getElementById("titulo")?.focus();
 }
 
@@ -100,6 +107,7 @@ function cerrarModal() {
   modal?.classList.remove("show");
   modal?.setAttribute("aria-hidden", "true");
   limpiarFormulario();
+  acuerdoEditandoId = null;
 }
 
 async function cargarAcuerdos() {
@@ -126,12 +134,12 @@ async function cargarAcuerdos() {
 
 function obtenerUsuarioActivo() {
   const almacenado = localStorage.getItem("usuarioActivo");
-  if (!almacenado) return USUARIO_ACTUAL;
+  if (!almacenado) return null;
 
   try {
     return JSON.parse(almacenado);
   } catch (error) {
-    return USUARIO_ACTUAL;
+    return null;
   }
 }
 
@@ -156,15 +164,19 @@ async function cargarUsuarios() {
 }
 
 function renderUsuariosTurnar() {
-  const select = document.getElementById("turnarUsuario");
-  if (!select) return;
-
-  select.innerHTML = "<option value=''>Selecciona un usuario</option>";
-  usuarios.forEach(function (usuario) {
-    const option = document.createElement("option");
-    option.value = usuario.id;
-    option.textContent = `${usuario.nombre || usuario.usuario} (${usuario.rol || "Usuario"})`;
-    select.appendChild(option);
+  [document.getElementById("turnarUsuario"), document.getElementById("asignadoA")].forEach(function (select) {
+    if (!select) return;
+    const valorActual = select.value;
+    select.innerHTML = "<option value=''>Sin responsable asignado</option>";
+    usuarios.filter(function (usuario) {
+      return normalizarRolAcuerdos(usuario.rol) !== "proveedor";
+    }).forEach(function (usuario) {
+      const option = document.createElement("option");
+      option.value = usuario.id;
+      option.textContent = `${usuario.nombre || usuario.usuario} (${usuario.rol || "Usuario"})`;
+      select.appendChild(option);
+    });
+    select.value = valorActual;
   });
 }
 
@@ -179,7 +191,7 @@ function normalizarRolAcuerdos(rol) {
 
 function esUsuarioAdministrador(usuarioActivo) {
   if (!usuarioActivo) return false;
-  return ["super_admin", "superadmin", "administrador_del_sistema", "admin", "jefe"].includes(
+  return ["super_admin", "superadmin", "administrador_del_sistema", "admin", "jefe", "director"].includes(
     normalizarRolAcuerdos(usuarioActivo.rol)
   );
 }
@@ -203,6 +215,12 @@ function puedeVerTodosLosAcuerdos(usuarioActivo) {
   return esUsuarioAdministrador(usuarioActivo) || esModeradorAcuerdos(usuarioActivo);
 }
 
+function puedeEditarAcuerdo(acuerdo, usuarioActivo) {
+  if (!acuerdo || !usuarioActivo) return false;
+  return esUsuarioAdministrador(usuarioActivo) || esModeradorAcuerdos(usuarioActivo) ||
+    acuerdo.asignado_a === usuarioActivo.id || acuerdo.creado_por === usuarioActivo.id;
+}
+
 function puedeTurnarAcuerdos(usuarioActivo) {
   return esUsuarioAdministrador(usuarioActivo) || esModeradorAcuerdos(usuarioActivo);
 }
@@ -210,7 +228,7 @@ function puedeTurnarAcuerdos(usuarioActivo) {
 function esUsuarioAsignadoTurnado(acuerdo, usuarioActivo) {
   if (!acuerdo || !usuarioActivo) return false;
   if (puedeVerTodosLosAcuerdos(usuarioActivo)) return true;
-  return acuerdo.asignado_a === usuarioActivo.id;
+  return acuerdo.asignado_a === usuarioActivo.id || acuerdo.creado_por === usuarioActivo.id;
 }
 
 function renderizarAcuerdos() {
@@ -275,6 +293,10 @@ function pintarTarjeta(acuerdo) {
 
   const soloLectura = typeof esSoloLectura === "function" && esSoloLectura();
   const estadoTexto = obtenerTextoEstadoAcuerdo(acuerdo);
+  const usuarioActivo = obtenerUsuarioActivo();
+  const responsable = obtenerNombreUsuario(obtenerUsuarioPorId(acuerdo.asignado_a)) || "Sin asignar";
+  const vencimiento = obtenerVencimientoAcuerdo(acuerdo);
+  if (vencimiento.clase) card.classList.add(vencimiento.clase);
 
   card.innerHTML = `
     <div class="acuerdo-top">
@@ -288,11 +310,14 @@ function pintarTarjeta(acuerdo) {
     <div class="acuerdo-meta">
       <small><strong>Categoría:</strong> ${escapar(acuerdo.categoria || "Sin categoría")}</small>
       <small><strong>Vence:</strong> ${formatearFecha(acuerdo.fecha_compromiso) || "Sin fecha"}</small>
+      <small><strong>Responsable:</strong> ${escapar(responsable)}</small>
       <small><strong>Estado:</strong> ${escapar(estadoTexto)}</small>
+      ${vencimiento.texto ? `<small class="acuerdo-vencimiento"><strong>${escapar(vencimiento.texto)}</strong></small>` : ""}
     </div>
 
     <div class="acuerdo-acciones">
       ${botonIconoAcuerdo("ver", "Ver acuerdo", "verAcuerdo('" + acuerdo.id + "')")}
+      ${!soloLectura && puedeEditarAcuerdo(acuerdo, usuarioActivo) ? botonIconoAcuerdo("editar", "Editar acuerdo", "editarAcuerdo('" + acuerdo.id + "')", "edit") : ""}
       ${soloLectura ? "" : botonesEstado(acuerdo)}
     </div>
   `;
@@ -309,7 +334,7 @@ function botonIconoAcuerdo(icono, etiqueta, onclick, clase) {
 
 function botonesEstado(acuerdo) {
   const usuarioActivo = obtenerUsuarioActivo();
-  const puedeModificarEstado = esUsuarioAdministrador(usuarioActivo) || acuerdo.asignado_a === usuarioActivo.id;
+  const puedeModificarEstado = puedeEditarAcuerdo(acuerdo, usuarioActivo);
   const puedeTurnar = puedeTurnarAcuerdos(usuarioActivo);
 
   if (!puedeModificarEstado && !puedeTurnar) {
@@ -320,13 +345,31 @@ function botonesEstado(acuerdo) {
     return botonIconoAcuerdo("turnar", "Turnar acuerdo", "abrirTurnarModal('" + acuerdo.id + "')", "orange");
   }
 
-  return `
-    ${botonIconoAcuerdo("proceso", "Marcar en proceso", "cambiarEstado('" + acuerdo.id + "', 'En proceso')", "blue")}
-    ${botonIconoAcuerdo("espera", "Marcar en espera", "cambiarEstado('" + acuerdo.id + "', 'En espera')")}
-    ${botonIconoAcuerdo("turnar", "Turnar acuerdo", "abrirTurnarModal('" + acuerdo.id + "')", "orange")}
-    ${botonIconoAcuerdo("revision", "Enviar a revision", "cambiarEstado('" + acuerdo.id + "', 'Para revisión')")}
-    ${botonIconoAcuerdo("concluir", "Concluir acuerdo", "cambiarEstado('" + acuerdo.id + "', 'Concluido')", "edit")}
-  `;
+  const accionesPorEstado = {
+    "Nuevo": [["proceso", "Iniciar acuerdo", "En proceso", "blue"]],
+    "Turnado": [["proceso", "Aceptar e iniciar", "En proceso", "blue"]],
+    "En proceso": [["espera", "Poner en espera", "En espera", ""], ["revision", "Enviar a revisión", "Para revisión", "orange"]],
+    "En espera": [["proceso", "Reanudar acuerdo", "En proceso", "blue"], ["revision", "Enviar a revisión", "Para revisión", "orange"]],
+    "Para revisión": [["proceso", "Regresar a proceso", "En proceso", "blue"], ["concluir", "Concluir acuerdo", "Concluido", "edit"]],
+    "Concluido": esUsuarioAdministrador(usuarioActivo) ? [["proceso", "Reabrir acuerdo", "En proceso", "blue"]] : []
+  };
+  const botones = (accionesPorEstado[acuerdo.estado] || []).map(function (accion) {
+    return botonIconoAcuerdo(accion[0], accion[1], "cambiarEstado('" + acuerdo.id + "', '" + accion[2] + "')", accion[3]);
+  });
+  if (puedeTurnar) botones.push(botonIconoAcuerdo("turnar", "Asignar responsable", "abrirTurnarModal('" + acuerdo.id + "')", "orange"));
+  return botones.join("");
+}
+
+function obtenerVencimientoAcuerdo(acuerdo) {
+  if (!acuerdo?.fecha_compromiso || acuerdo.estado === "Concluido") return { clase: "", texto: "" };
+  const hoy = new Date();
+  hoy.setHours(0, 0, 0, 0);
+  const fecha = new Date(String(acuerdo.fecha_compromiso).split("T")[0] + "T00:00:00");
+  const dias = Math.round((fecha - hoy) / 86400000);
+  if (dias < 0) return { clase: "esta-vencido", texto: "Vencido hace " + Math.abs(dias) + (Math.abs(dias) === 1 ? " día" : " días") };
+  if (dias === 0) return { clase: "vence-pronto", texto: "Vence hoy" };
+  if (dias <= 3) return { clase: "vence-pronto", texto: "Vence en " + dias + (dias === 1 ? " día" : " días") };
+  return { clase: "", texto: "" };
 }
 
 function obtenerUsuarioPorId(id) {
@@ -358,45 +401,93 @@ async function guardarAcuerdo() {
   const prioridad = document.getElementById("prioridad").value;
   const fechaCompromiso = document.getElementById("fechaCompromiso").value;
   const usuarioActivo = obtenerUsuarioActivo();
+  const asignadoSeleccionado = document.getElementById("asignadoA")?.value || usuarioActivo?.id || null;
 
-  if (!titulo) {
-    alert("Escribe el título del acuerdo.");
+  if (!usuarioActivo?.id) {
+    alert("La sesión no es válida. Inicia sesión nuevamente.");
     return;
   }
 
-  const nuevoAcuerdo = {
-    folio: `AC-${Date.now().toString().slice(-6)}`,
+  if (!titulo) {
+    alert("Escribe el título del acuerdo.");
+    document.getElementById("titulo")?.focus();
+    return;
+  }
+
+  const datosAcuerdo = {
     titulo,
     descripcion,
     categoria,
     prioridad,
-    estado: "Nuevo",
-    creado_por: usuarioActivo.id,
-    asignado_a: usuarioActivo.id,
+    asignado_a: asignadoSeleccionado,
     fecha_compromiso: fechaCompromiso || null,
-    creado_en: new Date().toISOString(),
     actualizado_en: new Date().toISOString()
   };
-
-  const { data, error } = await db.from("acuerdos").insert([nuevoAcuerdo]).select().single();
+  let data;
+  let error;
+  const anterior = acuerdoEditandoId ? acuerdos.find(a => a.id === acuerdoEditandoId) : null;
+  if (acuerdoEditandoId) {
+    ({ data, error } = await db.from("acuerdos").update(datosAcuerdo).eq("id", acuerdoEditandoId).select().single());
+  } else {
+    const nuevoAcuerdo = Object.assign({}, datosAcuerdo, {
+      folio: `AC-${Date.now().toString().slice(-6)}`,
+      estado: asignadoSeleccionado && asignadoSeleccionado !== usuarioActivo.id ? "Turnado" : "Nuevo",
+      creado_por: usuarioActivo.id,
+      creado_en: new Date().toISOString()
+    });
+    ({ data, error } = await db.from("acuerdos").insert([nuevoAcuerdo]).select().single());
+  }
 
   if (error) {
     console.error("Error guardando acuerdo:", error);
-    alert("No se pudo guardar el acuerdo. Revisa la tabla y columnas de Supabase.");
+    alert("No se pudo guardar el acuerdo. " + (error.message || "Revisa la conexión con Supabase."));
     return;
   }
 
-  if (data) {
-    acuerdos = [data, ...acuerdos];
-  }
+  const accionHistorial = acuerdoEditandoId ? "Acuerdo editado" : "Acuerdo creado";
+  const detalleHistorial = acuerdoEditandoId
+    ? describirCambiosAcuerdo(anterior, data || datosAcuerdo)
+    : "Se registró el acuerdo " + titulo;
+  await registrarHistorial(data?.id || acuerdoEditandoId, accionHistorial, detalleHistorial);
 
   if (typeof registrarAuditoria === "function") {
-    registrarAuditoria("Acuerdos", "Creó nuevo acuerdo", titulo);
+    registrarAuditoria("Acuerdos", acuerdoEditandoId ? "Editó acuerdo" : "Creó nuevo acuerdo", titulo, {
+      entidad_tipo: "acuerdos",
+      entidad_id: data?.id || acuerdoEditandoId,
+      metadata: { antes: anterior || null, despues: data || datosAcuerdo }
+    });
   }
 
+  const fueEdicion = Boolean(acuerdoEditandoId);
   cerrarModal();
   await cargarAcuerdos();
-  alert("Acuerdo guardado correctamente.");
+  alert(fueEdicion ? "Acuerdo actualizado correctamente." : "Acuerdo guardado correctamente.");
+}
+
+function describirCambiosAcuerdo(antes, despues) {
+  if (!antes) return "Datos del acuerdo actualizados.";
+  const etiquetas = {
+    titulo: "Título", descripcion: "Descripción", categoria: "Categoría",
+    prioridad: "Prioridad", fecha_compromiso: "Fecha compromiso", asignado_a: "Responsable"
+  };
+  const cambios = Object.keys(etiquetas).filter(function (campo) {
+    return String(antes[campo] ?? "") !== String(despues[campo] ?? "");
+  }).map(function (campo) { return etiquetas[campo]; });
+  return cambios.length ? "Se cambió: " + cambios.join(", ") + "." : "Se guardó sin cambios visibles.";
+}
+
+function editarAcuerdo(id) {
+  const acuerdo = acuerdos.find(a => a.id === id);
+  const usuarioActivo = obtenerUsuarioActivo();
+  if (!acuerdo || !puedeEditarAcuerdo(acuerdo, usuarioActivo)) return;
+  acuerdoEditandoId = id;
+  document.getElementById("titulo").value = acuerdo.titulo || "";
+  document.getElementById("descripcion").value = acuerdo.descripcion || "";
+  document.getElementById("categoria").value = acuerdo.categoria || "Oficios";
+  document.getElementById("prioridad").value = acuerdo.prioridad || "Media";
+  document.getElementById("fechaCompromiso").value = String(acuerdo.fecha_compromiso || "").split("T")[0];
+  document.getElementById("asignadoA").value = acuerdo.asignado_a || "";
+  abrirModal();
 }
 
 function limpiarFormulario() {
@@ -405,13 +496,30 @@ function limpiarFormulario() {
   document.getElementById("categoria").value = "Oficios";
   document.getElementById("prioridad").value = "Media";
   document.getElementById("fechaCompromiso").value = "";
+  const responsable = document.getElementById("asignadoA");
+  if (responsable) responsable.value = "";
 }
 
 async function cambiarEstado(id, estado) {
-  const updateData = { estado };
+  const acuerdo = acuerdos.find(a => a.id === id);
+  const usuarioActivo = obtenerUsuarioActivo();
+  if (!acuerdo || !puedeEditarAcuerdo(acuerdo, usuarioActivo)) {
+    alert("No tienes permiso para actualizar este acuerdo.");
+    return;
+  }
+  const confirmado = await ETFeedback.confirmar({
+    title: estado === "Concluido" ? "Concluir acuerdo" : "Actualizar seguimiento",
+    message: "El acuerdo cambiará de “" + acuerdo.estado + "” a “" + estado + "”.",
+    confirmLabel: estado === "Concluido" ? "Concluir" : "Cambiar estado"
+  });
+  if (!confirmado) return;
+
+  const updateData = { estado, actualizado_en: new Date().toISOString() };
 
   if (estado === "Concluido") {
     updateData.fecha_conclusion = new Date().toISOString();
+  } else if (acuerdo.estado === "Concluido") {
+    updateData.fecha_conclusion = null;
   }
 
   const { error } = await db
@@ -425,10 +533,13 @@ async function cambiarEstado(id, estado) {
     return;
   }
 
-  await registrarHistorial(id, "Cambio de estado", "Estado cambiado a " + estado);
+  await registrarHistorial(id, "Cambio de estado", "Estado cambiado de " + acuerdo.estado + " a " + estado);
 
   if (typeof registrarAuditoria === "function") {
-    registrarAuditoria("Acuerdos", "Cambió estado", "Estado cambiado a " + estado);
+    registrarAuditoria("Acuerdos", "Cambió estado", "Estado cambiado de " + acuerdo.estado + " a " + estado, {
+      entidad_tipo: "acuerdos", entidad_id: id,
+      metadata: { antes: { estado: acuerdo.estado }, despues: { estado: estado } }
+    });
   }
 
   await cargarAcuerdos();
@@ -478,6 +589,7 @@ async function confirmarTurnar() {
     return;
   }
 
+  const acuerdoAnterior = acuerdos.find(a => a.id === acuerdoSeleccionadoParaTurnar);
   const { error } = await db
     .from("acuerdos")
     .update({
@@ -502,7 +614,13 @@ async function confirmarTurnar() {
   await registrarHistorial(acuerdoSeleccionadoParaTurnar, "Acuerdo turnado", detalle);
 
   if (typeof registrarAuditoria === "function") {
-    registrarAuditoria("Acuerdos", "Turnó acuerdo", detalle);
+    registrarAuditoria("Acuerdos", "Turnó acuerdo", detalle, {
+      entidad_tipo: "acuerdos", entidad_id: acuerdoSeleccionadoParaTurnar,
+      metadata: {
+        antes: { asignado_a: acuerdoAnterior?.asignado_a || null, estado: acuerdoAnterior?.estado || null },
+        despues: { asignado_a: usuarioSeleccionado, estado: "Turnado" }
+      }
+    });
   }
 
   cerrarModalTurnar();
@@ -523,19 +641,66 @@ async function registrarHistorial(acuerdoId, accion, detalle) {
   }
 }
 
-function verAcuerdo(id) {
+async function verAcuerdo(id) {
   const acuerdo = acuerdos.find(a => a.id === id);
   if (!acuerdo) return;
+  const historial = await obtenerHistorialAcuerdo(id);
+  const actividad = historial.length
+    ? historial.slice(0, 8).map(function (item) {
+        return {
+          label: formatearFechaHoraAcuerdo(item.created_at) + " · " + (item.accion || "Movimiento"),
+          value: (item.detalle || "Sin detalle") + (item.usuario_nombre ? " — " + item.usuario_nombre : ""),
+          wide: true
+        };
+      })
+    : [{ label: "Actividad", value: "Sin movimientos registrados", wide: true }];
+  const usuarioActivo = obtenerUsuarioActivo();
+  const acciones = puedeEditarAcuerdo(acuerdo, usuarioActivo) ? [{
+    label: "Editar acuerdo", variant: "primary", onClick: function () { editarAcuerdo(id); }
+  }] : [];
+  ETLayout.abrirFichaDetalle({
+    eyebrow: acuerdo.folio || "Acuerdo",
+    title: acuerdo.titulo || "Sin título",
+    subtitle: acuerdo.descripcion || "Sin descripción",
+    status: { label: obtenerTextoEstadoAcuerdo(acuerdo), tone: obtenerTonoEstadoAcuerdo(acuerdo.estado) },
+    sections: [
+      { title: "Seguimiento", fields: [
+        { label: "Responsable", value: obtenerNombreUsuario(obtenerUsuarioPorId(acuerdo.asignado_a)) },
+        { label: "Fecha compromiso", value: formatearFecha(acuerdo.fecha_compromiso) },
+        { label: "Prioridad", value: acuerdo.prioridad },
+        { label: "Categoría", value: acuerdo.categoria }
+      ] },
+      { title: "Actividad reciente", fields: actividad }
+    ],
+    actions: acciones
+  });
+}
 
-  alert(
-    "Folio: " + (acuerdo.folio || "Sin folio") +
-    "\nTítulo: " + (acuerdo.titulo || "") +
-    "\nDescripción: " + (acuerdo.descripcion || "Sin descripción") +
-    "\nCategoría: " + (acuerdo.categoria || "Sin categoría") +
-    "\nPrioridad: " + (acuerdo.prioridad || "Media") +
-    "\nEstado: " + obtenerTextoEstadoAcuerdo(acuerdo) +
-    "\nFecha compromiso: " + (formatearFecha(acuerdo.fecha_compromiso) || "Sin fecha")
-  );
+async function obtenerHistorialAcuerdo(id) {
+  const { data, error } = await db.from("acuerdos_historial")
+    .select("accion,detalle,created_at,usuario_id")
+    .eq("acuerdo_id", id).order("created_at", { ascending: false });
+  if (error) {
+    console.warn("No se pudo consultar el historial:", error);
+    return [];
+  }
+  return (data || []).map(function (item) {
+    return Object.assign({}, item, { usuario_nombre: obtenerNombreUsuario(obtenerUsuarioPorId(item.usuario_id)) });
+  });
+}
+
+function formatearFechaHoraAcuerdo(fecha) {
+  if (!fecha) return "Sin fecha";
+  const date = new Date(fecha);
+  return Number.isNaN(date.getTime()) ? String(fecha) : date.toLocaleString("es-MX", { dateStyle: "short", timeStyle: "short" });
+}
+
+function obtenerTonoEstadoAcuerdo(estado) {
+  if (estado === "Concluido") return "green";
+  if (estado === "Para revisión") return "orange";
+  if (estado === "En proceso") return "blue";
+  if (estado === "En espera") return "amber";
+  return "gray";
 }
 
 function actualizarKPIs(lista) {

@@ -174,6 +174,77 @@
     return /(\/modulos\/|\/modules\/)/.test(pathname || "");
   }
 
+  function prepararAccesibilidad(usuario) {
+    const main = document.querySelector("main.main-content");
+    if (!main || document.getElementById("etAccessibilityDialog")) return;
+    main.id = main.id || "contenidoPrincipal";
+    const salto = document.createElement("a");
+    salto.className = "et-skip-link";
+    salto.href = "#" + main.id;
+    salto.textContent = "Saltar al contenido principal";
+    document.body.insertBefore(salto, document.body.firstChild);
+
+    const clave = "etAccessibility_" + (usuario.id || usuario.usuario || "local");
+    let preferencias = {};
+    try { preferencias = JSON.parse(localStorage.getItem(clave) || "{}"); } catch (_) {}
+
+    function aplicar() {
+      document.documentElement.dataset.etTextSize = preferencias.textSize || "normal";
+      document.documentElement.dataset.etContrast = preferencias.contrast || "normal";
+      document.documentElement.dataset.etDensity = preferencias.density || "comfortable";
+      document.documentElement.dataset.etMotion = preferencias.motion || "system";
+    }
+    aplicar();
+
+    const dialogo = document.createElement("dialog");
+    dialogo.id = "etAccessibilityDialog";
+    dialogo.className = "et-accessibility-dialog";
+    dialogo.innerHTML = '<form method="dialog"><header><div><span>Preferencias visuales</span><h2>Accesibilidad</h2><p>Ajusta la interfaz para trabajar con mayor comodidad.</p></div><button value="cancel" aria-label="Cerrar">×</button></header>' +
+      '<div class="et-accessibility-options">' +
+      '<fieldset><legend>Tamaño del texto</legend><label><input type="radio" name="textSize" value="normal"> Normal</label><label><input type="radio" name="textSize" value="large"> Grande</label><label><input type="radio" name="textSize" value="xlarge"> Muy grande</label></fieldset>' +
+      '<fieldset><legend>Contraste</legend><label><input type="radio" name="contrast" value="normal"> Normal</label><label><input type="radio" name="contrast" value="high"> Alto contraste</label></fieldset>' +
+      '<fieldset><legend>Densidad de la interfaz</legend><label><input type="radio" name="density" value="comfortable"> Cómoda</label><label><input type="radio" name="density" value="compact"> Compacta</label></fieldset>' +
+      '<fieldset><legend>Movimiento</legend><label><input type="radio" name="motion" value="system"> Según el dispositivo</label><label><input type="radio" name="motion" value="reduced"> Reducido</label></fieldset>' +
+      '</div><footer><button type="button" class="btn-secondary" data-reset-accessibility>Restablecer</button><button type="button" class="btn-small" data-save-accessibility>Guardar preferencias</button></footer></form>';
+    document.body.appendChild(dialogo);
+
+    const boton = document.createElement("button");
+    boton.type = "button";
+    boton.className = "et-accessibility-trigger";
+    boton.setAttribute("aria-label", "Abrir preferencias de accesibilidad");
+    boton.textContent = "Aa";
+    const acciones = document.getElementById("etTemaContainer")?.parentElement || document.querySelector(".topbar, .page-header");
+    if (acciones) acciones.insertBefore(boton, document.getElementById("etTemaContainer") || null);
+
+    function reflejar() {
+      ["textSize", "contrast", "density", "motion"].forEach(function (nombre) {
+        const valor = preferencias[nombre] || ({ textSize: "normal", contrast: "normal", density: "comfortable", motion: "system" })[nombre];
+        const control = dialogo.querySelector('[name="' + nombre + '"][value="' + valor + '"]');
+        if (control) control.checked = true;
+      });
+    }
+    function abrir() { reflejar(); dialogo.showModal(); }
+    boton.addEventListener("click", abrir);
+    dialogo.querySelector("[data-save-accessibility]").addEventListener("click", function () {
+      const datos = new FormData(dialogo.querySelector("form"));
+      preferencias = Object.fromEntries(datos.entries());
+      localStorage.setItem(clave, JSON.stringify(preferencias));
+      aplicar();
+      dialogo.close();
+      mostrarToast("Preferencias visuales guardadas.", "success");
+    });
+    dialogo.querySelector("[data-reset-accessibility]").addEventListener("click", function () {
+      preferencias = {};
+      localStorage.removeItem(clave);
+      aplicar();
+      reflejar();
+    });
+    dialogo.addEventListener("click", function (event) { if (event.target === dialogo) dialogo.close(); });
+    document.addEventListener("keydown", function (event) {
+      if (event.altKey && event.key.toLowerCase() === "a") { event.preventDefault(); abrir(); }
+    });
+  }
+
   function iconoModulo(modulo) {
     const contenido = ICONOS_MODULOS[modulo] || ICONOS_MODULOS.Dashboard;
     return '<svg class="et-nav-icon" viewBox="0 0 24 24" aria-hidden="true">' + contenido + "</svg>";
@@ -207,6 +278,86 @@
     nav.setAttribute("aria-label", "Navegación principal");
   }
 
+  function claveNavegacion(tipo, usuario) {
+    return "etNav" + tipo + "_" + String((usuario || {}).id || (usuario || {}).usuario || "anonimo");
+  }
+
+  function leerListaNavegacion(tipo, usuario) {
+    try {
+      const lista = JSON.parse(localStorage.getItem(claveNavegacion(tipo, usuario)) || "[]");
+      return Array.isArray(lista) ? lista.filter(Boolean) : [];
+    } catch (_) { return []; }
+  }
+
+  function guardarListaNavegacion(tipo, usuario, lista) {
+    localStorage.setItem(claveNavegacion(tipo, usuario), JSON.stringify(lista));
+  }
+
+  function registrarModuloReciente(usuario, modulo) {
+    if (!modulo || modulo === "Dashboard") return;
+    const recientes = leerListaNavegacion("Recientes", usuario).filter(function (item) { return item !== modulo; });
+    recientes.unshift(modulo);
+    guardarListaNavegacion("Recientes", usuario, recientes.slice(0, 5));
+  }
+
+  function etiquetaNavegacion(modulo) {
+    if (modulo === "Portal Proveedor") return "Dashboard proveedor";
+    if (modulo === "Cotizaciones Proveedor") return "Cotizaciones sin requisición";
+    return modulo;
+  }
+
+  function filaNavegacionPersonalizada(modulo, moduloActivo, desdeModulo, favoritos, contexto) {
+    const ruta = global.ETPermissions.obtenerRutaModulo(modulo, desdeModulo);
+    const favorito = favoritos.includes(modulo);
+    const active = modulo === moduloActivo ? " active" : "";
+    const current = modulo === moduloActivo ? ' aria-current="page"' : "";
+    return '<div class="et-nav-row" data-nav-module="' + modulo.toLowerCase() + '" data-nav-context="' + contexto + '">' +
+      '<a href="' + ruta + '" class="nav-item' + active + '" title="' + modulo + '"' + current + ">" +
+        iconoModulo(modulo) + '<span class="et-nav-label">' + etiquetaNavegacion(modulo) + "</span></a>" +
+      '<button type="button" class="et-nav-favorite' + (favorito ? " is-favorite" : "") + '" data-favorite-module="' + modulo +
+        '" aria-label="' + (favorito ? "Quitar de favoritos" : "Agregar a favoritos") + '" title="' +
+        (favorito ? "Quitar de favoritos" : "Agregar a favoritos") + '"><span aria-hidden="true">' +
+        (favorito ? "&#9733;" : "&#9734;") + "</span></button></div>";
+  }
+
+  function renderizarNavegacionPersonalizada(nav, permitidos, moduloActivo, desdeModulo, usuario) {
+    let favoritos = leerListaNavegacion("Favoritos", usuario).filter(function (modulo) { return permitidos.includes(modulo); });
+    const recientes = leerListaNavegacion("Recientes", usuario).filter(function (modulo) {
+      return permitidos.includes(modulo) && !favoritos.includes(modulo);
+    }).slice(0, 4);
+    const accesos = favoritos.concat(recientes);
+    const grupoAccesos = accesos.length
+      ? '<section class="et-nav-group et-nav-personal" aria-label="Tus accesos"><h2 class="et-nav-group-title">Tus accesos</h2>' +
+        accesos.map(function (modulo) {
+          return filaNavegacionPersonalizada(modulo, moduloActivo, desdeModulo, favoritos, favoritos.includes(modulo) ? "favorito" : "reciente");
+        }).join("") + "</section>"
+      : "";
+
+    nav.innerHTML = grupoAccesos + GRUPOS_NAVEGACION.map(function (grupo) {
+      const modulosGrupo = grupo.modulos.filter(function (modulo) { return permitidos.includes(modulo); });
+      if (!modulosGrupo.length) return "";
+      return '<section class="et-nav-group" aria-label="' + grupo.nombre + '"><h2 class="et-nav-group-title">' + grupo.nombre + "</h2>" +
+        modulosGrupo.map(function (modulo) {
+          return filaNavegacionPersonalizada(modulo, moduloActivo, desdeModulo, favoritos, "general");
+        }).join("") + "</section>";
+    }).join("");
+    nav.setAttribute("aria-label", "Navegación principal");
+    nav.etRender = function () { renderizarNavegacionPersonalizada(nav, permitidos, moduloActivo, desdeModulo, usuario); };
+    nav.querySelectorAll("[data-favorite-module]").forEach(function (boton) {
+      boton.addEventListener("click", function () {
+        const modulo = boton.dataset.favoriteModule;
+        favoritos = leerListaNavegacion("Favoritos", usuario);
+        favoritos = favoritos.includes(modulo)
+          ? favoritos.filter(function (item) { return item !== modulo; })
+          : favoritos.concat(modulo);
+        guardarListaNavegacion("Favoritos", usuario, favoritos);
+        nav.etRender();
+        const buscador = document.querySelector(".et-nav-search input");
+        if (buscador && buscador.value) buscador.dispatchEvent(new Event("input"));
+      });
+    });
+  }
+
   function crearBotonMenu(clase, etiqueta) {
     const boton = document.createElement("button");
     boton.type = "button";
@@ -221,6 +372,44 @@
     document.body.classList.remove("et-nav-open");
     const boton = document.querySelector(".et-mobile-menu");
     if (boton) boton.setAttribute("aria-expanded", "false");
+  }
+
+  function prepararBuscadorNavegacion(sidebar, nav) {
+    if (!sidebar || !nav || sidebar.querySelector(".et-nav-search")) return;
+    const contenedor = document.createElement("label");
+    contenedor.className = "et-nav-search";
+    contenedor.innerHTML =
+      '<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m16 16 5 5"/></svg>' +
+      '<input type="search" placeholder="Buscar módulo" aria-label="Buscar en el menú">' +
+      '<kbd aria-hidden="true">/</kbd>';
+    sidebar.insertBefore(contenedor, nav);
+    const input = contenedor.querySelector("input");
+
+    function normalizar(valor) {
+      return String(valor || "").normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase().trim();
+    }
+
+    input.addEventListener("input", function () {
+      const termino = normalizar(input.value);
+      nav.querySelectorAll(".et-nav-row").forEach(function (fila) {
+        fila.hidden = Boolean(termino) && !normalizar(fila.dataset.navModule).includes(termino) &&
+          !normalizar(fila.textContent).includes(termino);
+      });
+      nav.querySelectorAll(".et-nav-group").forEach(function (grupo) {
+        grupo.hidden = !grupo.querySelector(".et-nav-row:not([hidden])");
+      });
+      nav.classList.toggle("is-filtering", Boolean(termino));
+      nav.classList.toggle("is-empty", Boolean(termino) && !nav.querySelector(".et-nav-row:not([hidden])"));
+    });
+
+    document.addEventListener("keydown", function (event) {
+      const escribiendo = /INPUT|TEXTAREA|SELECT/.test((document.activeElement || {}).tagName || "");
+      if (event.key === "/" && !escribiendo && !event.ctrlKey && !event.metaKey && !event.altKey) {
+        event.preventDefault();
+        if (global.innerWidth <= 820) document.body.classList.add("et-nav-open");
+        input.focus();
+      }
+    });
   }
 
   function prepararSidebar(usuario) {
@@ -263,6 +452,8 @@
       });
     }
 
+    prepararBuscadorNavegacion(sidebar, sidebar.querySelector("#etNav"));
+
     if (localStorage.getItem("etSidebarCollapsed") === "1") {
       document.body.classList.add("et-nav-collapsed");
     }
@@ -273,10 +464,28 @@
     const rol = String(usuario.rol || "Sin rol");
     perfil.innerHTML =
       '<span class="et-profile-avatar" aria-hidden="true"></span>' +
-      '<span class="et-profile-copy"><strong></strong><small></small></span>';
+      '<span class="et-profile-copy"><strong></strong><small></small></span>' +
+      '<svg class="et-profile-chevron" viewBox="0 0 24 24" aria-hidden="true"><path d="m9 6 6 6-6 6"/></svg>';
     perfil.querySelector(".et-profile-avatar").textContent = nombre.charAt(0).toUpperCase();
+    if (usuario.avatar_url) {
+      perfil.querySelector(".et-profile-avatar").style.backgroundImage = 'url("' + String(usuario.avatar_url).replace(/"/g, "%22") + '")';
+      perfil.querySelector(".et-profile-avatar").classList.add("has-photo");
+      perfil.querySelector(".et-profile-avatar").textContent = "";
+    }
     perfil.querySelector("strong").textContent = nombre;
     perfil.querySelector("small").textContent = rol;
+    perfil.setAttribute("role", "link");
+    perfil.setAttribute("tabindex", "0");
+    perfil.setAttribute("title", "Abrir Mi perfil");
+    perfil.addEventListener("click", function () {
+      global.location.href = esRutaDeModulo(global.location.pathname) ? "mi-perfil.html" : "modulos/mi-perfil.html";
+    });
+    perfil.addEventListener("keydown", function (event) {
+      if (event.key === "Enter" || event.key === " ") {
+        event.preventDefault();
+        perfil.click();
+      }
+    });
 
     const logout = document.getElementById("etLogout");
     const footerExistente = sidebar.querySelector(".sidebar-footer");
@@ -359,6 +568,59 @@
         header.appendChild(botonBuscarUnidad);
       }
     }
+  }
+
+  function prepararEstructuraModulo(moduloActivo) {
+    if (moduloActivo === "Dashboard") return;
+    const main = document.querySelector("main.main-content");
+    if (!main || main.dataset.etModuleStructured === "1") return;
+    main.dataset.etModuleStructured = "1";
+    main.classList.add("et-module-shell");
+
+    const header = main.querySelector(":scope > .topbar, :scope > .page-header");
+    if (header) {
+      header.classList.add("et-module-header");
+      const copia = header.querySelector(":scope > div:first-child");
+      const titulo = copia && copia.querySelector("h1");
+      if (copia && titulo && !copia.querySelector(".et-module-eyebrow")) {
+        const etiqueta = document.createElement("span");
+        etiqueta.className = "et-module-eyebrow";
+        etiqueta.textContent = "Módulo operativo";
+        copia.insertBefore(etiqueta, titulo);
+      }
+      if (copia && titulo && !copia.querySelector("p")) {
+        const descripcion = document.createElement("p");
+        descripcion.textContent = global.ETPermissions.DESCRIPCIONES[moduloActivo] || "Consulta y administra la información de este módulo.";
+        titulo.insertAdjacentElement("afterend", descripcion);
+      }
+      const acciones = header.querySelector(".et-header-actions");
+      if (acciones) {
+        const principal = acciones.querySelector(".btn-small, .btn-primary");
+        if (principal) principal.classList.add("et-primary-action");
+      }
+    }
+
+    main.querySelectorAll(":scope > .kpi-grid, :scope > .stats-grid").forEach(function (seccion) {
+      seccion.classList.add("et-module-kpis");
+      if (!seccion.previousElementSibling || !seccion.previousElementSibling.classList.contains("et-section-label")) {
+        const titulo = document.createElement("div");
+        titulo.className = "et-section-label";
+        titulo.innerHTML = "<span>Resumen</span><strong>Indicadores principales</strong>";
+        seccion.insertAdjacentElement("beforebegin", titulo);
+      }
+    });
+
+    main.querySelectorAll(":scope > .panel, :scope > section.panel").forEach(function (panel, indice) {
+      panel.classList.add("et-module-content");
+      const encabezado = panel.querySelector(":scope > .panel-header");
+      const titulo = encabezado && encabezado.querySelector("h2, h3");
+      if (titulo) {
+        if (!titulo.id) titulo.id = "etPanelTitle" + indice;
+        panel.setAttribute("aria-labelledby", titulo.id);
+      }
+      const filtros = panel.querySelector(":scope > .filters");
+      if (filtros) filtros.classList.add("et-module-filters");
+    });
   }
 
   const FUENTES_BUSQUEDA_GLOBAL = [
@@ -725,10 +987,9 @@
   }
 
   async function prepararNotificacionesProveedor(usuario) {
-    const rol = String(usuario && usuario.rol || "").trim().toLowerCase();
     const client = global.supabaseClient;
     const header = document.querySelector(".topbar, .page-header");
-    if (rol !== "proveedor" || !client || !header || document.querySelector(".et-notifications")) return;
+    if (!usuario?.id || !client || !header || document.querySelector(".et-notifications")) return;
 
     const acciones = document.getElementById("etTemaContainer")?.parentElement || header;
     const contenedor = document.createElement("div");
@@ -739,7 +1000,7 @@
         '<span class="et-notifications-badge" hidden>0</span>' +
       '</button>' +
       '<section class="et-notifications-panel" hidden>' +
-        '<div class="et-notifications-header"><strong>Notificaciones</strong><button type="button" data-read-all>Marcar todas como leídas</button></div>' +
+        '<div class="et-notifications-header"><div><strong>Notificaciones</strong><small data-notification-summary>Centro de avisos</small></div><div class="et-notifications-header-actions"><button type="button" data-read-all>Leer todas</button><button type="button" data-close-notifications aria-label="Cerrar notificaciones">×</button></div></div>' +
         '<div class="et-notifications-list"><p class="et-notifications-empty">Cargando…</p></div>' +
       '</section>';
     acciones.insertBefore(contenedor, document.getElementById("etTemaContainer") || null);
@@ -748,25 +1009,69 @@
     const panel = contenedor.querySelector(".et-notifications-panel");
     const lista = contenedor.querySelector(".et-notifications-list");
     const badge = contenedor.querySelector(".et-notifications-badge");
+    panel.classList.add("et-notifications-panel-floating");
+    document.body.appendChild(panel);
     let notificaciones = [];
+
+    function grupoFecha(fechaValor) {
+      const fecha = new Date(fechaValor);
+      const hoy = new Date();
+      const inicioHoy = new Date(hoy.getFullYear(), hoy.getMonth(), hoy.getDate());
+      const inicioFecha = new Date(fecha.getFullYear(), fecha.getMonth(), fecha.getDate());
+      const dias = Math.round((inicioHoy - inicioFecha) / 86400000);
+      if (dias <= 0) return "Hoy";
+      if (dias === 1) return "Ayer";
+      if (dias <= 7) return "Esta semana";
+      return "Anteriores";
+    }
+
+    function tipoNotificacion(item) {
+      const texto = (String(item.tipo || "") + " " + String(item.titulo || "") + " " + String(item.mensaje || ""))
+        .normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
+      if (/acuerdo|compromiso/.test(texto)) return { clase: "agreement", icono: "A", etiqueta: "Acuerdo" };
+      if (/peticion|cotizacion|requisicion/.test(texto)) return { clase: "request", icono: "P", etiqueta: "Petición" };
+      if (/rechaz|vencid|error|urgente/.test(texto)) return { clase: "alert", icono: "!", etiqueta: "Alerta" };
+      return { clase: "info", icono: "i", etiqueta: "Información" };
+    }
+
+    function posicionarPanel() {
+      if (panel.hidden) return;
+      const rect = trigger.getBoundingClientRect();
+      const margen = 14;
+      panel.style.top = Math.min(rect.bottom + 10, global.innerHeight - 120) + "px";
+      panel.style.right = Math.max(margen, global.innerWidth - rect.right) + "px";
+      panel.style.maxHeight = Math.max(180, global.innerHeight - rect.bottom - 28) + "px";
+      lista.style.maxHeight = Math.max(120, global.innerHeight - rect.bottom - 92) + "px";
+    }
 
     function renderizar() {
       const nuevas = notificaciones.filter(function (item) { return !item.leida; }).length;
       badge.hidden = nuevas === 0;
       badge.textContent = nuevas > 99 ? "99+" : String(nuevas);
       trigger.classList.toggle("has-new", nuevas > 0);
-      lista.innerHTML = notificaciones.length ? notificaciones.map(function (item) {
-        return '<button type="button" class="et-notification-item' + (item.leida ? "" : " is-new") + '" data-notification-id="' + escaparNotificacion(item.id) + '">' +
-          '<strong>' + escaparNotificacion(item.titulo || "Actualización") + '</strong>' +
-          '<span>' + escaparNotificacion(item.mensaje || "") + '</span>' +
-          '<small>' + escaparNotificacion(new Date(item.created_at).toLocaleString("es-MX")) + '</small>' +
-        '</button>';
-      }).join("") : '<p class="et-notifications-empty">No hay notificaciones recientes.</p>';
+      panel.querySelector("[data-notification-summary]").textContent = nuevas
+        ? nuevas + (nuevas === 1 ? " aviso sin leer" : " avisos sin leer") : "Todo está al día";
+      panel.querySelector("[data-read-all]").disabled = nuevas === 0;
+      const grupos = ["Hoy", "Ayer", "Esta semana", "Anteriores"];
+      lista.innerHTML = notificaciones.length ? grupos.map(function (grupo) {
+        const items = notificaciones.filter(function (item) { return grupoFecha(item.created_at) === grupo; });
+        if (!items.length) return "";
+        return '<section class="et-notification-group"><h3>' + grupo + '</h3>' + items.map(function (item) {
+          const tipo = tipoNotificacion(item);
+          return '<article class="et-notification-item is-' + tipo.clase + (item.leida ? "" : " is-new") + '" data-notification-id="' + escaparNotificacion(item.id) + '">' +
+            '<span class="et-notification-icon" aria-hidden="true">' + tipo.icono + '</span><div class="et-notification-copy">' +
+            '<span class="et-notification-type">' + tipo.etiqueta + '</span><strong>' + escaparNotificacion(item.titulo || "Actualización") + '</strong>' +
+            '<p>' + escaparNotificacion(item.mensaje || "Sin detalles adicionales.") + '</p>' +
+            '<small>' + escaparNotificacion(new Date(item.created_at).toLocaleString("es-MX", { dateStyle: "medium", timeStyle: "short" })) + '</small>' +
+            '<div class="et-notification-actions">' + (!item.leida ? '<button type="button" data-read-one>Marcar como leída</button>' : '') +
+            (item.enlace ? '<button type="button" class="is-primary" data-open-notification>Ver elemento</button>' : '') + '</div></div></article>';
+        }).join("") + "</section>";
+      }).join("") : '<div class="et-notifications-empty"><span aria-hidden="true">✓</span><strong>Todo está al día</strong><p>No hay notificaciones recientes.</p></div>';
     }
 
     async function cargar() {
       const resultado = await client.from("notificaciones")
-        .select("id,titulo,mensaje,leida,enlace,created_at")
+        .select("id,tipo,titulo,mensaje,leida,enlace,created_at")
         .eq("usuario_id", usuario.id).order("created_at", { ascending: false }).limit(20);
       if (resultado.error) {
         console.error("No se pudieron cargar las notificaciones:", resultado.error);
@@ -781,27 +1086,40 @@
       event.stopPropagation();
       panel.hidden = !panel.hidden;
       trigger.setAttribute("aria-expanded", String(!panel.hidden));
+      posicionarPanel();
     });
     document.addEventListener("click", function (event) {
-      if (!contenedor.contains(event.target)) {
+      if (!contenedor.contains(event.target) && !panel.contains(event.target)) {
         panel.hidden = true;
         trigger.setAttribute("aria-expanded", "false");
       }
     });
+    global.addEventListener("resize", posicionarPanel);
+    global.addEventListener("scroll", posicionarPanel, true);
     lista.addEventListener("click", async function (event) {
-      const boton = event.target.closest("[data-notification-id]");
-      if (!boton) return;
-      const id = boton.dataset.notificationId;
+      const tarjeta = event.target.closest("[data-notification-id]");
+      if (!tarjeta) return;
+      const id = tarjeta.dataset.notificationId;
       const item = notificaciones.find(function (fila) { return fila.id === id; });
-      if (item && !item.leida) {
+      const marcar = event.target.closest("[data-read-one]");
+      const abrirElemento = event.target.closest("[data-open-notification]");
+      if (item && !item.leida && (marcar || abrirElemento)) {
         const resultado = await client.from("notificaciones").update({ leida: true }).eq("id", id).eq("usuario_id", usuario.id);
         if (!resultado.error) { item.leida = true; renderizar(); }
       }
-      if (item && item.enlace) global.location.href = esRutaDeModulo(global.location.pathname) ? item.enlace.replace(/^modulos\//, "") : item.enlace;
+      if (abrirElemento && item && item.enlace) global.location.href = esRutaDeModulo(global.location.pathname) ? item.enlace.replace(/^modulos\//, "") : item.enlace;
     });
-    contenedor.querySelector("[data-read-all]").addEventListener("click", async function () {
+    panel.querySelector("[data-read-all]").addEventListener("click", async function () {
       const resultado = await client.from("notificaciones").update({ leida: true }).eq("usuario_id", usuario.id).eq("leida", false);
       if (!resultado.error) { notificaciones.forEach(function (item) { item.leida = true; }); renderizar(); }
+    });
+    panel.querySelector("[data-close-notifications]").addEventListener("click", function () {
+      panel.hidden = true;
+      trigger.setAttribute("aria-expanded", "false");
+      trigger.focus();
+    });
+    document.addEventListener("keydown", function (event) {
+      if (event.key === "Escape" && !panel.hidden) panel.querySelector("[data-close-notifications]").click();
     });
     await cargar();
   }
@@ -877,6 +1195,16 @@
       });
       if (!controles.length) return;
 
+      const alternar = document.createElement("button");
+      alternar.type = "button";
+      alternar.className = "et-filter-toggle";
+      alternar.setAttribute("aria-expanded", "false");
+      alternar.innerHTML =
+        '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 6h16M7 12h10M10 18h4"/></svg>' +
+        '<span>Mostrar filtros</span><b data-et-filter-count hidden>0</b>';
+      filtros.prepend(alternar);
+      filtros.classList.add("et-filter-collapsed");
+
       const limpiar = document.createElement("button");
       limpiar.type = "button";
       limpiar.className = "et-filter-reset";
@@ -887,10 +1215,21 @@
       filtros.appendChild(limpiar);
 
       function actualizarBoton() {
-        limpiar.disabled = !controles.some(function (control) {
+        const activos = controles.filter(function (control) {
           return Boolean(valorControl(control));
-        });
+        }).length;
+        limpiar.disabled = activos === 0;
+        const contador = alternar.querySelector("[data-et-filter-count]");
+        contador.textContent = String(activos);
+        contador.hidden = activos === 0;
       }
+
+      alternar.addEventListener("click", function () {
+        const expandido = alternar.getAttribute("aria-expanded") === "true";
+        alternar.setAttribute("aria-expanded", String(!expandido));
+        alternar.querySelector("span").textContent = expandido ? "Mostrar filtros" : "Ocultar filtros";
+        filtros.classList.toggle("et-filter-collapsed", expandido);
+      });
 
       controles.forEach(function (control) {
         control.addEventListener("input", actualizarBoton);
@@ -931,6 +1270,44 @@
     return /^(no hay|sin |no se encontraron|aún no hay)/i.test(celdas[0].textContent.trim());
   }
 
+  function claseEstadoTabla(valor) {
+    const estado = String(valor || "").normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
+    if (/rechaz|vencid|error|urgente|bloquead/.test(estado)) return "et-state-danger";
+    if (/cancelad|inactiv|baja|archivad/.test(estado)) return "et-state-neutral";
+    if (/concluid|complet|autoriz|solventad|pagad|activo|entregad|aprobado/.test(estado)) return "et-state-success";
+    if (/pendiente|revision|por autorizar|espera|sin /.test(estado)) return "et-state-warning";
+    if (/proceso|tramite|enviad|emitid|iniciado|asignad|captura/.test(estado)) return "et-state-info";
+    return "et-state-neutral";
+  }
+
+  function prepararEstadosVisuales(raiz) {
+    const base = raiz && raiz.querySelectorAll ? raiz : document;
+    const elementos = [];
+    if (raiz && raiz.nodeType === 1 && raiz.matches(".status-badge, .et-status-chip, [data-status]")) elementos.push(raiz);
+    base.querySelectorAll(".status-badge, .et-status-chip, [data-status]").forEach(function (elemento) { elementos.push(elemento); });
+    elementos.forEach(function (elemento) {
+      ["et-state-success", "et-state-warning", "et-state-info", "et-state-danger", "et-state-neutral"]
+        .forEach(function (clase) { elemento.classList.remove(clase); });
+      const valor = elemento.dataset.status || elemento.textContent;
+      elemento.classList.add(claseEstadoTabla(valor));
+      if (!elemento.hasAttribute("title")) elemento.title = "Estado: " + String(valor || "Sin estado").trim();
+    });
+  }
+
+  function prepararEstadosFila(fila, encabezados) {
+    Array.from(fila.children).forEach(function (celda, indice) {
+      if (celda.tagName !== "TD" || !/^(estado|estatus)$/i.test(encabezados[indice] || "")) return;
+      if (celda.querySelector(".badge, .status-badge, .et-status-chip, button, select, input")) return;
+      const texto = celda.textContent.trim();
+      if (!texto || texto === "—" || texto === "-") return;
+      celda.textContent = "";
+      const etiqueta = document.createElement("span");
+      etiqueta.className = "et-status-chip " + claseEstadoTabla(texto);
+      etiqueta.textContent = texto;
+      celda.appendChild(etiqueta);
+    });
+  }
+
   function prepararTabla(contenedor) {
     if (contenedor.dataset.etEnhanced) return;
     const tabla = contenedor.querySelector("table");
@@ -939,6 +1316,7 @@
 
     contenedor.dataset.etEnhanced = "1";
     contenedor.classList.add("et-data-table");
+    if (localStorage.getItem("etTableDensity") === "compact") contenedor.classList.add("is-compact");
     contenedor.tabIndex = 0;
     contenedor.setAttribute("role", "region");
     const tituloPanel = contenedor.closest(".panel, .card")?.querySelector("h2, h3");
@@ -950,6 +1328,12 @@
     tabla.querySelectorAll("thead th").forEach(function (th) {
       if (!th.hasAttribute("scope")) th.setAttribute("scope", "col");
     });
+    const encabezados = Array.from(tabla.querySelectorAll("thead th")).map(function (th) {
+      return th.textContent.trim();
+    });
+    if (encabezados.length >= 4 && !tabla.classList.contains("generator-table") && tabla.dataset.mobileLayout !== "scroll") {
+      tabla.classList.add("et-mobile-cards");
+    }
 
     if (!tbody.children.length) {
       mostrarCargaTabla(tbody);
@@ -959,6 +1343,7 @@
       contenedor.nextElementSibling && contenedor.nextElementSibling.classList.contains("pagination-bar")
     );
     let resumen = null;
+    let resumenTexto = null;
     let paginacion = null;
     let paginaActual = 1;
     const registrosPorPagina = 20;
@@ -966,6 +1351,20 @@
       resumen = document.createElement("div");
       resumen.className = "et-table-summary";
       resumen.setAttribute("aria-live", "polite");
+      resumen.innerHTML = '<span data-et-table-count></span><button type="button" class="et-density-toggle" aria-pressed="false"></button>';
+      resumenTexto = resumen.querySelector("[data-et-table-count]");
+      const botonDensidad = resumen.querySelector(".et-density-toggle");
+      function actualizarDensidad() {
+        const compacta = contenedor.classList.contains("is-compact");
+        botonDensidad.setAttribute("aria-pressed", String(compacta));
+        botonDensidad.textContent = compacta ? "Vista cómoda" : "Vista compacta";
+      }
+      botonDensidad.addEventListener("click", function () {
+        contenedor.classList.toggle("is-compact");
+        localStorage.setItem("etTableDensity", contenedor.classList.contains("is-compact") ? "compact" : "comfortable");
+        actualizarDensidad();
+      });
+      actualizarDensidad();
       contenedor.insertAdjacentElement("afterend", resumen);
 
       if (!tbody.querySelector("input, select, textarea")) {
@@ -1000,6 +1399,13 @@
       }
       filas.forEach(function (fila) {
         fila.classList.remove("et-page-hidden");
+        Array.from(fila.children).forEach(function (celda, indice) {
+          if (celda.tagName === "TD" && !celda.hasAttribute("colspan")) {
+            celda.dataset.label = encabezados[indice] || "Dato";
+          }
+        });
+        prepararEstadosFila(fila, encabezados);
+        prepararAccionesFila(fila);
       });
       filas.forEach(function (fila) {
         if (esFilaVacia(fila)) {
@@ -1028,16 +1434,18 @@
         vacia.className = "et-empty-row";
         const celda = document.createElement("td");
         celda.colSpan = Math.max(1, tabla.querySelectorAll("thead th").length);
+        const tieneFiltros = Boolean(contenedor.closest(".panel, .card, main")?.querySelector(".filters"));
         celda.innerHTML =
           '<div class="et-empty-content"><span aria-hidden="true">⌕</span>' +
-          "<strong>Sin resultados</strong><small>Prueba cambiando o limpiando los filtros.</small></div>";
+          "<strong>Sin resultados</strong><small>Prueba cambiando o limpiando los filtros.</small>" +
+          (tieneFiltros ? '<button type="button" class="et-empty-reset">Limpiar filtros</button>' : "") + "</div>";
         vacia.appendChild(celda);
         tbody.appendChild(vacia);
       }
 
       if (resumen) {
         if (cargando) {
-          resumen.textContent = "Cargando datos…";
+          resumenTexto.textContent = "Cargando datos…";
           if (paginacion) paginacion.hidden = true;
         } else if (paginacion && filas.length > registrosPorPagina) {
           const totalPaginas = Math.ceil(filas.length / registrosPorPagina);
@@ -1047,14 +1455,14 @@
           filas.forEach(function (fila, indice) {
             fila.classList.toggle("et-page-hidden", indice < inicio || indice >= fin);
           });
-          resumen.textContent = "Mostrando " + (inicio + 1) + "–" + fin + " de " + filas.length + " registros";
+          resumenTexto.textContent = "Mostrando " + (inicio + 1) + "–" + fin + " de " + filas.length + " registros";
           paginacion.hidden = false;
           paginacion.querySelector("[data-et-page-status]").textContent =
             "Página " + paginaActual + " de " + totalPaginas;
           paginacion.querySelector('[data-et-page="previous"]').disabled = paginaActual === 1;
           paginacion.querySelector('[data-et-page="next"]').disabled = paginaActual === totalPaginas;
         } else {
-          resumen.textContent = filas.length + (filas.length === 1 ? " registro visible" : " registros visibles");
+          resumenTexto.textContent = filas.length + (filas.length === 1 ? " registro visible" : " registros visibles");
           if (paginacion) paginacion.hidden = true;
         }
       }
@@ -1092,6 +1500,12 @@
       });
     });
     observador.observe(tbody, { childList: true, subtree: true });
+    tbody.addEventListener("click", function (event) {
+      if (!event.target.closest(".et-empty-reset")) return;
+      const panel = contenedor.closest(".panel, .card, main");
+      const limpiar = panel && panel.querySelector(".et-filter-reset");
+      if (limpiar) limpiar.click();
+    });
     actualizar();
 
     const panel = contenedor.closest(".panel, .card, main");
@@ -1109,8 +1523,52 @@
     }
   }
 
+  function prepararAccionesFila(fila) {
+    fila.querySelectorAll(".action-grid").forEach(function (acciones) {
+      if (acciones.dataset.etActionsEnhanced) return;
+      const botones = Array.from(acciones.children).filter(function (elemento) {
+        return elemento.matches("button, a");
+      });
+      if (botones.length <= 2) return;
+      acciones.dataset.etActionsEnhanced = "1";
+      acciones.classList.add("et-actions-menu");
+
+      const menu = document.createElement("details");
+      menu.className = "et-action-overflow";
+      const resumen = document.createElement("summary");
+      resumen.className = "action-btn icon-only et-action-more";
+      resumen.setAttribute("aria-label", "Más acciones");
+      resumen.setAttribute("title", "Más acciones");
+      resumen.innerHTML = '<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="5" cy="12" r="1.5"/><circle cx="12" cy="12" r="1.5"/><circle cx="19" cy="12" r="1.5"/></svg>';
+      const lista = document.createElement("div");
+      lista.className = "et-action-menu-list";
+
+      botones.slice(1).forEach(function (boton) {
+        const etiqueta = boton.getAttribute("aria-label") || boton.getAttribute("title") || "Acción";
+        boton.classList.remove("icon-only");
+        boton.classList.add("et-action-menu-item");
+        boton.removeAttribute("title");
+        const texto = document.createElement("span");
+        texto.textContent = etiqueta;
+        boton.appendChild(texto);
+        boton.addEventListener("click", function () { menu.removeAttribute("open"); });
+        lista.appendChild(boton);
+      });
+      menu.append(resumen, lista);
+      acciones.appendChild(menu);
+    });
+  }
+
   function prepararTablas() {
     document.querySelectorAll(".table-container, .table-wrapper").forEach(prepararTabla);
+    if (document.body.dataset.etActionMenusBound !== "1") {
+      document.body.dataset.etActionMenusBound = "1";
+      document.addEventListener("click", function (event) {
+        document.querySelectorAll(".et-action-overflow[open]").forEach(function (menu) {
+          if (!menu.contains(event.target)) menu.removeAttribute("open");
+        });
+      });
+    }
   }
 
   function prepararMicrointeracciones() {
@@ -1139,7 +1597,23 @@
       });
     }
 
+    function prepararAyudasIconos(raiz) {
+      const base = raiz && raiz.querySelectorAll ? raiz : document;
+      const botones = [];
+      if (raiz && raiz.nodeType === 1 && raiz.matches(".icon-only, button[aria-label]")) botones.push(raiz);
+      base.querySelectorAll(".icon-only, button[aria-label]").forEach(function (boton) { botones.push(boton); });
+      botones.forEach(function (boton) {
+        if (boton.dataset.etTooltip) return;
+        const etiqueta = boton.getAttribute("aria-label") || boton.getAttribute("title");
+        if (!etiqueta || boton.textContent.trim().length > 2) return;
+        boton.dataset.etTooltip = etiqueta;
+        boton.removeAttribute("title");
+      });
+    }
+
     revelar(document.querySelectorAll(selectores));
+    prepararEstadosVisuales(document);
+    prepararAyudasIconos(document);
 
     if (document.body.dataset.etMicrointeractions !== "1") {
       document.body.dataset.etMicrointeractions = "1";
@@ -1155,11 +1629,29 @@
         }, 360);
       });
 
+      document.addEventListener("pointerdown", function (event) {
+        const boton = event.target.closest("button:not([disabled]), a.btn-small, a.btn-secondary, .action-btn");
+        if (!boton) return;
+        boton.classList.remove("et-control-pressed");
+        void boton.offsetWidth;
+        boton.classList.add("et-control-pressed");
+        global.setTimeout(function () { boton.classList.remove("et-control-pressed"); }, 360);
+      });
+
+      document.addEventListener("blur", function (event) {
+        const control = event.target.closest("input:not([type=checkbox]):not([type=radio]), select, textarea");
+        if (!control || !control.value || !control.checkValidity()) return;
+        control.classList.add("et-field-confirmed");
+        global.setTimeout(function () { control.classList.remove("et-field-confirmed"); }, 900);
+      }, true);
+
       const observadorInterfaz = new MutationObserver(function (mutaciones) {
         const nuevos = [];
         mutaciones.forEach(function (mutacion) {
           mutacion.addedNodes.forEach(function (nodo) {
             if (nodo.nodeType !== 1) return;
+            prepararEstadosVisuales(nodo);
+            prepararAyudasIconos(nodo);
             if (nodo.matches(selectores)) nuevos.push(nodo);
             nodo.querySelectorAll(selectores).forEach(function (elemento) {
               nuevos.push(elemento);
@@ -1170,6 +1662,16 @@
       });
       observadorInterfaz.observe(document.body, { childList: true, subtree: true });
     }
+  }
+
+  function resaltarActualizacion(elemento) {
+    const destino = typeof elemento === "string" ? document.querySelector(elemento) : elemento;
+    if (!destino) return false;
+    destino.classList.remove("et-record-updated");
+    void destino.offsetWidth;
+    destino.classList.add("et-record-updated");
+    global.setTimeout(function () { destino.classList.remove("et-record-updated"); }, 1800);
+    return true;
   }
 
   function mostrarCargaTabla(tablaOTbody, filas) {
@@ -1203,6 +1705,44 @@
     tbody.removeAttribute("aria-busy");
   }
 
+  function mostrarEstado(contenedor, configuracion) {
+    const destino = typeof contenedor === "string" ? document.querySelector(contenedor) : contenedor;
+    if (!destino) return null;
+    const config = configuracion || {};
+    const tipo = ["empty", "error", "offline", "loading"].includes(config.type) ? config.type : "empty";
+    const iconos = { empty: "⌕", error: "!", offline: "↯", loading: "" };
+    const titulos = { empty: "Sin información", error: "No pudimos cargar la información", offline: "Sin conexión", loading: "Cargando información" };
+    destino.innerHTML = '<div class="et-content-state is-' + tipo + '" role="' + (tipo === "error" ? "alert" : "status") + '">' +
+      (tipo === "loading" ? '<span class="et-content-spinner" aria-hidden="true"></span>' : '<span class="et-content-state-icon" aria-hidden="true">' + iconos[tipo] + "</span>") +
+      "<strong>" + (config.title || titulos[tipo]) + "</strong>" +
+      "<p>" + (config.message || (tipo === "offline" ? "Revisa tu conexión a internet e intenta nuevamente." : "No hay contenido disponible por el momento.")) + "</p>" +
+      (typeof config.retry === "function" ? '<button type="button" class="btn-secondary et-state-retry">Intentar nuevamente</button>' : "") +
+      "</div>";
+    const reintentar = destino.querySelector(".et-state-retry");
+    if (reintentar) reintentar.addEventListener("click", config.retry);
+    return destino.firstElementChild;
+  }
+
+  function prepararEstadoConexion() {
+    if (document.getElementById("etConnectionStatus")) return;
+    const aviso = document.createElement("div");
+    aviso.id = "etConnectionStatus";
+    aviso.className = "et-connection-status";
+    aviso.setAttribute("role", "status");
+    aviso.setAttribute("aria-live", "polite");
+    document.body.appendChild(aviso);
+    function actualizar() {
+      const sinConexion = navigator.onLine === false;
+      aviso.classList.toggle("is-visible", sinConexion);
+      aviso.innerHTML = sinConexion ? '<span aria-hidden="true">↯</span><strong>Sin conexión</strong><span>Los datos podrían no estar actualizados.</span>' : "";
+      if (!sinConexion && aviso.dataset.wasOffline === "1") mostrarToast("La conexión se restableció.", "success");
+      aviso.dataset.wasOffline = sinConexion ? "1" : "0";
+    }
+    global.addEventListener("online", actualizar);
+    global.addEventListener("offline", actualizar);
+    actualizar();
+  }
+
   function ejecutarConBoton(boton, tarea, config) {
     config = config || {};
     if (!boton || typeof tarea !== "function" || boton.dataset.etLoading === "1") {
@@ -1220,6 +1760,13 @@
 
     return Promise.resolve()
       .then(tarea)
+      .then(function (resultado) {
+        if (resultado !== false) {
+          boton.classList.add("et-action-success");
+          global.setTimeout(function () { boton.classList.remove("et-action-success"); }, 900);
+        }
+        return resultado;
+      })
       .catch(function (error) {
         console.error(error);
         mostrarToast({
@@ -1250,6 +1797,10 @@
   function mensajeValidacion(control) {
     if (control.validity.valueMissing) return "Este campo es obligatorio.";
     if (control.validity.typeMismatch) return "Captura un valor con el formato correcto.";
+    if (control.validity.tooShort) return "Captura por lo menos " + control.minLength + " caracteres.";
+    if (control.validity.tooLong) return "No excedas " + control.maxLength + " caracteres.";
+    if (control.validity.patternMismatch) return control.title || "El formato capturado no es válido.";
+    if (control.validity.stepMismatch) return "Captura un valor válido para este campo.";
     if (control.validity.rangeUnderflow || control.validity.rangeOverflow) return "El valor está fuera del rango permitido.";
     return "Revisa el valor capturado.";
   }
@@ -1393,15 +1944,15 @@
   }
 
   function prepararFormularios() {
-    CAMPOS_REQUERIDOS.forEach(function (id) {
-      const control = document.getElementById(id);
-      if (!control) return;
-      control.required = true;
-      control.setAttribute("aria-required", "true");
+    function prepararControl(control) {
+      if (!control || control.dataset.etFormControl === "1") return;
+      control.dataset.etFormControl = "1";
+      if (CAMPOS_REQUERIDOS.includes(control.id)) control.required = true;
+      if (control.required) control.setAttribute("aria-required", "true");
       const grupo = obtenerGrupoCampo(control);
-      const label = grupo && grupo.querySelector("label");
-      if (label) label.classList.add("et-required-label");
-      if (control.id && grupo && !obtenerErrorCampo(control)) {
+      const label = grupo && (grupo.querySelector('label[for="' + control.id + '"]') || grupo.querySelector("label"));
+      if (control.required && label) label.classList.add("et-required-label");
+      if (control.required && control.id && grupo && !obtenerErrorCampo(control)) {
         const error = document.createElement("small");
         error.className = "et-field-error";
         error.dataset.for = control.id;
@@ -1410,15 +1961,47 @@
         grupo.appendChild(error);
         control.setAttribute("aria-describedby", [control.getAttribute("aria-describedby"), error.id].filter(Boolean).join(" "));
       }
-      control.addEventListener("blur", function () {
-        validarCampo(control, true);
-      });
+      if (control.id && control.maxLength > 0 && grupo && !grupo.querySelector('[data-et-count-for="' + control.id + '"]')) {
+        const contador = document.createElement("small");
+        contador.className = "et-character-count";
+        contador.dataset.etCountFor = control.id;
+        grupo.appendChild(contador);
+        const actualizarContador = function () {
+          contador.textContent = control.value.length + " / " + control.maxLength;
+          contador.classList.toggle("is-near-limit", control.value.length >= control.maxLength * 0.85);
+        };
+        control.addEventListener("input", actualizarContador);
+        actualizarContador();
+      }
+      control.addEventListener("blur", function () { if (control.required || control.value) validarCampo(control, true); });
       control.addEventListener("input", function () {
         if (control.getAttribute("aria-invalid") === "true") validarCampo(control, true);
       });
+    }
+
+    CAMPOS_REQUERIDOS.forEach(function (id) {
+      const control = document.getElementById(id);
+      if (!control) return;
+      control.required = true;
+      prepararControl(control);
     });
 
+    document.querySelectorAll("input, select, textarea").forEach(prepararControl);
+
     document.querySelectorAll(".modal").forEach(prepararModal);
+
+    const observadorFormularios = new MutationObserver(function (mutaciones) {
+      mutaciones.forEach(function (mutacion) {
+        mutacion.addedNodes.forEach(function (nodo) {
+          if (nodo.nodeType !== 1) return;
+          if (nodo.matches("input, select, textarea")) prepararControl(nodo);
+          nodo.querySelectorAll("input, select, textarea").forEach(prepararControl);
+          if (nodo.matches(".modal")) prepararModal(nodo);
+          nodo.querySelectorAll(".modal").forEach(prepararModal);
+        });
+      });
+    });
+    observadorFormularios.observe(document.body, { childList: true, subtree: true });
 
     document.addEventListener("click", function (event) {
       const activador = event.target.closest('[aria-haspopup="dialog"]');
@@ -1809,7 +2392,8 @@ permitidos = permitidos.filter(function (m) {
   return MODULOS_IMPLEMENTADOS.indexOf(m) >= 0;
 });
 
-      renderizarNavegacion(nav, permitidos, moduloActivo, desdeModulo);
+      registrarModuloReciente(usuario, moduloActivo);
+      renderizarNavegacionPersonalizada(nav, permitidos, moduloActivo, desdeModulo, usuario);
     }
 
     const logout = document.getElementById("etLogout");
@@ -1823,8 +2407,11 @@ permitidos = permitidos.filter(function (m) {
     }
 
     enlazarTema();
+    prepararAccesibilidad(usuario);
     prepararSidebar(usuario);
     prepararEncabezado(moduloActivo);
+    prepararEstructuraModulo(moduloActivo);
+    prepararEstadoConexion();
     prepararBusquedaGlobal(usuario);
     prepararNotificacionesProveedor(usuario);
     prepararFiltros();
@@ -1857,7 +2444,9 @@ permitidos = permitidos.filter(function (m) {
     obtenerCumpleanosSemana,
     mostrarCargaTabla,
     terminarCargaTabla,
+    mostrarEstado,
     ejecutarConBoton,
+    resaltarActualizacion,
     abrirFichaDetalle,
     cerrarFichaDetalle,
     mostrarToast,

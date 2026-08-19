@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="es">
 <head>
   <meta charset="UTF-8">
@@ -6,20 +6,20 @@
   <title>Administración de Talleres | Dashboard</title>
 
   <link rel="stylesheet" href="css/style.css?v=20260730-1">
-  <link rel="stylesheet" href="css/design-system.css?v=20260727-5">
-  <link rel="stylesheet" href="css/dashboard.css?v=20260803-3">
+  <link rel="stylesheet" href="css/design-system.css?v=20260819-14">
+  <link rel="stylesheet" href="css/dashboard.css?v=20260819-4">
   <link rel="stylesheet" href="css/mobile-app.css">
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <script src="js/core/supabase.js"></script>
   <script src="js/core/permissions.js?v=20260730-1"></script>
   <script src="js/core/theme.js"></script>
-  <script src="js/core/layout.js?v=20260728-4"></script>
+  <script src="js/core/layout.js?v=20260819-14"></script>
   <script src="js/core/mobile-app.js"></script>
   <script src="js/services/export.service.js"></script>
   <script src="js/services/peticiones.service.js?v=20260727-1"></script>
   <script src="js/services/dashboard.service.js?v=20260730-2"></script>
-  <script src="login.js?v=20260811-1"></script>
+  <script src="js/core/auth.js?v=20260819-3"></script>
 </head>
 
 <body class="dashboard-body">
@@ -78,6 +78,7 @@
             </summary>
             <div class="dashboard-user-menu-popover">
               <span>Cuenta activa</span>
+              <a href="modulos/mi-perfil.html">Personalizar experiencia</a>
               <button type="button" onclick="cerrarSesion()">Cerrar sesión</button>
             </div>
           </details>
@@ -114,7 +115,12 @@
         <span class="dashboard-section-kicker">Resumen</span>
         <h2>Estado general y pendientes</h2>
       </div>
-      <p>Selecciona una tarjeta para abrir el módulo relacionado.</p>
+      <div class="dashboard-section-actions">
+        <p>Selecciona una tarjeta para abrir el módulo relacionado.</p>
+        <button type="button" class="btn-secondary dashboard-customize-button" id="personalizarDashboard">
+          <span aria-hidden="true">⚙</span> Personalizar indicadores
+        </button>
+      </div>
     </div>
 
     <section class="dashboard-kpi-groups" aria-label="Indicadores generales">
@@ -169,6 +175,23 @@
       </div>
         </div>
       </article>
+      <article class="dashboard-kpi-group" id="grupoKpiAcuerdos">
+        <div class="dashboard-kpi-group-heading"><span>Acuerdos</span><small>Compromisos y seguimiento</small></div>
+        <div class="dashboard-kpi-group-grid">
+      <div class="kpi-card dashboard-kpi-card dashboard-link-card priority" data-module="Acuerdos" data-href="modulos/acuerdos.html" role="link" tabindex="0">
+        <span class="dashboard-kpi-icon" aria-hidden="true">A</span>
+        <span>Acuerdos pendientes</span>
+        <h2 id="kpiAcuerdosPendientes">0</h2>
+        <p>Sin concluir</p>
+      </div>
+      <div class="kpi-card dashboard-kpi-card dashboard-link-card priority" data-module="Acuerdos" data-href="modulos/acuerdos.html?estado=Para%20revisi%C3%B3n" role="link" tabindex="0">
+        <span class="dashboard-kpi-icon" aria-hidden="true">AR</span>
+        <span>Pendientes de revisión</span>
+        <h2 id="kpiAcuerdosRevision">0</h2>
+        <p>Esperando validación</p>
+      </div>
+        </div>
+      </article>
       <article class="dashboard-kpi-group dashboard-kpi-group-wide">
         <div class="dashboard-kpi-group-heading"><span>Requisiciones y operación</span><small>Seguimiento administrativo</small></div>
         <div class="dashboard-kpi-group-grid">
@@ -220,6 +243,31 @@
         </div>
       </article>
     </section>
+
+    <dialog class="dashboard-customizer" id="dashboardCustomizer" aria-labelledby="dashboardCustomizerTitle">
+      <form method="dialog" class="dashboard-customizer-card">
+        <div class="dashboard-customizer-header">
+          <div>
+            <span class="dashboard-section-kicker">Tu espacio de trabajo</span>
+            <h2 id="dashboardCustomizerTitle">Elige qué quieres ver</h2>
+            <p>Los cambios se guardan para tu usuario en este dispositivo.</p>
+          </div>
+          <button type="submit" class="dashboard-customizer-close" aria-label="Cerrar">×</button>
+        </div>
+        <div class="dashboard-customizer-tools">
+          <button type="button" id="seleccionarKpisPrioritarios">Solo prioritarios</button>
+          <button type="button" id="seleccionarTodosKpisDashboard">Mostrar todos</button>
+        </div>
+        <div class="dashboard-customizer-list" id="dashboardCustomizerList"></div>
+        <div class="dashboard-customizer-footer">
+          <span id="dashboardCustomizerCount" aria-live="polite"></span>
+          <div>
+            <button type="button" class="btn-secondary" id="cancelarPersonalizacionDashboard">Cancelar</button>
+            <button type="button" class="btn-small" id="guardarPersonalizacionDashboard">Guardar vista</button>
+          </div>
+        </div>
+      </form>
+    </dialog>
 
     <section class="dashboard-action-grid">
     <article class="panel dashboard-quick-panel">
@@ -538,6 +586,7 @@
         const excepcionPersonal = card.dataset.indicadorPersonal === "true" &&
           puedeVerIndicadoresPersonal(usuarioActivo);
         if (!accesoModulo && !excepcionPersonal) {
+          card.dataset.permissionHidden = "true";
           card.hidden = true;
           return;
         }
@@ -604,6 +653,7 @@ function puedeVerIndicadoresPersonal(usuario) {
 
 let datosDashboard = {
   peticiones: [],
+  acuerdos: [],
   requisiciones: [],
   vales: [],
   parque: [],
@@ -704,10 +754,11 @@ let fechaHastaDashboard = "";
         ? (ETPermissions.obtenerModulosUsuario(usuarioActivo) || [])
         : [];
 
-      let peticionesRes, requisicionesRes, solicitudesPagoRes, ordenesCompraRes, valesRes, parqueRes, usuariosRes, empleadosRes, tramitesRes, cotizacionesRes;
+      let peticionesRes, acuerdosRes, requisicionesRes, solicitudesPagoRes, ordenesCompraRes, valesRes, parqueRes, usuariosRes, empleadosRes, tramitesRes, cotizacionesRes;
       try {
         [
           peticionesRes,
+          acuerdosRes,
           valesRes,
           parqueRes,
           usuariosRes,
@@ -718,6 +769,10 @@ let fechaHastaDashboard = "";
           window.ETPeticiones && typeof ETPeticiones.listar === "function"
             ? ETPeticiones.listar()
             : dashboardClient.from("peticiones").select("*", { count: "exact" }).order("created_at", { ascending: false }),
+          modulosPermitidosConsulta.includes("Acuerdos")
+            ? dashboardClient.from("acuerdos").select("id,folio,titulo,estado,asignado_a,creado_por,fecha_compromiso,creado_en")
+                .order("creado_en", { ascending: false })
+            : Promise.resolve({ data: [], error: null }),
           dashboardClient.from("vales").select("*").order("created_at", { ascending: false }),
           cargarParqueDashboard(),
           dashboardClient.from("usuarios").select("*").order("created_at", { ascending: false }),
@@ -746,6 +801,7 @@ let fechaHastaDashboard = "";
       }
 
   if (peticionesRes.error) console.error("Error peticiones:", peticionesRes.error);
+  if (acuerdosRes.error) console.error("Error acuerdos:", acuerdosRes.error);
   if (requisicionesRes.error) console.error("Error requisiciones:", requisicionesRes.error);
   if (solicitudesPagoRes.error) console.error("Error solicitudes de pago:", solicitudesPagoRes.error);
   if (ordenesCompraRes.error) console.error("Error órdenes de compra:", ordenesCompraRes.error);
@@ -757,6 +813,7 @@ let fechaHastaDashboard = "";
   if (cotizacionesRes.error) console.error("Error cotizaciones:", cotizacionesRes.error);
 
   datosDashboard.peticiones = peticionesRes.data || [];
+  datosDashboard.acuerdos = acuerdosRes.data || [];
   datosDashboard.requisiciones = requisicionesRes.data || [];
   datosDashboard.solicitudesPago = solicitudesPagoRes.data || [];
   datosDashboard.ordenesCompra = ordenesCompraRes.data || [];
@@ -781,6 +838,95 @@ function actualizarVisibilidadGruposKpi() {
     grupo.hidden = !tarjetas.some(function (tarjeta) {
       return !tarjeta.hidden && tarjeta.style.display !== "none";
     });
+  });
+}
+
+function aplicarPreferenciasKpisDashboard() {
+  let usuario = null;
+  try { usuario = JSON.parse(localStorage.getItem("usuarioActivo") || "null"); } catch (_) {}
+  const seleccion = Array.isArray(usuario && usuario.dashboard_kpis) ? usuario.dashboard_kpis : [];
+  if (!seleccion.length) return;
+  document.querySelectorAll(".dashboard-kpi-card").forEach(function (tarjeta) {
+    const valor = tarjeta.querySelector("h2[id]");
+    if (valor) tarjeta.hidden = tarjeta.dataset.permissionHidden === "true" || !seleccion.includes(valor.id);
+  });
+  actualizarVisibilidadGruposKpi();
+}
+
+function configurarPersonalizacionDashboard() {
+  const dialogo = document.getElementById("dashboardCustomizer");
+  const lista = document.getElementById("dashboardCustomizerList");
+  const abrir = document.getElementById("personalizarDashboard");
+  if (!dialogo || !lista || !abrir || abrir.dataset.bound === "1") return;
+
+  const tarjetas = Array.from(document.querySelectorAll(".dashboard-kpi-card:not([data-permission-hidden='true'])")).map(function (tarjeta) {
+    const valor = tarjeta.querySelector("h2[id]");
+    const titulo = tarjeta.querySelector("span:not(.dashboard-kpi-icon)");
+    const grupo = tarjeta.closest(".dashboard-kpi-group");
+    const grupoTitulo = grupo && grupo.querySelector(".dashboard-kpi-group-heading span");
+    return valor ? {
+      id: valor.id,
+      titulo: titulo ? titulo.textContent.trim() : valor.id,
+      grupo: grupoTitulo ? grupoTitulo.textContent.trim() : "Indicadores",
+      prioritario: tarjeta.classList.contains("priority")
+    } : null;
+  }).filter(Boolean);
+
+  function seleccionGuardada() {
+    const seleccion = Array.isArray(usuarioActivo && usuarioActivo.dashboard_kpis)
+      ? usuarioActivo.dashboard_kpis : [];
+    return seleccion.length ? seleccion : tarjetas.map(function (item) { return item.id; });
+  }
+
+  function actualizarConteo() {
+    const total = lista.querySelectorAll("input:checked").length;
+    document.getElementById("dashboardCustomizerCount").textContent =
+      total + (total === 1 ? " indicador visible" : " indicadores visibles");
+  }
+
+  function renderizarSelector() {
+    const seleccion = seleccionGuardada();
+    lista.innerHTML = tarjetas.map(function (item) {
+      return '<label class="dashboard-customizer-option"><input type="checkbox" value="' + item.id + '" ' +
+        (seleccion.includes(item.id) ? "checked" : "") + '><span><strong>' + item.titulo +
+        '</strong><small>' + item.grupo + (item.prioritario ? ' · Prioritario' : '') +
+        '</small></span></label>';
+    }).join("");
+    lista.querySelectorAll("input").forEach(function (input) {
+      input.addEventListener("change", actualizarConteo);
+    });
+    actualizarConteo();
+  }
+
+  function marcar(filtro) {
+    lista.querySelectorAll("input").forEach(function (input) {
+      const item = tarjetas.find(function (tarjeta) { return tarjeta.id === input.value; });
+      input.checked = filtro(item);
+    });
+    actualizarConteo();
+  }
+
+  abrir.dataset.bound = "1";
+  abrir.addEventListener("click", function () { renderizarSelector(); dialogo.showModal(); });
+  document.getElementById("cancelarPersonalizacionDashboard").addEventListener("click", function () { dialogo.close(); });
+  document.getElementById("seleccionarTodosKpisDashboard").addEventListener("click", function () { marcar(function () { return true; }); });
+  document.getElementById("seleccionarKpisPrioritarios").addEventListener("click", function () { marcar(function (item) { return item.prioritario; }); });
+  document.getElementById("guardarPersonalizacionDashboard").addEventListener("click", function () {
+    const seleccion = Array.from(lista.querySelectorAll("input:checked")).map(function (input) { return input.value; });
+    if (!seleccion.length) return ETLayout.toast("Selecciona por lo menos un indicador.", "warning");
+    usuarioActivo.dashboard_kpis = seleccion;
+    localStorage.setItem("etDashboardKpis_" + usuarioActivo.id, JSON.stringify(seleccion));
+    localStorage.setItem("usuarioActivo", JSON.stringify(usuarioActivo));
+    document.querySelectorAll(".dashboard-kpi-card").forEach(function (tarjeta) {
+      const valor = tarjeta.querySelector("h2[id]");
+      if (valor) tarjeta.hidden = tarjeta.dataset.permissionHidden === "true" || !seleccion.includes(valor.id);
+    });
+    actualizarVisibilidadGruposKpi();
+    dialogo.close();
+    ETLayout.toast("Tu vista del dashboard quedó guardada.", "success");
+  });
+  dialogo.addEventListener("click", function (event) {
+    if (event.target === dialogo) dialogo.close();
   });
 }
 
@@ -856,6 +1002,16 @@ function aplicarFiltros(datos) {
   return filtrarPorRangoFechas(filtrarPorAnio(datos));
 }
 
+function obtenerAcuerdosVisiblesDashboard(lista) {
+  const rol = String(usuarioActivo?.rol || "").trim().normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "").toLowerCase().replace(/[\s-]+/g, "_");
+  const veTodos = ["admin", "superadmin", "super_admin", "administrador_del_sistema", "director", "moderador_de_acuerdos", "moderador_acuerdos"].includes(rol);
+  if (veTodos) return lista || [];
+  return (lista || []).filter(function (acuerdo) {
+    return acuerdo.asignado_a === usuarioActivo?.id || acuerdo.creado_por === usuarioActivo?.id;
+  });
+}
+
 function moneda(valor) {
   return Number(valor || 0).toLocaleString("es-MX", {
     style: "currency",
@@ -870,6 +1026,7 @@ function estadoVacioDashboard(mensaje) {
 
 function renderizarDashboard() {
   const peticiones = aplicarFiltros(datosDashboard.peticiones);
+  const acuerdos = obtenerAcuerdosVisiblesDashboard(datosDashboard.acuerdos);
   const requisiciones = aplicarFiltros(datosDashboard.requisiciones);
   const ordenesCompra = aplicarFiltros(datosDashboard.ordenesCompra);
   const solicitudesPago = aplicarFiltros(datosDashboard.solicitudesPago);
@@ -910,6 +1067,7 @@ function renderizarDashboard() {
   const analisisHeading = document.getElementById("seccionAnalisisHeading");
   const labelKpiVales = document.getElementById("labelKpiVales");
   const grupoCotizaciones = document.getElementById("grupoKpiCotizacionesSinRequisicion");
+  const grupoAcuerdos = document.getElementById("grupoKpiAcuerdos");
 
   if (costoAnualCard) costoAnualCard.style.display = puedeVerFinanciero ? "" : "none";
   if (costoMensualCard) costoMensualCard.style.display = puedeVerFinanciero ? "" : "none";
@@ -918,6 +1076,8 @@ function renderizarDashboard() {
   if (matrizSolicitudesPago) matrizSolicitudesPago.style.display = puedeVerMatrizSp ? "" : "none";
   if (analisisHeading) analisisHeading.style.display = puedeVerFinanciero ? "" : "none";
   if (grupoCotizaciones) grupoCotizaciones.style.display = puedeVerCotizaciones ? "" : "none";
+  if (grupoAcuerdos) grupoAcuerdos.style.display = acuerdos.length || datosDashboard.acuerdos.length ? "" :
+    ((window.ETPermissions && ETPermissions.puedeAcceder(usuarioActivo, "Acuerdos")) ? "" : "none");
   actualizarVisibilidadGruposKpi();
 
   if (labelKpiVales) {
@@ -932,6 +1092,12 @@ function renderizarDashboard() {
   document.getElementById("kpiPeticiones").textContent = kpis.peticionesPendientes;
   document.getElementById("kpiPeticionesPendienteProveedor").textContent =
     kpis.peticionesPendientesProveedor;
+  document.getElementById("kpiAcuerdosPendientes").textContent = acuerdos.filter(function (acuerdo) {
+    return acuerdo.estado !== "Concluido";
+  }).length;
+  document.getElementById("kpiAcuerdosRevision").textContent = acuerdos.filter(function (acuerdo) {
+    return acuerdo.estado === "Para revisión";
+  }).length;
   document.getElementById("kpiRequisiciones").textContent = kpis.requisicionesActivas;
   document.getElementById("kpiRequisicionesAutorizar").textContent = kpis.requisicionesPorAutorizar;
   document.getElementById("kpiRequisicionesXml").textContent = kpis.requisicionesConXml;
@@ -1086,6 +1252,7 @@ function renderizarDashboard() {
   crearGraficaUnidadesGasto(requisiciones);
   renderizarTablaGastoProveedor(datosDashboard.requisiciones);
   renderizarMatrizSolicitudesPago(aplicarFiltros(datosDashboard.solicitudesPago));
+  aplicarPreferenciasKpisDashboard();
 }
 
 function renderizarMatrizSolicitudesPago(solicitudes) {
@@ -1834,6 +2001,7 @@ if (buscarSolicitudesPago) {
 inicializarPanelesDesplegables();
 inicializarOrdenTablaProveedor();
 
+    configurarPersonalizacionDashboard();
     cargarDashboardReal();
   </script>
 

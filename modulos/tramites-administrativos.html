@@ -1,19 +1,19 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="es">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Administracion de Talleres | Tramites Administrativos</title>
   <link rel="stylesheet" href="../css/style.css">
-  <link rel="stylesheet" href="../css/design-system.css?v=20260727-5">
+  <link rel="stylesheet" href="../css/design-system.css?v=20260819-14">
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="../js/core/supabase.js"></script>
   <script src="../js/core/permissions.js"></script>
   <script src="../js/core/theme.js"></script>
-  <script src="../js/core/layout.js?v=20260727-2"></script>
+  <script src="../js/core/layout.js?v=20260819-14"></script>
   <script src="../js/services/export.service.js"></script>
   <script src="../js/services/tramites-administrativos.service.js"></script>
-  <script src="../login.js?v=20260811-1"></script>
+  <script src="../js/core/auth.js?v=20260819-3"></script>
 </head>
 <body class="dashboard-body">
 
@@ -35,7 +35,7 @@
         <h1>Tramites Administrativos</h1>
         <p>Registro autorizado de dias economicos, permisos especiales, vacaciones e incapacidades.</p>
       </div>
-      <div style="display:flex;gap:12px;align-items:center;">
+      <div class="et-header-actions">
         <span id="etTemaContainer"></span>
         <a href="empleados.html" class="btn-secondary" id="btnCatalogoEmpleados">Empleados</a>
         <button type="button" class="btn-small" id="btnNuevoEmpleado" onclick="abrirModalEmpleado()">+ Nuevo empleado</button>

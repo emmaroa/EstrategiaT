@@ -1,11 +1,11 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="es">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Administración de Talleres | Peticiones</title>
   <link rel="stylesheet" href="../css/style.css">
-  <link rel="stylesheet" href="../css/design-system.css?v=20260727-5">
+  <link rel="stylesheet" href="../css/design-system.css?v=20260819-14">
   <style>
     #kpisGestionCotizaciones { display:none; }
     #graficaMontoProveedorCotizaciones { display:none; }
@@ -27,16 +27,41 @@
     .peticion-view-note .action-btn { margin:0; }
     .peticion-note-indicator { position:absolute; top:-5px; right:-5px; display:flex; align-items:center; justify-content:center; width:17px; height:17px; border:2px solid var(--bg-card); border-radius:50%; background:var(--color-warning); color:#111827; pointer-events:none; z-index:1; }
     .peticion-note-indicator svg { width:9px; height:9px; fill:none; stroke:currentColor; stroke-width:2; }
+    .historial-modal-card { width:min(620px, calc(100vw - 28px)); max-height:min(78vh, 720px); padding:0; overflow:hidden; }
+    .historial-modal-header { padding:22px 24px 16px; border-bottom:1px solid var(--border); background:linear-gradient(135deg, color-mix(in srgb, var(--color-teal) 12%, var(--bg-card)), var(--bg-card)); }
+    .historial-modal-header p { margin:5px 0 0; color:var(--text-secondary); }
+    .historial-content { max-height:calc(78vh - 100px); padding:20px 24px 24px; overflow-y:auto; }
+    .historial-loading, .historial-empty { padding:28px 18px; border:1px dashed var(--border); border-radius:12px; color:var(--text-secondary); text-align:center; }
+    .historial-timeline { display:grid; gap:0; margin:0; padding:0; list-style:none; }
+    .historial-item { position:relative; display:grid; grid-template-columns:18px minmax(0, 1fr); gap:13px; padding-bottom:18px; }
+    .historial-item:not(:last-child)::before { content:""; position:absolute; top:17px; bottom:0; left:7px; width:2px; background:color-mix(in srgb, var(--color-teal) 25%, var(--border)); }
+    .historial-dot { position:relative; width:16px; height:16px; margin-top:4px; border:4px solid color-mix(in srgb, var(--color-teal) 22%, var(--bg-card)); border-radius:50%; background:var(--color-teal); z-index:1; }
+    .historial-entry { padding:14px 16px; border:1px solid var(--border); border-radius:12px; background:var(--bg-card); box-shadow:0 4px 14px rgba(15, 23, 42, .06); }
+    .historial-entry-head { display:flex; justify-content:space-between; align-items:flex-start; gap:12px; margin-bottom:8px; }
+    .historial-entry-head strong { color:var(--text-primary); }
+    .historial-entry-head time { flex:0 0 auto; color:var(--text-secondary); font-size:12px; font-weight:700; }
+    .historial-user { display:block; margin-bottom:7px; color:var(--color-teal); font-size:12px; font-weight:800; }
+    .historial-detail { margin:0; color:var(--text-secondary); line-height:1.5; white-space:pre-wrap; overflow-wrap:anywhere; }
+    .historial-kind { display:inline-flex; align-items:center; margin-bottom:9px; padding:4px 9px; border-radius:999px; font-size:11px; font-weight:900; letter-spacing:.03em; text-transform:uppercase; }
+    .historial-kind.added { background:rgba(34, 197, 94, .13); color:#15803d; }
+    .historial-kind.changed { background:rgba(245, 158, 11, .15); color:#b45309; }
+    .historial-changes { display:grid; gap:8px; margin-top:12px; }
+    .historial-change { display:grid; gap:4px; padding:10px 12px; border-radius:9px; background:color-mix(in srgb, var(--color-teal) 6%, var(--bg-card)); }
+    .historial-change-label { color:var(--text-primary); font-size:12px; font-weight:900; }
+    .historial-change-values { display:flex; flex-wrap:wrap; align-items:center; gap:6px; color:var(--text-secondary); font-size:12px; }
+    .historial-old { text-decoration:line-through; opacity:.75; }
+    .historial-new { color:var(--text-primary); font-weight:800; }
+    .historial-arrow { color:var(--color-teal); font-weight:900; }
     @media(max-width:700px) { .cotizaciones-provider-row { grid-template-columns:1fr auto; } .cotizaciones-provider-track { grid-column:1 / -1; grid-row:2; } }
   </style>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="../js/core/supabase.js"></script>
   <script src="../js/core/permissions.js?v=20260727-4"></script>
   <script src="../js/core/theme.js"></script>
-  <script src="../js/core/layout.js?v=20260725-3"></script>
+  <script src="../js/core/layout.js?v=20260819-14"></script>
   <script src="../js/services/peticiones.service.js?v=20260727-1"></script>
   <script src="../js/services/cotizaciones-almacen.service.js?v=20260810-1"></script>
-  <script src="../login.js?v=20260811-1"></script>
+  <script src="../js/core/auth.js?v=20260819-3"></script>
 </head>
 <body class="dashboard-body">
 
@@ -60,7 +85,7 @@
         <p id="descripcionModuloPeticiones">Control y seguimiento de solicitudes de refacciones.</p>
       </div>
 
-      <div style="display:flex;gap:12px;align-items:center;">
+      <div class="et-header-actions">
         <span id="etTemaContainer"></span>
         <button type="button" class="btn-small" id="btnNuevaPeticion" aria-haspopup="dialog" onclick="abrirModal()">+ Nueva petición</button>
       </div>
@@ -228,6 +253,19 @@
     </section>
 
   </main>
+
+  <div class="modal" id="modalHistorialPeticion" role="dialog" aria-modal="true" aria-labelledby="tituloHistorialPeticion" aria-hidden="true">
+    <div class="modal-card historial-modal-card">
+      <div class="modal-header historial-modal-header">
+        <div>
+          <h2 id="tituloHistorialPeticion">Historial de petici&oacute;n</h2>
+          <p id="subtituloHistorialPeticion">Movimientos registrados</p>
+        </div>
+        <button type="button" class="close-btn" aria-label="Cerrar historial" onclick="cerrarHistorialPeticion()">&times;</button>
+      </div>
+      <div class="historial-content" id="contenidoHistorialPeticion" aria-live="polite"></div>
+    </div>
+  </div>
 
   <div class="modal" id="modalDatosInternosCotizacion" role="dialog" aria-modal="true" aria-labelledby="tituloDatosInternosCotizacion" aria-hidden="true">
     <div class="modal-card">
@@ -560,6 +598,12 @@
       return Boolean(window.ETPermissions && ETPermissions.puedeAcceder(usuarioActivo, "Gestión de Cotizaciones"));
     }
 
+    function puedeVerHistorialPeticiones() {
+      const usuarioActivo = obtenerUsuarioActivoPeticion();
+      const rol = normalizarRolPeticion(usuarioActivo?.rol || usuarioActivo?.rol_original);
+      return ["admin", "superadmin", "compras", "director"].includes(rol);
+    }
+
     function puedeEditarGestionCotizaciones() {
       const usuarioActivo = obtenerUsuarioActivoPeticion();
       return Boolean(window.ETPermissions && ETPermissions.puedeEditarModulo(usuarioActivo, "Gestión de Cotizaciones"));
@@ -886,7 +930,7 @@
             '<td><span class="badge status-badge ' + obtenerClaseEstatusPeticion(p.estatus) + '">' + p.estatus + "</span></td>" +
             '<td><div class="action-grid">' +
               botonVerPeticionConNota(p) +
-              ETLayout.iconButton("historial", "Ver historial", "verHistorialPeticion('" + p.id + "')") +
+              (puedeVerHistorialPeticiones() ? ETLayout.iconButton("historial", "Ver historial", "verHistorialPeticion('" + p.id + "')") : "") +
               (mostrarTextoPedido ? ETLayout.iconButton("copiar", "Copiar texto pedido", "copiarTextoPedido('" + p.id + "')") : "") +
               (puedeEditar ? ETLayout.iconButton("editar", "Editar peticion", "editarPeticion('" + p.id + "')", "edit") : "") +
               (puedeEliminar ? ETLayout.iconButton("eliminar", "Eliminar peticion", "eliminarPeticion('" + p.id + "')", "red-btn") : "") +
@@ -1301,12 +1345,11 @@
         descripcionUnidad = String(unidadParque?.descripcion || "").trim();
       }
 
-      const acciones = [
-        {
+      const acciones = [];
+      if (puedeVerHistorialPeticiones()) acciones.push({
           label: "Ver historial",
           onClick: function () { verHistorialPeticion(id); }
-        }
-      ];
+        });
       if (puedeAccionPeticion("editar")) {
         acciones.push({
           label: "Editar petición",
@@ -1364,30 +1407,163 @@
     }
 
     async function verHistorialPeticion(id) {
+      if (!puedeVerHistorialPeticiones()) return;
       const p = obtenerPeticionPorId(id);
       if (!p) return;
+      const modal = document.getElementById("modalHistorialPeticion");
+      const titulo = document.getElementById("tituloHistorialPeticion");
+      const subtitulo = document.getElementById("subtituloHistorialPeticion");
+      const contenido = document.getElementById("contenidoHistorialPeticion");
+      titulo.textContent = "Historial de petición";
+      subtitulo.textContent = [p.unidad ? "Unidad " + p.unidad : "", p.peticion || ""].filter(Boolean).join(" · ");
+      contenido.innerHTML = '<div class="historial-loading">Cargando movimientos…</div>';
+      modal.classList.add("show");
+      modal.setAttribute("aria-hidden", "false");
       const movimientos = await obtenerHistorialEntidad("peticiones", id);
       if (!movimientos.length) {
-        alert("Sin historial para esta peticion.");
+        contenido.innerHTML = '<div class="historial-empty"><strong>Sin movimientos registrados</strong><br><span>Esta petición todavía no tiene actividad en el historial.</span></div>';
         return;
       }
-      alert(
-        "Historial de peticion: " + (p.unidad || "") + "\n\n" +
-        movimientos.map(function (m) {
-          return (m.fecha || m.created_at || "") + " | " +
-            (m.usuario || m.usuario_nombre || "Usuario") + " | " +
-            (m.accion || "") + "\n" +
-            (m.detalle || "");
-        }).join("\n\n")
-      );
+      const lista = document.createElement("ol");
+      lista.className = "historial-timeline";
+      movimientos.forEach(function (m) {
+        const item = document.createElement("li");
+        item.className = "historial-item";
+        const punto = document.createElement("span");
+        punto.className = "historial-dot";
+        punto.setAttribute("aria-hidden", "true");
+        const entrada = document.createElement("article");
+        entrada.className = "historial-entry";
+        const cabecera = document.createElement("div");
+        cabecera.className = "historial-entry-head";
+        const accion = document.createElement("strong");
+        accion.textContent = m.accion || "Movimiento registrado";
+        const fecha = document.createElement("time");
+        fecha.textContent = m.fecha || m.created_at || "Fecha no disponible";
+        const usuario = document.createElement("span");
+        usuario.className = "historial-user";
+        usuario.textContent = m.usuario || m.usuario_nombre || "Usuario";
+        const tipoMovimiento = obtenerTipoMovimientoHistorial(m);
+        const tipo = document.createElement("span");
+        tipo.className = "historial-kind " + tipoMovimiento.clase;
+        tipo.textContent = tipoMovimiento.etiqueta;
+        const detalle = document.createElement("p");
+        detalle.className = "historial-detail";
+        detalle.textContent = m.detalle || "Sin detalle adicional.";
+        cabecera.append(accion, fecha);
+        entrada.append(cabecera, usuario, tipo, detalle);
+        const cambios = obtenerCambiosHistorialPeticion(m);
+        if (cambios.length) entrada.appendChild(crearListaCambiosHistorial(cambios, tipoMovimiento.clase));
+        item.append(punto, entrada);
+        lista.appendChild(item);
+      });
+      contenido.replaceChildren(lista);
     }
+
+    function obtenerMetadataHistorial(registro) {
+      if (registro?.metadata && typeof registro.metadata === "object") return registro.metadata;
+      if (typeof registro?.metadata === "string") {
+        try { return JSON.parse(registro.metadata) || {}; } catch (_) { return {}; }
+      }
+      return {};
+    }
+
+    function obtenerTipoMovimientoHistorial(registro) {
+      const metadata = obtenerMetadataHistorial(registro);
+      const accion = normalizarTextoPeticion(registro?.accion);
+      const esAlta = !metadata.antes && Boolean(metadata.despues) || accion.includes("creo") || accion.includes("agrego");
+      return esAlta
+        ? { clase: "added", etiqueta: "Se agregó" }
+        : { clase: "changed", etiqueta: "Se cambió" };
+    }
+
+    function obtenerCambiosHistorialPeticion(registro) {
+      const metadata = obtenerMetadataHistorial(registro);
+      const antes = metadata.antes || metadata.before || null;
+      const despues = metadata.despues || metadata.after || null;
+      if (!despues || typeof despues !== "object") return [];
+      const ignorados = new Set(["id", "created_at", "updated_at"]);
+      const campos = antes && typeof antes === "object"
+        ? Array.from(new Set(Object.keys(antes).concat(Object.keys(despues))))
+        : Object.keys(despues);
+      return campos.filter(function (campo) {
+        if (ignorados.has(campo)) return false;
+        return !antes || JSON.stringify(antes[campo] ?? null) !== JSON.stringify(despues[campo] ?? null);
+      }).map(function (campo) {
+        return { campo: campo, antes: antes ? antes[campo] : undefined, despues: despues[campo] };
+      });
+    }
+
+    function etiquetaCampoHistorial(campo) {
+      const etiquetas = {
+        fecha: "Fecha de registro", unidad: "Unidad", peticion: "Petición",
+        solicitante: "Solicitante", area: "Área", dependencia: "Dependencia",
+        proveedor: "Proveedor", estatus: "Estatus", observaciones: "Observaciones",
+        fecha_estimada_entrega: "Fecha estimada de entrega",
+        estatus_proveedor: "Estatus del proveedor", fecha_entrega_proveedor: "Fecha de entrega"
+      };
+      return etiquetas[campo] || String(campo || "").replace(/_/g, " ").replace(/\b\w/g, function (letra) { return letra.toUpperCase(); });
+    }
+
+    function valorHistorial(valor) {
+      if (valor === null || valor === undefined || valor === "") return "Sin valor";
+      if (typeof valor === "boolean") return valor ? "Sí" : "No";
+      if (typeof valor === "object") return JSON.stringify(valor);
+      return String(valor);
+    }
+
+    function crearListaCambiosHistorial(cambios, claseMovimiento) {
+      const lista = document.createElement("div");
+      lista.className = "historial-changes";
+      cambios.forEach(function (cambio) {
+        const fila = document.createElement("div");
+        fila.className = "historial-change";
+        const etiqueta = document.createElement("span");
+        etiqueta.className = "historial-change-label";
+        etiqueta.textContent = etiquetaCampoHistorial(cambio.campo);
+        const valores = document.createElement("div");
+        valores.className = "historial-change-values";
+        if (claseMovimiento === "changed") {
+          const anterior = document.createElement("span");
+          anterior.className = "historial-old";
+          anterior.textContent = valorHistorial(cambio.antes);
+          const flecha = document.createElement("span");
+          flecha.className = "historial-arrow";
+          flecha.textContent = "→";
+          valores.append(anterior, flecha);
+        }
+        const nuevo = document.createElement("span");
+        nuevo.className = "historial-new";
+        nuevo.textContent = valorHistorial(cambio.despues);
+        valores.appendChild(nuevo);
+        fila.append(etiqueta, valores);
+        lista.appendChild(fila);
+      });
+      return lista;
+    }
+
+    function cerrarHistorialPeticion() {
+      const modal = document.getElementById("modalHistorialPeticion");
+      modal?.classList.remove("show");
+      modal?.setAttribute("aria-hidden", "true");
+    }
+
+    document.getElementById("modalHistorialPeticion")?.addEventListener("click", function (event) {
+      if (event.target === this) cerrarHistorialPeticion();
+    });
+
+    document.addEventListener("keydown", function (event) {
+      if (event.key === "Escape" && document.getElementById("modalHistorialPeticion")?.classList.contains("show")) {
+        cerrarHistorialPeticion();
+      }
+    });
 
     async function obtenerHistorialEntidad(tipo, id) {
       const client = window.supabaseClient || null;
       if (client) {
         const { data, error } = await client
           .from("auditoria")
-          .select("created_at,usuario_nombre,accion,detalle")
+          .select("created_at,usuario_nombre,accion,detalle,metadata")
           .eq("entidad_tipo", tipo)
           .eq("entidad_id", id)
           .order("created_at", { ascending: false });
@@ -1397,7 +1573,8 @@
               fecha: formatearFechaHoraHistorial(item.created_at),
               usuario: item.usuario_nombre,
               accion: item.accion,
-              detalle: item.detalle
+              detalle: item.detalle,
+              metadata: item.metadata || {}
             };
           });
         }
