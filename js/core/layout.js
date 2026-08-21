@@ -2076,7 +2076,15 @@
 
   function obtenerFichaDetalle() {
     let drawer = document.getElementById("etDetailDrawer");
-    if (drawer) return drawer;
+    const host = document.querySelector("main.main-content") || document.body;
+    if (drawer) {
+      const overlayExistente = document.querySelector(".et-detail-overlay");
+      if (drawer.parentElement !== host) host.appendChild(drawer);
+      if (overlayExistente && overlayExistente.parentElement !== host) {
+        host.insertBefore(overlayExistente, drawer);
+      }
+      return drawer;
+    }
 
     const overlay = document.createElement("button");
     overlay.type = "button";
@@ -2105,8 +2113,8 @@
       '<footer class="et-detail-actions"></footer>';
 
     drawer.querySelector(".et-detail-close").addEventListener("click", cerrarFichaDetalle);
-    document.body.appendChild(overlay);
-    document.body.appendChild(drawer);
+    host.appendChild(overlay);
+    host.appendChild(drawer);
 
     document.addEventListener("keydown", function (event) {
       if (!document.body.classList.contains("et-detail-open")) return;
@@ -2150,6 +2158,20 @@
     const config = configuracion || {};
     const drawer = obtenerFichaDetalle();
     drawer.etOpener = document.activeElement;
+    drawer.etScrollX = global.scrollX;
+    drawer.etScrollY = global.scrollY;
+    drawer.etScrollParents = [];
+    let ancestroScroll = drawer.etOpener && drawer.etOpener.parentElement;
+    while (ancestroScroll && ancestroScroll !== document.body) {
+      if (ancestroScroll.scrollLeft || ancestroScroll.scrollTop) {
+        drawer.etScrollParents.push({
+          element: ancestroScroll,
+          left: ancestroScroll.scrollLeft,
+          top: ancestroScroll.scrollTop
+        });
+      }
+      ancestroScroll = ancestroScroll.parentElement;
+    }
     drawer.querySelector(".et-detail-eyebrow").textContent = config.eyebrow || "Detalle";
     drawer.querySelector("#etDetailTitle").textContent = config.title || "Registro";
     drawer.querySelector(".et-detail-subtitle").textContent = config.subtitle || "";
@@ -2206,14 +2228,30 @@
 
   function cerrarFichaDetalle(restaurarFoco) {
     const drawer = document.getElementById("etDetailDrawer");
-    if (!drawer || !document.body.classList.contains("et-detail-open")) return;
+    const estabaAbierta = document.body.classList.contains("et-detail-open");
     document.body.classList.remove("et-detail-open");
+    if (!drawer) return;
     drawer.setAttribute("aria-hidden", "true");
-    if (restaurarFoco !== false && drawer.etOpener && drawer.etOpener.isConnected) {
-      global.setTimeout(function () {
-        drawer.etOpener.focus();
-      }, 180);
+    const contenidoPrincipal = document.querySelector("body.et-layout-ready.dashboard-body > main.main-content");
+    if (contenidoPrincipal) {
+      contenidoPrincipal.style.removeProperty("width");
+      contenidoPrincipal.style.removeProperty("max-width");
+      contenidoPrincipal.style.removeProperty("transform");
     }
+    if (estabaAbierta && restaurarFoco !== false && drawer.etOpener && drawer.etOpener.isConnected) {
+      global.setTimeout(function () {
+        drawer.etOpener.focus({ preventScroll: true });
+      }, 0);
+    }
+    global.requestAnimationFrame(function () {
+      (drawer.etScrollParents || []).forEach(function (posicion) {
+        if (!posicion.element.isConnected) return;
+        posicion.element.scrollLeft = posicion.left;
+        posicion.element.scrollTop = posicion.top;
+      });
+      global.scrollTo(drawer.etScrollX || 0, drawer.etScrollY || 0);
+      if (contenidoPrincipal) void contenidoPrincipal.offsetWidth;
+    });
   }
 
   function inferirTipoMensaje(mensaje) {

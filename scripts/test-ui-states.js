@@ -13,6 +13,18 @@ const checks = [
   [styles.includes(".et-connection-status"), "Faltan estilos del aviso de conexión"]
 ];
 
+checks.push(
+  [styles.includes("body.et-detail-open"), "El visor debe conservar el tamaño del módulo"],
+  [styles.includes("body.et-layout-ready.dashboard-body > main.main-content"), "El contenido principal debe conservar su ancho flexible"],
+  [layout.includes("preventScroll: true"), "El visor debe devolver el foco sin desplazar el módulo"],
+  [layout.includes("etScrollParents"), "El visor debe restaurar las tablas desplazables al cerrar"]
+);
+
+checks.push(
+  [layout.includes('document.querySelector("main.main-content") || document.body'), "El visor debe montarse dentro del contenido y no como elemento flexible del body"],
+  [layout.includes("host.appendChild(drawer)"), "La ficha lateral debe quedar fuera del flujo principal del body"]
+);
+
 const failed = checks.filter(([ok]) => !ok);
 if (failed.length) {
   failed.forEach(([, message]) => console.error("ERROR:", message));

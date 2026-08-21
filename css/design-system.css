@@ -109,6 +109,7 @@ textarea {
   display: flex;
   flex-direction: column;
   gap: 18px;
+  position: relative;
 }
 
 .et-module-shell > * {
@@ -854,8 +855,8 @@ input:-webkit-autofill:focus {
     visibility 240ms ease;
 }
 
-.et-detail-open {
-  overflow: hidden;
+body.et-detail-open {
+  overflow: visible;
 }
 
 .et-detail-open .et-detail-overlay {
@@ -1719,6 +1720,18 @@ tbody tr:hover {
   width: auto;
   max-width: none;
   margin-left: 0;
+}
+
+/* El drawer se agrega como hijo directo del body. Fijar la base flexible del
+   contenido evita que el navegador lo recalcule a su ancho mínimo. */
+@media (min-width: 821px) {
+  body.et-layout-ready.dashboard-body > main.main-content {
+    flex: 1 1 0;
+    width: 0;
+    min-width: 0;
+    max-width: none;
+    align-self: stretch;
+  }
 }
 
 .et-sidebar-brand {

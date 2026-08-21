@@ -124,7 +124,10 @@ async function cargarAcuerdos() {
 
   if (error) {
     console.error("Error cargando acuerdos:", error);
-    alert("No se pudieron cargar los acuerdos.");
+    const detalle = error.code === "42501"
+      ? "La base de datos no tiene habilitado el permiso de lectura para Acuerdos."
+      : (error.message || "Revisa la conexión con Supabase.");
+    alert("No se pudieron cargar los acuerdos. " + detalle);
     return;
   }
 

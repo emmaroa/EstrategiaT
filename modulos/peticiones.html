@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Administración de Talleres | Peticiones</title>
   <link rel="stylesheet" href="../css/style.css">
-  <link rel="stylesheet" href="../css/design-system.css?v=20260819-14">
+  <link rel="stylesheet" href="../css/design-system.css?v=20260820-3">
   <style>
     #kpisGestionCotizaciones { display:none; }
     #graficaMontoProveedorCotizaciones { display:none; }
@@ -27,6 +27,26 @@
     .peticion-view-note .action-btn { margin:0; }
     .peticion-note-indicator { position:absolute; top:-5px; right:-5px; display:flex; align-items:center; justify-content:center; width:17px; height:17px; border:2px solid var(--bg-card); border-radius:50%; background:var(--color-warning); color:#111827; pointer-events:none; z-index:1; }
     .peticion-note-indicator svg { width:9px; height:9px; fill:none; stroke:currentColor; stroke-width:2; }
+    .status-badge.peticion-status { gap:7px; max-width:190px; padding:6px 11px; border-width:1px; border-style:solid; box-shadow:inset 0 1px 0 rgba(255,255,255,.06); font-weight:850; }
+    .status-badge.peticion-status::before { width:7px; height:7px; flex-basis:7px; box-shadow:0 0 0 3px color-mix(in srgb, currentColor 16%, transparent); }
+    .status-badge.peticion-status--pendiente { color:#fbbf24 !important; border-color:rgba(245,158,11,.30) !important; background:rgba(245,158,11,.13) !important; }
+    .status-badge.peticion-status--revisado { color:#60a5fa !important; border-color:rgba(59,130,246,.30) !important; background:rgba(59,130,246,.13) !important; }
+    .status-badge.peticion-status--cotizacion { color:#c084fc !important; border-color:rgba(168,85,247,.30) !important; background:rgba(168,85,247,.13) !important; }
+    .status-badge.peticion-status--pedido { color:#22d3ee !important; border-color:rgba(6,182,212,.30) !important; background:rgba(6,182,212,.13) !important; }
+    .status-badge.peticion-status--parcial { color:#fb923c !important; border-color:rgba(249,115,22,.30) !important; background:rgba(249,115,22,.13) !important; }
+    .status-badge.peticion-status--recibido { color:#4ade80 !important; border-color:rgba(34,197,94,.30) !important; background:rgba(34,197,94,.13) !important; }
+    .status-badge.peticion-status--cancelado,
+    .status-badge.peticion-status--rechazado { color:#f87171 !important; border-color:rgba(239,68,68,.30) !important; background:rgba(239,68,68,.13) !important; }
+    .status-badge.peticion-status--neutral { color:#cbd5e1 !important; border-color:rgba(148,163,184,.28) !important; background:rgba(148,163,184,.12) !important; }
+    [data-theme="light"] .status-badge.peticion-status--pendiente { color:#92400e !important; }
+    [data-theme="light"] .status-badge.peticion-status--revisado { color:#1d4ed8 !important; }
+    [data-theme="light"] .status-badge.peticion-status--cotizacion { color:#7e22ce !important; }
+    [data-theme="light"] .status-badge.peticion-status--pedido { color:#0e7490 !important; }
+    [data-theme="light"] .status-badge.peticion-status--parcial { color:#c2410c !important; }
+    [data-theme="light"] .status-badge.peticion-status--recibido { color:#15803d !important; }
+    [data-theme="light"] .status-badge.peticion-status--cancelado,
+    [data-theme="light"] .status-badge.peticion-status--rechazado { color:#b91c1c !important; }
+    [data-theme="light"] .status-badge.peticion-status--neutral { color:#475569 !important; }
     .historial-modal-card { width:min(620px, calc(100vw - 28px)); max-height:min(78vh, 720px); padding:0; overflow:hidden; }
     .historial-modal-header { padding:22px 24px 16px; border-bottom:1px solid var(--border); background:linear-gradient(135deg, color-mix(in srgb, var(--color-teal) 12%, var(--bg-card)), var(--bg-card)); }
     .historial-modal-header p { margin:5px 0 0; color:var(--text-secondary); }
@@ -58,7 +78,7 @@
   <script src="../js/core/supabase.js"></script>
   <script src="../js/core/permissions.js?v=20260727-4"></script>
   <script src="../js/core/theme.js"></script>
-  <script src="../js/core/layout.js?v=20260819-14"></script>
+  <script src="../js/core/layout.js?v=20260820-3"></script>
   <script src="../js/services/peticiones.service.js?v=20260727-1"></script>
   <script src="../js/services/cotizaciones-almacen.service.js?v=20260810-1"></script>
   <script src="../js/core/auth.js?v=20260819-3"></script>
@@ -927,7 +947,7 @@
             "<td>" + (p.fecha_estimada_entrega ? formatearFecha(p.fecha_estimada_entrega) : "Sin definir") + "</td>" +
             '<td><span class="badge status-badge ' + (cotizacion ? "green" : "gray") + '">' +
               (cotizacion ? "✓ Sí" : "No") + "</span></td>" +
-            '<td><span class="badge status-badge ' + obtenerClaseEstatusPeticion(p.estatus) + '">' + p.estatus + "</span></td>" +
+            '<td><span class="badge status-badge peticion-status ' + obtenerClaseEstatusPeticion(p.estatus) + '" data-status="' + escaparCotizacionInterna(p.estatus) + '">' + p.estatus + "</span></td>" +
             '<td><div class="action-grid">' +
               botonVerPeticionConNota(p) +
               (puedeVerHistorialPeticiones() ? ETLayout.iconButton("historial", "Ver historial", "verHistorialPeticion('" + p.id + "')") : "") +
@@ -1375,7 +1395,7 @@
         subtitle: descripcionUnidad || "Unidad sin descripción registrada",
         status: {
           label: p.estatus || "Sin estatus",
-          tone: obtenerClaseEstatusPeticion(p.estatus)
+          tone: obtenerTonoEstatusPeticion(p.estatus)
         },
         sections: [
           {
@@ -1656,13 +1676,25 @@
     }
 
     function obtenerClaseEstatusPeticion(estatus) {
-      if (estatus === "Pendiente") return "amber";
-      if (estatus === "Revisado por almacen") return "blue";
-      if (estatus === "Pedido a proveedor") return "blue";
-      if (estatus === "Recibido Parcial") return "amber";
-      if (estatus === "Recibido en Almacen") return "green";
-      if (estatus === "CANCELADO") return "red";
-      return "gray";
+      const valor = normalizarTextoPeticion(estatus);
+      if (valor === "pendiente" || valor === "pendiente de revision") return "peticion-status--pendiente";
+      if (valor === "revisado por almacen" || valor === "validada") return "peticion-status--revisado";
+      if (valor === "en cotizacion") return "peticion-status--cotizacion";
+      if (valor === "pedido a proveedor" || valor === "requisicion generada") return "peticion-status--pedido";
+      if (valor === "recibido parcial") return "peticion-status--parcial";
+      if (valor === "recibido en almacen") return "peticion-status--recibido";
+      if (valor.includes("cancelad")) return "peticion-status--cancelado";
+      if (valor.includes("rechazad")) return "peticion-status--rechazado";
+      return "peticion-status--neutral";
+    }
+
+    function obtenerTonoEstatusPeticion(estatus) {
+      const clase = obtenerClaseEstatusPeticion(estatus);
+      if (clase.includes("recibido")) return "green";
+      if (clase.includes("cancelado") || clase.includes("rechazado")) return "red";
+      if (clase.includes("pendiente") || clase.includes("parcial")) return "amber";
+      if (clase.includes("neutral")) return "gray";
+      return "blue";
     }
 
     function formatearFecha(fecha) {
@@ -2045,7 +2077,7 @@
               "<td><strong>" + escaparCotizacionInterna(monedaCotizacionInterna(cotizacion.total)) + "</strong></td>" +
               "<td>" + escaparCotizacionInterna(cotizacion.partida || "Pendiente") + "</td>" +
               "<td>" + escaparCotizacionInterna(cotizacion.requisicion || "Pendiente") + "</td>" +
-              "<td>" + escaparCotizacionInterna(cotizacion.estatus || "Pendiente") + "</td>" +
+              '<td><span class="badge status-badge peticion-status ' + obtenerClaseEstatusPeticion(cotizacion.estatus || "Pendiente") + '" data-status="' + escaparCotizacionInterna(cotizacion.estatus || "Pendiente") + '">' + escaparCotizacionInterna(cotizacion.estatus || "Pendiente") + "</span></td>" +
               "<td>" + escaparCotizacionInterna(cotizacion.observaciones || "Sin notas") + "</td>" +
               '<td>' + (puedeEditarGestionCotizaciones()
                 ? ETLayout.iconButton("editar", "Editar todos los datos de la cotización", "abrirDatosInternosCotizacion('" + cotizacion.id + "')", "edit")
