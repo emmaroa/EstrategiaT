@@ -5,13 +5,13 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Administración de Talleres | Vales</title>
   <link rel="stylesheet" href="../css/style.css">
-  <link rel="stylesheet" href="../css/design-system.css?v=20260820-3">
+  <link rel="stylesheet" href="../css/design-system.css?v=20260824-3">
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <script src="../js/core/supabase.js"></script>
   <script src="../js/core/permissions.js?v=20260725-1"></script>
   <script src="../js/core/theme.js"></script>
-  <script src="../js/core/layout.js?v=20260820-3"></script>
+  <script src="../js/core/layout.js?v=20260824-2"></script>
   <script src="../js/services/proveedores.service.js?v=20260728-1"></script>
   <script src="../js/core/auth.js?v=20260819-3"></script>
 </head>
@@ -779,18 +779,56 @@ unidadVale?.addEventListener("blur", async function () {
       const v = obtenerValePorId(id);
       if (!v) return;
 
-      alert(
-        "Folio: " + v.folio +
-        "\nFecha: " + formatearFechaVale(v.fecha) +
-        "\nUnidad: " + v.unidad +
-        "\nDependencia: " + (v.dependencia || "Sin dato") +
-        "\nProveedor/Origen: " + (v.proveedor || "Sin dato") +
-        "\nMaterial entregado: " + v.refaccion +
-        "\nEntrega: " + (v.entrega || "Sin dato") +
-        "\nRecibe: " + v.recibe +
-        "\nEstatus: " + v.estatus +
-        "\nObservaciones: " + (v.observaciones || "Sin observaciones")
-      );
+      const acciones = [];
+      if (puedeAccionVale("editar")) acciones.push({
+        label: "Editar vale",
+        variant: "primary",
+        onClick: function () { editarVale(id); }
+      });
+      if (puedeAccionVale("cambiar_estatus")) acciones.push({
+        label: "Cambiar estatus",
+        onClick: function () { cambiarEstatusVale(id); }
+      });
+      acciones.push({
+        label: "Imprimir vale",
+        onClick: function () { imprimirVale(id); }
+      });
+
+      ETLayout.abrirFichaDetalle({
+        eyebrow: "Vale de salida",
+        title: v.folio || "Vale sin folio",
+        subtitle: [v.unidad ? "Unidad " + v.unidad : "", v.dependencia || ""].filter(Boolean).join(" · "),
+        status: {
+          label: v.estatus || "Sin estatus",
+          tone: obtenerTonoEstatusVale(v.estatus)
+        },
+        sections: [
+          {
+            title: "Información del vale",
+            fields: [
+              { label: "Fecha", value: formatearFechaVale(v.fecha) },
+              { label: "Unidad", value: v.unidad },
+              { label: "Dependencia", value: v.dependencia },
+              { label: "Proveedor / Origen", value: v.proveedor }
+            ]
+          },
+          {
+            title: "Entrega",
+            fields: [
+              { label: "Material entregado", value: v.refaccion, wide: true },
+              { label: "Entrega", value: v.entrega },
+              { label: "Recibe", value: v.recibe }
+            ]
+          },
+          {
+            title: "Notas",
+            fields: [
+              { label: "Observaciones", value: v.observaciones, wide: true }
+            ]
+          }
+        ],
+        actions: acciones
+      });
     }
 
     function imprimirVale(id) {
@@ -864,10 +902,14 @@ unidadVale?.addEventListener("blur", async function () {
 
     function obtenerClaseEstatusVale(estatus) {
       if (estatus === "Pendiente") return "amber";
-      if (estatus === "Entregado") return "green";
-      if (estatus === "Solventado") return "blue";
+      if (estatus === "Entregado") return "violet";
+      if (estatus === "Solventado") return "green";
       if (estatus === "Cancelado") return "red";
       return "gray";
+    }
+
+    function obtenerTonoEstatusVale(estatus) {
+      return obtenerClaseEstatusVale(estatus);
     }
 
     function formatearFechaVale(fecha) {

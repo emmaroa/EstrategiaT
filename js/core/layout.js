@@ -1543,6 +1543,30 @@
       const lista = document.createElement("div");
       lista.className = "et-action-menu-list";
 
+      menu.addEventListener("toggle", function () {
+        if (!menu.open) return;
+        if (global.matchMedia("(max-width: 768px)").matches) {
+          lista.style.removeProperty("left");
+          lista.style.removeProperty("right");
+          lista.style.removeProperty("top");
+          return;
+        }
+        const margen = 8;
+        const rectResumen = resumen.getBoundingClientRect();
+        const ancho = Math.min(280, Math.max(210, lista.offsetWidth));
+        let izquierda = rectResumen.right - ancho;
+        izquierda = Math.max(margen, Math.min(izquierda, global.innerWidth - ancho - margen));
+        lista.style.left = izquierda + "px";
+        lista.style.right = "auto";
+
+        const alto = lista.offsetHeight;
+        const espacioAbajo = global.innerHeight - rectResumen.bottom;
+        const arriba = espacioAbajo >= alto + margen || rectResumen.top < alto + margen
+          ? rectResumen.bottom + 7
+          : rectResumen.top - alto - 7;
+        lista.style.top = Math.max(margen, arriba) + "px";
+      });
+
       botones.slice(1).forEach(function (boton) {
         const etiqueta = boton.getAttribute("aria-label") || boton.getAttribute("title") || "Acción";
         boton.classList.remove("icon-only");
@@ -2180,7 +2204,7 @@
     estado.innerHTML = "";
     if (config.status && config.status.label) {
       const badge = document.createElement("span");
-      const tonos = ["green", "amber", "red", "blue", "teal", "gray", "orange"];
+      const tonos = ["green", "amber", "red", "blue", "teal", "violet", "gray", "orange"];
       const tono = tonos.includes(config.status.tone) ? config.status.tone : "gray";
       badge.className = "badge status-badge " + tono;
       badge.textContent = config.status.label;
