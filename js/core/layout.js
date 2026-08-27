@@ -263,7 +263,7 @@
         const current = modulo === moduloActivo ? ' aria-current="page"' : "";
         const etiquetaModulo = modulo === "Portal Proveedor"
           ? "Dashboard proveedor"
-          : (modulo === "Cotizaciones Proveedor" ? "Cotizaciones sin requisición" : modulo);
+          : (modulo === "Cotizaciones Proveedor" ? "Cotizaciones" : modulo);
         return '<a href="' + ruta + '" class="nav-item' + active + '" title="' + modulo + '"' + current + ">" +
           iconoModulo(modulo) +
           '<span class="et-nav-label">' + etiquetaModulo + "</span>" +
@@ -302,7 +302,7 @@
 
   function etiquetaNavegacion(modulo) {
     if (modulo === "Portal Proveedor") return "Dashboard proveedor";
-    if (modulo === "Cotizaciones Proveedor") return "Cotizaciones sin requisición";
+    if (modulo === "Cotizaciones Proveedor") return "Cotizaciones";
     return modulo;
   }
 
@@ -326,7 +326,8 @@
       return permitidos.includes(modulo) && !favoritos.includes(modulo);
     }).slice(0, 4);
     const accesos = favoritos.concat(recientes);
-    const grupoAccesos = accesos.length
+    const esPortalProveedor = String(usuario && (usuario.rol || usuario.rol_original) || "").trim().toLowerCase() === "proveedor";
+    const grupoAccesos = accesos.length && !esPortalProveedor
       ? '<section class="et-nav-group et-nav-personal" aria-label="Tus accesos"><h2 class="et-nav-group-title">Tus accesos</h2>' +
         accesos.map(function (modulo) {
           return filaNavegacionPersonalizada(modulo, moduloActivo, desdeModulo, favoritos, favoritos.includes(modulo) ? "favorito" : "reciente");

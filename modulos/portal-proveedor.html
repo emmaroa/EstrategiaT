@@ -183,8 +183,8 @@
     <section class="panel portal-module" id="moduloResumenSiif">
       <div class="panel-header">
         <div>
-          <h2>Trámites SIIF por estatus</h2>
-          <p>Cantidad y monto acumulado por estatus actual.</p>
+          <h2>Resumen de trámites SIIF</h2>
+          <p>Cantidad y monto acumulado por grupo de seguimiento.</p>
           <span class="portal-siif-updated" id="fechaActualizacionSiifProveedor">Consultando actualización de SIIF…</span>
         </div>
       </div>
@@ -228,11 +228,11 @@
     <section class="panel portal-module" id="moduloCotizaciones">
       <div class="panel-header">
         <div>
-          <h2>Cotizaciones sin requisición</h2>
-          <p>Consulta y exporta las cotizaciones del proveedor, tengan o no una requisición asignada.</p>
+          <h2>Cotizaciones</h2>
+          <p>Consulta y administra las cotizaciones registradas por el proveedor.</p>
         </div>
         <button type="button" class="btn-secondary" id="btnExportarCotizaciones">Exportar datos</button>
-        <button type="button" class="btn-small" id="btnNuevaCotizacionAlmacen">Registrar entrega sin petición</button>
+        <button type="button" class="btn-small" id="btnNuevaCotizacionAlmacen">Agregar nueva cotización</button>
       </div>
       <div class="filters">
         <input type="search" id="buscarCotizacionesAlmacen" placeholder="Buscar por requisición, folio, unidad, material, monto o notas..." aria-label="Buscar cotizaciones por requisición, folio, unidad, material, monto o notas">
@@ -402,7 +402,7 @@
     document.body.classList.toggle("portal-cotizaciones-view", vistaCotizacionesProveedor);
     document.body.classList.toggle("portal-siif-view", vistaSeguimientoSiifProveedor);
     if (vistaCotizacionesProveedor) {
-      document.getElementById("tituloPortalProveedor").textContent = "Cotizaciones sin requisición";
+      document.getElementById("tituloPortalProveedor").textContent = "Cotizaciones";
     } else if (vistaPeticionesProveedor) {
       document.getElementById("tituloPortalProveedor").textContent = "Peticiones de almacén";
     } else if (vistaSeguimientoSiifProveedor) {
@@ -809,42 +809,49 @@
 
     function renderizarResumenSiifProveedor() {
       const contenedor = document.getElementById("resumenEstatusSiifProveedor");
-      const resumen = requisicionesProveedor.reduce(function (acumulado, tramite) {
-        const estatus = String(tramite.estatus || "Sin estatus").trim() || "Sin estatus";
-        const claveEstatus = normalizarPortal(estatus);
-        if (!acumulado[claveEstatus]) {
-          acumulado[claveEstatus] = {
-            estatus: (claveEstatus.includes("cancel") || claveEstatus.includes("canel")) ? "CANCELADA" : estatus,
-            cantidad: 0,
-            monto: 0
-          };
+      const grupos = [
+        {
+          nombre: "En trámite Oficialía / Tesorería",
+          tono: "is-warning",
+          estatus: [
+            "EJERCIDA", "EN CAJA CONFIRMADA CONSOLIDADA",
+            "RECIBIDA OFICIALIA MAYOR", "VALIDADO PPTO."
+          ]
+        },
+        {
+          nombre: "En trámite en Talleres",
+          tono: "",
+          estatus: ["RECHAZADA", "INICIO DE PROCEDIMIENTO", "Llenado de O.C.", "OC AUTORIZADA", "EMITIDA"]
+        },
+        {
+          nombre: "Pagado",
+          tono: "is-success",
+          estatus: ["PAGADA", "AUTORIZACIÓN EJECUTIVA CONSOLIDADA PAGADA"]
         }
-        acumulado[claveEstatus].cantidad += 1;
-        if (!tramiteSiifCancelado(tramite)) {
-          acumulado[claveEstatus].monto += Number(tramite.monto || 0);
-        }
-        return acumulado;
-      }, {});
-      const filas = Object.keys(resumen).map(function (claveEstatus) {
-        return resumen[claveEstatus];
-      }).sort(function (a, b) {
-        return b.monto - a.monto || b.cantidad - a.cantidad || a.estatus.localeCompare(b.estatus, "es");
+      ];
+      const filas = grupos.map(function (grupo) {
+        const estatusIncluidos = grupo.estatus.map(normalizarPortal);
+        const tramites = requisicionesProveedor.filter(function (tramite) {
+          return estatusIncluidos.includes(normalizarPortal(tramite.estatus));
+        });
+        return {
+          estatus: grupo.nombre,
+          tono: grupo.tono,
+          cantidad: tramites.length,
+          monto: tramites.reduce(function (total, tramite) { return total + Number(tramite.monto || 0); }, 0)
+        };
       });
       const montoMaximo = Math.max.apply(null, filas.map(function (fila) { return fila.monto; }).concat([0]));
 
-      contenedor.innerHTML = filas.length ? filas.map(function (fila) {
+      contenedor.innerHTML = filas.map(function (fila) {
         const porcentaje = montoMaximo > 0 ? Math.max(3, (fila.monto / montoMaximo) * 100) : 0;
-        const estatusNormalizado = normalizarPortal(fila.estatus);
-        const tono = (estatusNormalizado.includes("cancel") || estatusNormalizado.includes("canel"))
-          ? "is-cancelled"
-          : (["emitida", "pagada", "finalizada", "finalizado"].includes(estatusNormalizado) ? "is-success" : "is-warning");
-        return '<article class="portal-status-card ' + tono + '">' +
+        return '<article class="portal-status-card ' + fila.tono + '">' +
           "<h3>" + escaparPortal(fila.estatus) + "</h3>" +
           '<div class="portal-status-values"><strong>' + fila.cantidad +
           '</strong><span>' + escaparPortal(importePortal(fila.monto)) + "</span></div>" +
           '<div class="portal-status-track" aria-hidden="true"><div class="portal-status-bar" style="width:' +
           porcentaje.toFixed(2) + '%"></div></div></article>';
-      }).join("") : '<p class="helper-text">No hay trámites SIIF asignados a este proveedor.</p>';
+      }).join("");
     }
 
     function tramiteSiifCancelado(tramite) {
