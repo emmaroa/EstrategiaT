@@ -69,6 +69,28 @@
   --transition-base: 200ms ease;
 }
 
+/* Paletas personalizables; conservan los colores semánticos de éxito, alerta y error. */
+[data-palette="oceano"] {
+  --color-primary:#2563EB; --color-primary-hover:#1D4ED8; --color-primary-soft:rgba(37,99,235,.14);
+  --color-secondary:#0EA5E9; --color-accent:#67E8F9; --color-teal:#0891B2; --color-teal-dark:#155E75;
+  --color-info:#3B82F6; --shadow-focus:0 0 0 4px rgba(14,165,233,.2);
+}
+[data-palette="bosque"] {
+  --color-primary:#15803D; --color-primary-hover:#166534; --color-primary-soft:rgba(21,128,61,.14);
+  --color-secondary:#65A30D; --color-accent:#BEF264; --color-teal:#0F766E; --color-teal-dark:#115E59;
+  --color-info:#0284C7; --shadow-focus:0 0 0 4px rgba(15,118,110,.2);
+}
+[data-palette="violeta"] {
+  --color-primary:#7C3AED; --color-primary-hover:#6D28D9; --color-primary-soft:rgba(124,58,237,.14);
+  --color-secondary:#A855F7; --color-accent:#E879F9; --color-teal:#6366F1; --color-teal-dark:#4338CA;
+  --color-info:#6366F1; --shadow-focus:0 0 0 4px rgba(124,58,237,.2);
+}
+[data-palette="coral"] {
+  --color-primary:#E11D48; --color-primary-hover:#BE123C; --color-primary-soft:rgba(225,29,72,.14);
+  --color-secondary:#F97316; --color-accent:#FBBF24; --color-teal:#DB2777; --color-teal-dark:#9D174D;
+  --color-info:#8B5CF6; --shadow-focus:0 0 0 4px rgba(225,29,72,.2);
+}
+
 [data-theme="light"] {
   --bg-body: #f4f7fb;
   --bg-surface: #ffffff;

@@ -23,6 +23,15 @@
     .cotizaciones-materials-cell { min-width:240px; max-width:360px; white-space:normal; }
     .cotizaciones-materials-list { display:grid; gap:4px; margin:0; padding-left:18px; }
     .cotizaciones-materials-list li { line-height:1.35; }
+    #tablaGestionCotizaciones tr.cotizacion-clickable { cursor:pointer; }
+    #tablaGestionCotizaciones tr.cotizacion-clickable:focus-visible { outline:3px solid color-mix(in srgb, var(--color-teal) 55%, transparent); outline-offset:-3px; }
+    #tablaGestionCotizaciones tr.cotizacion-sin-requisicion { background:color-mix(in srgb, var(--color-warning) 9%, transparent); box-shadow:inset 4px 0 0 var(--color-warning); }
+    #tablaGestionCotizaciones tr.cotizacion-sin-requisicion:hover { background:color-mix(in srgb, var(--color-warning) 15%, var(--bg-card)); }
+    .cotizacion-pendiente-badge { display:inline-flex; align-items:center; padding:5px 9px; border:1px solid color-mix(in srgb, var(--color-warning) 45%, transparent); border-radius:999px; background:color-mix(in srgb, var(--color-warning) 14%, transparent); color:var(--text-primary); font-size:11px; font-weight:850; white-space:nowrap; }
+    .cotizacion-preview-card { width:min(1040px, calc(100vw - 28px)); height:min(90vh, 860px); padding:0; overflow:hidden; }
+    .cotizacion-preview-header { padding:18px 22px 14px; border-bottom:1px solid var(--border); }
+    .cotizacion-preview-frame { display:block; width:100%; height:calc(90vh - 158px); min-height:440px; border:0; background:#fff; }
+    .cotizacion-preview-actions { padding:14px 22px; border-top:1px solid var(--border); background:var(--bg-card); }
     .peticion-view-note { position:relative; width:36px; height:36px; }
     .peticion-view-note .action-btn { margin:0; }
     .peticion-note-indicator { position:absolute; top:-5px; right:-5px; display:flex; align-items:center; justify-content:center; width:17px; height:17px; border:2px solid var(--bg-card); border-radius:50%; background:var(--color-warning); color:#111827; pointer-events:none; z-index:1; }
@@ -274,6 +283,24 @@
 
   </main>
 
+  <div class="modal" id="modalVistaPreviaCotizacion" role="dialog" aria-modal="true" aria-labelledby="tituloVistaPreviaCotizacion" aria-hidden="true">
+    <div class="modal-card cotizacion-preview-card">
+      <div class="modal-header cotizacion-preview-header">
+        <div>
+          <h2 id="tituloVistaPreviaCotizacion">Vista previa de cotización</h2>
+          <p id="subtituloVistaPreviaCotizacion">Revisa el documento antes de imprimir.</p>
+        </div>
+        <button type="button" class="close-btn" aria-label="Cerrar vista previa" onclick="cerrarVistaPreviaCotizacion()">×</button>
+      </div>
+      <iframe id="marcoVistaPreviaCotizacion" class="cotizacion-preview-frame" title="Documento imprimible de la cotización"></iframe>
+      <div class="modal-actions cotizacion-preview-actions">
+        <button type="button" class="btn-secondary" onclick="cerrarVistaPreviaCotizacion()">Cerrar</button>
+        <button type="button" class="btn-secondary" id="btnEditarDesdeVistaPrevia" onclick="editarDesdeVistaPreviaCotizacion()">Editar</button>
+        <button type="button" class="btn-small" onclick="imprimirVistaPreviaCotizacion()">Imprimir / Guardar PDF</button>
+      </div>
+    </div>
+  </div>
+
   <div class="modal" id="modalHistorialPeticion" role="dialog" aria-modal="true" aria-labelledby="tituloHistorialPeticion" aria-hidden="true">
     <div class="modal-card historial-modal-card">
       <div class="modal-header historial-modal-header">
@@ -369,8 +396,8 @@
         </div>
       </div>
       <div class="modal-actions">
-        <button type="button" class="btn-secondary" onclick="cerrarDatosInternosCotizacion()">Cancelar</button>
-        <button type="button" class="btn-small" onclick="guardarDatosInternosCotizacion()">Guardar</button>
+        <button type="button" class="btn-secondary" id="btnCerrarDatosInternosCotizacion" onclick="cerrarDatosInternosCotizacion()">Cancelar</button>
+        <button type="button" class="btn-small" id="btnGuardarDatosInternosCotizacion" onclick="guardarDatosInternosCotizacion()">Guardar</button>
       </div>
     </div>
   </div>
@@ -512,6 +539,7 @@
     let cotizacionesPorPeticion = new Map();
     let cotizacionesAlmacen = [];
     let cotizacionInternaId = null;
+    let cotizacionVistaPreviaId = null;
     let proveedoresCatalogo = [];
     let idEditando = null;
     let counts = {
@@ -627,6 +655,12 @@
     function puedeEditarGestionCotizaciones() {
       const usuarioActivo = obtenerUsuarioActivoPeticion();
       return Boolean(window.ETPermissions && ETPermissions.puedeEditarModulo(usuarioActivo, "Gestión de Cotizaciones"));
+    }
+
+    function puedeVerDetalleGestionCotizaciones() {
+      const usuarioActivo = obtenerUsuarioActivoPeticion();
+      const rol = normalizarRolPeticion(usuarioActivo?.rol || usuarioActivo?.rol_original);
+      return ["admin", "administradordelsistema", "superadmin", "director"].includes(rol);
     }
 
 
@@ -2067,7 +2101,12 @@
 
       tabla.innerHTML = cotizacionesFiltradas.length
         ? cotizacionesFiltradas.map(function (cotizacion) {
-            return "<tr>" +
+            const puedeAbrirDetalle = puedeVerDetalleGestionCotizaciones();
+            const sinRequisicion = !cotizacionTieneRequisicion(cotizacion);
+            return '<tr class="' + (puedeAbrirDetalle ? "cotizacion-clickable " : "") + (sinRequisicion ? "cotizacion-sin-requisicion" : "") + '"' +
+              (puedeAbrirDetalle
+                ? ' tabindex="0" title="Abrir vista previa" onclick="manejarAperturaFilaCotizacion(event,\'' + cotizacion.id + '\')" onkeydown="manejarTecladoFilaCotizacion(event,\'' + cotizacion.id + '\')"'
+                : "") + ">" +
               "<td><strong>" + escaparCotizacionInterna(cotizacion.folio || "—") + "</strong></td>" +
               "<td>" + escaparCotizacionInterna(cotizacion.proveedor || "—") + "</td>" +
               "<td>" + formatearFecha(cotizacion.fecha_cotizacion) + "</td>" +
@@ -2076,22 +2115,157 @@
               '<td class="cotizaciones-materials-cell">' + htmlMaterialesCotizacion(cotizacion) + "</td>" +
               "<td><strong>" + escaparCotizacionInterna(monedaCotizacionInterna(cotizacion.total)) + "</strong></td>" +
               "<td>" + escaparCotizacionInterna(cotizacion.partida || "Pendiente") + "</td>" +
-              "<td>" + escaparCotizacionInterna(cotizacion.requisicion || "Pendiente") + "</td>" +
+              "<td>" + (sinRequisicion
+                ? '<span class="cotizacion-pendiente-badge">Falta requisición</span>'
+                : escaparCotizacionInterna(cotizacion.requisicion)) + "</td>" +
               '<td><span class="badge status-badge peticion-status ' + obtenerClaseEstatusPeticion(cotizacion.estatus || "Pendiente") + '" data-status="' + escaparCotizacionInterna(cotizacion.estatus || "Pendiente") + '">' + escaparCotizacionInterna(cotizacion.estatus || "Pendiente") + "</span></td>" +
               "<td>" + escaparCotizacionInterna(cotizacion.observaciones || "Sin notas") + "</td>" +
-              '<td>' + (puedeEditarGestionCotizaciones()
-                ? ETLayout.iconButton("editar", "Editar todos los datos de la cotización", "abrirDatosInternosCotizacion('" + cotizacion.id + "')", "edit")
-                : '<span class="badge status-badge gray">Solo vista</span>') + "</td>" +
+              '<td>' +
+                (puedeVerDetalleGestionCotizaciones()
+                  ? ETLayout.iconButton("ver", "Ver detalles de la cotización", "abrirDetalleCotizacion('" + cotizacion.id + "')", "view")
+                  : "") +
+                (puedeEditarGestionCotizaciones()
+                  ? ETLayout.iconButton("editar", "Editar todos los datos de la cotización", "abrirDatosInternosCotizacion('" + cotizacion.id + "')", "edit")
+                  : "") +
+                (!puedeVerDetalleGestionCotizaciones() && !puedeEditarGestionCotizaciones()
+                  ? '<span class="badge status-badge gray">Solo vista</span>'
+                  : "") + "</td>" +
             "</tr>";
           }).join("")
         : '<tr><td colspan="12">No hay cotizaciones registradas.</td></tr>';
     }
 
-    function abrirDatosInternosCotizacion(id) {
-      if (!puedeEditarGestionCotizaciones()) return;
+    function abrirDetalleCotizacion(id) {
+      if (!puedeVerDetalleGestionCotizaciones()) return;
+      imprimirDetalleCotizacion(id, true);
+    }
+
+    function manejarAperturaFilaCotizacion(evento, id) {
+      if (evento.target.closest("button, a, input, select, textarea")) return;
+      abrirDetalleCotizacion(id);
+    }
+
+    function manejarTecladoFilaCotizacion(evento, id) {
+      if (evento.key !== "Enter" && evento.key !== " ") return;
+      evento.preventDefault();
+      abrirDetalleCotizacion(id);
+    }
+
+    function nombreDocumentoCotizacion(cotizacion) {
+      const limpiar = function (valor, respaldo) {
+        return String(valor || respaldo).trim().replace(/[^a-zA-Z0-9áéíóúÁÉÍÓÚñÑ_-]+/g, "_").replace(/^_+|_+$/g, "");
+      };
+      return "Cotizacion_" + limpiar(cotizacion.folio, "sin_folio") + "_" + limpiar(cotizacion.proveedor, "sin_proveedor");
+    }
+
+    function imprimirDetalleCotizacion(id, mostrarComoVistaPrevia) {
       const cotizacion = cotizacionesAlmacen.find(function (item) { return item.id === id; });
       if (!cotizacion) return;
-      cotizacionInternaId = id;
+      const materialesNormalizados = obtenerMaterialesNormalizadosCotizacion(cotizacion);
+      const subtotalCalculado = materialesNormalizados.reduce(function (total, material) {
+        return total + material.cantidad * material.precio;
+      }, 0);
+      const subtotal = Number(cotizacion.subtotal ?? subtotalCalculado);
+      const iva = Number(cotizacion.iva ?? subtotal * 0.16);
+      const total = Number(cotizacion.total ?? subtotal + iva);
+      const materiales = materialesNormalizados.map(function (material) {
+        return "<tr><td>" + escaparCotizacionInterna(material.cantidad) + "</td>" +
+          "<td>" + escaparCotizacionInterna(material.item || "—") + "</td>" +
+          '<td class="numero">' + escaparCotizacionInterna(monedaCotizacionInterna(material.precio)) + "</td>" +
+          '<td class="numero">' + escaparCotizacionInterna(monedaCotizacionInterna(material.cantidad * material.precio)) + "</td></tr>";
+      }).join("") || '<tr><td colspan="4">Sin materiales registrados</td></tr>';
+      const contenidoImprimible = (
+        '<!DOCTYPE html><html lang="es"><head><meta charset="UTF-8">' +
+        "<title>" + escaparCotizacionInterna(nombreDocumentoCotizacion(cotizacion)) + "</title>" +
+        "<style>" +
+          "@page{size:auto;margin:16mm}body{font-family:Arial,sans-serif;color:#172033;margin:0;font-size:13px}" +
+          "header{display:flex;justify-content:space-between;align-items:flex-start;border-bottom:3px solid #0a8f98;padding-bottom:14px;margin-bottom:20px}" +
+          "h1{font-size:24px;margin:0 0 5px}h2{font-size:16px;margin:22px 0 8px}.proveedor{font-size:15px}" +
+          ".folio{font-size:18px;font-weight:700;color:#0a8f98;text-align:right}.grid{display:grid;grid-template-columns:1fr 1fr;gap:10px 28px}" +
+          ".campo{border-bottom:1px solid #d8dee8;padding:7px 0}.campo span{display:block;color:#667085;font-size:11px;text-transform:uppercase;margin-bottom:3px}" +
+          "table{width:100%;border-collapse:collapse;margin-top:8px}th,td{border:1px solid #ccd5df;padding:8px;text-align:left;vertical-align:top}" +
+          "th{background:#eef7f8}.numero{text-align:right;white-space:nowrap}.totales{width:330px;margin:16px 0 0 auto}" +
+          ".totales div{display:flex;justify-content:space-between;padding:6px 10px}.total{font-size:16px;font-weight:700;border-top:2px solid #172033}" +
+          "footer{margin-top:45px;padding-top:12px;border-top:1px solid #ccd5df;color:#667085;font-size:11px}" +
+        "</style></head><body>" +
+        "<header><div><h1>Cotización</h1><div class=\"proveedor\">" + escaparCotizacionInterna(cotizacion.proveedor || "Sin proveedor") +
+        '</div></div><div class="folio">' + escaparCotizacionInterna(cotizacion.folio || "—") + "</div></header>" +
+        '<div class="grid">' +
+          '<div class="campo"><span>Fecha de cotización</span><strong>' + formatearFecha(cotizacion.fecha_cotizacion) + "</strong></div>" +
+          '<div class="campo"><span>Fecha de entrega</span><strong>' + formatearFecha(cotizacion.fecha_entrega) + "</strong></div>" +
+          '<div class="campo"><span>Unidad / inventario</span><strong>' + escaparCotizacionInterna(cotizacion.unidad || "—") + "</strong></div>" +
+          '<div class="campo"><span>Número de serie</span><strong>' + escaparCotizacionInterna(cotizacion.numero_serie || "—") + "</strong></div>" +
+          '<div class="campo"><span>Dependencia</span><strong>' + escaparCotizacionInterna(cotizacion.dependencia || "Pendiente") + "</strong></div>" +
+          '<div class="campo"><span>Origen</span><strong>' + escaparCotizacionInterna(cotizacion.origen || "—") + "</strong></div>" +
+          '<div class="campo"><span>Partida</span><strong>' + escaparCotizacionInterna(cotizacion.partida || "Pendiente") + "</strong></div>" +
+          '<div class="campo"><span>Requisición</span><strong>' + escaparCotizacionInterna(cotizacion.requisicion || "Pendiente") + "</strong></div>" +
+          '<div class="campo"><span>Estatus</span><strong>' + escaparCotizacionInterna(cotizacion.estatus || "—") + "</strong></div>" +
+          '<div class="campo" style="grid-column:1/-1"><span>Notas / observaciones</span><strong>' + escaparCotizacionInterna(cotizacion.observaciones || "Sin notas") + "</strong></div>" +
+        "</div><h2>Materiales</h2>" +
+        "<table><thead><tr><th>Cantidad</th><th>Artículo</th><th>Precio unitario</th><th>Importe</th></tr></thead><tbody>" + materiales + "</tbody></table>" +
+        '<div class="totales"><div><span>Subtotal</span><strong>' + escaparCotizacionInterna(monedaCotizacionInterna(subtotal)) + "</strong></div>" +
+          "<div><span>IVA (16%)</span><strong>" + escaparCotizacionInterna(monedaCotizacionInterna(iva)) + "</strong></div>" +
+          '<div class="total"><span>Total</span><strong>' + escaparCotizacionInterna(monedaCotizacionInterna(total)) + "</strong></div></div>" +
+        "<footer>Vista imprimible generada desde Gestión de Cotizaciones el " + escaparCotizacionInterna(new Date().toLocaleString("es-MX")) + ".</footer>" +
+        "</bo" + "dy></html>"
+      );
+      if (mostrarComoVistaPrevia) {
+        cotizacionVistaPreviaId = id;
+        document.getElementById("subtituloVistaPreviaCotizacion").textContent =
+          (cotizacion.folio || "Sin folio") + " · " + (cotizacion.proveedor || "Sin proveedor");
+        document.getElementById("btnEditarDesdeVistaPrevia").style.display = puedeEditarGestionCotizaciones() ? "" : "none";
+        document.getElementById("marcoVistaPreviaCotizacion").srcdoc = contenidoImprimible;
+        const modalVistaPrevia = document.getElementById("modalVistaPreviaCotizacion");
+        modalVistaPrevia.classList.add("show");
+        modalVistaPrevia.setAttribute("aria-hidden", "false");
+        return;
+      }
+      const archivoImprimible = new Blob([contenidoImprimible], { type: "text/html;charset=utf-8" });
+      const urlImprimible = URL.createObjectURL(archivoImprimible);
+      const ventana = window.open(urlImprimible, "_blank", "width=960,height=720");
+      if (!ventana) {
+        URL.revokeObjectURL(urlImprimible);
+        alert("El navegador bloqueó la vista imprimible. Permite ventanas emergentes e intenta nuevamente.");
+        return;
+      }
+      ventana.addEventListener("load", function () {
+        ventana.focus();
+        setTimeout(function () {
+          ventana.print();
+          URL.revokeObjectURL(urlImprimible);
+        }, 250);
+      }, { once: true });
+    }
+
+    function cerrarVistaPreviaCotizacion() {
+      cotizacionVistaPreviaId = null;
+      document.getElementById("modalVistaPreviaCotizacion").classList.remove("show");
+      document.getElementById("modalVistaPreviaCotizacion").setAttribute("aria-hidden", "true");
+      document.getElementById("marcoVistaPreviaCotizacion").removeAttribute("srcdoc");
+    }
+
+    function imprimirVistaPreviaCotizacion() {
+      if (!cotizacionVistaPreviaId) return;
+      imprimirDetalleCotizacion(cotizacionVistaPreviaId, false);
+    }
+
+    function editarDesdeVistaPreviaCotizacion() {
+      const id = cotizacionVistaPreviaId;
+      if (!id || !puedeEditarGestionCotizaciones()) return;
+      cerrarVistaPreviaCotizacion();
+      abrirDatosInternosCotizacion(id);
+    }
+
+    function abrirDatosInternosCotizacion(id) {
+      if (!puedeEditarGestionCotizaciones()) return;
+      abrirModalDatosCotizacion(id, false);
+    }
+
+    function abrirModalDatosCotizacion(id, soloLectura) {
+      const cotizacion = cotizacionesAlmacen.find(function (item) { return item.id === id; });
+      if (!cotizacion) return;
+      cotizacionInternaId = soloLectura ? null : id;
+      document.getElementById("tituloDatosInternosCotizacion").textContent = soloLectura ? "Detalle de cotización" : "Editar cotización";
       document.getElementById("subtituloDatosInternosCotizacion").textContent =
         (cotizacion.folio || "") + " · " + (cotizacion.proveedor || "");
       document.getElementById("folioCotizacionInterna").value = cotizacion.folio || "";
@@ -2110,8 +2284,14 @@
       }).join("\n");
       document.getElementById("observacionesCotizacionInterna").value = cotizacion.observaciones || "";
       calcularTotalesCotizacionInterna();
-      document.getElementById("modalDatosInternosCotizacion").classList.add("show");
-      document.getElementById("modalDatosInternosCotizacion").setAttribute("aria-hidden", "false");
+      const modal = document.getElementById("modalDatosInternosCotizacion");
+      modal.querySelectorAll("input, textarea, select").forEach(function (control) {
+        control.disabled = soloLectura;
+      });
+      document.getElementById("btnGuardarDatosInternosCotizacion").style.display = soloLectura ? "none" : "";
+      document.getElementById("btnCerrarDatosInternosCotizacion").textContent = soloLectura ? "Cerrar" : "Cancelar";
+      modal.classList.add("show");
+      modal.setAttribute("aria-hidden", "false");
     }
 
     function cerrarDatosInternosCotizacion() {

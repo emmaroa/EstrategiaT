@@ -6,6 +6,12 @@
   <title>Administración de Talleres | Vales</title>
   <link rel="stylesheet" href="../css/style.css">
   <link rel="stylesheet" href="../css/design-system.css?v=20260824-3">
+  <style>
+    .vale-view-note { position:relative; width:36px; height:36px; }
+    .vale-view-note .action-btn { margin:0; }
+    .vale-note-indicator { position:absolute; top:-5px; right:-5px; display:flex; align-items:center; justify-content:center; width:17px; height:17px; border:2px solid var(--bg-card); border-radius:50%; background:var(--color-warning); color:#111827; pointer-events:none; z-index:1; }
+    .vale-note-indicator svg { width:9px; height:9px; fill:none; stroke:currentColor; stroke-width:2; }
+  </style>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <script src="../js/core/supabase.js"></script>
@@ -321,6 +327,22 @@
       }).join("") + "</ul>";
     }
 
+    function botonVerValeConNota(vale) {
+      const nota = String(vale?.observaciones || "").trim();
+      const boton = ETLayout.iconButton(
+        "ver",
+        nota ? "Ver vale. Tiene una nota" : "Ver vale",
+        "verVale('" + vale.id + "')"
+      );
+      if (!nota) return boton;
+
+      return '<span class="vale-view-note" title="Este vale tiene una nota: ' +
+        escaparHTMLVale(nota) + '">' + boton +
+        '<span class="vale-note-indicator" aria-hidden="true">' +
+          '<svg viewBox="0 0 16 16"><path d="M3 2.5h10v8H7l-3 3v-3H3z"/></svg>' +
+        "</span></span>";
+    }
+
     async function cargarValesDesdeSupabase() {
       if (!window.supabaseClient) {
         console.error("Supabase no está inicializado.");
@@ -431,7 +453,7 @@ unidadVale?.addEventListener("blur", async function () {
             "<td>" + (v.recibe || "") + "</td>" +
             '<td><span class="badge status-badge ' + obtenerClaseEstatusVale(v.estatus) + '">' + (v.estatus || "") + "</span></td>" +
             '<td><div class="action-grid">' +
-              ETLayout.iconButton("ver", "Ver vale", "verVale('" + v.id + "')") +
+              botonVerValeConNota(v) +
               (puedeEditar ? ETLayout.iconButton("editar", "Editar vale", "editarVale('" + v.id + "')", "edit") : "") +
               (puedeCambiarEstatus ? ETLayout.iconButton("estatus", "Cambiar estatus", "cambiarEstatusVale('" + v.id + "')", "orange") : "") +
               (puedeEliminar ? ETLayout.iconButton("eliminar", "Eliminar vale", "eliminarVale('" + v.id + "')", "red-btn") : "") +

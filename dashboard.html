@@ -118,7 +118,7 @@
       <div class="dashboard-section-actions">
         <p>Selecciona una tarjeta para abrir el módulo relacionado.</p>
         <button type="button" class="btn-secondary dashboard-customize-button" id="personalizarDashboard">
-          <span aria-hidden="true">⚙</span> Personalizar indicadores
+          <span aria-hidden="true">⚙</span> Personalizar dashboard
         </button>
       </div>
     </div>
@@ -258,7 +258,12 @@
           <button type="button" id="seleccionarKpisPrioritarios">Solo prioritarios</button>
           <button type="button" id="seleccionarTodosKpisDashboard">Mostrar todos</button>
         </div>
+        <h3 class="dashboard-customizer-section-title">Indicadores KPI</h3>
         <div class="dashboard-customizer-list" id="dashboardCustomizerList"></div>
+        <h3 class="dashboard-customizer-section-title">Paneles, gráficas y tablas</h3>
+        <div class="dashboard-customizer-list" id="dashboardWidgetsCustomizerList"></div>
+        <h3 class="dashboard-customizer-section-title">Paleta de colores del sistema</h3>
+        <div class="dashboard-palette-list" id="dashboardPaletteList" role="radiogroup" aria-label="Paleta de colores"></div>
         <div class="dashboard-customizer-footer">
           <span id="dashboardCustomizerCount" aria-live="polite"></span>
           <div>
@@ -269,7 +274,7 @@
       </form>
     </dialog>
 
-    <section class="dashboard-action-grid">
+    <section class="dashboard-action-grid" id="seccionAccionesRapidas" data-dashboard-widget="quick-actions" data-dashboard-title="Acciones frecuentes" data-dashboard-kind="Panel">
     <article class="panel dashboard-quick-panel">
       <div class="panel-header">
         <div>
@@ -282,7 +287,7 @@
     </article>
     </section>
 
-    <section class="dashboard-priority-grid" id="dashboardPriorityGrid">
+    <section class="dashboard-priority-grid" id="dashboardPriorityGrid" data-dashboard-widget="alerts" data-dashboard-title="Alertas del sistema" data-dashboard-kind="Panel">
     <section class="panel collapsible-panel is-open" id="dashboardAlertsPanel" data-collapsible>
       <div class="panel-header">
         <div>
@@ -363,7 +368,7 @@
       <p>Estas secciones inician contraídas para mantener el foco en la operación.</p>
     </div>
 
-<section class="panel collapsible-panel is-collapsed" id="seccionGraficasOperativas" data-collapsible>
+<section class="panel collapsible-panel is-collapsed" id="seccionGraficasOperativas" data-collapsible data-dashboard-widget="operational-charts" data-dashboard-title="Gráficas operativas" data-dashboard-kind="Gráficas">
   <div class="panel-header">
     <div>
       <h2>Gráficas operativas</h2>
@@ -400,7 +405,7 @@
 </div>
 </section>
 
-<section class="panel collapsible-panel is-collapsed" id="seccionGastoProveedor" data-collapsible>
+<section class="panel collapsible-panel is-collapsed" id="seccionGastoProveedor" data-collapsible data-dashboard-widget="provider-spend" data-dashboard-title="Gasto por proveedor" data-dashboard-kind="Tabla">
   <div class="panel-header">
     <div>
       <h2>Gasto por proveedor</h2>
@@ -449,7 +454,7 @@
   </div>
 </section>
 
-<section class="panel collapsible-panel is-collapsed" id="seccionMatrizSolicitudesPago" data-collapsible style="display:none">
+<section class="panel collapsible-panel is-collapsed" id="seccionMatrizSolicitudesPago" data-collapsible style="display:none" data-dashboard-widget="payment-requests" data-dashboard-title="Solicitudes de pago por proveedor y estatus" data-dashboard-kind="Tabla">
   <div class="panel-header">
     <div>
       <h2>Solicitudes de pago por proveedor y estatus</h2>
@@ -485,7 +490,7 @@
   </div>
 </section>
 
-    <section class="module-section dashboard-modules">
+    <section class="module-section dashboard-modules" data-dashboard-widget="modules" data-dashboard-title="Todos tus módulos" data-dashboard-kind="Navegación">
       <span class="dashboard-section-kicker">Navegación</span>
       <h2>Todos tus módulos</h2>
       <p>Las opciones se muestran según los permisos de tu cuenta.</p>
@@ -844,20 +849,37 @@ function actualizarVisibilidadGruposKpi() {
 function aplicarPreferenciasKpisDashboard() {
   let usuario = null;
   try { usuario = JSON.parse(localStorage.getItem("usuarioActivo") || "null"); } catch (_) {}
-  const seleccion = Array.isArray(usuario && usuario.dashboard_kpis) ? usuario.dashboard_kpis : [];
-  if (!seleccion.length) return;
+  let seleccion = [];
+  try { seleccion = JSON.parse(localStorage.getItem("etDashboardKpis_" + (usuario?.id || usuario?.usuario)) || "[]"); } catch (_) {}
+  if (!Array.isArray(seleccion) || !seleccion.length) seleccion = Array.isArray(usuario && usuario.dashboard_kpis) ? usuario.dashboard_kpis : [];
   document.querySelectorAll(".dashboard-kpi-card").forEach(function (tarjeta) {
     const valor = tarjeta.querySelector("h2[id]");
-    if (valor) tarjeta.hidden = tarjeta.dataset.permissionHidden === "true" || !seleccion.includes(valor.id);
+    if (valor) tarjeta.hidden = tarjeta.dataset.permissionHidden === "true" || (seleccion.length && !seleccion.includes(valor.id));
   });
   actualizarVisibilidadGruposKpi();
+  aplicarPreferenciasWidgetsDashboard(usuario);
+}
+
+function aplicarPreferenciasWidgetsDashboard(usuario) {
+  let seleccion = [];
+  try { seleccion = JSON.parse(localStorage.getItem("etDashboardWidgets_" + (usuario?.id || usuario?.usuario)) || "[]"); } catch (_) {}
+  if (!Array.isArray(seleccion) || !seleccion.length) seleccion = Array.isArray(usuario && usuario.dashboard_widgets) ? usuario.dashboard_widgets : [];
+  document.querySelectorAll("[data-dashboard-widget]").forEach(function (widget) {
+    widget.dataset.dashboardUserHidden = String(Boolean(seleccion.length && !seleccion.includes(widget.dataset.dashboardWidget)));
+  });
+  const analisisVisible = Array.from(document.querySelectorAll("#seccionGraficasOperativas, #seccionGastoProveedor, #seccionMatrizSolicitudesPago"))
+    .some(function (panel) { return panel.dataset.dashboardUserHidden !== "true" && panel.style.display !== "none"; });
+  const encabezadoAnalisis = document.getElementById("seccionAnalisisHeading");
+  if (encabezadoAnalisis) encabezadoAnalisis.hidden = !analisisVisible;
 }
 
 function configurarPersonalizacionDashboard() {
   const dialogo = document.getElementById("dashboardCustomizer");
   const lista = document.getElementById("dashboardCustomizerList");
+  const listaWidgets = document.getElementById("dashboardWidgetsCustomizerList");
+  const listaPaletas = document.getElementById("dashboardPaletteList");
   const abrir = document.getElementById("personalizarDashboard");
-  if (!dialogo || !lista || !abrir || abrir.dataset.bound === "1") return;
+  if (!dialogo || !lista || !listaWidgets || !listaPaletas || !abrir || abrir.dataset.bound === "1") return;
 
   const tarjetas = Array.from(document.querySelectorAll(".dashboard-kpi-card:not([data-permission-hidden='true'])")).map(function (tarjeta) {
     const valor = tarjeta.querySelector("h2[id]");
@@ -871,17 +893,40 @@ function configurarPersonalizacionDashboard() {
       prioritario: tarjeta.classList.contains("priority")
     } : null;
   }).filter(Boolean);
+  const widgets = Array.from(document.querySelectorAll("[data-dashboard-widget]")).filter(function (widget) {
+    if (["operational-charts", "provider-spend"].includes(widget.dataset.dashboardWidget)) return esRolFinanciero(usuarioActivo);
+    if (widget.dataset.dashboardWidget === "payment-requests") return puedeVerMatrizSolicitudesPago(usuarioActivo);
+    return true;
+  }).map(function (widget) {
+    return { id: widget.dataset.dashboardWidget, titulo: widget.dataset.dashboardTitle, tipo: widget.dataset.dashboardKind || "Panel" };
+  });
+  const paletas = [
+    { id:"original", nombre:"Original", colores:["#FC712B","#FD9319","#07B1BC"] },
+    { id:"oceano", nombre:"Océano", colores:["#2563EB","#0EA5E9","#0891B2"] },
+    { id:"bosque", nombre:"Bosque", colores:["#15803D","#65A30D","#0F766E"] },
+    { id:"violeta", nombre:"Violeta", colores:["#7C3AED","#A855F7","#6366F1"] },
+    { id:"coral", nombre:"Coral", colores:["#E11D48","#F97316","#DB2777"] }
+  ];
 
   function seleccionGuardada() {
-    const seleccion = Array.isArray(usuarioActivo && usuarioActivo.dashboard_kpis)
-      ? usuarioActivo.dashboard_kpis : [];
+    let seleccion = [];
+    try { seleccion = JSON.parse(localStorage.getItem("etDashboardKpis_" + (usuarioActivo.id || usuarioActivo.usuario)) || "[]"); } catch (_) {}
+    if (!Array.isArray(seleccion) || !seleccion.length) seleccion = Array.isArray(usuarioActivo && usuarioActivo.dashboard_kpis) ? usuarioActivo.dashboard_kpis : [];
     return seleccion.length ? seleccion : tarjetas.map(function (item) { return item.id; });
+  }
+
+  function widgetsGuardados() {
+    let seleccion = [];
+    try { seleccion = JSON.parse(localStorage.getItem("etDashboardWidgets_" + (usuarioActivo.id || usuarioActivo.usuario)) || "[]"); } catch (_) {}
+    if (!Array.isArray(seleccion) || !seleccion.length) seleccion = Array.isArray(usuarioActivo.dashboard_widgets) ? usuarioActivo.dashboard_widgets : [];
+    return seleccion.length ? seleccion : widgets.map(function (item) { return item.id; });
   }
 
   function actualizarConteo() {
     const total = lista.querySelectorAll("input:checked").length;
+    const totalWidgets = listaWidgets.querySelectorAll("input:checked").length;
     document.getElementById("dashboardCustomizerCount").textContent =
-      total + (total === 1 ? " indicador visible" : " indicadores visibles");
+      total + (total === 1 ? " indicador" : " indicadores") + " y " + totalWidgets + (totalWidgets === 1 ? " panel visible" : " paneles visibles");
   }
 
   function renderizarSelector() {
@@ -895,6 +940,20 @@ function configurarPersonalizacionDashboard() {
     lista.querySelectorAll("input").forEach(function (input) {
       input.addEventListener("change", actualizarConteo);
     });
+    const seleccionWidgets = widgetsGuardados();
+    listaWidgets.innerHTML = widgets.map(function (item) {
+      return '<label class="dashboard-customizer-option"><input type="checkbox" value="' + item.id + '" ' +
+        (seleccionWidgets.includes(item.id) ? "checked" : "") + '><span><strong>' + item.titulo +
+        '</strong><small>' + item.tipo + '</small></span></label>';
+    }).join("");
+    listaWidgets.querySelectorAll("input").forEach(function (input) { input.addEventListener("change", actualizarConteo); });
+    const paletaActual = window.ETTheme?.getPalette?.() || "original";
+    listaPaletas.innerHTML = paletas.map(function (paleta) {
+      return '<label class="dashboard-palette-option"><input type="radio" name="dashboardPalette" value="' + paleta.id + '" ' +
+        (paleta.id === paletaActual ? "checked" : "") + '><span class="dashboard-palette-swatches">' +
+        paleta.colores.map(function (color) { return '<i style="background:' + color + '"></i>'; }).join("") +
+        '</span><strong>' + paleta.nombre + '</strong></label>';
+    }).join("");
     actualizarConteo();
   }
 
@@ -909,19 +968,31 @@ function configurarPersonalizacionDashboard() {
   abrir.dataset.bound = "1";
   abrir.addEventListener("click", function () { renderizarSelector(); dialogo.showModal(); });
   document.getElementById("cancelarPersonalizacionDashboard").addEventListener("click", function () { dialogo.close(); });
-  document.getElementById("seleccionarTodosKpisDashboard").addEventListener("click", function () { marcar(function () { return true; }); });
+  document.getElementById("seleccionarTodosKpisDashboard").addEventListener("click", function () {
+    marcar(function () { return true; });
+    listaWidgets.querySelectorAll("input").forEach(function (input) { input.checked = true; });
+    actualizarConteo();
+  });
   document.getElementById("seleccionarKpisPrioritarios").addEventListener("click", function () { marcar(function (item) { return item.prioritario; }); });
   document.getElementById("guardarPersonalizacionDashboard").addEventListener("click", function () {
     const seleccion = Array.from(lista.querySelectorAll("input:checked")).map(function (input) { return input.value; });
+    const seleccionWidgets = Array.from(listaWidgets.querySelectorAll("input:checked")).map(function (input) { return input.value; });
+    const paleta = listaPaletas.querySelector("input:checked")?.value || "original";
     if (!seleccion.length) return ETLayout.toast("Selecciona por lo menos un indicador.", "warning");
+    if (!seleccionWidgets.length) return ETLayout.toast("Selecciona por lo menos un panel o tabla.", "warning");
     usuarioActivo.dashboard_kpis = seleccion;
-    localStorage.setItem("etDashboardKpis_" + usuarioActivo.id, JSON.stringify(seleccion));
+    usuarioActivo.dashboard_widgets = seleccionWidgets;
+    usuarioActivo.dashboard_palette = paleta;
+    localStorage.setItem("etDashboardKpis_" + (usuarioActivo.id || usuarioActivo.usuario), JSON.stringify(seleccion));
+    localStorage.setItem("etDashboardWidgets_" + (usuarioActivo.id || usuarioActivo.usuario), JSON.stringify(seleccionWidgets));
     localStorage.setItem("usuarioActivo", JSON.stringify(usuarioActivo));
     document.querySelectorAll(".dashboard-kpi-card").forEach(function (tarjeta) {
       const valor = tarjeta.querySelector("h2[id]");
       if (valor) tarjeta.hidden = tarjeta.dataset.permissionHidden === "true" || !seleccion.includes(valor.id);
     });
     actualizarVisibilidadGruposKpi();
+    aplicarPreferenciasWidgetsDashboard(usuarioActivo);
+    if (window.ETTheme) ETTheme.applyPalette(paleta);
     dialogo.close();
     ETLayout.toast("Tu vista del dashboard quedó guardada.", "success");
   });
