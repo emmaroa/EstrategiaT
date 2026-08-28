@@ -1,6 +1,6 @@
 {
   "name": "estrategiat-mobile",
-  "version": "2.0.7",
+  "version": "2.0.8",
   "private": true,
   "description": "Aplicación móvil multiplataforma de Administración de Talleres",
   "scripts": {

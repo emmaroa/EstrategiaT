@@ -616,8 +616,8 @@
       );
       unidadesParqueProveedor = unidadesResultado.data || [];
       const requisicionesAsignadas = new Map();
-      (requisicionesResultado.data || []).concat(
-        (requisicionesInicialesResultado.data || []).map(normalizarRequisicionInicialSiif)
+      (requisicionesInicialesResultado.data || []).map(normalizarRequisicionInicialSiif).concat(
+        requisicionesResultado.data || []
       ).forEach(function (requisicion) { requisicionesAsignadas.set(requisicion.id, requisicion); });
       requisicionesProveedor = ordenarRegistrosDescendente(
         Array.from(requisicionesAsignadas.values()).filter(requisicionPerteneceAlUsuario),
