@@ -536,6 +536,28 @@
       return fecha.length === 3 ? fecha[2] + "/" + fecha[1] + "/" + fecha[0] : escaparPortal(valor);
     }
 
+    async function cargarRegistrosSiifParaProveedor(tabla, columnas, campoOrden) {
+      const tamanoBloque = 1000;
+      let desde = 0;
+      const registros = [];
+
+      while (true) {
+        const resultado = await supabaseClient
+          .from(tabla)
+          .select(columnas)
+          .order(campoOrden, { ascending: false })
+          .range(desde, desde + tamanoBloque - 1);
+
+        if (resultado.error) return { data: registros, error: resultado.error };
+        const bloque = resultado.data || [];
+        registros.push.apply(registros, bloque);
+        if (bloque.length < tamanoBloque) break;
+        desde += tamanoBloque;
+      }
+
+      return { data: registros, error: null };
+    }
+
     async function cargarPortalProveedor() {
       if (!proveedorVinculado) {
         document.getElementById("nombreProveedorPortal").textContent =
@@ -552,16 +574,16 @@
           .select("id,fecha,unidad,peticion,solicitante,estatus,estatus_proveedor,nota_proveedor,fecha_entrega_proveedor,proveedor")
           .eq("proveedor", proveedorVinculado)
           .order("created_at", { ascending: false }),
-        supabaseClient
-          .from("seguimiento_siif")
-          .select("id,fecha_req,numero_req,unidad,concepto,monto,numero_oc,numero_sp,estatus,estatus_requisicion,estatus_oc,estatus_sp,etapa_actual,proveedor,proveedores")
-          .contains("proveedores", [proveedorVinculado])
-          .order("fecha_req", { ascending: false }),
-        supabaseClient
-          .from("requis_siif")
-          .select("id,fecha,folio,dependencia,justificacion,importe,estatus,proveedor")
-          .eq("proveedor", proveedorVinculado)
-          .order("fecha", { ascending: false }),
+        cargarRegistrosSiifParaProveedor(
+          "seguimiento_siif",
+          "id,fecha_req,numero_req,unidad,concepto,monto,numero_oc,numero_sp,estatus,estatus_requisicion,estatus_oc,estatus_sp,etapa_actual,proveedor,proveedores",
+          "fecha_req"
+        ),
+        cargarRegistrosSiifParaProveedor(
+          "requis_siif",
+          "id,fecha,folio,dependencia,justificacion,importe,estatus,proveedor",
+          "fecha"
+        ),
         ETCotizacionesAlmacen.listarPorProveedor(proveedorVinculado),
         supabaseClient
           .from("parque_vehicular")
@@ -627,6 +649,7 @@
     function normalizarPortal(valor) {
       return String(valor || "")
         .trim()
+        .replace(/\s+/g, " ")
         .normalize("NFD")
         .replace(/[\u0300-\u036f]/g, "")
         .toLowerCase();
