@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Administración de Talleres | Calendario</title>
+  <link rel="stylesheet" href="../css/style.css">
+  <link rel="stylesheet" href="../css/design-system.css?v=20260820-3">
+  <link rel="stylesheet" href="../css/calendario.css?v=20260904-1">
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="../js/core/supabase.js"></script>
+  <script src="../js/core/permissions.js"></script>
+  <script src="../js/core/theme.js"></script>
+  <script src="../js/core/layout.js?v=20260820-3"></script>
+  <script src="../js/core/auth.js?v=20260819-3"></script>
+</head>
+<body class="dashboard-body">
+  <aside class="sidebar">
+    <div class="sidebar-logo"><div class="mini-logo">E</div><div><h3>Administración de Talleres</h3><small id="etModuleName">Calendario</small></div></div>
+    <nav id="etNav"></nav>
+    <button type="button" class="logout" id="etLogout">Cerrar sesión</button>
+  </aside>
+  <main class="main-content">
+    <header class="topbar">
+      <div><h1>Calendario interno</h1><p>Reuniones, eventos y fechas límite de tickets en un solo lugar.</p></div>
+      <div class="et-header-actions"><span id="etTemaContainer"></span><button type="button" class="btn-small" id="btnNuevoEvento">+ Nuevo evento</button></div>
+    </header>
+    <section class="kpi-grid calendario-kpis">
+      <div class="kpi-card"><span>Hoy</span><h2 id="kpiHoy">0</h2><p>Actividades programadas</p></div>
+      <div class="kpi-card"><span>Próximos 7 días</span><h2 id="kpiSemana">0</h2><p>Actividades por atender</p></div>
+      <div class="kpi-card"><span>Tickets vencidos</span><h2 id="kpiVencidos">0</h2><p>Fechas límite pendientes</p></div>
+    </section>
+    <section class="panel calendario-panel">
+      <div class="calendario-toolbar">
+        <div class="calendario-navegacion"><button class="btn-secondary" id="mesAnterior" aria-label="Mes anterior">‹</button><button class="btn-secondary" id="hoyCalendario">Hoy</button><button class="btn-secondary" id="mesSiguiente" aria-label="Mes siguiente">›</button><h2 id="tituloMes"></h2></div>
+        <div class="filters calendario-filtros">
+          <input type="search" id="buscarCalendario" placeholder="Buscar actividad..." aria-label="Buscar en calendario">
+          <select id="filtroTipoCalendario" aria-label="Filtrar por tipo"><option value="">Todos los tipos</option><option value="Reunión">Reuniones</option><option value="Evento">Eventos</option><option value="Ticket">Tickets</option></select>
+        </div>
+      </div>
+      <div class="calendario-contenido">
+        <div class="calendario-mes"><div class="calendario-semana"><span>Lun</span><span>Mar</span><span>Mié</span><span>Jue</span><span>Vie</span><span>Sáb</span><span>Dom</span></div><div class="calendario-grid" id="calendarioGrid"></div></div>
+        <aside class="agenda"><h2 id="tituloAgenda">Agenda</h2><div id="listaAgenda" class="agenda-lista"></div></aside>
+      </div>
+    </section>
+  </main>
+  <div class="modal" id="modalEvento" role="dialog" aria-modal="true" aria-labelledby="tituloModalEvento" aria-hidden="true">
+    <div class="modal-card">
+      <div class="modal-header"><div><h2 id="tituloModalEvento">Nuevo evento</h2><p>Programa una reunión o actividad interna.</p></div><button type="button" class="close-btn" id="cerrarEvento" aria-label="Cerrar">×</button></div>
+      <div class="form-grid">
+        <div class="input-group full"><label for="eventoTitulo">Título</label><input id="eventoTitulo" maxlength="180" required placeholder="Ej. Reunión de seguimiento"></div>
+        <div class="input-group"><label for="eventoTipo">Tipo</label><select id="eventoTipo"><option value="Reunión">Reunión</option><option value="Evento">Evento</option></select></div>
+        <div class="input-group"><label for="eventoAlcance">Visibilidad</label><select id="eventoAlcance"><option value="Todos">Todos</option><option value="Personal">Sólo yo</option></select></div>
+        <div class="input-group"><label for="eventoInicio">Inicio</label><input id="eventoInicio" type="datetime-local" required></div>
+        <div class="input-group"><label for="eventoFin">Fin</label><input id="eventoFin" type="datetime-local" required></div>
+        <div class="input-group full"><label for="eventoUbicacion">Ubicación o enlace</label><input id="eventoUbicacion" maxlength="300" placeholder="Sala, oficina o enlace de videollamada"></div>
+        <div class="input-group full"><label for="eventoDescripcion">Descripción</label><textarea id="eventoDescripcion" maxlength="2000" rows="4"></textarea></div>
+      </div>
+      <div class="modal-actions"><button type="button" class="btn-secondary peligro" id="eliminarEvento">Eliminar</button><button type="button" class="btn-secondary" id="cancelarEvento">Cancelar</button><button type="button" class="btn-small" id="guardarEvento">Guardar evento</button></div>
+    </div>
+  </div>
+  <script src="../js/services/calendario.js?v=20260904-1"></script>
+</body>
+</html>

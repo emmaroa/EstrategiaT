@@ -30,6 +30,7 @@
     "Dashboard",
     "Parque Vehicular",
     "Acuerdos",
+    "Calendario",
     "Peticiones",
     "Gestión de Cotizaciones",
     "Portal Proveedor",
@@ -57,7 +58,7 @@
     { nombre: "General", modulos: ["Dashboard"] },
     {
       nombre: "Operación",
-      modulos: ["Parque Vehicular", "Peticiones", "Gestión de Cotizaciones", "Seguimiento Peticiones", "Acuerdos", "Vales"]
+      modulos: ["Parque Vehicular", "Peticiones", "Gestión de Cotizaciones", "Seguimiento Peticiones", "Acuerdos", "Calendario", "Vales"]
     },
     {
       nombre: "Administración",
@@ -82,6 +83,7 @@
     "Órdenes de Compra SIIF": '<path d="M4 5h16v14H4Z"/><path d="M8 9h8M8 13h5"/>',
     "Solicitudes de Pago SIIF": '<circle cx="12" cy="12" r="9"/><path d="M15 8h-4a2 2 0 0 0 0 4h2a2 2 0 0 1 0 4H9M12 6v12"/>',
     "Acuerdos": '<path d="M7 4h10v16H7Z"/><path d="m9 10 2 2 4-4M10 16h4"/>',
+    "Calendario": '<rect x="3" y="5" width="18" height="16" rx="2"/><path d="M16 3v4M8 3v4M3 10h18M8 14h2M14 14h2M8 18h2"/>',
     "Vales": '<path d="M4 6h16v12H4Z"/><path d="M8 10h8M8 14h5"/>',
     "Usuarios": '<circle cx="9" cy="8" r="3"/><path d="M3 20a6 6 0 0 1 12 0M16 5a3 3 0 0 1 0 6M18 14a5 5 0 0 1 3 5"/>',
     "Auditoría": '<path d="M12 3 4 6v5c0 5 3.4 8.7 8 10 4.6-1.3 8-5 8-10V6l-8-3Z"/><path d="m9 12 2 2 4-4"/>',

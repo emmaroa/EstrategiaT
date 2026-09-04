@@ -14,6 +14,15 @@ const ESTADOS = [
   "Concluido"
 ];
 
+const ETIQUETAS_ESTADO_TICKET = {
+  "Nuevo": "Por hacer",
+  "Turnado": "Asignado",
+  "En proceso": "En curso",
+  "En espera": "Bloqueado",
+  "Para revisión": "En revisión",
+  "Concluido": "Terminado"
+};
+
 document.addEventListener("DOMContentLoaded", () => {
   if (typeof validarPermiso === "function") {
     validarPermiso("Acuerdos");
@@ -21,6 +30,8 @@ document.addEventListener("DOMContentLoaded", () => {
 
   if (window.ETLayout && typeof ETLayout.inicializar === "function") {
     ETLayout.inicializar("Acuerdos");
+    const nombreModulo = document.getElementById("etModuleName");
+    if (nombreModulo) nombreModulo.textContent = "Tickets de trabajo";
   }
 
   if (window.ETLayout && typeof ETLayout.ocultarSiSoloLectura === "function") {
@@ -39,7 +50,9 @@ document.addEventListener("DOMContentLoaded", () => {
   const filtroCategoria = document.getElementById("filtroCategoria");
   const parametros = new URLSearchParams(window.location.search);
   const estadoInicial = parametros.get("estado");
+  const busquedaInicial = parametros.get("buscar");
   if (estadoInicial && filtroEstado && ESTADOS.includes(estadoInicial)) filtroEstado.value = estadoInicial;
+  if (busquedaInicial && buscarAcuerdo) buscarAcuerdo.value = busquedaInicial;
 
   if (btnNuevo) btnNuevo.addEventListener("click", abrirModal);
   if (btnCerrar) btnCerrar.addEventListener("click", cerrarModal);
@@ -97,8 +110,8 @@ function abrirModal() {
   if (responsable) responsable.disabled = !puedeTurnarAcuerdos(usuarioActivo);
   modal?.classList.add("show");
   modal?.setAttribute("aria-hidden", "false");
-  document.getElementById("modalAcuerdoTitulo").textContent = acuerdoEditandoId ? "Editar acuerdo" : "Nuevo acuerdo";
-  document.getElementById("guardarAcuerdo").textContent = acuerdoEditandoId ? "Guardar cambios" : "Guardar acuerdo";
+  document.getElementById("modalAcuerdoTitulo").textContent = acuerdoEditandoId ? "Editar ticket" : "Nuevo ticket";
+  document.getElementById("guardarAcuerdo").textContent = acuerdoEditandoId ? "Guardar cambios" : "Guardar ticket";
   document.getElementById("titulo")?.focus();
 }
 
@@ -127,7 +140,7 @@ async function cargarAcuerdos() {
     const detalle = error.code === "42501"
       ? "La base de datos no tiene habilitado el permiso de lectura para Acuerdos."
       : (error.message || "Revisa la conexión con Supabase.");
-    alert("No se pudieron cargar los acuerdos. " + detalle);
+    alert("No se pudieron cargar los tickets. " + detalle);
     return;
   }
 
@@ -282,7 +295,7 @@ function pintarColumnasVacias() {
     if (!contenedor) return;
 
     if (!contenedor.children.length) {
-      contenedor.innerHTML = '<div class="estado-vacio">Sin acuerdos</div>';
+      contenedor.innerHTML = '<div class="estado-vacio">Sin tickets</div>';
     }
   });
 }
@@ -319,8 +332,8 @@ function pintarTarjeta(acuerdo) {
     </div>
 
     <div class="acuerdo-acciones">
-      ${botonIconoAcuerdo("ver", "Ver acuerdo", "verAcuerdo('" + acuerdo.id + "')")}
-      ${!soloLectura && puedeEditarAcuerdo(acuerdo, usuarioActivo) ? botonIconoAcuerdo("editar", "Editar acuerdo", "editarAcuerdo('" + acuerdo.id + "')", "edit") : ""}
+      ${botonIconoAcuerdo("ver", "Ver ticket", "verAcuerdo('" + acuerdo.id + "')")}
+      ${!soloLectura && puedeEditarAcuerdo(acuerdo, usuarioActivo) ? botonIconoAcuerdo("editar", "Editar ticket", "editarAcuerdo('" + acuerdo.id + "')", "edit") : ""}
       ${soloLectura ? "" : botonesEstado(acuerdo)}
     </div>
   `;
@@ -345,16 +358,16 @@ function botonesEstado(acuerdo) {
   }
 
   if (!puedeModificarEstado && puedeTurnar) {
-    return botonIconoAcuerdo("turnar", "Turnar acuerdo", "abrirTurnarModal('" + acuerdo.id + "')", "orange");
+    return botonIconoAcuerdo("turnar", "Asignar ticket", "abrirTurnarModal('" + acuerdo.id + "')", "orange");
   }
 
   const accionesPorEstado = {
-    "Nuevo": [["proceso", "Iniciar acuerdo", "En proceso", "blue"]],
+    "Nuevo": [["proceso", "Iniciar trabajo", "En proceso", "blue"]],
     "Turnado": [["proceso", "Aceptar e iniciar", "En proceso", "blue"]],
     "En proceso": [["espera", "Poner en espera", "En espera", ""], ["revision", "Enviar a revisión", "Para revisión", "orange"]],
-    "En espera": [["proceso", "Reanudar acuerdo", "En proceso", "blue"], ["revision", "Enviar a revisión", "Para revisión", "orange"]],
-    "Para revisión": [["proceso", "Regresar a proceso", "En proceso", "blue"], ["concluir", "Concluir acuerdo", "Concluido", "edit"]],
-    "Concluido": esUsuarioAdministrador(usuarioActivo) ? [["proceso", "Reabrir acuerdo", "En proceso", "blue"]] : []
+    "En espera": [["proceso", "Reanudar trabajo", "En proceso", "blue"], ["revision", "Enviar a revisión", "Para revisión", "orange"]],
+    "Para revisión": [["proceso", "Regresar a proceso", "En proceso", "blue"], ["concluir", "Terminar ticket", "Concluido", "edit"]],
+    "Concluido": esUsuarioAdministrador(usuarioActivo) ? [["proceso", "Reabrir ticket", "En proceso", "blue"]] : []
   };
   const botones = (accionesPorEstado[acuerdo.estado] || []).map(function (accion) {
     return botonIconoAcuerdo(accion[0], accion[1], "cambiarEstado('" + acuerdo.id + "', '" + accion[2] + "')", accion[3]);
@@ -389,12 +402,12 @@ function obtenerNombreUsuario(usuario) {
 
 function obtenerTextoEstadoAcuerdo(acuerdo) {
   const estado = acuerdo.estado || "Nuevo";
-  if (estado !== "Turnado") return estado;
+  if (estado !== "Turnado") return ETIQUETAS_ESTADO_TICKET[estado] || estado;
 
   const usuarioAsignado = obtenerUsuarioPorId(acuerdo.asignado_a);
   const nombreAsignado = obtenerNombreUsuario(usuarioAsignado);
 
-  return nombreAsignado ? `Turnado a ${nombreAsignado}` : "Turnado";
+  return nombreAsignado ? `Asignado a ${nombreAsignado}` : "Asignado";
 }
 
 async function guardarAcuerdo() {
@@ -412,7 +425,7 @@ async function guardarAcuerdo() {
   }
 
   if (!titulo) {
-    alert("Escribe el título del acuerdo.");
+    alert("Escribe el trabajo por realizar.");
     document.getElementById("titulo")?.focus();
     return;
   }
@@ -433,7 +446,7 @@ async function guardarAcuerdo() {
     ({ data, error } = await db.from("acuerdos").update(datosAcuerdo).eq("id", acuerdoEditandoId).select().single());
   } else {
     const nuevoAcuerdo = Object.assign({}, datosAcuerdo, {
-      folio: `AC-${Date.now().toString().slice(-6)}`,
+      folio: `TK-${Date.now().toString().slice(-6)}`,
       estado: asignadoSeleccionado && asignadoSeleccionado !== usuarioActivo.id ? "Turnado" : "Nuevo",
       creado_por: usuarioActivo.id,
       creado_en: new Date().toISOString()
@@ -443,14 +456,14 @@ async function guardarAcuerdo() {
 
   if (error) {
     console.error("Error guardando acuerdo:", error);
-    alert("No se pudo guardar el acuerdo. " + (error.message || "Revisa la conexión con Supabase."));
+    alert("No se pudo guardar el ticket. " + (error.message || "Revisa la conexión con Supabase."));
     return;
   }
 
-  const accionHistorial = acuerdoEditandoId ? "Acuerdo editado" : "Acuerdo creado";
+  const accionHistorial = acuerdoEditandoId ? "Ticket editado" : "Ticket creado";
   const detalleHistorial = acuerdoEditandoId
     ? describirCambiosAcuerdo(anterior, data || datosAcuerdo)
-    : "Se registró el acuerdo " + titulo;
+    : "Se registró el ticket " + titulo;
   await registrarHistorial(data?.id || acuerdoEditandoId, accionHistorial, detalleHistorial);
 
   if (typeof registrarAuditoria === "function") {
@@ -464,14 +477,14 @@ async function guardarAcuerdo() {
   const fueEdicion = Boolean(acuerdoEditandoId);
   cerrarModal();
   await cargarAcuerdos();
-  alert(fueEdicion ? "Acuerdo actualizado correctamente." : "Acuerdo guardado correctamente.");
+  alert(fueEdicion ? "Ticket actualizado correctamente." : "Ticket guardado correctamente.");
 }
 
 function describirCambiosAcuerdo(antes, despues) {
-  if (!antes) return "Datos del acuerdo actualizados.";
+  if (!antes) return "Datos del ticket actualizados.";
   const etiquetas = {
     titulo: "Título", descripcion: "Descripción", categoria: "Categoría",
-    prioridad: "Prioridad", fecha_compromiso: "Fecha compromiso", asignado_a: "Responsable"
+    prioridad: "Prioridad", fecha_compromiso: "Fecha límite", asignado_a: "Responsable"
   };
   const cambios = Object.keys(etiquetas).filter(function (campo) {
     return String(antes[campo] ?? "") !== String(despues[campo] ?? "");
@@ -507,13 +520,13 @@ async function cambiarEstado(id, estado) {
   const acuerdo = acuerdos.find(a => a.id === id);
   const usuarioActivo = obtenerUsuarioActivo();
   if (!acuerdo || !puedeEditarAcuerdo(acuerdo, usuarioActivo)) {
-    alert("No tienes permiso para actualizar este acuerdo.");
+    alert("No tienes permiso para actualizar este ticket.");
     return;
   }
   const confirmado = await ETFeedback.confirmar({
-    title: estado === "Concluido" ? "Concluir acuerdo" : "Actualizar seguimiento",
-    message: "El acuerdo cambiará de “" + acuerdo.estado + "” a “" + estado + "”.",
-    confirmLabel: estado === "Concluido" ? "Concluir" : "Cambiar estado"
+    title: estado === "Concluido" ? "Terminar ticket" : "Actualizar ticket",
+    message: "El ticket cambiará de “" + obtenerTextoEstadoAcuerdo(acuerdo) + "” a “" + (ETIQUETAS_ESTADO_TICKET[estado] || estado) + "”.",
+    confirmLabel: estado === "Concluido" ? "Terminar" : "Cambiar estado"
   });
   if (!confirmado) return;
 
@@ -551,7 +564,7 @@ async function cambiarEstado(id, estado) {
 function abrirTurnarModal(id) {
   const usuarioActivo = obtenerUsuarioActivo();
   if (!puedeTurnarAcuerdos(usuarioActivo)) {
-    alert("No tienes permiso para turnar acuerdos.");
+    alert("No tienes permiso para asignar tickets.");
     return;
   }
 
@@ -560,8 +573,8 @@ function abrirTurnarModal(id) {
   const titulo = document.getElementById("modalTurnarTitulo");
   const mensaje = document.getElementById("modalTurnarMensaje");
 
-  if (titulo) titulo.textContent = "Turnar acuerdo";
-  if (mensaje) mensaje.textContent = "Selecciona el usuario al que deseas turnar este acuerdo.";
+  if (titulo) titulo.textContent = "Asignar ticket";
+  if (mensaje) mensaje.textContent = "Selecciona la persona responsable de este trabajo.";
 
   modal?.classList.add("show");
   modal?.setAttribute("aria-hidden", "false");
@@ -582,13 +595,13 @@ async function confirmarTurnar() {
 
   const usuarioSeleccionado = document.getElementById("turnarUsuario")?.value;
   if (!usuarioSeleccionado) {
-    alert("Selecciona un usuario válido para turnar.");
+    alert("Selecciona un responsable válido.");
     return;
   }
 
   const usuarioActivo = obtenerUsuarioActivo();
   if (!puedeTurnarAcuerdos(usuarioActivo)) {
-    alert("No tienes permiso para turnar acuerdos.");
+    alert("No tienes permiso para asignar tickets.");
     return;
   }
 
@@ -604,8 +617,8 @@ async function confirmarTurnar() {
     .eq("id", acuerdoSeleccionadoParaTurnar);
 
   if (error) {
-    console.error("Error turnando acuerdo:", error);
-    alert("No se pudo turnar el acuerdo. " + (error.message || JSON.stringify(error)));
+    console.error("Error asignando ticket:", error);
+    alert("No se pudo asignar el ticket. " + (error.message || JSON.stringify(error)));
     return;
   }
 
@@ -614,7 +627,7 @@ async function confirmarTurnar() {
     ? `Turnado a ${usuarioDestino.nombre || usuarioDestino.usuario}`
     : "Turnado a otro usuario";
 
-  await registrarHistorial(acuerdoSeleccionadoParaTurnar, "Acuerdo turnado", detalle);
+  await registrarHistorial(acuerdoSeleccionadoParaTurnar, "Ticket asignado", detalle.replace("Turnado", "Asignado"));
 
   if (typeof registrarAuditoria === "function") {
     registrarAuditoria("Acuerdos", "Turnó acuerdo", detalle, {
@@ -633,14 +646,17 @@ async function confirmarTurnar() {
 async function registrarHistorial(acuerdoId, accion, detalle) {
   try {
     const usuarioActivo = obtenerUsuarioActivo();
-    await db.from("acuerdos_historial").insert({
+    const { error } = await db.from("acuerdos_historial").insert({
       acuerdo_id: acuerdoId,
       usuario_id: usuarioActivo.id,
       accion,
       detalle
     });
+    if (error) throw error;
+    return true;
   } catch (error) {
     console.warn("No se pudo registrar historial:", error);
+    return false;
   }
 }
 
@@ -659,17 +675,24 @@ async function verAcuerdo(id) {
     : [{ label: "Actividad", value: "Sin movimientos registrados", wide: true }];
   const usuarioActivo = obtenerUsuarioActivo();
   const acciones = puedeEditarAcuerdo(acuerdo, usuarioActivo) ? [{
-    label: "Editar acuerdo", variant: "primary", onClick: function () { editarAcuerdo(id); }
+    label: "Agregar comentario", variant: "secondary", onClick: function () { agregarComentarioTicket(id); }
+  }, {
+    label: "Ver en calendario", variant: "secondary", onClick: function () {
+      const fecha = String(acuerdo.fecha_compromiso || "").split("T")[0];
+      window.location.href = "calendario.html" + (fecha ? "?fecha=" + encodeURIComponent(fecha) : "");
+    }
+  }, {
+    label: "Editar ticket", variant: "primary", onClick: function () { editarAcuerdo(id); }
   }] : [];
   ETLayout.abrirFichaDetalle({
-    eyebrow: acuerdo.folio || "Acuerdo",
+    eyebrow: acuerdo.folio || "Ticket",
     title: acuerdo.titulo || "Sin título",
     subtitle: acuerdo.descripcion || "Sin descripción",
     status: { label: obtenerTextoEstadoAcuerdo(acuerdo), tone: obtenerTonoEstadoAcuerdo(acuerdo.estado) },
     sections: [
       { title: "Seguimiento", fields: [
         { label: "Responsable", value: obtenerNombreUsuario(obtenerUsuarioPorId(acuerdo.asignado_a)) },
-        { label: "Fecha compromiso", value: formatearFecha(acuerdo.fecha_compromiso) },
+        { label: "Fecha límite", value: formatearFecha(acuerdo.fecha_compromiso) },
         { label: "Prioridad", value: acuerdo.prioridad },
         { label: "Categoría", value: acuerdo.categoria }
       ] },
@@ -677,6 +700,30 @@ async function verAcuerdo(id) {
     ],
     actions: acciones
   });
+}
+
+async function agregarComentarioTicket(id) {
+  const acuerdo = acuerdos.find(a => a.id === id);
+  const usuarioActivo = obtenerUsuarioActivo();
+  if (!acuerdo || !puedeEditarAcuerdo(acuerdo, usuarioActivo)) return;
+  const comentario = window.prompt("Escribe un comentario de seguimiento para el ticket:");
+  if (comentario === null) return;
+  const detalle = comentario.trim();
+  if (!detalle) {
+    alert("Escribe un comentario antes de guardar.");
+    return;
+  }
+  const guardado = await registrarHistorial(id, "Comentario", detalle);
+  if (!guardado) {
+    alert("No se pudo guardar el comentario.");
+    return;
+  }
+  if (typeof registrarAuditoria === "function") {
+    registrarAuditoria("Acuerdos", "Comentó ticket", acuerdo.folio || acuerdo.titulo, {
+      entidad_tipo: "acuerdos", entidad_id: id, metadata: { comentario: detalle }
+    });
+  }
+  await verAcuerdo(id);
 }
 
 async function obtenerHistorialAcuerdo(id) {

@@ -16,9 +16,9 @@
   const permisos = window.ETPermissions
     ? window.ETPermissions.PERMISOS
     : {
-        SuperAdmin: ["Dashboard", "Parque Vehicular", "Acuerdos", "Peticiones", "Seguimiento SIIF", "Requisiciones SIIF", "Órdenes de Compra SIIF", "Solicitudes de Pago SIIF", "Importar SIIF", "Vales", "Usuarios", "Auditoría", "Tiempo Extra", "Generar Textos"],
-        Admin: ["Dashboard", "Parque Vehicular", "Acuerdos", "Peticiones", "Seguimiento SIIF", "Requisiciones SIIF", "Órdenes de Compra SIIF", "Solicitudes de Pago SIIF", "Importar SIIF", "Vales", "Auditoría", "Tiempo Extra", "Generar Textos"],
-        "Moderador de Acuerdos": ["Dashboard", "Acuerdos"],
+        SuperAdmin: ["Dashboard", "Parque Vehicular", "Acuerdos", "Calendario", "Peticiones", "Seguimiento SIIF", "Requisiciones SIIF", "Órdenes de Compra SIIF", "Solicitudes de Pago SIIF", "Importar SIIF", "Vales", "Usuarios", "Auditoría", "Tiempo Extra", "Generar Textos"],
+        Admin: ["Dashboard", "Parque Vehicular", "Acuerdos", "Calendario", "Peticiones", "Seguimiento SIIF", "Requisiciones SIIF", "Órdenes de Compra SIIF", "Solicitudes de Pago SIIF", "Importar SIIF", "Vales", "Auditoría", "Tiempo Extra", "Generar Textos"],
+        "Moderador de Acuerdos": ["Dashboard", "Acuerdos", "Calendario"],
         Compras: ["Dashboard", "Peticiones", "Seguimiento SIIF", "Requisiciones SIIF", "Órdenes de Compra SIIF", "Solicitudes de Pago SIIF", "Importar SIIF", "Generar Textos"],
         Almacen: ["Dashboard", "Peticiones", "Vales"],
         "Jefe de Almacen": ["Dashboard", "Peticiones", "Vales"],

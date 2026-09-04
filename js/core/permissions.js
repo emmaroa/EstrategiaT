@@ -18,6 +18,7 @@
       ORDENES_COMPRA_SIIF: "Órdenes de Compra SIIF",
       SOLICITUDES_PAGO_SIIF: "Solicitudes de Pago SIIF",
       ACUERDOS: "Acuerdos",
+      CALENDARIO: "Calendario",
       VALES: "Vales",
       USUARIOS: "Usuarios",
       AUDITORIA: "Auditoría",
@@ -50,6 +51,7 @@
     [MODULOS.ORDENES_COMPRA_SIIF]: "modulos/oc-siif.html",
     [MODULOS.SOLICITUDES_PAGO_SIIF]: "modulos/sp-siif.html",
     [MODULOS.ACUERDOS]: "modulos/acuerdos.html",
+    [MODULOS.CALENDARIO]: "modulos/calendario.html",
     [MODULOS.VALES]: "modulos/vales.html",
     [MODULOS.USUARIOS]: "modulos/usuarios.html",
     [MODULOS.AUDITORIA]: "modulos/auditoria.html",
@@ -81,7 +83,8 @@
     [MODULOS.REQUISICIONES_SIIF]: "Captura y actualización de requisiciones SIIF.",
     [MODULOS.ORDENES_COMPRA_SIIF]: "Captura y actualización de órdenes de compra SIIF.",
     [MODULOS.SOLICITUDES_PAGO_SIIF]: "Captura y actualización de solicitudes de pago SIIF.",
-    [MODULOS.ACUERDOS]: "Seguimiento de acuerdos, compromisos y plazos.",
+    [MODULOS.ACUERDOS]: "Tickets de trabajos por hacer, responsables, prioridades y fechas límite.",
+    [MODULOS.CALENDARIO]: "Reuniones, eventos y fechas límite de tickets.",
     [MODULOS.VALES]: "Vales de salida con folio, firma y trazabilidad.",
     [MODULOS.USUARIOS]: "Administración de usuarios, roles y permisos.",
     [MODULOS.AUDITORIA]: "Registro de actividad y trazabilidad del sistema.",
@@ -115,7 +118,8 @@
     Proveedor: [MODULOS.PORTAL_PROVEEDOR, MODULOS.PETICIONES_PROVEEDOR, MODULOS.COTIZACIONES_PROVEEDOR, MODULOS.SEGUIMIENTO_SIIF_PROVEEDOR],
     "Moderador de Acuerdos": [
       MODULOS.DASHBOARD,
-      MODULOS.ACUERDOS
+      MODULOS.ACUERDOS,
+      MODULOS.CALENDARIO
     ],
     "Director": [
       MODULOS.DASHBOARD, 
@@ -345,6 +349,10 @@
     ].includes(normalizarRol(rol));
   }
 
+  function rolVeCalendario(rol) {
+    return Boolean(rol) && normalizarRol(rol) !== "Proveedor";
+  }
+
   function agregarModuloSiFalta(modulos, modulo) {
     const salida = Array.isArray(modulos) ? modulos.slice() : [];
     if (!salida.includes(modulo)) salida.push(modulo);
@@ -447,6 +455,9 @@
       if (rolVeGenerarTextos(rol)) {
         modulosFinales = agregarModuloSiFalta(modulosFinales, MODULOS.GENERAR_TEXTOS);
       }
+      if (rolVeCalendario(rol)) {
+        modulosFinales = agregarModuloSiFalta(modulosFinales, MODULOS.CALENDARIO);
+      }
       if (usuarioConSesion(usuario)) {
         modulosFinales = agregarModuloSiFalta(modulosFinales, MODULOS.PETICIONES);
       }
@@ -456,9 +467,10 @@
     }
 
     const modulosRol = PERMISOS[rol] || [];
-    const modulosFinalesRol = usuarioConSesion(usuario)
+    let modulosFinalesRol = usuarioConSesion(usuario)
       ? agregarModuloSiFalta(modulosRol, MODULOS.PETICIONES)
       : modulosRol;
+    if (rolVeCalendario(rol)) modulosFinalesRol = agregarModuloSiFalta(modulosFinalesRol, MODULOS.CALENDARIO);
     return modulosFinalesRol.map(function (modulo) {
       return modulo === MODULOS.REQUISICIONES ? MODULOS.SEGUIMIENTO_SIIF : modulo;
     }).filter(function (modulo, indice, lista) {
@@ -496,6 +508,10 @@
 
     if (modulo === MODULOS.GENERAR_TEXTOS && rolVeGenerarTextos(rol)) {
       return rol === "Solo Lectura" ? "ver" : "editar";
+    }
+
+    if (modulo === MODULOS.CALENDARIO && rolVeCalendario(rol)) {
+      return rol === "Solo Lectura" || rol === "Consulta" ? "ver" : "editar";
     }
 
     if (["super_admin", "SuperAdmin", "Administrador del Sistema", "Admin", "admin", "jefe", "Jefe"].includes(rol)) {

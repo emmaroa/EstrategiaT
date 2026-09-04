@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Administración de Talleres | Acuerdos</title>
+  <title>Administración de Talleres | Tickets de trabajo</title>
 
   <link rel="stylesheet" href="../css/style.css">
   <link rel="stylesheet" href="../css/acuerdos.css?v=20260818-1">
@@ -24,7 +24,7 @@
       <div class="mini-logo">E</div>
       <div>
         <h3>Administración de Talleres</h3>
-        <small id="etModuleName">Acuerdos</small>
+        <small id="etModuleName">Tickets de trabajo</small>
       </div>
     </div>
 
@@ -37,43 +37,43 @@
 
     <header class="topbar">
       <div>
-        <h1>Seguimiento de Acuerdos</h1>
-        <p>Control y seguimiento de compromisos institucionales.</p>
+        <h1>Tickets de trabajo</h1>
+        <p>Organiza, asigna y da seguimiento a los trabajos por hacer.</p>
       </div>
 
       <div class="et-header-actions">
         <span id="etTemaContainer"></span>
-        <button type="button" class="btn-small" id="btnNuevoAcuerdo" aria-haspopup="dialog">+ Nuevo acuerdo</button>
+        <button type="button" class="btn-small" id="btnNuevoAcuerdo" aria-haspopup="dialog">+ Nuevo ticket</button>
       </div>
     </header>
 
     <section class="kpi-grid">
       <div class="kpi-card">
-        <span>Total acuerdos</span>
+        <span>Total tickets</span>
         <h2 id="kpiTotal">0</h2>
         <p>Registrados en sistema</p>
       </div>
 
       <div class="kpi-card">
-        <span>Nuevos</span>
+        <span>Por hacer</span>
         <h2 id="kpiNuevos">0</h2>
         <p>Pendientes de atención</p>
       </div>
 
       <div class="kpi-card">
-        <span>Sin concluir</span>
+        <span>Abiertos</span>
         <h2 id="kpiSinConcluir">0</h2>
-        <p>Acuerdos no finalizados</p>
+        <p>Trabajos no terminados</p>
       </div>
 
       <div class="kpi-card">
-        <span>En proceso</span>
+        <span>En curso</span>
         <h2 id="kpiProceso">0</h2>
         <p>En seguimiento</p>
       </div>
 
       <div class="kpi-card">
-        <span>Concluidos</span>
+        <span>Terminados</span>
         <h2 id="kpiConcluidos">0</h2>
         <p>Finalizados</p>
       </div>
@@ -82,22 +82,22 @@
     <section class="panel acuerdos-panel">
       <div class="panel-header">
         <div>
-          <h2>Tablero de acuerdos</h2>
-          <p>Visualiza cada acuerdo según su estado actual.</p>
+          <h2>Tablero de tickets</h2>
+          <p>Visualiza y atiende cada trabajo según su estado actual.</p>
         </div>
       </div>
 
       <div class="filters acuerdos-filters">
-        <input type="text" id="buscarAcuerdo" placeholder="Buscar acuerdo..." aria-label="Buscar acuerdo">
+        <input type="text" id="buscarAcuerdo" placeholder="Buscar ticket por folio, trabajo o descripción..." aria-label="Buscar ticket">
 
         <select id="filtroEstado" aria-label="Filtrar por estado">
           <option value="">Todos los estados</option>
-          <option value="Nuevo">Nuevo</option>
-          <option value="Turnado">Turnado</option>
-          <option value="En proceso">En proceso</option>
-          <option value="En espera">En espera</option>
-          <option value="Para revisión">Para revisión</option>
-          <option value="Concluido">Concluido</option>
+          <option value="Nuevo">Por hacer</option>
+          <option value="Turnado">Asignado</option>
+          <option value="En proceso">En curso</option>
+          <option value="En espera">Bloqueado</option>
+          <option value="Para revisión">En revisión</option>
+          <option value="Concluido">Terminado</option>
         </select>
 
         <select id="filtroPrioridad" aria-label="Filtrar por prioridad">
@@ -125,7 +125,7 @@
       <div class="kanban">
         <section class="columna" data-estado="Nuevo">
           <div class="columna-header">
-            <h2>Nuevo</h2>
+            <h2>Por hacer</h2>
             <span id="countNuevo">0</span>
           </div>
           <div class="lista" id="Nuevo"></div>
@@ -133,7 +133,7 @@
 
         <section class="columna" data-estado="Turnado">
           <div class="columna-header">
-            <h2>Turnado</h2>
+            <h2>Asignado</h2>
             <span id="countTurnado">0</span>
           </div>
           <div class="lista" id="Turnado"></div>
@@ -141,7 +141,7 @@
 
         <section class="columna" data-estado="En proceso">
           <div class="columna-header">
-            <h2>En proceso</h2>
+            <h2>En curso</h2>
             <span id="countEnProceso">0</span>
           </div>
           <div class="lista" id="En proceso"></div>
@@ -149,7 +149,7 @@
 
         <section class="columna" data-estado="En espera">
           <div class="columna-header">
-            <h2>En espera</h2>
+            <h2>Bloqueado</h2>
             <span id="countEnEspera">0</span>
           </div>
           <div class="lista" id="En espera"></div>
@@ -157,7 +157,7 @@
 
         <section class="columna" data-estado="Para revisión">
           <div class="columna-header">
-            <h2>Para revisión</h2>
+            <h2>En revisión</h2>
             <span id="countParaRevision">0</span>
           </div>
           <div class="lista" id="Para revisión"></div>
@@ -165,7 +165,7 @@
 
         <section class="columna" data-estado="Concluido">
           <div class="columna-header">
-            <h2>Concluido</h2>
+            <h2>Terminado</h2>
             <span id="countConcluido">0</span>
           </div>
           <div class="lista" id="Concluido"></div>
@@ -180,8 +180,8 @@
 
       <div class="modal-header">
         <div>
-          <h2 id="modalAcuerdoTitulo">Nuevo acuerdo</h2>
-          <p>Captura los datos del compromiso.</p>
+          <h2 id="modalAcuerdoTitulo">Nuevo ticket</h2>
+          <p>Describe el trabajo, define su prioridad y asígnalo.</p>
         </div>
 
         <button type="button" class="close-btn" id="cerrarModal" aria-label="Cerrar diálogo">×</button>
@@ -189,13 +189,13 @@
 
       <div class="form-grid">
         <div class="input-group full">
-          <label for="titulo">Título del acuerdo</label>
+          <label for="titulo">Trabajo por realizar</label>
           <input id="titulo" type="text" maxlength="180" required placeholder="Ej. Enviar oficio de seguimiento">
         </div>
 
         <div class="input-group full">
           <label for="descripcion">Descripción</label>
-          <textarea id="descripcion" maxlength="2000" rows="5" placeholder="Describe el acuerdo, resultado esperado o compromiso"></textarea>
+          <textarea id="descripcion" maxlength="2000" rows="5" placeholder="Describe el trabajo, el resultado esperado y la información necesaria"></textarea>
         </div>
 
         <div class="input-group">
@@ -224,20 +224,20 @@
         </div>
 
         <div class="input-group">
-          <label for="fechaCompromiso">Fecha compromiso</label>
+          <label for="fechaCompromiso">Fecha límite</label>
           <input id="fechaCompromiso" type="date">
         </div>
 
         <div class="input-group">
           <label for="asignadoA">Responsable</label>
-          <select id="asignadoA" aria-label="Seleccionar responsable del acuerdo"></select>
+          <select id="asignadoA" aria-label="Seleccionar responsable del ticket"></select>
           <small class="helper-text">La persona responsable podrá actualizar el seguimiento.</small>
         </div>
       </div>
 
       <div class="modal-actions">
         <button type="button" class="btn-secondary" id="cancelarAcuerdo">Cancelar</button>
-        <button type="button" class="btn-small" id="guardarAcuerdo">Guardar acuerdo</button>
+        <button type="button" class="btn-small" id="guardarAcuerdo">Guardar ticket</button>
       </div>
 
     </div>
@@ -247,8 +247,8 @@
     <div class="modal-card">
       <div class="modal-header">
         <div>
-          <h2 id="modalTurnarTitulo">Turnar acuerdo</h2>
-          <p id="modalTurnarMensaje">Selecciona el usuario al que deseas turnar este acuerdo.</p>
+          <h2 id="modalTurnarTitulo">Asignar ticket</h2>
+          <p id="modalTurnarMensaje">Selecciona la persona responsable de este trabajo.</p>
         </div>
         <button type="button" class="close-btn" id="cerrarTurnar" aria-label="Cerrar diálogo">×</button>
       </div>
@@ -256,13 +256,13 @@
       <div class="form-grid">
         <div class="input-group full">
           <label>Usuario destino</label>
-          <select id="turnarUsuario" aria-label="Seleccionar usuario para turnar"></select>
+          <select id="turnarUsuario" aria-label="Seleccionar responsable del ticket"></select>
         </div>
       </div>
 
       <div class="modal-actions">
         <button type="button" class="btn-secondary" id="cancelarTurnar">Cancelar</button>
-        <button type="button" class="btn-small" id="confirmarTurnar">Turnar acuerdo</button>
+        <button type="button" class="btn-small" id="confirmarTurnar">Asignar ticket</button>
       </div>
     </div>
   </div>

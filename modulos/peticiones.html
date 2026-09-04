@@ -250,10 +250,9 @@
         <button type="button" class="btn-secondary" id="btnExportarGestionCotizaciones">Exportar tabla</button>
       </div>
       <div class="filters">
-        <input type="search" id="buscarGestionCotizaciones" placeholder="Buscar folio, proveedor, unidad, material o requisición..." aria-label="Buscar cotizaciones, incluyendo materiales">
+        <input type="search" id="buscarGestionCotizaciones" placeholder="Buscar folio, proveedor, unidad, material, monto o requisición..." aria-label="Buscar cotizaciones, incluyendo materiales y monto">
         <select id="filtroProveedorGestionCotizaciones" aria-label="Filtrar por proveedor"><option value="">Todos los proveedores</option></select>
         <select id="filtroEstatusGestionCotizaciones" aria-label="Filtrar por estatus"><option value="">Todos los estatus</option></select>
-        <select id="filtroTramiteGestionCotizaciones" aria-label="Filtrar por trámite"><option value="">Con y sin requisición</option><option value="sin-tramite">Sin requisición</option><option value="con-tramite">Con requisición</option></select>
         <select id="filtroPartidaGestionCotizaciones" aria-label="Filtrar por partida"><option value="">Con y sin partida</option><option value="sin-partida">Sin partida</option><option value="con-partida">Con partida</option></select>
         <label>Desde <input type="date" id="fechaDesdeGestionCotizaciones"></label>
         <label>Hasta <input type="date" id="fechaHastaGestionCotizaciones"></label>
@@ -597,7 +596,6 @@
     const buscarGestionCotizaciones = document.getElementById("buscarGestionCotizaciones");
     const filtroProveedorGestionCotizaciones = document.getElementById("filtroProveedorGestionCotizaciones");
     const filtroEstatusGestionCotizaciones = document.getElementById("filtroEstatusGestionCotizaciones");
-    const filtroTramiteGestionCotizaciones = document.getElementById("filtroTramiteGestionCotizaciones");
     const filtroPartidaGestionCotizaciones = document.getElementById("filtroPartidaGestionCotizaciones");
     const fechaDesdeGestionCotizaciones = document.getElementById("fechaDesdeGestionCotizaciones");
     const fechaHastaGestionCotizaciones = document.getElementById("fechaHastaGestionCotizaciones");
@@ -2009,7 +2007,6 @@
       const texto = normalizarTextoPeticion(buscarGestionCotizaciones?.value);
       const proveedor = String(filtroProveedorGestionCotizaciones?.value || "");
       const estatus = String(filtroEstatusGestionCotizaciones?.value || "");
-      const tramite = String(filtroTramiteGestionCotizaciones?.value || "");
       const partida = String(filtroPartidaGestionCotizaciones?.value || "");
       const desde = String(fechaDesdeGestionCotizaciones?.value || "");
       const hasta = String(fechaHastaGestionCotizaciones?.value || "");
@@ -2017,15 +2014,14 @@
         const contenido = normalizarTextoPeticion([
           cotizacion.folio, cotizacion.proveedor, cotizacion.unidad,
           cotizacion.dependencia, cotizacion.requisicion, cotizacion.partida,
+          cotizacion.total, monedaCotizacionInterna(cotizacion.total),
           textoMaterialesCotizacion(cotizacion, false)
         ].join(" "));
-        const tieneTramite = cotizacionTieneRequisicion(cotizacion);
         const tienePartida = Boolean(String(cotizacion.partida || "").trim());
         const fecha = String(cotizacion.fecha_cotizacion || cotizacion.fecha_entrega || "").slice(0, 10);
         return contenido.includes(texto) &&
           (!proveedor || cotizacion.proveedor === proveedor) &&
           (!estatus || cotizacion.estatus === estatus) &&
-          (!tramite || (tramite === "con-tramite" ? tieneTramite : !tieneTramite)) &&
           (!partida || (partida === "con-partida" ? tienePartida : !tienePartida)) &&
           (!desde || fecha >= desde) && (!hasta || fecha <= hasta);
       });
@@ -2508,7 +2504,6 @@
       buscarGestionCotizaciones,
       filtroProveedorGestionCotizaciones,
       filtroEstatusGestionCotizaciones,
-      filtroTramiteGestionCotizaciones,
       filtroPartidaGestionCotizaciones,
       fechaDesdeGestionCotizaciones,
       fechaHastaGestionCotizaciones

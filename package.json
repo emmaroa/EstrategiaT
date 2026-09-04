@@ -1,11 +1,11 @@
 {
   "name": "estrategiat-mobile",
-  "version": "2.0.8",
+  "version": "2.0.11",
   "private": true,
   "description": "Aplicación móvil multiplataforma de Administración de Talleres",
   "scripts": {
     "version:bump": "node scripts/bump-version.js",
-    "verify": "node scripts/verify-project.js && node scripts/test-acuerdos.js && node scripts/test-personalizacion.js && node scripts/test-navigation.js && node scripts/test-tables.js && node scripts/test-forms.js && node scripts/test-module-layout.js && node scripts/test-ui-states.js && node scripts/test-notifications.js && node scripts/test-microinteractions.js && node scripts/test-accessibility.js && node scripts/test-portal-proveedor.js",
+    "verify": "node scripts/verify-project.js && node scripts/test-acuerdos.js && node scripts/test-calendario.js && node scripts/test-personalizacion.js && node scripts/test-navigation.js && node scripts/test-tables.js && node scripts/test-forms.js && node scripts/test-module-layout.js && node scripts/test-ui-states.js && node scripts/test-notifications.js && node scripts/test-microinteractions.js && node scripts/test-accessibility.js && node scripts/test-portal-proveedor.js",
     "test:acuerdos": "node scripts/test-acuerdos.js",
     "test:personalizacion": "node scripts/test-personalizacion.js",
     "test:navigation": "node scripts/test-navigation.js",
