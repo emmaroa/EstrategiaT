@@ -8,6 +8,7 @@ const permissions = fs.readFileSync(path.join(root, "js/core/permissions.js"), "
 const layout = fs.readFileSync(path.join(root, "js/core/layout.js"), "utf8");
 const migration = fs.readFileSync(path.join(root, "supabase/migrations/037_calendario_interno.sql"), "utf8");
 const audienceMigration = fs.readFileSync(path.join(root, "supabase/migrations/041_destinatarios_eventos_calendario.sql"), "utf8");
+const colorMigration = fs.readFileSync(path.join(root, "supabase/migrations/042_color_eventos_calendario.sql"), "utf8");
 assert.match(html, /id="calendarioGrid"/);
 assert.match(html, /id="modalEvento"/);
 assert.match(service, /from\("eventos_calendario"\)/);
@@ -21,4 +22,5 @@ assert.match(html, /value="Seleccionados"/);assert.match(html, /id="buscarDestin
 assert.match(service, /evento\.destinatarios/);assert.match(service, /destinatariosSeleccionados/);assert.match(service, /Selecciona al menos un usuario/);
 assert.match(service, /\.neq\("rol","Proveedor"\)/);assert.match(service, /normalizar\(u\.rol\)!=="proveedor"/);assert.match(service, /destinatariosEventoSeleccionados/);
 assert.match(audienceMigration, /destinatarios UUID\[\]/);assert.match(audienceMigration, /'Seleccionados'/);
+assert.match(html, /id="eventoColor" type="color"/);assert.match(service, /evento\.creado_por===usuarioCalendario\(\)\?\.id/);assert.match(service, /Editar evento/);assert.match(service, /formatearRangoEvento/);assert.match(colorMigration, /ADD COLUMN IF NOT EXISTS color/);
 console.log("Calendario: eventos internos, reuniones y fechas límite de tickets verificados.");

@@ -23,6 +23,11 @@
 .agenda-item { border:1px solid var(--border-color,#e5e7eb); border-left:4px solid #07b1bc; border-radius:10px; padding:10px; background:var(--card-bg,#fff); cursor:pointer; }
 .agenda-item.ticket { border-left-color:#fc712b; }.agenda-item.vencido { border-left-color:#ef4444; }
 .agenda-item strong,.agenda-item small { display:block; }.agenda-item small { margin-top:4px; color:var(--muted-text,#6b7280); }
+.agenda-detalle { margin:9px 0 0; line-height:1.45; white-space:pre-wrap; }
+.agenda-sin-detalle { color:var(--muted-text,#6b7280); font-style:italic; }
+.agenda-acciones { display:flex; gap:8px; margin-top:12px; }
+.agenda-acciones:empty { display:none; }
+#eventoColor { width:100%; min-height:44px; padding:4px; cursor:pointer; }
 .agenda-vacia { color:var(--muted-text,#6b7280); text-align:center; padding:25px 8px; }
 #modalEvento { display:none; } #modalEvento.show { display:flex; }
 #eliminarEvento { margin-right:auto; color:#dc2626; } #eliminarEvento[hidden] { display:none; }

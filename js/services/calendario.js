@@ -83,7 +83,7 @@ function actividadesFiltradas() {
   const texto = normalizar(document.getElementById("buscarCalendario")?.value);
   const tipo = document.getElementById("filtroTipoCalendario")?.value || "";
   const eventos = eventosCalendario.map(function (evento) {
-    return { id:evento.id, tipo:evento.tipo, titulo:evento.titulo, descripcion:evento.descripcion, ubicacion:evento.ubicacion, inicio:evento.fecha_inicio, fin:evento.fecha_fin, editable:true, original:evento };
+    return { id:evento.id, tipo:evento.tipo, titulo:evento.titulo, descripcion:evento.descripcion, ubicacion:evento.ubicacion, inicio:evento.fecha_inicio, fin:evento.fecha_fin, color:evento.color||"#07b1bc", editable:evento.creado_por===usuarioCalendario()?.id, original:evento };
   });
   const tickets = ticketsCalendario.map(function (ticket) {
     return { id:ticket.id, tipo:"Ticket", titulo:(ticket.folio ? ticket.folio + " · " : "") + ticket.titulo, descripcion:ticket.descripcion, inicio:ticket.fecha_compromiso + "T23:59:00", editable:false, original:ticket };
@@ -109,13 +109,15 @@ function renderizarCalendario() {
     const dia = document.createElement("div");
     dia.className = "calendario-dia" + (fecha.getMonth() !== fechaVisible.getMonth() ? " otro-mes" : "") + (clave === hoy ? " es-hoy" : "") + (clave === seleccion ? " seleccionado" : "");
     dia.innerHTML = '<button type="button" class="numero-dia evento-chip" data-fecha="' + clave + '">' + fecha.getDate() + "</button>";
-    dia.querySelector(".numero-dia").addEventListener("click", function () { fechaSeleccionada = fechaLocal(clave); renderizarCalendario(); });
+    dia.addEventListener("click", function () { fechaSeleccionada = fechaLocal(clave); renderizarCalendario(); });
+    dia.querySelector(".numero-dia").addEventListener("click", function (e) { e.stopPropagation(); fechaSeleccionada = fechaLocal(clave); renderizarCalendario(); });
     actividades.filter(a => claveActividad(a) === clave).slice(0,4).forEach(function (item) {
       const boton = document.createElement("button");
       boton.className = "evento-chip " + normalizar(item.tipo).replace(/ó/g,"o") + (esVencido(item) ? " vencido" : "");
       boton.textContent = horaActividad(item) + item.titulo;
       boton.title = item.titulo;
-      boton.addEventListener("click", function () { abrirActividad(item); });
+      if(item.tipo!=="Ticket"){boton.style.backgroundColor=(item.color||"#07b1bc")+"22";boton.style.borderLeft="4px solid "+(item.color||"#07b1bc")}
+      boton.addEventListener("click", function (e) { e.stopPropagation(); fechaSeleccionada=fechaLocal(claveActividad(item));renderizarCalendario(); });
       dia.appendChild(boton);
     });
     grid.appendChild(dia);
@@ -136,8 +138,10 @@ function renderizarAgenda(actividades) {
   dia.forEach(function (item) {
     const tarjeta = document.createElement("div");
     tarjeta.className = "agenda-item " + normalizar(item.tipo) + (esVencido(item) ? " vencido" : "");
-    tarjeta.innerHTML = "<strong>" + escapar(item.titulo) + "</strong><small>" + escapar(item.tipo + (item.tipo === "Ticket" ? " · Fecha límite" : " · " + horaActividad(item).trim())) + "</small>" + (item.ubicacion ? "<small>" + escapar(item.ubicacion) + "</small>" : "");
-    tarjeta.addEventListener("click", function () { abrirActividad(item); });
+    if(item.tipo!=="Ticket")tarjeta.style.borderLeftColor=item.color||"#07b1bc";
+    const horario=item.tipo==="Ticket"?"Fecha límite del ticket":formatearRangoEvento(item.inicio,item.fin);
+    tarjeta.innerHTML = "<strong>" + escapar(item.titulo) + "</strong><small>" + escapar(item.tipo + " · " + horario) + "</small>" + (item.ubicacion ? '<p class="agenda-detalle"><b>Ubicación:</b> '+escapar(item.ubicacion)+"</p>" : "") + (item.descripcion?'<p class="agenda-detalle">'+escapar(item.descripcion)+"</p>":'<p class="agenda-detalle agenda-sin-detalle">Sin descripción.</p>') + '<div class="agenda-acciones"></div>';
+    const acciones=tarjeta.querySelector(".agenda-acciones");if(item.tipo==="Ticket"){const abrir=document.createElement("button");abrir.className="btn-secondary";abrir.textContent="Abrir ticket";abrir.addEventListener("click",()=>abrirActividad(item));acciones.appendChild(abrir)}else if(item.editable){const editar=document.createElement("button");editar.className="btn-secondary";editar.textContent="Editar evento";editar.addEventListener("click",()=>abrirEvento(item.original));acciones.appendChild(editar)}
     lista.appendChild(tarjeta);
   });
 }
@@ -148,6 +152,7 @@ function actualizarKpis(actividades) {
   document.getElementById("kpiSemana").textContent = actividades.filter(a => { const f=fechaLocal(claveActividad(a)); return f>=fechaLocal(hoy) && f<=limite; }).length;
   document.getElementById("kpiVencidos").textContent = actividades.filter(esVencido).length;
 }
+function formatearRangoEvento(inicio,fin){const a=new Date(inicio),b=new Date(fin);return a.toLocaleTimeString("es-MX",{hour:"2-digit",minute:"2-digit"})+" a "+b.toLocaleTimeString("es-MX",{hour:"2-digit",minute:"2-digit"})}
 
 function abrirActividad(item) {
   if (item.tipo === "Ticket") { location.href = "acuerdos.html?buscar=" + encodeURIComponent(item.original.folio || item.original.titulo); return; }
@@ -162,6 +167,7 @@ function abrirEvento(evento) {
   document.getElementById("eventoTitulo").value = evento?.titulo || "";
   document.getElementById("eventoTipo").value = evento?.tipo || "Reunión";
   document.getElementById("eventoAlcance").value = evento?.alcance || "Todos";
+  document.getElementById("eventoColor").value = /^#[0-9a-f]{6}$/i.test(evento?.color||"") ? evento.color : "#07b1bc";
   destinatariosEventoSeleccionados=new Set(evento?.destinatarios||[]);document.getElementById("buscarDestinatarioEvento").value="";actualizarDestinatariosEvento();
   document.getElementById("eventoInicio").value = evento ? valorFechaHoraLocal(evento.fecha_inicio) : base + "T09:00";
   document.getElementById("eventoFin").value = evento ? valorFechaHoraLocal(evento.fecha_fin) : base + "T10:00";
@@ -177,7 +183,7 @@ function cerrarEvento() { eventoEditandoId=null; document.getElementById("modalE
 
 async function guardarEvento() {
   const usuario = usuarioCalendario();
-  const datos = { titulo:document.getElementById("eventoTitulo").value.trim(), tipo:document.getElementById("eventoTipo").value, alcance:document.getElementById("eventoAlcance").value, destinatarios:document.getElementById("eventoAlcance").value==="Seleccionados"?destinatariosSeleccionados():[], fecha_inicio:document.getElementById("eventoInicio").value, fecha_fin:document.getElementById("eventoFin").value, ubicacion:document.getElementById("eventoUbicacion").value.trim() || null, descripcion:document.getElementById("eventoDescripcion").value.trim() || null, actualizado_en:new Date().toISOString() };
+  const datos = { titulo:document.getElementById("eventoTitulo").value.trim(), tipo:document.getElementById("eventoTipo").value, alcance:document.getElementById("eventoAlcance").value, destinatarios:document.getElementById("eventoAlcance").value==="Seleccionados"?destinatariosSeleccionados():[], color:document.getElementById("eventoColor").value, fecha_inicio:document.getElementById("eventoInicio").value, fecha_fin:document.getElementById("eventoFin").value, ubicacion:document.getElementById("eventoUbicacion").value.trim() || null, descripcion:document.getElementById("eventoDescripcion").value.trim() || null, actualizado_en:new Date().toISOString() };
   if (!datos.titulo || !datos.fecha_inicio || !datos.fecha_fin) { alert("Completa el título, inicio y fin."); return; }
   if (datos.alcance==="Seleccionados"&&!datos.destinatarios.length) { alert("Selecciona al menos un usuario para compartir el evento."); return; }
   if (new Date(datos.fecha_fin) < new Date(datos.fecha_inicio)) { alert("La fecha de fin no puede ser anterior al inicio."); return; }
