@@ -1,6 +1,8 @@
 const calendarioDb = window.supabaseClient || window.supabase?.client || window.SupabaseClient;
 let eventosCalendario = [];
 let ticketsCalendario = [];
+let usuariosCalendario = [];
+let destinatariosEventoSeleccionados = new Set();
 let fechaVisible = new Date();
 let fechaSeleccionada = new Date();
 let eventoEditandoId = null;
@@ -28,6 +30,8 @@ function enlazarCalendario() {
   document.getElementById("eliminarEvento")?.addEventListener("click", eliminarEvento);
   document.getElementById("buscarCalendario")?.addEventListener("input", renderizarCalendario);
   document.getElementById("filtroTipoCalendario")?.addEventListener("change", renderizarCalendario);
+  document.getElementById("eventoAlcance")?.addEventListener("change", actualizarDestinatariosEvento);
+  document.getElementById("buscarDestinatarioEvento")?.addEventListener("input", poblarDestinatariosEvento);
   document.getElementById("modalEvento")?.addEventListener("click", function (e) { if (e.target.id === "modalEvento") cerrarEvento(); });
 }
 
@@ -38,18 +42,21 @@ function usuarioCalendario() {
 async function cargarCalendario() {
   if (!calendarioDb?.from) return;
   const usuario = usuarioCalendario();
-  const [eventos, tickets] = await Promise.all([
+  const [eventos, tickets, usuarios] = await Promise.all([
     calendarioDb.from("eventos_calendario").select("*").order("fecha_inicio", { ascending: true }),
-    calendarioDb.from("acuerdos").select("id,folio,titulo,descripcion,prioridad,estado,fecha_compromiso,asignado_a,creado_por").not("fecha_compromiso", "is", null)
+    calendarioDb.from("acuerdos").select("id,folio,titulo,descripcion,prioridad,estado,fecha_compromiso,asignado_a,creado_por").not("fecha_compromiso", "is", null),
+    calendarioDb.from("usuarios").select("id,nombre,usuario,rol,activo").eq("activo",true).neq("rol","Proveedor").order("nombre",{ascending:true})
   ]);
-  if (eventos.error || tickets.error) {
-    console.error("No se pudo cargar el calendario:", eventos.error || tickets.error);
+  if (eventos.error || tickets.error || usuarios.error) {
+    console.error("No se pudo cargar el calendario:", eventos.error || tickets.error || usuarios.error);
     alert("No se pudo cargar el calendario. Verifica que la migración esté aplicada.");
     return;
   }
   eventosCalendario = (eventos.data || []).filter(function (evento) {
-    return evento.alcance === "Todos" || evento.creado_por === usuario?.id;
+    return evento.alcance === "Todos" || evento.creado_por === usuario?.id || (evento.alcance === "Seleccionados" && (evento.destinatarios || []).includes(usuario?.id));
   });
+  usuariosCalendario = (usuarios.data || []).filter(function(u){return normalizar(u.rol)!=="proveedor"});
+  poblarDestinatariosEvento();
   ticketsCalendario = (tickets.data || []).filter(function (ticket) {
     return ticket.estado !== "Concluido" && (ticket.asignado_a === usuario?.id || ticket.creado_por === usuario?.id || puedeVerTodosTickets(usuario));
   });
@@ -67,6 +74,10 @@ function claveFecha(fecha) { return [fecha.getFullYear(), String(fecha.getMonth(
 function claveActividad(item) { return item.tipo === "Ticket" ? String(item.inicio).slice(0,10) : claveFecha(new Date(item.inicio)); }
 function valorFechaHoraLocal(valor) { const fecha = new Date(valor); return claveFecha(fecha) + "T" + String(fecha.getHours()).padStart(2,"0") + ":" + String(fecha.getMinutes()).padStart(2,"0"); }
 function escapar(valor) { return String(valor ?? "").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;").replace(/'/g,"&#039;"); }
+function poblarDestinatariosEvento(){const contenedor=document.getElementById("eventoDestinatarios");if(!contenedor)return;const propio=usuarioCalendario()?.id,texto=normalizar(document.getElementById("buscarDestinatarioEvento")?.value);const visibles=usuariosCalendario.filter(u=>u.id!==propio&&normalizar([u.nombre,u.usuario,u.rol].join(" ")).includes(texto));contenedor.innerHTML=visibles.length?visibles.map(u=>`<label class="destinatario-opcion"><input type="checkbox" value="${escapar(u.id)}"${destinatariosEventoSeleccionados.has(u.id)?" checked":""}><span><strong>${escapar(u.nombre||u.usuario)}</strong><small>${escapar(u.usuario||"")} · ${escapar(u.rol||"Usuario")}</small></span></label>`).join(""):'<div class="agenda-vacia">No se encontraron usuarios.</div>';contenedor.querySelectorAll('input[type="checkbox"]').forEach(input=>input.addEventListener("change",()=>{if(input.checked)destinatariosEventoSeleccionados.add(input.value);else destinatariosEventoSeleccionados.delete(input.value);actualizarResumenDestinatarios()}));actualizarResumenDestinatarios()}
+function actualizarResumenDestinatarios(){const total=destinatariosEventoSeleccionados.size;document.getElementById("resumenDestinatariosEvento").textContent=total?total+" usuario"+(total===1?" seleccionado":"s seleccionados"):"Busca y marca una o varias personas."}
+function actualizarDestinatariosEvento(){const elegidos=document.getElementById("eventoAlcance")?.value==="Seleccionados";document.getElementById("grupoDestinatariosEvento").hidden=!elegidos;if(elegidos)poblarDestinatariosEvento()}
+function destinatariosSeleccionados(){return Array.from(destinatariosEventoSeleccionados)}
 
 function actividadesFiltradas() {
   const texto = normalizar(document.getElementById("buscarCalendario")?.value);
@@ -151,6 +162,7 @@ function abrirEvento(evento) {
   document.getElementById("eventoTitulo").value = evento?.titulo || "";
   document.getElementById("eventoTipo").value = evento?.tipo || "Reunión";
   document.getElementById("eventoAlcance").value = evento?.alcance || "Todos";
+  destinatariosEventoSeleccionados=new Set(evento?.destinatarios||[]);document.getElementById("buscarDestinatarioEvento").value="";actualizarDestinatariosEvento();
   document.getElementById("eventoInicio").value = evento ? valorFechaHoraLocal(evento.fecha_inicio) : base + "T09:00";
   document.getElementById("eventoFin").value = evento ? valorFechaHoraLocal(evento.fecha_fin) : base + "T10:00";
   document.getElementById("eventoUbicacion").value = evento?.ubicacion || "";
@@ -165,8 +177,9 @@ function cerrarEvento() { eventoEditandoId=null; document.getElementById("modalE
 
 async function guardarEvento() {
   const usuario = usuarioCalendario();
-  const datos = { titulo:document.getElementById("eventoTitulo").value.trim(), tipo:document.getElementById("eventoTipo").value, alcance:document.getElementById("eventoAlcance").value, fecha_inicio:document.getElementById("eventoInicio").value, fecha_fin:document.getElementById("eventoFin").value, ubicacion:document.getElementById("eventoUbicacion").value.trim() || null, descripcion:document.getElementById("eventoDescripcion").value.trim() || null, actualizado_en:new Date().toISOString() };
+  const datos = { titulo:document.getElementById("eventoTitulo").value.trim(), tipo:document.getElementById("eventoTipo").value, alcance:document.getElementById("eventoAlcance").value, destinatarios:document.getElementById("eventoAlcance").value==="Seleccionados"?destinatariosSeleccionados():[], fecha_inicio:document.getElementById("eventoInicio").value, fecha_fin:document.getElementById("eventoFin").value, ubicacion:document.getElementById("eventoUbicacion").value.trim() || null, descripcion:document.getElementById("eventoDescripcion").value.trim() || null, actualizado_en:new Date().toISOString() };
   if (!datos.titulo || !datos.fecha_inicio || !datos.fecha_fin) { alert("Completa el título, inicio y fin."); return; }
+  if (datos.alcance==="Seleccionados"&&!datos.destinatarios.length) { alert("Selecciona al menos un usuario para compartir el evento."); return; }
   if (new Date(datos.fecha_fin) < new Date(datos.fecha_inicio)) { alert("La fecha de fin no puede ser anterior al inicio."); return; }
   let resultado;
   if (eventoEditandoId) resultado = await calendarioDb.from("eventos_calendario").update(datos).eq("id",eventoEditandoId).eq("creado_por",usuario.id);

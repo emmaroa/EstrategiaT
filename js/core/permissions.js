@@ -19,6 +19,7 @@
       SOLICITUDES_PAGO_SIIF: "Solicitudes de Pago SIIF",
       ACUERDOS: "Acuerdos",
       CALENDARIO: "Calendario",
+      CONTROL_TALLER: "Control de Taller",
       VALES: "Vales",
       USUARIOS: "Usuarios",
       AUDITORIA: "Auditoría",
@@ -52,6 +53,7 @@
     [MODULOS.SOLICITUDES_PAGO_SIIF]: "modulos/sp-siif.html",
     [MODULOS.ACUERDOS]: "modulos/acuerdos.html",
     [MODULOS.CALENDARIO]: "modulos/calendario.html",
+    [MODULOS.CONTROL_TALLER]: "modulos/control-taller.html",
     [MODULOS.VALES]: "modulos/vales.html",
     [MODULOS.USUARIOS]: "modulos/usuarios.html",
     [MODULOS.AUDITORIA]: "modulos/auditoria.html",
@@ -85,6 +87,7 @@
     [MODULOS.SOLICITUDES_PAGO_SIIF]: "Captura y actualización de solicitudes de pago SIIF.",
     [MODULOS.ACUERDOS]: "Tickets de trabajos por hacer, responsables, prioridades y fechas límite.",
     [MODULOS.CALENDARIO]: "Reuniones, eventos y fechas límite de tickets.",
+    [MODULOS.CONTROL_TALLER]: "Ingresos, salidas, fallas, refacciones y seguimiento de unidades en taller.",
     [MODULOS.VALES]: "Vales de salida con folio, firma y trazabilidad.",
     [MODULOS.USUARIOS]: "Administración de usuarios, roles y permisos.",
     [MODULOS.AUDITORIA]: "Registro de actividad y trazabilidad del sistema.",
@@ -353,6 +356,10 @@
     return Boolean(rol) && normalizarRol(rol) !== "Proveedor";
   }
 
+  function rolVeControlTaller(rol) {
+    return ["SuperAdmin", "Administrador del Sistema", "Admin", "jefe", "Jefe", "Director", "Coordinador", "Coordinador Infraestructura"].includes(normalizarRol(rol));
+  }
+
   function agregarModuloSiFalta(modulos, modulo) {
     const salida = Array.isArray(modulos) ? modulos.slice() : [];
     if (!salida.includes(modulo)) salida.push(modulo);
@@ -431,6 +438,17 @@
   function obtenerModulosUsuario(usuario) {
     const permisosModulos = obtenerPermisosModulosUsuario(usuario);
     const rol = normalizarRol((usuario || {}).rol || (usuario || {}).cargo || (usuario || {}).tipo || "");
+    if (permisosModulos.length) {
+      return permisosModulos
+        .filter(function (item) { return item.permiso !== "none"; })
+        .map(function (item) { return item.modulo; })
+        .filter(function (modulo) {
+          return Object.values(MODULOS).includes(modulo);
+        }).filter(function (modulo, indice, lista) {
+          return modulo !== MODULOS.REQUISICIONES && lista.indexOf(modulo) === indice;
+        });
+    }
+
     if (rol === "Proveedor") return [
       MODULOS.PORTAL_PROVEEDOR,
       MODULOS.PETICIONES_PROVEEDOR,
@@ -438,39 +456,12 @@
       MODULOS.SEGUIMIENTO_SIIF_PROVEEDOR
     ];
 
-    if (permisosModulos.length) {
-      const modulos = permisosModulos
-        .filter(function (item) { return item.permiso !== "none"; })
-        .map(function (item) { return item.modulo; })
-        .filter(function (modulo) {
-          return Object.values(MODULOS).includes(modulo);
-        });
-      let modulosFinales = modulos;
-      if (rolVeSeguimientoPeticiones(rol)) {
-        modulosFinales = agregarModuloSiFalta(modulosFinales, MODULOS.SEGUIMIENTO_PETICIONES);
-      }
-      if (rolVeTramitesAdministrativos(rol)) {
-        modulosFinales = agregarModuloSiFalta(modulosFinales, MODULOS.TRAMITES_ADMINISTRATIVOS);
-      }
-      if (rolVeGenerarTextos(rol)) {
-        modulosFinales = agregarModuloSiFalta(modulosFinales, MODULOS.GENERAR_TEXTOS);
-      }
-      if (rolVeCalendario(rol)) {
-        modulosFinales = agregarModuloSiFalta(modulosFinales, MODULOS.CALENDARIO);
-      }
-      if (usuarioConSesion(usuario)) {
-        modulosFinales = agregarModuloSiFalta(modulosFinales, MODULOS.PETICIONES);
-      }
-      return modulosFinales.filter(function (modulo, indice, lista) {
-        return modulo !== MODULOS.REQUISICIONES && lista.indexOf(modulo) === indice;
-      });
-    }
-
     const modulosRol = PERMISOS[rol] || [];
     let modulosFinalesRol = usuarioConSesion(usuario)
       ? agregarModuloSiFalta(modulosRol, MODULOS.PETICIONES)
       : modulosRol;
     if (rolVeCalendario(rol)) modulosFinalesRol = agregarModuloSiFalta(modulosFinalesRol, MODULOS.CALENDARIO);
+    if (rolVeControlTaller(rol)) modulosFinalesRol = agregarModuloSiFalta(modulosFinalesRol, MODULOS.CONTROL_TALLER);
     return modulosFinalesRol.map(function (modulo) {
       return modulo === MODULOS.REQUISICIONES ? MODULOS.SEGUIMIENTO_SIIF : modulo;
     }).filter(function (modulo, indice, lista) {
@@ -489,12 +480,7 @@
       return item.modulo === modulo;
     });
 
-    if (encontrado) {
-      if (modulo === MODULOS.PETICIONES && usuarioConSesion(usuario) && encontrado.permiso === "none") {
-        return "ver";
-      }
-      return encontrado.permiso;
-    }
+    if (permisosModulos.length) return encontrado ? encontrado.permiso : "none";
 
     if (modulo === MODULOS.SEGUIMIENTO_PETICIONES && rolVeSeguimientoPeticiones(rol)) {
       return "ver";
@@ -512,6 +498,10 @@
 
     if (modulo === MODULOS.CALENDARIO && rolVeCalendario(rol)) {
       return rol === "Solo Lectura" || rol === "Consulta" ? "ver" : "editar";
+    }
+
+    if (modulo === MODULOS.CONTROL_TALLER && rolVeControlTaller(rol)) {
+      return rol === "Director" ? "ver" : "editar";
     }
 
     if (["super_admin", "SuperAdmin", "Administrador del Sistema", "Admin", "admin", "jefe", "Jefe"].includes(rol)) {

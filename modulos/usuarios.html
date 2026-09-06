@@ -211,6 +211,7 @@
 
         <div class="input-group full">
           <label>Permisos de módulos</label>
+          <small class="helper-text">Marca únicamente los módulos que podrá usar. Los usuarios nuevos comienzan sin acceso a ninguno.</small>
           <div id="permisosModulosContainer" style="display:grid; gap:10px;"></div>
         </div>
 
@@ -229,7 +230,7 @@
     ETLayout.inicializar("Usuarios");
 
     let usuariosSistema = [];
-    let indiceEditandoUsuario = null;
+    let usuarioEditandoId = null;
 
     const tablaUsuarios = document.getElementById("tablaUsuarios");
     const permisosModulosContainer = document.getElementById("permisosModulosContainer");
@@ -239,6 +240,7 @@
     const verProveedoresPeticionesUsuario = document.getElementById("verProveedoresPeticionesUsuario");
     const areasSeguimientoDisponibles = [
       "Electricas",
+      "Diesel",
       "Maquinaria Pesada",
       "Barredoras",
       "Gasolina",
@@ -249,6 +251,8 @@
       "Dashboard",
       "Parque Vehicular",
       "Acuerdos",
+      "Calendario",
+      "Control de Taller",
       "Peticiones",
       "Gestión de Cotizaciones",
       "Seguimiento Peticiones",
@@ -263,7 +267,10 @@
       "Tiempo Extra",
       "Tramites Administrativos",
       "Generar Textos",
-      "Portal Proveedor"
+      "Portal Proveedor",
+      "Peticiones de almacén",
+      "Cotizaciones Proveedor",
+      "Seguimiento de trámites SIIF"
     ];
     const buscarUsuario = document.getElementById("buscarUsuario");
     const filtroRolUsuario = document.getElementById("filtroRolUsuario");
@@ -332,9 +339,9 @@
           </td>
           <td>${formatearFechaUsuario(u.created_at)}</td>
           <td><div class="action-grid">
-            ${ETLayout.iconButton("editar", "Editar usuario", "editarUsuario(" + index + ")", "edit")}
-            ${ETLayout.iconButton(u.activo ? "inactivar" : "activar", u.activo ? "Inactivar usuario" : "Activar usuario", "toggleUsuario(" + index + ")", "orange")}
-            ${ETLayout.iconButton("eliminar", "Eliminar usuario", "eliminarUsuario(" + index + ")", "red-btn")}
+            ${ETLayout.iconButton("editar", "Editar usuario", "editarUsuario('" + u.id + "')", "edit")}
+            ${ETLayout.iconButton(u.activo ? "inactivar" : "activar", u.activo ? "Inactivar usuario" : "Activar usuario", "toggleUsuario('" + u.id + "')", "orange")}
+            ${ETLayout.iconButton("eliminar", "Eliminar usuario", "eliminarUsuario('" + u.id + "')", "red-btn")}
           </div></td>
         `;
 
@@ -426,7 +433,8 @@
 
         const valorActual = permisoActual
           ? String(permisoActual.permiso || permisoActual.acceso || permisoActual.nivel || "editar").toLowerCase()
-          : "editar";
+          : "none";
+        const tieneAcceso = valorActual === "ver" || valorActual === "editar" || valorActual === "moderar";
 
         const fila = document.createElement("div");
         fila.style.display = "flex";
@@ -438,9 +446,10 @@
         fila.style.borderRadius = "10px";
 
         fila.innerHTML = `
-          <span style="font-weight:600;">${modulo}</span>
-          <select data-modulo="${modulo}" style="min-width:180px;">
-            <option value="none">Sin acceso</option>
+          <label style="display:flex;align-items:center;gap:9px;font-weight:600;cursor:pointer;">
+            <input type="checkbox" data-modulo-activo="${modulo}"${tieneAcceso ? " checked" : ""}> ${modulo}
+          </label>
+          <select data-modulo="${modulo}" style="min-width:180px;"${tieneAcceso ? "" : " disabled"}>
             <option value="ver">Solo vista</option>
             ${modulo === "Acuerdos" ? '<option value="moderar">Moderar acuerdos</option>' : ""}
             <option value="editar">Editar</option>
@@ -448,7 +457,13 @@
         `;
 
         const select = fila.querySelector("select");
-        select.value = valorActual === "ver" || valorActual === "editar" || valorActual === "moderar" ? valorActual : "none";
+        const checkbox = fila.querySelector("input[data-modulo-activo]");
+        select.value = tieneAcceso ? valorActual : "editar";
+        checkbox.addEventListener("change", function () {
+          select.disabled = !checkbox.checked;
+          fila.style.background = checkbox.checked ? "rgba(37,99,235,.06)" : "";
+        });
+        fila.style.background = tieneAcceso ? "rgba(37,99,235,.06)" : "";
         permisosModulosContainer.appendChild(fila);
       });
     }
@@ -459,7 +474,8 @@
       return Array.from(permisosModulosContainer.querySelectorAll("select[data-modulo]"))
         .map(function (select) {
           const modulo = select.getAttribute("data-modulo");
-          const permiso = select.value;
+          const checkbox = permisosModulosContainer.querySelector('input[data-modulo-activo="' + modulo + '"]');
+          const permiso = checkbox && checkbox.checked ? select.value : "none";
           return { modulo, permiso };
         })
         .filter(function (item) {
@@ -468,7 +484,7 @@
     }
 
     function abrirModalUsuario() {
-      indiceEditandoUsuario = null;
+      usuarioEditandoId = null;
       document.getElementById("tituloModalUsuario").textContent = "Nuevo usuario";
       limpiarFormularioUsuario();
       renderPermisosModulos(null);
@@ -479,7 +495,7 @@
     function cerrarModalUsuario() {
       document.getElementById("modalUsuario").classList.remove("show");
       limpiarFormularioUsuario();
-      indiceEditandoUsuario = null;
+      usuarioEditandoId = null;
     }
 
     async function guardarUsuario() {
@@ -506,28 +522,12 @@
         return;
       }
 
-      if (nuevo.rol === "Proveedor") {
-        nuevo.areas_permitidas = [];
-        nuevo.modulos_permitidos = [
-          { modulo: "Portal Proveedor", permiso: "editar" },
-          { modulo: "Cotizaciones Proveedor", permiso: "editar" },
-          { modulo: "Seguimiento de trámites SIIF", permiso: "editar" }
-        ];
-      }
-      if (nuevo.rol === "Coordinador Infraestructura") {
-        nuevo.areas_permitidas = [];
-        nuevo.modulos_permitidos = [
-          { modulo: "Dashboard", permiso: "ver" },
-          { modulo: "Peticiones", permiso: "editar" }
-        ];
-      }
-
-      if (indiceEditandoUsuario === null && !nuevo.password) {
+      if (usuarioEditandoId === null && !nuevo.password) {
         alert("Captura una contraseña para el usuario nuevo.");
         return;
       }
 
-      if (indiceEditandoUsuario === null) {
+      if (usuarioEditandoId === null) {
         const { error } = await supabaseClient
           .from("usuarios")
           .insert([nuevo]);
@@ -541,7 +541,11 @@
         registrarMovimientoUsuarios("Creó usuario", nuevo.usuario);
 
       } else {
-        const actual = usuariosSistema[indiceEditandoUsuario];
+        const actual = usuariosSistema.find(function (usuario) { return usuario.id === usuarioEditandoId; });
+        if (!actual) {
+          alert("No se encontró el usuario seleccionado. Actualiza la lista e intenta de nuevo.");
+          return;
+        }
 
         const datosActualizados = {
           nombre: nuevo.nombre,
@@ -577,10 +581,11 @@
       alert("Usuario guardado correctamente.");
     }
 
-    function editarUsuario(index) {
-      const u = usuariosSistema[index];
+    function editarUsuario(id) {
+      const u = usuariosSistema.find(function (usuario) { return usuario.id === id; });
+      if (!u) return;
 
-      indiceEditandoUsuario = index;
+      usuarioEditandoId = id;
 
       document.getElementById("tituloModalUsuario").textContent = "Editar usuario";
       document.getElementById("modalUsuario").classList.add("show");
@@ -602,8 +607,9 @@
       renderAreasPermitidas(u);
     }
 
-    async function toggleUsuario(index) {
-      const u = usuariosSistema[index];
+    async function toggleUsuario(id) {
+      const u = usuariosSistema.find(function (usuario) { return usuario.id === id; });
+      if (!u) return;
 
       const nuevoEstado = !u.activo;
 
@@ -635,8 +641,9 @@
       cargarUsuarios();
     }
 
-    async function eliminarUsuario(index) {
-      const u = usuariosSistema[index];
+    async function eliminarUsuario(id) {
+      const u = usuariosSistema.find(function (usuario) { return usuario.id === id; });
+      if (!u) return;
 
       const confirmar = await ETFeedback.confirmar({
         title: "Eliminar usuario",

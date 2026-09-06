@@ -1,0 +1,3 @@
+﻿"numero_economico","tipo_unidad","dependencia","tipo_movimiento","concepto","descripcion","taller_nombre","fecha_ingreso","tiempo_taller_dias","estatus","fecha_salida","observaciones","motivo_revision"
+"E-334","Patrulla Mini Dolphin","Seguridad Pública","Correctivo","Falla en aislamiento","SALIO DE TALLER BYD PARA INGRESARLA POR TEMA DE GANTIA POR EL SEGURO, SE INGRESA A ZONA NORTE","Taller ByD","2025-07-14","272","En curso","","","Sin coincidencia en parque"
+"E-4422","T8","Ayudantia","Correctivo","Falla en aislamiento","Reemplazo de modulos completos en paquete de bateria","Taller Jac","2026-01-19","83","En curso","","","Sin coincidencia en parque"

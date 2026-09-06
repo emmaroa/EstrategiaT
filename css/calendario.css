@@ -26,5 +26,12 @@
 .agenda-vacia { color:var(--muted-text,#6b7280); text-align:center; padding:25px 8px; }
 #modalEvento { display:none; } #modalEvento.show { display:flex; }
 #eliminarEvento { margin-right:auto; color:#dc2626; } #eliminarEvento[hidden] { display:none; }
+#grupoDestinatariosEvento[hidden] { display:none !important; }
+.destinatarios-resultados { max-height:230px; overflow:auto; border:1px solid var(--border-color,#e5e7eb); border-radius:10px; padding:6px; display:grid; gap:4px; }
+.destinatario-opcion { display:flex; align-items:center; gap:10px; padding:8px 10px; border-radius:8px; cursor:pointer; }
+.destinatario-opcion:hover { background:rgba(7,177,188,.08); }
+.destinatario-opcion input { width:18px; height:18px; flex:0 0 auto; }
+.destinatario-opcion span,.destinatario-opcion strong,.destinatario-opcion small { display:block; }
+.destinatario-opcion small { margin-top:2px; color:var(--muted-text,#6b7280); }
 @media(max-width:1000px){.calendario-contenido{grid-template-columns:1fr}.agenda{border-left:0;border-top:1px solid var(--border-color,#e5e7eb);padding:16px 0 0}.calendario-mes{overflow-x:auto}.calendario-semana,.calendario-grid{min-width:700px}}
 @media(max-width:700px){.calendario-kpis{grid-template-columns:1fr}.calendario-toolbar,.calendario-navegacion,.calendario-filtros{align-items:stretch}.calendario-navegacion,.calendario-filtros{width:100%;flex-wrap:wrap}.calendario-navegacion h2{order:-1;width:100%;margin:0}.calendario-filtros>*{flex:1;min-width:150px}}

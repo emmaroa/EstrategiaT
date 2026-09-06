@@ -2,6 +2,7 @@ const fs = require("fs");
 
 const layout = fs.readFileSync("js/core/layout.js", "utf8");
 const styles = fs.readFileSync("css/design-system.css", "utf8");
+const usuarios = fs.readFileSync("modulos/usuarios.html", "utf8");
 
 const checks = [
   [layout.includes("Descartar cambios"), "Falta protección contra cambios sin guardar"],
@@ -10,7 +11,12 @@ const checks = [
   [layout.includes("et-character-count"), "Falta el contador de caracteres"],
   [styles.includes(".et-field-invalid"), "Faltan estilos de validación"],
   [styles.includes(".et-character-count"), "Faltan estilos del contador"],
-  [styles.includes("position: sticky"), "Falta fijar elementos de las ventanas"]
+  [styles.includes("position: sticky"), "Falta fijar elementos de las ventanas"],
+  [usuarios.includes("editarUsuario('" + '" + u.id + "' + "')"), "Editar usuario debe usar el identificador estable"],
+  [usuarios.includes("usuariosSistema.find(function (usuario) { return usuario.id === id; })"), "Las acciones de usuario deben resolver por identificador"]
+  ,[usuarios.includes('data-modulo-activo="${modulo}"'), "Los permisos de módulos deben activarse mediante checkbox"]
+  ,[usuarios.includes(': "none";'), "Los usuarios nuevos deben comenzar sin permisos"]
+  ,[usuarios.includes('checkbox && checkbox.checked ? select.value : "none"'), "Los módulos desmarcados deben guardarse sin acceso"]
 ];
 
 const failed = checks.filter(([ok]) => !ok);
