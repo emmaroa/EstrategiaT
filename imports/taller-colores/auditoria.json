@@ -1,0 +1,7113 @@
+[
+  {
+    "fila": 2,
+    "unidad": "E-162",
+    "color": "sin relleno de fila",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 3,
+    "unidad": "E-334",
+    "color": "rojo",
+    "destino": "pendientes",
+    "motivos": [
+      "Sin coincidencia única en Parque Vehicular"
+    ]
+  },
+  {
+    "fila": 4,
+    "unidad": "E-237",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 5,
+    "unidad": "E-123",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 6,
+    "unidad": "E-251",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 7,
+    "unidad": "E-148",
+    "color": "sin relleno de fila",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 8,
+    "unidad": "E-161",
+    "color": "sin relleno de fila",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 9,
+    "unidad": "E-182",
+    "color": "sin relleno de fila",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 10,
+    "unidad": "E-265",
+    "color": "sin relleno de fila",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 11,
+    "unidad": "E-150",
+    "color": "sin relleno de fila",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 12,
+    "unidad": "E-289",
+    "color": "sin relleno de fila",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 13,
+    "unidad": "E-126",
+    "color": "sin relleno de fila",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 14,
+    "unidad": "E-404",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 15,
+    "unidad": "E-247",
+    "color": "sin relleno de fila",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 16,
+    "unidad": "E-4422",
+    "color": "rojo",
+    "destino": "pendientes",
+    "motivos": [
+      "Sin coincidencia única en Parque Vehicular"
+    ]
+  },
+  {
+    "fila": 17,
+    "unidad": "E-179",
+    "color": "sin relleno de fila",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 18,
+    "unidad": "E-354",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 19,
+    "unidad": "E-446",
+    "color": "verde",
+    "destino": "pendientes",
+    "motivos": [
+      "Fecha de salida anterior al ingreso"
+    ]
+  },
+  {
+    "fila": 20,
+    "unidad": "E-278",
+    "color": "sin relleno de fila",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 21,
+    "unidad": "E-322",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 22,
+    "unidad": "E-333",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 23,
+    "unidad": "E-335",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 24,
+    "unidad": "E-325",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 25,
+    "unidad": "E-221",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 26,
+    "unidad": "E-209",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 27,
+    "unidad": "E-409",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 28,
+    "unidad": "E-380",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 29,
+    "unidad": "E-377",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 30,
+    "unidad": "E-160",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 31,
+    "unidad": "E-177",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 32,
+    "unidad": "E-400",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 33,
+    "unidad": "E-439",
+    "color": "sin relleno de fila",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 34,
+    "unidad": "E-230",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 35,
+    "unidad": "E-264",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 36,
+    "unidad": "E-106",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 37,
+    "unidad": "E-301",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 38,
+    "unidad": "E-141",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 39,
+    "unidad": "E-021",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 40,
+    "unidad": "E-254",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 41,
+    "unidad": "E-407",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 42,
+    "unidad": "E-382",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 43,
+    "unidad": "E-414",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 44,
+    "unidad": "E-207",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 45,
+    "unidad": "E-276",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 46,
+    "unidad": "E-284",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 47,
+    "unidad": "E-397",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 48,
+    "unidad": "E-401",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 49,
+    "unidad": "E-461",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 50,
+    "unidad": "E-448",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 51,
+    "unidad": "E-241",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 52,
+    "unidad": "E-308",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 53,
+    "unidad": "E-180",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 54,
+    "unidad": "E-189",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 55,
+    "unidad": "E-296",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 56,
+    "unidad": "E-203",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 57,
+    "unidad": "E-104",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 58,
+    "unidad": "E-273",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 59,
+    "unidad": "E-120",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 60,
+    "unidad": "E-378",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 61,
+    "unidad": "E-375",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 62,
+    "unidad": "E-359",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 63,
+    "unidad": "E-262",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 64,
+    "unidad": "E-285",
+    "color": "sin relleno de fila",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 65,
+    "unidad": "4630",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 66,
+    "unidad": "E-305",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 67,
+    "unidad": "E-020",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 68,
+    "unidad": "E-127",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 69,
+    "unidad": "E-295",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 70,
+    "unidad": "E-308",
+    "color": "sin relleno de fila",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 71,
+    "unidad": "E-449",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 72,
+    "unidad": "4424",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 73,
+    "unidad": "E-160",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 74,
+    "unidad": "E-287",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 75,
+    "unidad": "E-212",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 76,
+    "unidad": "E-187",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 77,
+    "unidad": "E-144",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 78,
+    "unidad": "E-248",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 79,
+    "unidad": "E-197",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 80,
+    "unidad": "E-352",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 81,
+    "unidad": "E-432",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 82,
+    "unidad": "E-454",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 83,
+    "unidad": "E-458",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 84,
+    "unidad": "E-450",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 85,
+    "unidad": "E-013",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 86,
+    "unidad": "E-421",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 87,
+    "unidad": "E-012",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 88,
+    "unidad": "E-033",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 89,
+    "unidad": "E-341",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 90,
+    "unidad": "E-459",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 91,
+    "unidad": "E-355",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 92,
+    "unidad": "E-431",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 93,
+    "unidad": "E-456",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 94,
+    "unidad": "E-116",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 95,
+    "unidad": "E-250",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 96,
+    "unidad": "E-208",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 97,
+    "unidad": "4608",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 98,
+    "unidad": "E-429",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 99,
+    "unidad": "E-349",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 100,
+    "unidad": "E-219",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 101,
+    "unidad": "E-200",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 102,
+    "unidad": "E-249",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 103,
+    "unidad": "E-235",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 104,
+    "unidad": "E-343",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 105,
+    "unidad": "E-371",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 106,
+    "unidad": "E-374",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 107,
+    "unidad": "E-031",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 108,
+    "unidad": "4608",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 109,
+    "unidad": "E-003",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 110,
+    "unidad": "E-175",
+    "color": "verde",
+    "destino": "pendientes",
+    "motivos": [
+      "Fecha de salida anterior al ingreso"
+    ]
+  },
+  {
+    "fila": 111,
+    "unidad": "E-224",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 112,
+    "unidad": "E-116",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 113,
+    "unidad": "E-293",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 114,
+    "unidad": "E-170",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 115,
+    "unidad": "E-107",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 116,
+    "unidad": "E-339",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 117,
+    "unidad": "E-387",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 118,
+    "unidad": "E-398",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 119,
+    "unidad": "E-392",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 120,
+    "unidad": "E-166",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 121,
+    "unidad": "4665",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 122,
+    "unidad": "4455",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 123,
+    "unidad": "E-413",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 124,
+    "unidad": "E-403",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 125,
+    "unidad": "E-365",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 126,
+    "unidad": "E-271",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 127,
+    "unidad": "E-124",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 128,
+    "unidad": "E-284",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 129,
+    "unidad": "E-230",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 130,
+    "unidad": "E-254",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 131,
+    "unidad": "E-402",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 132,
+    "unidad": "E-367",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 133,
+    "unidad": "E-385",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 134,
+    "unidad": "E-173",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 135,
+    "unidad": "E-267",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 136,
+    "unidad": "E-189",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 137,
+    "unidad": "e-118",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 138,
+    "unidad": "E-215",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 139,
+    "unidad": "E-191",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 140,
+    "unidad": "E-036",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 141,
+    "unidad": "E-027",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 142,
+    "unidad": "4661",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 143,
+    "unidad": "E-422",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 144,
+    "unidad": "E-216",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 145,
+    "unidad": "E-152",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 146,
+    "unidad": "E-215",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 147,
+    "unidad": "E-121",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 148,
+    "unidad": "E-109",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 149,
+    "unidad": "E-246",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 150,
+    "unidad": "E-272",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 151,
+    "unidad": "E-127",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 152,
+    "unidad": "E-186",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 153,
+    "unidad": "4664",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 154,
+    "unidad": "E-304",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 155,
+    "unidad": "E-304",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 156,
+    "unidad": "E-228",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 157,
+    "unidad": "E-467",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 158,
+    "unidad": "E-486",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 159,
+    "unidad": "E-474",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 160,
+    "unidad": "E-433",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 161,
+    "unidad": "E-479",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 162,
+    "unidad": "E-471",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 163,
+    "unidad": "E-430",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 164,
+    "unidad": "E-460",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 165,
+    "unidad": "E-131",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 166,
+    "unidad": "E-198",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 167,
+    "unidad": "E-266",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 168,
+    "unidad": "E-292",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 169,
+    "unidad": "E-376",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 170,
+    "unidad": "E-399",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 171,
+    "unidad": "E-391",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 172,
+    "unidad": "E-368",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 173,
+    "unidad": "E-170",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 174,
+    "unidad": "E-186",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 175,
+    "unidad": "E-189",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 176,
+    "unidad": "E-223",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 177,
+    "unidad": "E-147",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 178,
+    "unidad": "E-379",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 179,
+    "unidad": "E-388",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 180,
+    "unidad": "E-364",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 181,
+    "unidad": "E-268",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 182,
+    "unidad": "E-294",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 183,
+    "unidad": "E-237",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 184,
+    "unidad": "E-291",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 185,
+    "unidad": "E-230",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 186,
+    "unidad": "E-385",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 187,
+    "unidad": "E-366",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 188,
+    "unidad": "E-036",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 189,
+    "unidad": "E-452",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 190,
+    "unidad": "E-350",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 191,
+    "unidad": "E-431",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 192,
+    "unidad": "E-445",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 193,
+    "unidad": "E-453",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 194,
+    "unidad": "E-480",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 195,
+    "unidad": "E-275",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 196,
+    "unidad": "E-297",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 197,
+    "unidad": "E-147",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 198,
+    "unidad": "E-105",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 199,
+    "unidad": "E-187",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 200,
+    "unidad": "E-120",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 201,
+    "unidad": "E-284",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 202,
+    "unidad": "E-105",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 203,
+    "unidad": "E-271",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 204,
+    "unidad": "E-123",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 205,
+    "unidad": "E-244",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 206,
+    "unidad": "E-405",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 207,
+    "unidad": "E-412",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 208,
+    "unidad": "E-367",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 209,
+    "unidad": "E-409",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 210,
+    "unidad": "4457",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 211,
+    "unidad": "E-440",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 212,
+    "unidad": "E-424",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 213,
+    "unidad": "E-466",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 214,
+    "unidad": "E-457",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 215,
+    "unidad": "E-315",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 216,
+    "unidad": "E-183",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 217,
+    "unidad": "E-198",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 218,
+    "unidad": "E-177",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 219,
+    "unidad": "E-187",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 220,
+    "unidad": "E-170",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 221,
+    "unidad": "E-237",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 222,
+    "unidad": "E-248",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 223,
+    "unidad": "E-141",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 224,
+    "unidad": "E-216",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 225,
+    "unidad": "E-323",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 226,
+    "unidad": "E-007",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 227,
+    "unidad": "E-461",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 228,
+    "unidad": "E-484",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 229,
+    "unidad": "E-456",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 230,
+    "unidad": "E-468",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 231,
+    "unidad": "E-437",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 232,
+    "unidad": "E-259",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 233,
+    "unidad": "E-312",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 234,
+    "unidad": "E-483",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 235,
+    "unidad": "E-442",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 236,
+    "unidad": "E-464",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 237,
+    "unidad": "E-421",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 238,
+    "unidad": "E-462",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 239,
+    "unidad": "E-130",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 240,
+    "unidad": "E-120",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 241,
+    "unidad": "E-027",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 242,
+    "unidad": "E-222",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 243,
+    "unidad": "E-291",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 244,
+    "unidad": "E-369",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 245,
+    "unidad": "E-410",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 246,
+    "unidad": "E-269",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 247,
+    "unidad": "E-361",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 248,
+    "unidad": "E-415",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 249,
+    "unidad": "E-246",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 250,
+    "unidad": "E-166",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 251,
+    "unidad": "E-249",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 252,
+    "unidad": "E-173",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 253,
+    "unidad": "E-249",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 254,
+    "unidad": "E-196",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 255,
+    "unidad": "4664",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 256,
+    "unidad": "4627",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 257,
+    "unidad": "E-124",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 258,
+    "unidad": "E-244",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 259,
+    "unidad": "E-144",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 260,
+    "unidad": "E-198",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 261,
+    "unidad": "E-130",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 262,
+    "unidad": "E-201",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 263,
+    "unidad": "E-362",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 264,
+    "unidad": "E-4456",
+    "color": "verde",
+    "destino": "pendientes",
+    "motivos": [
+      "Sin coincidencia única en Parque Vehicular"
+    ]
+  },
+  {
+    "fila": 265,
+    "unidad": "E-4457",
+    "color": "verde",
+    "destino": "pendientes",
+    "motivos": [
+      "Sin coincidencia única en Parque Vehicular"
+    ]
+  },
+  {
+    "fila": 266,
+    "unidad": "E-4629",
+    "color": "verde",
+    "destino": "pendientes",
+    "motivos": [
+      "Sin coincidencia única en Parque Vehicular"
+    ]
+  },
+  {
+    "fila": 267,
+    "unidad": "E-386",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 268,
+    "unidad": "E-389",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 269,
+    "unidad": "E-375",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 270,
+    "unidad": "E-233",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 271,
+    "unidad": "E-319",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 272,
+    "unidad": "E-177",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 273,
+    "unidad": "E-237",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 274,
+    "unidad": "E-416",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 275,
+    "unidad": "E-432",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 276,
+    "unidad": "E-435",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 277,
+    "unidad": "E-350",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 278,
+    "unidad": "E-130",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 279,
+    "unidad": "E-157",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 280,
+    "unidad": "E-454",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 281,
+    "unidad": "E-481",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 282,
+    "unidad": "E-358",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 283,
+    "unidad": "E-342",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 284,
+    "unidad": "E-034",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 285,
+    "unidad": "E-154",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 286,
+    "unidad": "E-131",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 287,
+    "unidad": "E-433",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 288,
+    "unidad": "E-351",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 289,
+    "unidad": "E-455",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 290,
+    "unidad": "E-445",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 291,
+    "unidad": "E-344",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 292,
+    "unidad": "4459",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 293,
+    "unidad": "E-338",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 294,
+    "unidad": "E-145",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 295,
+    "unidad": "E-284",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 296,
+    "unidad": "E-177",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 297,
+    "unidad": "E-298",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 298,
+    "unidad": "E-459",
+    "color": "sin relleno de fila",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 299,
+    "unidad": "E-450",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 300,
+    "unidad": "E-476",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 301,
+    "unidad": "E-169",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 302,
+    "unidad": "E-267",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 303,
+    "unidad": "E-124",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 304,
+    "unidad": "E-147",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 305,
+    "unidad": "E-267",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 306,
+    "unidad": "E-147",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 307,
+    "unidad": "E-215",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 308,
+    "unidad": "E-254",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 309,
+    "unidad": "E-189",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 310,
+    "unidad": "E-273",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 311,
+    "unidad": "E-266",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 312,
+    "unidad": "E-364",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 313,
+    "unidad": "E-157",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 314,
+    "unidad": "E-192",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 315,
+    "unidad": "E-117",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 316,
+    "unidad": "E-004",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 317,
+    "unidad": "E-169",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 318,
+    "unidad": "E-137",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 319,
+    "unidad": "E-191",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 320,
+    "unidad": "E-373",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 321,
+    "unidad": "E-400",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 322,
+    "unidad": "E-259",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 323,
+    "unidad": "E-111",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 324,
+    "unidad": "4119",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 325,
+    "unidad": "4630",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 326,
+    "unidad": "E-398",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 327,
+    "unidad": "E-403",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 328,
+    "unidad": "E-111",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 329,
+    "unidad": "E-189",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 330,
+    "unidad": "E-361",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 331,
+    "unidad": "E-393",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 332,
+    "unidad": "E-023",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 333,
+    "unidad": "E-243",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 334,
+    "unidad": "E-291",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 335,
+    "unidad": "E-131",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 336,
+    "unidad": "E-270",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 337,
+    "unidad": "E-191",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 338,
+    "unidad": "E-245",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 339,
+    "unidad": "E-315",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 340,
+    "unidad": "E-135",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 341,
+    "unidad": "E-409",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 342,
+    "unidad": "E-378",
+    "color": "verde",
+    "destino": "pendientes",
+    "motivos": [
+      "Fecha de salida anterior al ingreso"
+    ]
+  },
+  {
+    "fila": 343,
+    "unidad": "E-402",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 344,
+    "unidad": "E-397",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 345,
+    "unidad": "E-003",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 346,
+    "unidad": "E-016",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 347,
+    "unidad": "E-292",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 348,
+    "unidad": "E-019",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 349,
+    "unidad": "4453",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 350,
+    "unidad": "E-138",
+    "color": "verde",
+    "destino": "pendientes",
+    "motivos": [
+      "Fecha de salida anterior al ingreso"
+    ]
+  },
+  {
+    "fila": 351,
+    "unidad": "E-284",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 352,
+    "unidad": "E-220",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 353,
+    "unidad": "E-272",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 354,
+    "unidad": "E-170",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 355,
+    "unidad": "E-275",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 356,
+    "unidad": "E-164",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 357,
+    "unidad": "E-251",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 358,
+    "unidad": "E-288",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 359,
+    "unidad": "E-187",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 360,
+    "unidad": "E-284",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 361,
+    "unidad": "4665",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 362,
+    "unidad": "E-232",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 363,
+    "unidad": "E-135",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 364,
+    "unidad": "E-269",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 365,
+    "unidad": "E-122",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 366,
+    "unidad": "E-250",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 367,
+    "unidad": "E-147",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 368,
+    "unidad": "E-203",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 369,
+    "unidad": "E-349",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 370,
+    "unidad": "E-447",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 371,
+    "unidad": "E-432",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 372,
+    "unidad": "E-035",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 373,
+    "unidad": "E-236",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 374,
+    "unidad": "E-460",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 375,
+    "unidad": "E-482",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 376,
+    "unidad": "E-485",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 377,
+    "unidad": "8",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 378,
+    "unidad": "E-133",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 379,
+    "unidad": "E-273",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 380,
+    "unidad": "E-301",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 381,
+    "unidad": "E-144",
+    "color": "sin relleno de fila",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 382,
+    "unidad": "E-171",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 383,
+    "unidad": "E-287",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 384,
+    "unidad": "E-270",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 385,
+    "unidad": "E-343",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 386,
+    "unidad": "E-463",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 387,
+    "unidad": "E-425",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 388,
+    "unidad": "E-473",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 389,
+    "unidad": "E-277",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 390,
+    "unidad": "E-305",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 391,
+    "unidad": "E-444",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 392,
+    "unidad": "E-469",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 393,
+    "unidad": "E-431",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 394,
+    "unidad": "E-449",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 395,
+    "unidad": "E-472",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 396,
+    "unidad": "E-471",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 397,
+    "unidad": "4669",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 398,
+    "unidad": "E-437",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 399,
+    "unidad": "E-255",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 400,
+    "unidad": "E-239",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 401,
+    "unidad": "E-309",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 402,
+    "unidad": "E-114",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 403,
+    "unidad": "E-456",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 404,
+    "unidad": "E-007",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 405,
+    "unidad": "E-460",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 406,
+    "unidad": "E-328",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 407,
+    "unidad": "E-266",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 408,
+    "unidad": "E-194",
+    "color": "verde",
+    "destino": "pendientes",
+    "motivos": [
+      "Fecha de salida anterior al ingreso"
+    ]
+  },
+  {
+    "fila": 409,
+    "unidad": "E-269",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 410,
+    "unidad": "4608",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 411,
+    "unidad": "E-237",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 412,
+    "unidad": "E-139",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 413,
+    "unidad": "E-013",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 414,
+    "unidad": "E-014",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 415,
+    "unidad": "E-468",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 416,
+    "unidad": "E-484",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 417,
+    "unidad": "E-012",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 418,
+    "unidad": "E-443",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 419,
+    "unidad": "E-448",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 420,
+    "unidad": "E-123",
+    "color": "sin relleno de fila",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 421,
+    "unidad": "E-177",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 422,
+    "unidad": "E-189",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 423,
+    "unidad": "E-010",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 424,
+    "unidad": "E-180",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 425,
+    "unidad": "E-396",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 426,
+    "unidad": "E-383",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 427,
+    "unidad": "E-477",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 428,
+    "unidad": "E-4454",
+    "color": "verde",
+    "destino": "pendientes",
+    "motivos": [
+      "Sin coincidencia única en Parque Vehicular"
+    ]
+  },
+  {
+    "fila": 429,
+    "unidad": "E-292",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 430,
+    "unidad": "E-118",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 431,
+    "unidad": "E-163",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 432,
+    "unidad": "E-243",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 433,
+    "unidad": "E-235",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 434,
+    "unidad": "E-380",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 435,
+    "unidad": "E-388",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 436,
+    "unidad": "E-418",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 437,
+    "unidad": "E-341",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 438,
+    "unidad": "E-371",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 439,
+    "unidad": "E-365",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 440,
+    "unidad": "E-391",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 441,
+    "unidad": "E-4459",
+    "color": "verde",
+    "destino": "pendientes",
+    "motivos": [
+      "Sin coincidencia única en Parque Vehicular"
+    ]
+  },
+  {
+    "fila": 442,
+    "unidad": "E-245",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 443,
+    "unidad": "E-253",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 444,
+    "unidad": "E-225",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 445,
+    "unidad": "E-290",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 446,
+    "unidad": "E-433",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 447,
+    "unidad": "E-393",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 448,
+    "unidad": "E-370",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 449,
+    "unidad": "E-402",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 450,
+    "unidad": "4460",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 451,
+    "unidad": "E-284",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 452,
+    "unidad": "E-230",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 453,
+    "unidad": "E-212",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 454,
+    "unidad": "E-180",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 455,
+    "unidad": "E-209",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 456,
+    "unidad": "E-220",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 457,
+    "unidad": "E-237",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 458,
+    "unidad": "E-209",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 459,
+    "unidad": "E-177",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 460,
+    "unidad": "E-008",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 461,
+    "unidad": "E-196",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 462,
+    "unidad": "E-277",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 463,
+    "unidad": "E-106",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 464,
+    "unidad": "E-296",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 465,
+    "unidad": "E-130",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 466,
+    "unidad": "E-166",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 467,
+    "unidad": "E-465",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 468,
+    "unidad": "E-356",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 469,
+    "unidad": "E-356",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 470,
+    "unidad": "E-421",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 471,
+    "unidad": "E-353",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 472,
+    "unidad": "E-461",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 473,
+    "unidad": "E-427",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 474,
+    "unidad": "E-430",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 475,
+    "unidad": "E-453",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 476,
+    "unidad": "E-301",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 477,
+    "unidad": "E-207",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 478,
+    "unidad": "E-215",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 479,
+    "unidad": "E-152",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 480,
+    "unidad": "E-212",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 481,
+    "unidad": "E-226",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 482,
+    "unidad": "E-254",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 483,
+    "unidad": "E-178",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 484,
+    "unidad": "E-229",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 485,
+    "unidad": "E-152",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 486,
+    "unidad": "E-259",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 487,
+    "unidad": "E-423",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 488,
+    "unidad": "E-470",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 489,
+    "unidad": "E-357",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 490,
+    "unidad": "E-431",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 491,
+    "unidad": "E-436",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 492,
+    "unidad": "E-301",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 493,
+    "unidad": "E-428",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 494,
+    "unidad": "E-475",
+    "color": "verde",
+    "destino": "pendientes",
+    "motivos": [
+      "Fecha de salida anterior al ingreso"
+    ]
+  },
+  {
+    "fila": 495,
+    "unidad": "E-455",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 496,
+    "unidad": "E-438",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 497,
+    "unidad": "E-239",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 498,
+    "unidad": "E-267",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 499,
+    "unidad": "E-293",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 500,
+    "unidad": "E-159",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 501,
+    "unidad": "E-222",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 502,
+    "unidad": "E-429",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 503,
+    "unidad": "E-351",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 504,
+    "unidad": "E-454",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 505,
+    "unidad": "E-007",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 506,
+    "unidad": "E-362",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 507,
+    "unidad": "E-306",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 508,
+    "unidad": "E-270",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 509,
+    "unidad": "E-277",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 510,
+    "unidad": "E-226",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 511,
+    "unidad": "E-184",
+    "color": "sin relleno de fila",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 512,
+    "unidad": "E-197",
+    "color": "sin relleno de fila",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 513,
+    "unidad": "E-220",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 514,
+    "unidad": "E-127",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 515,
+    "unidad": "E-224",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 516,
+    "unidad": "E-431",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 517,
+    "unidad": "E-356",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 518,
+    "unidad": "E-415",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 519,
+    "unidad": "E-379",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 520,
+    "unidad": "E-170",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 521,
+    "unidad": "E-199",
+    "color": "sin relleno de fila",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 522,
+    "unidad": "E-204",
+    "color": "sin relleno de fila",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 523,
+    "unidad": "E-219",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 524,
+    "unidad": "E-244",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 525,
+    "unidad": "E-259",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 526,
+    "unidad": "E-310",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 527,
+    "unidad": "E-409",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 528,
+    "unidad": "E-386",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 529,
+    "unidad": "E-332",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 530,
+    "unidad": "E-194",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 531,
+    "unidad": "E-243",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 532,
+    "unidad": "E-246",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 533,
+    "unidad": "E-111",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 534,
+    "unidad": "E-24",
+    "color": "verde",
+    "destino": "pendientes",
+    "motivos": [
+      "Sin coincidencia única en Parque Vehicular"
+    ]
+  },
+  {
+    "fila": 535,
+    "unidad": "E-435",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 536,
+    "unidad": "E-432",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 537,
+    "unidad": "E-406",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 538,
+    "unidad": "E-387",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 539,
+    "unidad": "E-223",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 540,
+    "unidad": "E-235",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 541,
+    "unidad": "E-141",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 542,
+    "unidad": "E-259",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 543,
+    "unidad": "E-248",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 544,
+    "unidad": "E-392",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 545,
+    "unidad": "E-377",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 546,
+    "unidad": "E-385",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 547,
+    "unidad": "E-104",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 548,
+    "unidad": "E-298",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 549,
+    "unidad": "E-180",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 550,
+    "unidad": "E-227",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 551,
+    "unidad": "e-290",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 552,
+    "unidad": "e-252",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 553,
+    "unidad": "e-183",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 554,
+    "unidad": "e-014",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 555,
+    "unidad": "e-391",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 556,
+    "unidad": "e-416",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 557,
+    "unidad": "e-440",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 558,
+    "unidad": "e-216",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 559,
+    "unidad": "e-301",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 560,
+    "unidad": "e-163",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 561,
+    "unidad": "e-135",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 562,
+    "unidad": "e-378",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 563,
+    "unidad": "e-367",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 564,
+    "unidad": "e-457",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 565,
+    "unidad": "e-460",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 566,
+    "unidad": "e-194",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 567,
+    "unidad": "e-266",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 568,
+    "unidad": "e-311",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 569,
+    "unidad": "e-207",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 570,
+    "unidad": "4665",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 571,
+    "unidad": "e-446",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 572,
+    "unidad": "e-422",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 573,
+    "unidad": "e-390",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 574,
+    "unidad": "e-194",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 575,
+    "unidad": "e-177",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 576,
+    "unidad": "e-223",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 577,
+    "unidad": "e-331",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 578,
+    "unidad": "e-107",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 579,
+    "unidad": "e-031",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 580,
+    "unidad": "e-032",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 581,
+    "unidad": "e-398",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 582,
+    "unidad": "e-222",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 583,
+    "unidad": "e-273",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 584,
+    "unidad": "e-116",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 585,
+    "unidad": "e-254",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 586,
+    "unidad": "e-373",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 587,
+    "unidad": "e-153",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 588,
+    "unidad": "e-107",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 589,
+    "unidad": "e-163",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 590,
+    "unidad": "e-259",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 591,
+    "unidad": "e-399",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 592,
+    "unidad": "e-411",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 593,
+    "unidad": "e-369",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 594,
+    "unidad": "e-403",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 595,
+    "unidad": "e-368",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 596,
+    "unidad": "e-235",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 597,
+    "unidad": "e-271",
+    "color": "sin relleno de fila",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 598,
+    "unidad": "4627",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 599,
+    "unidad": "e-201",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 600,
+    "unidad": "e-444",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 601,
+    "unidad": "e-436",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 602,
+    "unidad": "e-269",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 603,
+    "unidad": "e-243",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 604,
+    "unidad": "4665",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 605,
+    "unidad": "e-221",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 606,
+    "unidad": "e-166",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 607,
+    "unidad": "e-273",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 608,
+    "unidad": "e-303",
+    "color": "sin relleno de fila",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 609,
+    "unidad": "e-211",
+    "color": "sin relleno de fila",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 610,
+    "unidad": "e-130",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 611,
+    "unidad": "e-375",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 612,
+    "unidad": "e-235",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 613,
+    "unidad": "e-145",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 614,
+    "unidad": "e-159",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 615,
+    "unidad": "e-268",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 616,
+    "unidad": "e-232",
+    "color": "verde",
+    "destino": "pendientes",
+    "motivos": [
+      "Fecha de salida anterior al ingreso"
+    ]
+  },
+  {
+    "fila": 617,
+    "unidad": "e-233",
+    "color": "verde",
+    "destino": "pendientes",
+    "motivos": [
+      "Fecha de salida anterior al ingreso"
+    ]
+  },
+  {
+    "fila": 618,
+    "unidad": "4628",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 619,
+    "unidad": "e-374",
+    "color": "verde",
+    "destino": "pendientes",
+    "motivos": [
+      "Fecha de salida anterior al ingreso"
+    ]
+  },
+  {
+    "fila": 620,
+    "unidad": "e-273",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 621,
+    "unidad": "e-183",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 622,
+    "unidad": "e-178",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 623,
+    "unidad": "e-167",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 624,
+    "unidad": "e-110",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 625,
+    "unidad": "e-130",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 626,
+    "unidad": "e-020",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 627,
+    "unidad": "e-122",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 628,
+    "unidad": "e-128",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 629,
+    "unidad": "e-138",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 630,
+    "unidad": "e-163",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 631,
+    "unidad": "e-266",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 632,
+    "unidad": "e-111",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 633,
+    "unidad": "e-353",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 634,
+    "unidad": "e-358",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 635,
+    "unidad": "e-347",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 636,
+    "unidad": "e-346",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 637,
+    "unidad": "e-424",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 638,
+    "unidad": "e-370",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 639,
+    "unidad": "e-407",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 640,
+    "unidad": "e-320",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 641,
+    "unidad": "e-227",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 642,
+    "unidad": "e-409",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 643,
+    "unidad": "e-395",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 644,
+    "unidad": "e-198",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 645,
+    "unidad": "e-200",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 646,
+    "unidad": "e-145",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 647,
+    "unidad": "e-305",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 648,
+    "unidad": "e-015",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 649,
+    "unidad": "e-300",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 650,
+    "unidad": "e-187",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 651,
+    "unidad": "e-284",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 652,
+    "unidad": "e-221",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 653,
+    "unidad": "e-159",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 654,
+    "unidad": "e-145",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 655,
+    "unidad": "e-241",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 656,
+    "unidad": "e-106",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 657,
+    "unidad": "e-350",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 658,
+    "unidad": "e-480",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 659,
+    "unidad": "e-135",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 660,
+    "unidad": "e-208",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 661,
+    "unidad": "e-130",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 662,
+    "unidad": "e-160",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 663,
+    "unidad": "e-251",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 664,
+    "unidad": "e-4456",
+    "color": "verde",
+    "destino": "pendientes",
+    "motivos": [
+      "Sin coincidencia única en Parque Vehicular"
+    ]
+  },
+  {
+    "fila": 665,
+    "unidad": "e-4458",
+    "color": "verde",
+    "destino": "pendientes",
+    "motivos": [
+      "Sin coincidencia única en Parque Vehicular"
+    ]
+  },
+  {
+    "fila": 666,
+    "unidad": "e-4459",
+    "color": "verde",
+    "destino": "pendientes",
+    "motivos": [
+      "Sin coincidencia única en Parque Vehicular"
+    ]
+  },
+  {
+    "fila": 667,
+    "unidad": "e-252",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 668,
+    "unidad": "e-290",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 669,
+    "unidad": "e-130",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 670,
+    "unidad": "e-188",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 671,
+    "unidad": "4668",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 672,
+    "unidad": "e-429",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 673,
+    "unidad": "e-438",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 674,
+    "unidad": "e-469",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 675,
+    "unidad": "e-344",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 676,
+    "unidad": "e-454",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 677,
+    "unidad": "e-248",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 678,
+    "unidad": "e-189",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 679,
+    "unidad": "e-237",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 680,
+    "unidad": "e-154",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 681,
+    "unidad": "e-311",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 682,
+    "unidad": "e-198",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 683,
+    "unidad": "e-431",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 684,
+    "unidad": "e-461",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 685,
+    "unidad": "e-474",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 686,
+    "unidad": "e-434",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 687,
+    "unidad": "e-307",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 688,
+    "unidad": "e-116",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 689,
+    "unidad": "e-200",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 690,
+    "unidad": "e-188",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 691,
+    "unidad": "e-244",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 692,
+    "unidad": "4328",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 693,
+    "unidad": "e-355",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 694,
+    "unidad": "e-466",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 695,
+    "unidad": "e-481",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 696,
+    "unidad": "e-476",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 697,
+    "unidad": "e-452",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 698,
+    "unidad": "e-426",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 699,
+    "unidad": "e-296",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 700,
+    "unidad": "e-277",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 701,
+    "unidad": "e-241",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 702,
+    "unidad": "e-178",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 703,
+    "unidad": "e-294",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 704,
+    "unidad": "e-105",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 705,
+    "unidad": "e-207",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 706,
+    "unidad": "e-137",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 707,
+    "unidad": "e-471",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 708,
+    "unidad": "e-462",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 709,
+    "unidad": "e-456",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 710,
+    "unidad": "e-225",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 711,
+    "unidad": "4665",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 712,
+    "unidad": "e-340",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 713,
+    "unidad": "e-476",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 714,
+    "unidad": "e-020",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 715,
+    "unidad": "e-389",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 716,
+    "unidad": "e-406",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 717,
+    "unidad": "e-468",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 718,
+    "unidad": "e-340",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 719,
+    "unidad": "e-449",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 720,
+    "unidad": "e-105",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 721,
+    "unidad": "e-267",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 722,
+    "unidad": "e-169",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 723,
+    "unidad": "e-272",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 724,
+    "unidad": "e-114",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 725,
+    "unidad": "e-153",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 726,
+    "unidad": "e-4626",
+    "color": "verde",
+    "destino": "pendientes",
+    "motivos": [
+      "Sin coincidencia única en Parque Vehicular"
+    ]
+  },
+  {
+    "fila": 727,
+    "unidad": "e-232",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 728,
+    "unidad": "e-301",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 729,
+    "unidad": "e-287",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 730,
+    "unidad": "e-288",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 731,
+    "unidad": "e-341",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 732,
+    "unidad": "e-166",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 733,
+    "unidad": "e-396",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 734,
+    "unidad": "e-339",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 735,
+    "unidad": "e-483",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 736,
+    "unidad": "e-259",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 737,
+    "unidad": "e-268",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 738,
+    "unidad": "e-363",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 739,
+    "unidad": "e-342",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 740,
+    "unidad": "e-222",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 741,
+    "unidad": "e-244",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 742,
+    "unidad": "e-315",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 743,
+    "unidad": "e-227",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 744,
+    "unidad": "e-292",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 745,
+    "unidad": "e-132",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 746,
+    "unidad": "e-141",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 747,
+    "unidad": "e-116",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 748,
+    "unidad": "e-393",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 749,
+    "unidad": "e-448",
+    "color": "sin relleno de fila",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 750,
+    "unidad": "e-007",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 751,
+    "unidad": "e-010",
+    "color": "sin relleno de fila",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 752,
+    "unidad": "e-387",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 753,
+    "unidad": "e-191",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 754,
+    "unidad": "e-236",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 755,
+    "unidad": "e-251",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 756,
+    "unidad": "e-291",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 757,
+    "unidad": "e-4741",
+    "color": "verde",
+    "destino": "pendientes",
+    "motivos": [
+      "Sin coincidencia única en Parque Vehicular"
+    ]
+  },
+  {
+    "fila": 758,
+    "unidad": "e-374",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 759,
+    "unidad": "e-173",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 760,
+    "unidad": "e-135",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 761,
+    "unidad": "e-105",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 762,
+    "unidad": "e-388",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 763,
+    "unidad": "e-141",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 764,
+    "unidad": "e-203",
+    "color": "verde",
+    "destino": "pendientes",
+    "motivos": [
+      "Posible duplicado entre filas 764 y 768, con distinta fecha de salida"
+    ]
+  },
+  {
+    "fila": 765,
+    "unidad": "e-248",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 766,
+    "unidad": "e-128",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 767,
+    "unidad": "e-235",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 768,
+    "unidad": "e-203",
+    "color": "verde",
+    "destino": "pendientes",
+    "motivos": [
+      "Posible duplicado entre filas 764 y 768, con distinta fecha de salida"
+    ]
+  },
+  {
+    "fila": 769,
+    "unidad": "e-400",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 770,
+    "unidad": "e-464",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 771,
+    "unidad": "e-105",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 772,
+    "unidad": "e-107",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 773,
+    "unidad": "e-250",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 774,
+    "unidad": "e-188",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 775,
+    "unidad": "e-416",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 776,
+    "unidad": "e-358",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 777,
+    "unidad": "e-445",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 778,
+    "unidad": "e-464",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 779,
+    "unidad": "e-138",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 780,
+    "unidad": "e-215",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 781,
+    "unidad": "e-111",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 782,
+    "unidad": "e-220",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 783,
+    "unidad": "e-244",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 784,
+    "unidad": "e-291",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 785,
+    "unidad": "e-435",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 786,
+    "unidad": "e-486",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 787,
+    "unidad": "e-343",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 788,
+    "unidad": "e-352",
+    "color": "sin relleno de fila",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 789,
+    "unidad": "e-178",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 790,
+    "unidad": "e-405",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 791,
+    "unidad": "e-380",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 792,
+    "unidad": "e-385",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 793,
+    "unidad": "e-257",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 794,
+    "unidad": "e-291",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 795,
+    "unidad": "e-320",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 796,
+    "unidad": "e-277",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 797,
+    "unidad": "e-111",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 798,
+    "unidad": "e-178",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 799,
+    "unidad": "e-241",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 800,
+    "unidad": "e-159",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 801,
+    "unidad": "e-284",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 802,
+    "unidad": "e-124",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 803,
+    "unidad": "e-395",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 804,
+    "unidad": "e-417",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 805,
+    "unidad": "e-409",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 806,
+    "unidad": "e-025",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 807,
+    "unidad": "e-187",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 808,
+    "unidad": "e-152",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 809,
+    "unidad": "e-250",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 810,
+    "unidad": "e-276",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 811,
+    "unidad": "e-221",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 812,
+    "unidad": "e-273",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 813,
+    "unidad": "e-128",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 814,
+    "unidad": "e-269",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 815,
+    "unidad": "e-397",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 816,
+    "unidad": "e-419",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 817,
+    "unidad": "e-381",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 818,
+    "unidad": "e-250",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 819,
+    "unidad": "e-226",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 820,
+    "unidad": "e-170",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 821,
+    "unidad": "e-135",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 822,
+    "unidad": "e-259",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 823,
+    "unidad": "e-104",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 824,
+    "unidad": "e-251",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 825,
+    "unidad": "e-415",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 826,
+    "unidad": "e-414",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 827,
+    "unidad": "e-233",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 828,
+    "unidad": "e-307",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 829,
+    "unidad": "e-124",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 830,
+    "unidad": "e-125",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 831,
+    "unidad": "e-153",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 832,
+    "unidad": "e-292",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 833,
+    "unidad": "e-200",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 834,
+    "unidad": "e-260",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 835,
+    "unidad": "e-283",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 836,
+    "unidad": "e-105",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 837,
+    "unidad": "e-361",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 838,
+    "unidad": "4765",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 839,
+    "unidad": "4460",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 840,
+    "unidad": "e-327",
+    "color": "sin relleno de fila",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 841,
+    "unidad": "e-392",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 842,
+    "unidad": "e-345",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 843,
+    "unidad": "e-284",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 844,
+    "unidad": "e-235",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 845,
+    "unidad": "e-252",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 846,
+    "unidad": "e-312",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 847,
+    "unidad": "e-107",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 848,
+    "unidad": "e-244",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 849,
+    "unidad": "e-268",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 850,
+    "unidad": "e-105",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 851,
+    "unidad": "4661",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 852,
+    "unidad": "e-347",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 853,
+    "unidad": "e-160",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 854,
+    "unidad": "e-221",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 855,
+    "unidad": "e-246",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 856,
+    "unidad": "e-4165",
+    "color": "verde",
+    "destino": "pendientes",
+    "motivos": [
+      "Sin coincidencia única en Parque Vehicular"
+    ]
+  },
+  {
+    "fila": 857,
+    "unidad": "e-4159",
+    "color": "verde",
+    "destino": "pendientes",
+    "motivos": [
+      "Sin coincidencia única en Parque Vehicular"
+    ]
+  },
+  {
+    "fila": 858,
+    "unidad": "e-173",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 859,
+    "unidad": "e-116",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 860,
+    "unidad": "e-125",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 861,
+    "unidad": "e-198",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 862,
+    "unidad": "e-191",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 863,
+    "unidad": "e-379",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 864,
+    "unidad": "e-235",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 865,
+    "unidad": "e-104",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 866,
+    "unidad": "e-296",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 867,
+    "unidad": "e-307",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 868,
+    "unidad": "e-288",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 869,
+    "unidad": "e-203",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 870,
+    "unidad": "e-188",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 871,
+    "unidad": "e-253",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 872,
+    "unidad": "e-460",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 873,
+    "unidad": "e-430",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 874,
+    "unidad": "e-455",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 875,
+    "unidad": "e-432",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 876,
+    "unidad": "e-290",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 877,
+    "unidad": "e-242",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 878,
+    "unidad": "e-301",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 879,
+    "unidad": "e-267",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 880,
+    "unidad": "e-225",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 881,
+    "unidad": "e-457",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 882,
+    "unidad": "e-433",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 883,
+    "unidad": "e-350",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 884,
+    "unidad": "e-482",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 885,
+    "unidad": "e-467",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 886,
+    "unidad": "e-128",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 887,
+    "unidad": "e-242",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 888,
+    "unidad": "e-351",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 889,
+    "unidad": "e-444",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 890,
+    "unidad": "e-341",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 891,
+    "unidad": "e-456",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 892,
+    "unidad": "e-276",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 893,
+    "unidad": "e-200",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 894,
+    "unidad": "e-253",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 895,
+    "unidad": "e-235",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 896,
+    "unidad": "e-177",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 897,
+    "unidad": "e-130",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 898,
+    "unidad": "e-473",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 899,
+    "unidad": "e-425",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 900,
+    "unidad": "e-036",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 901,
+    "unidad": "e-453",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 902,
+    "unidad": "e-443",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 903,
+    "unidad": "e-315",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 904,
+    "unidad": "e-122",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 905,
+    "unidad": "e-296",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 906,
+    "unidad": "e-132",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 907,
+    "unidad": "e-239",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 908,
+    "unidad": "e-013",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 909,
+    "unidad": "E-106",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 910,
+    "unidad": "e-253",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 911,
+    "unidad": "e-467",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 912,
+    "unidad": "e-269",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 913,
+    "unidad": "4066",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 914,
+    "unidad": "e-466",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 915,
+    "unidad": "e-465",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 916,
+    "unidad": "e-450",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 917,
+    "unidad": "e-301",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 918,
+    "unidad": "e-320",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 919,
+    "unidad": "e-275",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 920,
+    "unidad": "e-314",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 921,
+    "unidad": "e-307",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 922,
+    "unidad": "e-167",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 923,
+    "unidad": "e-383",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 924,
+    "unidad": "e-173",
+    "color": "sin relleno de fila",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 925,
+    "unidad": "e-264",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 926,
+    "unidad": "e-293",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 927,
+    "unidad": "e-109",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 928,
+    "unidad": "e-121",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 929,
+    "unidad": "e-225",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 930,
+    "unidad": "e-257",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 931,
+    "unidad": "e-020",
+    "color": "sin relleno de fila",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 932,
+    "unidad": "e-398",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 933,
+    "unidad": "e-227",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 934,
+    "unidad": "e-309",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 935,
+    "unidad": "e-174",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 936,
+    "unidad": "e-245",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 937,
+    "unidad": "e-256",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 938,
+    "unidad": "e-008",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 939,
+    "unidad": "e-382",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 940,
+    "unidad": "e-373",
+    "color": "sin relleno de fila",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 941,
+    "unidad": "e-186",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 942,
+    "unidad": "e-160",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 943,
+    "unidad": "e-104",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 944,
+    "unidad": "e-457",
+    "color": "verde",
+    "destino": "pendientes",
+    "motivos": [
+      "Tipo de movimiento inválido: suspensión",
+      "Faltan datos obligatorios"
+    ]
+  },
+  {
+    "fila": 945,
+    "unidad": "e-485",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 946,
+    "unidad": "e-461",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 947,
+    "unidad": "e-339",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 948,
+    "unidad": "e-416",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 949,
+    "unidad": "e-472",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 950,
+    "unidad": "e-429",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 951,
+    "unidad": "e-332",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 952,
+    "unidad": "e-292",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 953,
+    "unidad": "e-215",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 954,
+    "unidad": "e-207",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 955,
+    "unidad": "e-177",
+    "color": "sin relleno de fila",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 956,
+    "unidad": "e-133",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 957,
+    "unidad": "e-365",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 958,
+    "unidad": "e-385",
+    "color": "sin relleno de fila",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 959,
+    "unidad": "e-447",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 960,
+    "unidad": "e-474",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 961,
+    "unidad": "e-440",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 962,
+    "unidad": "e-362",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 963,
+    "unidad": "e-433",
+    "color": "sin relleno de fila",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 964,
+    "unidad": "e-423",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 965,
+    "unidad": "e-030",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 966,
+    "unidad": "e-183",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 967,
+    "unidad": "e-263",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 968,
+    "unidad": "e-368",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 969,
+    "unidad": "e-407",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 970,
+    "unidad": "4453",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 971,
+    "unidad": "e-326",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 972,
+    "unidad": "e-166",
+    "color": "sin relleno de fila",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 973,
+    "unidad": "e-152",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 974,
+    "unidad": "e-338",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 975,
+    "unidad": "e-463",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 976,
+    "unidad": "e-349",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 977,
+    "unidad": "e-454",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 978,
+    "unidad": "e-467",
+    "color": "sin relleno de fila",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 979,
+    "unidad": "e-351",
+    "color": "sin relleno de fila",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 980,
+    "unidad": "e-118",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 981,
+    "unidad": "e-107",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 982,
+    "unidad": "e-171",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 983,
+    "unidad": "e-300",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 984,
+    "unidad": "e-294",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 985,
+    "unidad": "e-282",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 986,
+    "unidad": "e-237",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 987,
+    "unidad": "e-378",
+    "color": "sin relleno de fila",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 988,
+    "unidad": "e-321",
+    "color": "sin relleno de fila",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 989,
+    "unidad": "e-437",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 990,
+    "unidad": "e-484",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 991,
+    "unidad": "e-478",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 992,
+    "unidad": "e-105",
+    "color": "sin relleno de fila",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 993,
+    "unidad": "e-254",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 994,
+    "unidad": "e-152",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 995,
+    "unidad": "e-196",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 996,
+    "unidad": "e-104",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 997,
+    "unidad": "e-412",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 998,
+    "unidad": "e-424",
+    "color": "sin relleno de fila",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 999,
+    "unidad": "e-333",
+    "color": "sin relleno de fila",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 1000,
+    "unidad": "e-118",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 1001,
+    "unidad": "e-310",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 1002,
+    "unidad": "e-142",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 1003,
+    "unidad": "e-131",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 1004,
+    "unidad": "E-141",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 1005,
+    "unidad": "4433",
+    "color": "sin relleno de fila",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 1006,
+    "unidad": "e-114",
+    "color": "sin relleno de fila",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 1007,
+    "unidad": "e-207",
+    "color": "verde",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 1008,
+    "unidad": "e-369",
+    "color": "sin relleno de fila",
+    "destino": "ingresos",
+    "motivos": []
+  },
+  {
+    "fila": 1009,
+    "unidad": "e-462",
+    "color": "sin relleno de fila",
+    "destino": "ingresos",
+    "motivos": []
+  }
+]
