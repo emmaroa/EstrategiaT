@@ -6,6 +6,7 @@ let destinatariosEventoSeleccionados = new Set();
 let fechaVisible = new Date();
 let fechaSeleccionada = new Date();
 let eventoEditandoId = null;
+let eventoDetalleId = null;
 
 document.addEventListener("DOMContentLoaded", function () {
   if (typeof validarPermiso === "function") validarPermiso("Calendario");
@@ -20,6 +21,19 @@ document.addEventListener("DOMContentLoaded", function () {
 });
 
 function enlazarCalendario() {
+  document.getElementById("cerrarDetalleEvento").addEventListener("click", cerrarDetalleEvento);
+  document.getElementById("editarDetalleEvento").addEventListener("click", function () {
+    const evento = eventosCalendario.find(e => e.id === eventoDetalleId);
+    if (!puedeEditarEvento(evento)) return;
+    cerrarDetalleEvento();
+    abrirEvento(evento);
+  });
+  document.getElementById("modalDetalleEvento").addEventListener("click", function (e) { if (e.target.id === "modalDetalleEvento") cerrarDetalleEvento(); });
+  document.addEventListener("keydown", function (e) {
+    if (e.key !== "Escape") return;
+    if (document.getElementById("modalDetalleEvento").classList.contains("show")) cerrarDetalleEvento();
+    else if (document.getElementById("modalEvento").classList.contains("show")) cerrarEvento();
+  });
   document.getElementById("mesAnterior")?.addEventListener("click", function () { fechaVisible.setMonth(fechaVisible.getMonth() - 1); renderizarCalendario(); });
   document.getElementById("mesSiguiente")?.addEventListener("click", function () { fechaVisible.setMonth(fechaVisible.getMonth() + 1); renderizarCalendario(); });
   document.getElementById("hoyCalendario")?.addEventListener("click", function () { fechaVisible = new Date(); fechaSeleccionada = new Date(); renderizarCalendario(); });
@@ -117,7 +131,7 @@ function renderizarCalendario() {
       boton.textContent = horaActividad(item) + item.titulo;
       boton.title = item.titulo;
       if(item.tipo!=="Ticket"){boton.style.backgroundColor=(item.color||"#07b1bc")+"22";boton.style.borderLeft="4px solid "+(item.color||"#07b1bc")}
-      boton.addEventListener("click", function (e) { e.stopPropagation(); fechaSeleccionada=fechaLocal(claveActividad(item));renderizarCalendario(); });
+      boton.addEventListener("click", function (e) { e.stopPropagation(); fechaSeleccionada=fechaLocal(claveActividad(item));renderizarCalendario();abrirActividad(item); });
       dia.appendChild(boton);
     });
     grid.appendChild(dia);
@@ -141,7 +155,14 @@ function renderizarAgenda(actividades) {
     if(item.tipo!=="Ticket")tarjeta.style.borderLeftColor=item.color||"#07b1bc";
     const horario=item.tipo==="Ticket"?"Fecha límite del ticket":formatearRangoEvento(item.inicio,item.fin);
     tarjeta.innerHTML = "<strong>" + escapar(item.titulo) + "</strong><small>" + escapar(item.tipo + " · " + horario) + "</small>" + (item.ubicacion ? '<p class="agenda-detalle"><b>Ubicación:</b> '+escapar(item.ubicacion)+"</p>" : "") + (item.descripcion?'<p class="agenda-detalle">'+escapar(item.descripcion)+"</p>":'<p class="agenda-detalle agenda-sin-detalle">Sin descripción.</p>') + '<div class="agenda-acciones"></div>';
-    const acciones=tarjeta.querySelector(".agenda-acciones");if(item.tipo==="Ticket"){const abrir=document.createElement("button");abrir.className="btn-secondary";abrir.textContent="Abrir ticket";abrir.addEventListener("click",()=>abrirActividad(item));acciones.appendChild(abrir)}else if(item.editable){const editar=document.createElement("button");editar.className="btn-secondary";editar.textContent="Editar evento";editar.addEventListener("click",()=>abrirEvento(item.original));acciones.appendChild(editar)}
+    const acciones = tarjeta.querySelector(".agenda-acciones");
+    const abrir = document.createElement("button");
+    abrir.type = "button";
+    abrir.className = "btn-secondary";
+    abrir.textContent = item.tipo === "Ticket" ? "Abrir ticket" : "Ver detalle";
+    abrir.addEventListener("click", function (e) { e.stopPropagation(); abrirActividad(item); });
+    acciones.appendChild(abrir);
+    tarjeta.addEventListener("click", function () { abrirActividad(item); });
     lista.appendChild(tarjeta);
   });
 }
@@ -156,10 +177,41 @@ function formatearRangoEvento(inicio,fin){const a=new Date(inicio),b=new Date(fi
 
 function abrirActividad(item) {
   if (item.tipo === "Ticket") { location.href = "acuerdos.html?buscar=" + encodeURIComponent(item.original.folio || item.original.titulo); return; }
-  abrirEvento(item.original);
+  abrirDetalleEvento(item.original);
+}
+
+function puedeEditarEvento(evento) {
+  const usuario = usuarioCalendario();
+  return Boolean(usuario?.id && evento?.creado_por === usuario.id && !(typeof esSoloLectura === "function" && esSoloLectura()));
+}
+
+function abrirDetalleEvento(evento) {
+  if (!evento) return;
+  eventoDetalleId = evento.id;
+  document.getElementById("tituloDetalleEvento").textContent = evento.titulo;
+  document.getElementById("tipoDetalleEvento").textContent = evento.tipo;
+  document.getElementById("descripcionDetalleEvento").textContent = evento.descripcion || "Sin descripción.";
+  const formato = { dateStyle: "long", timeStyle: "short" };
+  document.getElementById("fechaDetalleEvento").textContent = new Date(evento.fecha_inicio).toLocaleString("es-MX", formato) + " — " + new Date(evento.fecha_fin).toLocaleString("es-MX", formato);
+  document.getElementById("ubicacionDetalleEvento").textContent = evento.ubicacion || "Sin ubicación.";
+  document.getElementById("creadorDetalleEvento").textContent = evento.creado_por_nombre || "Sin información del creador.";
+  document.getElementById("editarDetalleEvento").hidden = !puedeEditarEvento(evento);
+  const modal = document.getElementById("modalDetalleEvento");
+  modal.style.setProperty("--evento-color", /^#[0-9a-f]{6}$/i.test(evento.color || "") ? evento.color : "#07b1bc");
+  modal.classList.add("show");
+  modal.setAttribute("aria-hidden", "false");
+  document.getElementById("cerrarDetalleEvento").focus();
+}
+
+function cerrarDetalleEvento() {
+  eventoDetalleId = null;
+  const modal = document.getElementById("modalDetalleEvento");
+  modal.classList.remove("show");
+  modal.setAttribute("aria-hidden", "true");
 }
 
 function abrirEvento(evento) {
+  if (!usuarioCalendario()?.id || (evento && !puedeEditarEvento(evento))) return;
   if (typeof esSoloLectura === "function" && esSoloLectura()) return;
   eventoEditandoId = evento?.id || null;
   const base = claveFecha(fechaSeleccionada);
@@ -183,6 +235,8 @@ function cerrarEvento() { eventoEditandoId=null; document.getElementById("modalE
 
 async function guardarEvento() {
   const usuario = usuarioCalendario();
+  if (!usuario?.id || (typeof esSoloLectura === "function" && esSoloLectura())) return;
+  if (eventoEditandoId && !puedeEditarEvento(eventosCalendario.find(e => e.id === eventoEditandoId))) return;
   const datos = { titulo:document.getElementById("eventoTitulo").value.trim(), tipo:document.getElementById("eventoTipo").value, alcance:document.getElementById("eventoAlcance").value, destinatarios:document.getElementById("eventoAlcance").value==="Seleccionados"?destinatariosSeleccionados():[], color:document.getElementById("eventoColor").value, fecha_inicio:document.getElementById("eventoInicio").value, fecha_fin:document.getElementById("eventoFin").value, ubicacion:document.getElementById("eventoUbicacion").value.trim() || null, descripcion:document.getElementById("eventoDescripcion").value.trim() || null, actualizado_en:new Date().toISOString() };
   if (!datos.titulo || !datos.fecha_inicio || !datos.fecha_fin) { alert("Completa el título, inicio y fin."); return; }
   if (datos.alcance==="Seleccionados"&&!datos.destinatarios.length) { alert("Selecciona al menos un usuario para compartir el evento."); return; }
@@ -195,6 +249,7 @@ async function guardarEvento() {
 }
 
 async function eliminarEvento() {
+  if (!puedeEditarEvento(eventosCalendario.find(e => e.id === eventoEditandoId))) return;
   if (!eventoEditandoId || !confirm("¿Eliminar este evento del calendario?")) return;
   const resultado = await calendarioDb.from("eventos_calendario").delete().eq("id",eventoEditandoId).eq("creado_por",usuarioCalendario().id);
   if (resultado.error) { alert("No se pudo eliminar el evento."); return; }

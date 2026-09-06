@@ -23,4 +23,52 @@ assert.match(service, /evento\.destinatarios/);assert.match(service, /destinatar
 assert.match(service, /\.neq\("rol","Proveedor"\)/);assert.match(service, /normalizar\(u\.rol\)!=="proveedor"/);assert.match(service, /destinatariosEventoSeleccionados/);
 assert.match(audienceMigration, /destinatarios UUID\[\]/);assert.match(audienceMigration, /'Seleccionados'/);
 assert.match(html, /id="eventoColor" type="color"/);assert.match(service, /evento\.creado_por===usuarioCalendario\(\)\?\.id/);assert.match(service, /Editar evento/);assert.match(service, /formatearRangoEvento/);assert.match(colorMigration, /ADD COLUMN IF NOT EXISTS color/);
-console.log("Calendario: eventos internos, reuniones y fechas límite de tickets verificados.");
+const vm = require("vm");
+let usuarioPrueba = { id: "creador" };
+let soloLectura = false;
+const elementos = new Map();
+function elemento(id) {
+  if (!elementos.has(id)) elementos.set(id, {
+    value: "", textContent: "", hidden: false,
+    classList: { add() {}, remove() {} }, style: { setProperty() {} },
+    setAttribute() {}, focus() {}
+  });
+  return elementos.get(id);
+}
+let escrituras = 0;
+const contexto = vm.createContext({
+  window: { supabaseClient: { from() { escrituras++; throw new Error("Escritura no autorizada"); } } },
+  document: { addEventListener() {}, getElementById: elemento },
+  localStorage: { getItem() { return JSON.stringify(usuarioPrueba); } },
+  esSoloLectura: () => soloLectura,
+  confirm: () => true
+});
+vm.runInContext(service, contexto);
+const eventoPrueba = { id: "evento", creado_por: "creador", titulo: "Reunión", descripcion: "Primera línea\n<contenido>", fecha_inicio: "2026-09-05T09:00:00Z", fecha_fin: "2026-09-05T10:00:00Z", color: "#ff8800" };
+assert.strictEqual(contexto.puedeEditarEvento(eventoPrueba), true);
+contexto.abrirDetalleEvento(eventoPrueba);
+assert.strictEqual(elemento("descripcionDetalleEvento").textContent, eventoPrueba.descripcion);
+assert.strictEqual(elemento("editarDetalleEvento").hidden, false);
+usuarioPrueba = { id: "invitado", rol: "SuperAdmin" };
+assert.strictEqual(contexto.puedeEditarEvento(eventoPrueba), false);
+contexto.abrirDetalleEvento(eventoPrueba);
+assert.strictEqual(elemento("editarDetalleEvento").hidden, true);
+contexto.abrirEvento(eventoPrueba);
+assert.strictEqual(vm.runInContext("eventoEditandoId", contexto), null);
+contexto.eventoPrueba = eventoPrueba;
+vm.runInContext('eventosCalendario = [eventoPrueba]; eventoEditandoId = "evento";', contexto);
+async function verificarProtecciones() {
+  await contexto.guardarEvento();
+  await contexto.eliminarEvento();
+  assert.strictEqual(escrituras, 0);
+  usuarioPrueba = { id: "creador" };
+  soloLectura = true;
+  assert.strictEqual(contexto.puedeEditarEvento(eventoPrueba), false);
+  await contexto.guardarEvento();
+  await contexto.eliminarEvento();
+  assert.strictEqual(escrituras, 0);
+  usuarioPrueba = null;
+  assert.strictEqual(contexto.puedeEditarEvento({}), false);
+  console.log("Calendario: detalle, color y restricciones de edición verificados.");
+}
+verificarProtecciones().catch(error => { console.error(error); process.exitCode = 1; });

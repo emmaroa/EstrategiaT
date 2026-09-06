@@ -30,6 +30,17 @@
 #eventoColor { width:100%; min-height:44px; padding:4px; cursor:pointer; }
 .agenda-vacia { color:var(--muted-text,#6b7280); text-align:center; padding:25px 8px; }
 #modalEvento { display:none; } #modalEvento.show { display:flex; }
+#modalDetalleEvento { display:none; }
+#modalDetalleEvento.show { display:flex; }
+#editarDetalleEvento[hidden] { display:none; }
+.detalle-evento-card { border-top:6px solid var(--evento-color,#07b1bc); }
+#tituloDetalleEvento { overflow-wrap:anywhere; }
+.detalle-evento-descripcion { padding:20px; border-radius:12px; background:color-mix(in srgb,var(--evento-color,#07b1bc) 9%,var(--card-bg,#fff)); }
+.detalle-evento-descripcion h3 { margin:0 0 12px; }
+#descripcionDetalleEvento { margin:0; white-space:pre-wrap; overflow-wrap:anywhere; font-size:17px; line-height:1.7; }
+.detalle-evento-datos { margin:20px 0; }
+.detalle-evento-datos dt { margin-top:14px; font-weight:700; color:var(--muted-text,#6b7280); font-size:13px; }
+.detalle-evento-datos dd { margin:5px 0 0; white-space:pre-wrap; overflow-wrap:anywhere; }
 #eliminarEvento { margin-right:auto; color:#dc2626; } #eliminarEvento[hidden] { display:none; }
 #grupoDestinatariosEvento[hidden] { display:none !important; }
 .destinatarios-resultados { max-height:230px; overflow:auto; border:1px solid var(--border-color,#e5e7eb); border-radius:10px; padding:6px; display:grid; gap:4px; }
