@@ -1,0 +1,10 @@
+const fs=require('fs'),vm=require('vm'),assert=require('assert'),path=require('path');
+const ctx=vm.createContext({});
+vm.runInContext(fs.readFileSync(path.join(__dirname,'../js/services/control-taller-reporte.js'),'utf8'),ctx);
+const filtros={desde:'2026-09-01',hasta:'2026-09-06',proveedor:'JAC',dependencia:'Seguridad'};
+const base={vehiculo_id:'a',taller_nombre:'JAC',dependencia:'Seguridad',fecha_ingreso:'2026-08-01',estatus:'En curso'};
+const datos=ctx.datosReporteTaller([{id:'a',dependencia:'Seguridad'}],[base,{...base,vehiculo_id:'fuera'},{...base,taller_nombre:'OTRO'},{...base,estatus:'Terminado',fecha_salida:'2026-09-03'},{...base,estatus:'Terminado',fecha_salida:null},{...base,estatus:'Terminado',fecha_ingreso:'2026-09-05',fecha_salida:'2026-09-03'}],[{taller_nombre:'JAC',dependencia:'Seguridad'}],filtros);
+assert.equal(datos.abiertos.length,1);assert.equal(datos.concluidos.length,1);
+assert.equal(datos.asignadas,1);assert.equal(datos.sinFechaSalida,1);
+assert.equal(datos.dependencias[0].total,1);assert.equal(datos.pendientes.length,1);
+console.log('Reporte de taller: filtros, áreas, corte actual y fechas verificados.');
