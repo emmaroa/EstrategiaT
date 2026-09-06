@@ -1,6 +1,3 @@
 .pendientes-panel { margin-top: 18px; border: 1px solid #fecaca; }
-.fila-pendiente { background: #fef2f2 !important; }
-.fila-pendiente td { color: #991b1b; }
-.fila-pendiente:hover { background: #fee2e2 !important; }
 .pendientes-contador { background: #dc2626; color: #fff; border-radius: 999px; padding: 5px 10px; font-size: .82rem; font-weight: 800; white-space: nowrap; }
 .motivo-pendiente { font-weight: 700; min-width: 220px; }

@@ -6,3 +6,13 @@
 .detalle-unidad-taller dt{font-size:12px;color:var(--muted-text,#6b7280)}
 .detalle-unidad-taller dd{margin:3px 0 0;font-weight:600;overflow-wrap:anywhere}
 @media(max-width:500px){.detalle-unidad-taller dl{grid-template-columns:1fr}}
+.taller-fila-curso,.taller-estado-curso{--taller-estado-color:#c2410c}
+.taller-fila-terminado,.taller-estado-terminado{--taller-estado-color:#15803d}
+.taller-fila-baja,.taller-estado-baja{--taller-estado-color:#b91c1c}
+.taller-fila-espera,.taller-estado-espera{--taller-estado-color:#1d4ed8}
+.taller-fila-sin-estado,.taller-estado-sin-estado{--taller-estado-color:#475569}
+#tablaTaller tr[class*="taller-fila-"]>td,#tablaPendientesTaller tr[class*="taller-fila-"]>td{background:color-mix(in srgb,var(--taller-estado-color) 10%,var(--card-bg,#fff))}
+#tablaTaller tr[class*="taller-fila-"]:hover>td,#tablaPendientesTaller tr[class*="taller-fila-"]:hover>td{background:color-mix(in srgb,var(--taller-estado-color) 18%,var(--card-bg,#fff))}
+#tablaTaller tr[class*="taller-fila-"]>td:first-child,#tablaPendientesTaller tr[class*="taller-fila-"]>td:first-child{border-left:4px solid var(--taller-estado-color)}
+.taller-estado{display:inline-block;background:var(--taller-estado-color);color:#fff;border-radius:999px;padding:4px 10px;font-size:12px;font-weight:700;white-space:nowrap}
+.motivo-pendiente .taller-estado{margin-bottom:6px}
