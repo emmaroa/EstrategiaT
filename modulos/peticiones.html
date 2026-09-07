@@ -2411,12 +2411,12 @@
     }
 
     function exportarGestionCotizaciones() {
-      const encabezados = ["Folio", "Proveedor", "Fecha", "Unidad", "Dependencia", "Materiales", "Total", "Partida", "Requisición", "Estatus"];
+      const encabezados = ["Folio", "Proveedor", "Fecha", "Unidad", "Dependencia", "Materiales", "Total", "Partida", "Requisición", "Estatus", "Notas"];
       const filas = obtenerCotizacionesGestionFiltradas().map(function (cotizacion) {
         return [cotizacion.folio, cotizacion.proveedor, cotizacion.fecha_cotizacion, cotizacion.unidad,
           cotizacion.dependencia, textoMaterialesCotizacion(cotizacion, true),
           Number(cotizacion.total || 0), cotizacion.partida,
-          cotizacion.requisicion, cotizacion.estatus];
+          cotizacion.requisicion, cotizacion.estatus, cotizacion.observaciones || ""];
       });
       const proteger = function (valor) {
         let texto = String(valor ?? "").replace(/\r?\n/g, " ").trim();
