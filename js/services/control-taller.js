@@ -126,25 +126,29 @@ function actualizarDetalleUnidadTaller() {
   const contenedor = document.getElementById("detalleUnidadTaller");
   if (!contenedor) return;
   const valor = document.getElementById("unidadTaller").value.trim();
+  const dependencia = document.getElementById("dependenciaUnidadTaller");
+  dependencia.textContent = "Escribe el número de la unidad";
   contenedor.hidden = !valor;
   contenedor.innerHTML = "";
   if (!valor) return;
   const unidad = buscarUnidadEscrita(valor);
+  dependencia.textContent = unidad ? (unidad.dependencia || "Sin dependencia") : "Unidad no identificada";
   if (!unidad) {
-    contenedor.textContent = "No se identifica una unidad ?nica con ese n?mero. Completa o revisa el n?mero econ?mico.";
+    contenedor.textContent = "No se identifica una unidad única con ese número. Completa o revisa el número económico o de patrulla.";
     return;
   }
   const datos = [
-    ["N?mero econ?mico", unidad.numero_economico],
-    ["Descripci?n", unidad.descripcion || unidad.unidad_patrulla],
+    ["Número económico", unidad.numero_economico || unidad.numero_inventario],
+    ["Número de patrulla", unidad.unidad_patrulla],
+    ["Descripción", unidad.descripcion || unidad.unidad_patrulla],
     ["Marca", unidad.marca],
     ["Modelo", unidad.modelo],
     ["Dependencia", unidad.dependencia],
-    ["?rea", areaDeUnidad(unidad)],
+    ["Área", areaDeUnidad(unidad)],
     ["Combustible", unidad.combustible],
     ["Disponibilidad", unidad.disponibilidad]
   ];
   contenedor.innerHTML = '<h3>Datos de la unidad</h3><dl>' + datos.map(([etiqueta, dato]) =>
-    '<div><dt>' + escTaller(etiqueta) + '</dt><dd>' + escTaller(dato || "Sin informaci?n") + '</dd></div>'
+    '<div><dt>' + escTaller(etiqueta) + '</dt><dd>' + escTaller(dato || "Sin información") + '</dd></div>'
   ).join("") + '</dl>';
 }

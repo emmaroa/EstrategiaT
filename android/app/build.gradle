@@ -7,8 +7,8 @@ android {
         applicationId "mx.gob.sonora.estrategiat"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
-        versionCode 20038
-        versionName "2.0.38"
+        versionCode 20040
+        versionName "2.0.40"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         aaptOptions {
              // Files and dirs to omit from the packaged assets dir, modified to accommodate modern web apps.

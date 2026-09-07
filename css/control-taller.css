@@ -1,11 +1,11 @@
 .reporte-director{margin-top:18px}.reporte-grid{display:grid;grid-template-columns:1.35fr .65fr;gap:18px}.reporte-grid h3{margin:0 0 10px}.estado-alerta{color:#dc2626;font-weight:800}.estado-ok{color:#16a34a;font-weight:800}.acciones-taller{display:flex;gap:6px;white-space:nowrap}.modal#modalIngreso{display:none}.modal#modalIngreso.show{display:flex}.panel-header>div:last-child{display:flex;gap:8px;flex-wrap:wrap}.monto{white-space:nowrap}@media(max-width:1000px){.reporte-grid{grid-template-columns:1fr}}@media(max-width:700px){.topbar .et-header-actions{flex-wrap:wrap}.reporte-director .panel-header{align-items:flex-start}}
-.detalle-unidad-taller{margin-top:10px;padding:14px;border:1px solid var(--border-color,#e5e7eb);border-radius:10px;background:var(--card-bg,#fff);color:var(--text-color,#173042)}
+.detalle-unidad-taller{margin-top:0;padding:10px;gap:0;border:1px solid var(--border-color,#e5e7eb);border-radius:10px;background:var(--card-bg,#fff);color:var(--text-color,#173042)}
 .detalle-unidad-taller[hidden]{display:none}
-.detalle-unidad-taller h3{margin:0 0 12px;font-size:15px}
-.detalle-unidad-taller dl{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin:0}
-.detalle-unidad-taller dt{font-size:12px;color:var(--muted-text,#6b7280)}
-.detalle-unidad-taller dd{margin:3px 0 0;font-weight:600;overflow-wrap:anywhere}
-@media(max-width:500px){.detalle-unidad-taller dl{grid-template-columns:1fr}}
+.detalle-unidad-taller h3{margin:0 0 6px;font-size:13px}
+.detalle-unidad-taller dl{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px 12px;margin:0;line-height:1.3}
+.detalle-unidad-taller dt{font-size:11px;color:var(--muted-text,#6b7280)}
+.detalle-unidad-taller dd{margin:1px 0 0;font-size:12px;font-weight:600;overflow-wrap:anywhere}
+@media(max-width:500px){.detalle-unidad-taller dl{grid-template-columns:repeat(2,minmax(0,1fr))}}
 .taller-fila-curso,.taller-estado-curso{--taller-estado-color:#c2410c}
 .taller-fila-terminado,.taller-estado-terminado{--taller-estado-color:#15803d}
 .taller-fila-baja,.taller-estado-baja{--taller-estado-color:#b91c1c}
@@ -32,3 +32,5 @@
 .dependencia-grafica-titulo strong{font-size:13px}
 .dependencia-grafica-titulo b{font-size:16px;color:var(--text-color,#173042)}
 .dependencias-grafica h3{margin:0}
+
+.dependencia-unidad-taller{display:block;min-height:44px;padding:12px;border:1px solid var(--border-color,#e5e7eb);border-radius:8px;background:var(--card-bg,#fff);color:var(--text-color,#173042);font-weight:600;overflow-wrap:anywhere}
