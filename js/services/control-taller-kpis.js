@@ -8,8 +8,9 @@ function calcularIndicadoresTaller(unidades, ingresos, pendientes, hoy = new Dat
   const corteTexto = [hoy.getFullYear(), String(hoy.getMonth()+1).padStart(2,'0'), String(hoy.getDate()).padStart(2,'0')].join('-');
   const corte = fecha(corteTexto), mes = corteTexto.slice(0,7);
   const ids = new Set(unidades.map(u=>u.id));
+  const vigentes = new Set(unidades.filter(u=>String(u.estatus||" ").trim().toUpperCase()!=="BAJA").map(u=>u.id));
   const registros = ingresos.filter(i=>ids.has(i.vehiculo_id));
-  const abiertos = registros.filter(i=>i.estatus !== 'Terminado');
+  const abiertos = registros.filter(i=>i.estatus !== 'Terminado' && vigentes.has(i.vehiculo_id));
   const ocupadas = new Set(abiertos.map(i=>i.vehiculo_id));
   const rangos = [0,0,0,0];
   let sinFecha = 0;
@@ -42,7 +43,7 @@ function calcularIndicadoresTaller(unidades, ingresos, pendientes, hoy = new Dat
     // Mismo día no permite distinguir una nueva visita de trabajos simultáneos.
     if(validos.some(p=>p.vehiculo_id===i.vehiculo_id&&fecha(p.fecha_ingreso)<inicio&&fecha(p.fecha_salida)<inicio&&inicio-fecha(p.fecha_salida)<30*86400000)) reingresos.add(i.vehiculo_id);
   });
-  return {total:ids.size,disponibles:ids.size-ocupadas.size,ingresosMes:ingresosMes.length,
+  return {total:vigentes.size,disponibles:vigentes.size-ocupadas.size,ingresosMes:ingresosMes.length,
     salidasMes:validos.filter(i=>i.fecha_salida.startsWith(mes)).length,rangos,sinFecha,proveedores,
     omitidos:registros.filter(i=>i.estatus==='Terminado').length-validos.length,
     reingresos:reingresos.size,pendientes:pendientes.length};

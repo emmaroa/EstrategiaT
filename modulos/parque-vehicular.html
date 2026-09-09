@@ -140,6 +140,7 @@
 
         </select>
 
+        <select id="filtroVigencia" aria-label="Filtrar vigencia"><option value="vigentes">Unidades vigentes</option><option value="bajas">Bajas</option><option value="todas">Todas, incluidas bajas</option></select>
         <select id="filtroCombustible" aria-label="Filtrar por combustible">
 
           <option value="">
@@ -643,7 +644,7 @@
       }
 
       parque = data || [];
-      totalParque = count ?? 0;
+      totalParque = parque.filter(u => String(u.estatus || "").trim().toUpperCase() !== "BAJA").length;
 
       renderizarTabla();
     }
@@ -663,7 +664,10 @@
           (u.marca || "").toLowerCase().includes(texto);
         const coincideDep = !dependencia || u.dependencia === dependencia;
         const coincideComb = !combustible || u.combustible === combustible;
-        return coincideTexto && coincideDep && coincideComb;
+        const vigencia = document.getElementById("filtroVigencia").value;
+        const baja = String(u.estatus || "").trim().toUpperCase() === "BAJA";
+        const coincideVigencia = vigencia === "todas" || (vigencia === "bajas" ? baja : !baja);
+        return coincideTexto && coincideDep && coincideComb && coincideVigencia;
       });
 
       tablaParque.innerHTML = "";
@@ -706,6 +710,7 @@
 
     function actualizarCounts() {
       counts = parque.reduce(function (acumulado, u) {
+        if (String(u.estatus || "").trim().toUpperCase() === "BAJA") return acumulado;
         const combustible = String(u.combustible || "").trim().toUpperCase();
         const descripcion = String(u.descripcion || "").trim().toLowerCase();
         const esColector = descripcion.includes("colector") || combustible === "COLECTOR";
@@ -890,6 +895,7 @@
     buscarUnidad?.addEventListener("input", renderizarTabla);
     filtroDependencia?.addEventListener("change", renderizarTabla);
     filtroCombustible?.addEventListener("change", renderizarTabla);
+    document.getElementById("filtroVigencia").addEventListener("change", renderizarTabla);
 
     cargarParqueVehicular();
 

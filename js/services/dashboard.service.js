@@ -150,7 +150,7 @@
       .slice(0, 5);
 
     return {
-      unidades: parque.length,
+      unidades: parque.filter(function (u) { return normalizarTextoDashboard(u.estatus) !== "baja"; }).length,
       unidadesActivas: parque.filter(function (u) { return u.estatus === "ACTIVO"; }).length,
       unidadesTaller: parque.filter(function (u) { return u.estatus === "TALLER"; }).length,
       peticionesPendientes: peticiones.filter(function (p) { return p.estatus === "Pendiente"; }).length,

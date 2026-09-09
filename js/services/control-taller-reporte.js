@@ -19,9 +19,10 @@ function datosReporteTaller(unidades,ingresos,pendientes,filtros){
   const registros=ingresos.filter(i=>ids.has(i.vehiculo_id)&&coincide(i));
   const valida=f=>/^\d{4}-\d{2}-\d{2}$/.test(f||'')&&Number.isFinite(Date.parse(f))&&new Date(f).toISOString().slice(0,10)===f;
   const enPeriodo=f=>valida(f)&&f>=filtros.desde&&f<=filtros.hasta;
-  const abiertos=registros.filter(i=>i.estatus!=='Terminado');
+  const vigentes=new Set(unidades.filter(u=>String(u.estatus||'').trim().toUpperCase()!=='BAJA').map(u=>u.id));
+  const abiertos=registros.filter(i=>i.estatus!=='Terminado'&&vigentes.has(i.vehiculo_id));
   const concluidos=registros.filter(i=>i.estatus==='Terminado'&&enPeriodo(i.fecha_salida)&&valida(i.fecha_ingreso)&&i.fecha_salida>=i.fecha_ingreso);
-  const asignadas=unidades.filter(u=>!filtros.dependencia||u.dependencia===filtros.dependencia);
+  const asignadas=unidades.filter(u=>vigentes.has(u.id)&&(!filtros.dependencia||u.dependencia===filtros.dependencia));
   const grupos=new Map();
   abiertos.forEach(i=>{const d=i.dependencia||'Sin dependencia';if(!grupos.has(d))grupos.set(d,new Set());grupos.get(d).add(i.vehiculo_id);});
   return {asignadas:asignadas.length,abiertos,concluidos,entradas:registros.filter(i=>enPeriodo(i.fecha_ingreso)).length,
