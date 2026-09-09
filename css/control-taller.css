@@ -6,15 +6,15 @@
 .detalle-unidad-taller dt{font-size:11px;color:var(--muted-text,#6b7280)}
 .detalle-unidad-taller dd{margin:1px 0 0;font-size:12px;font-weight:600;overflow-wrap:anywhere}
 @media(max-width:500px){.detalle-unidad-taller dl{grid-template-columns:repeat(2,minmax(0,1fr))}}
-.taller-fila-curso,.taller-estado-curso{--taller-estado-color:#c2410c}
-.taller-fila-terminado,.taller-estado-terminado{--taller-estado-color:#15803d}
-.taller-fila-baja,.taller-estado-baja{--taller-estado-color:#b91c1c}
-.taller-fila-espera,.taller-estado-espera{--taller-estado-color:#1d4ed8}
-.taller-fila-sin-estado,.taller-estado-sin-estado{--taller-estado-color:#475569}
-#tablaTaller tr[class*="taller-fila-"]>td,#tablaPendientesTaller tr[class*="taller-fila-"]>td{background:color-mix(in srgb,var(--taller-estado-color) 10%,var(--card-bg,#fff))}
-#tablaTaller tr[class*="taller-fila-"]:hover>td,#tablaPendientesTaller tr[class*="taller-fila-"]:hover>td{background:color-mix(in srgb,var(--taller-estado-color) 18%,var(--card-bg,#fff))}
+.taller-fila-curso,.taller-estado-curso{--taller-estado-color:#f97316;--taller-estado-texto:#111827}
+.taller-fila-terminado,.taller-estado-terminado{--taller-estado-color:#15803d;--taller-estado-texto:#fff}
+.taller-fila-baja,.taller-estado-baja{--taller-estado-color:#dc2626;--taller-estado-texto:#fff}
+.taller-fila-espera,.taller-estado-espera{--taller-estado-color:#facc15;--taller-estado-texto:#422006}
+.taller-fila-sin-estado,.taller-estado-sin-estado{--taller-estado-color:#475569;--taller-estado-texto:#fff}
+#tablaTaller tr[class*="taller-fila-"]>td,#tablaPendientesTaller tr[class*="taller-fila-"]>td{background:color-mix(in srgb,var(--taller-estado-color) 14%,var(--taller-fondo-tabla,#111827))}
+#tablaTaller tr[class*="taller-fila-"]:hover>td,#tablaPendientesTaller tr[class*="taller-fila-"]:hover>td{background:color-mix(in srgb,var(--taller-estado-color) 24%,var(--taller-fondo-tabla,#111827))}
 #tablaTaller tr[class*="taller-fila-"]>td:first-child,#tablaPendientesTaller tr[class*="taller-fila-"]>td:first-child{border-left:4px solid var(--taller-estado-color)}
-.taller-estado{display:inline-block;background:var(--taller-estado-color);color:#fff;border-radius:999px;padding:4px 10px;font-size:12px;font-weight:700;white-space:nowrap}
+.taller-estado{display:inline-block;background:var(--taller-estado-color);color:var(--taller-estado-texto,#fff);border-radius:999px;padding:4px 10px;font-size:12px;font-weight:700;white-space:nowrap}
 .motivo-pendiente .taller-estado{margin-bottom:6px}
 .dependencias-grafica{margin:16px 0 24px;max-width:720px;padding:16px;border:1px solid var(--border-color,#e5e7eb);border-radius:12px}
 .dependencias-grafica>p{color:var(--muted-text,#6b7280);font-size:13px;line-height:1.5}
@@ -44,3 +44,5 @@
 #errorSalidaTaller{color:var(--color-danger,#dc2626);font-size:13px}
 
 .dependencia-unidad-taller{display:block;min-height:44px;padding:12px;border:1px solid var(--border-color,#e5e7eb);border-radius:8px;background:var(--card-bg,#fff);color:var(--text-color,#173042);font-weight:600;overflow-wrap:anywhere}
+
+[data-theme="light"] #tablaTaller,[data-theme="light"] #tablaPendientesTaller{--taller-fondo-tabla:#fff}

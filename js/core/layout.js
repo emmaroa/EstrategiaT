@@ -1302,7 +1302,7 @@
   function prepararEstadosFila(fila, encabezados) {
     Array.from(fila.children).forEach(function (celda, indice) {
       if (celda.tagName !== "TD" || !/^(estado|estatus)$/i.test(encabezados[indice] || "")) return;
-      if (celda.querySelector(".badge, .status-badge, .et-status-chip, button, select, input")) return;
+      if (celda.querySelector(".badge, .status-badge, .et-status-chip, .taller-estado, button, select, input")) return;
       const texto = celda.textContent.trim();
       if (!texto || texto === "—" || texto === "-") return;
       celda.textContent = "";

@@ -22,3 +22,20 @@ if (failed.length) {
 }
 
 console.log("Tablas: densidad, estados visuales y preferencias verificados.");
+
+// El procesamiento general debe conservar las etiquetas propias del taller.
+const vm = require("vm"), assert = require("assert");
+const inicio = layout.indexOf("  function prepararEstadosFila(");
+const fin = layout.indexOf("  function prepararTabla(", inicio);
+const contexto = vm.createContext({document:{createElement(){throw new Error("No debe reemplazar la etiqueta del taller");}}});
+vm.runInContext(layout.slice(inicio, fin), contexto);
+for (const estado of ["En curso", "En espera", "Terminado", "Posible baja"]) {
+  const celda = {
+    tagName:"TD", textContent:estado,
+    querySelector(selector){return selector.split(/,\s*/).includes(".taller-estado") ? {} : null;}
+  };
+  contexto.prepararEstadosFila({children:[celda]}, ["Estatus"]);
+  contexto.prepararEstadosFila({children:[celda]}, ["Estatus"]);
+  assert.strictEqual(celda.textContent, estado);
+}
+console.log("Tablas: colores propios de Control de Taller preservados.");
