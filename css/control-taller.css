@@ -32,5 +32,15 @@
 .dependencia-grafica-titulo strong{font-size:13px}
 .dependencia-grafica-titulo b{font-size:16px;color:var(--text-color,#173042)}
 .dependencias-grafica h3{margin:0}
+#dialogoSalidaTaller{--salida-fondo:#172033;--salida-texto:#f8fafc;--salida-campo:#0f172a;--salida-borde:#64748b;position:fixed;inset:0;margin:auto;width:min(440px,calc(100vw - 32px));max-height:85dvh;overflow:auto;box-sizing:border-box;padding:24px;border:1px solid var(--salida-borde);border-radius:14px;background:var(--salida-fondo);color:var(--salida-texto);box-shadow:0 24px 70px rgba(0,0,0,.5);opacity:1}
+[data-theme="light"] #dialogoSalidaTaller{--salida-fondo:#fff;--salida-texto:#172033;--salida-campo:#f8fafc;--salida-borde:#94a3b8}
+#dialogoSalidaTaller::backdrop{background:rgba(15,23,42,.75)}
+#dialogoSalidaTaller h2,#dialogoSalidaTaller label,#unidadSalidaTaller{color:var(--salida-texto)}
+#dialogoSalidaTaller input,#dialogoSalidaTaller textarea{background:var(--salida-campo);color:var(--salida-texto);border:1px solid var(--salida-borde)}
+#dialogoSalidaTaller textarea::placeholder{color:var(--salida-texto);opacity:.7}
+#dialogoSalidaTaller form{display:grid;gap:12px}
+#dialogoSalidaTaller h2,#dialogoSalidaTaller p{margin:0}
+#dialogoSalidaTaller h2{font-size:20px}
+#errorSalidaTaller{color:var(--color-danger,#dc2626);font-size:13px}
 
 .dependencia-unidad-taller{display:block;min-height:44px;padding:12px;border:1px solid var(--border-color,#e5e7eb);border-radius:8px;background:var(--card-bg,#fff);color:var(--text-color,#173042);font-weight:600;overflow-wrap:anywhere}

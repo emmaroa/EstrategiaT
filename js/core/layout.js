@@ -2388,7 +2388,11 @@
     } else if (config.input) {
       control = document.createElement("input");
       control.className = "et-feedback-input";
-      control.type = "text";
+      control.type = config.inputType === "password" ? "password" : "text";
+      if (control.type === "password") {
+        control.autocomplete = "current-password";
+        control.setAttribute("aria-label", config.placeholder || "Contraseña");
+      }
       control.value = config.value || "";
       control.placeholder = config.placeholder || "";
       controlContainer.appendChild(control);
@@ -2409,6 +2413,7 @@
         dialogo.etResolve = null;
         confirmar.onclick = null;
         cancelar.onclick = null;
+        if (control && control.type === "password") control.value = "";
         document.removeEventListener("keydown", manejarTeclado, true);
         if (dialogo.etOpener && dialogo.etOpener.isConnected) dialogo.etOpener.focus();
         resolve(valor);
