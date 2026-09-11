@@ -8,3 +8,4 @@ ALTER TABLE public.ingresos_taller
 COMMENT ON COLUMN public.ingresos_taller.tipo_movimiento IS
   'Preventivo, Correctivo o Ambos (preventivo y correctivo en un mismo ingreso).';
 COMMIT;
+d

@@ -7,8 +7,61 @@
   let periodoActual = null;
   let indiceEdicion = null;
   let modoAltaEmpleado = false;
+  let asistenciaCSV = [];
 
   const $ = (id) => document.getElementById(id);
+
+  async function cargarAsistenciaCSV() {
+    const archivo = $("archivoAsistencia").files[0];
+    asistenciaCSV = [];
+    $("btnAnexarAsistencia").disabled = true;
+    $("tablaAsistencia").innerHTML = "";
+    if (!archivo) { $("resumenAsistencia").textContent = "Selecciona un CSV para comenzar."; return; }
+    try {
+      if (archivo.size > 10 * 1024 * 1024) throw new Error("El archivo supera el límite de 10 MB.");
+      const buffer = await archivo.arrayBuffer();
+      if ($("archivoAsistencia").files[0] !== archivo) return;
+      let contenido;
+      try { contenido = new TextDecoder("utf-8", { fatal: true }).decode(buffer); }
+      catch (_) { contenido = new TextDecoder("windows-1252").decode(buffer); }
+      asistenciaCSV = ETCalculoTiempoExtra.analizar(contenido);
+      const validos = asistenciaCSV.filter(r => !r.error && r.extra > 0);
+      $("resumenAsistencia").textContent = `${asistenciaCSV.length} registros · ${new Set(validos.map(r => r.numero)).size} empleados con excedente · ${validos.length} días con más de 7 horas · ${asistenciaCSV.filter(r => r.error).length} registros por revisar.`;
+      $("tablaAsistencia").innerHTML = asistenciaCSV.map((r, index) => !r.error && r.extra > 0 ? `<tr class="asistencia-extra">
+        <td><input type="checkbox" data-asistencia="${index}" aria-label="Anexar ${escapeHTML(r.numero)} ${escapeHTML(r.fecha)}" ${!r.error && r.extra > 0 ? "checked" : "disabled"}></td>
+        <td>${escapeHTML(r.numero + " · " + r.nombre)}</td><td>${escapeHTML(r.fecha)}</td><td>${escapeHTML(r.entrada)}</td><td>${escapeHTML(r.salida)}</td>
+        <td>${ETCalculoTiempoExtra.duracion(r.trabajados)}</td><td>${ETCalculoTiempoExtra.duracion(r.extra)}</td><td>Supera 7 horas</td></tr>` : "").join("") || '<tr><td colspan="8">No hay registros con horas extra aplicando la tolerancia de 10 minutos.</td></tr>';
+      $("btnAnexarAsistencia").disabled = !validos.length;
+    } catch (error) { $("resumenAsistencia").textContent = error.message; }
+  }
+
+  function anexarAsistenciaCSV() {
+    if (typeof esSoloLectura === "function" && esSoloLectura()) return;
+    if (indiceEdicion != null) { alert("Termina o cancela la edición del empleado antes de anexar."); return; }
+    const inicio = $("periodoInicio").value, fin = $("periodoFin").value;
+    if (!inicio || !fin || !validarPeriodoViernesJueves(inicio, fin)) { alert("Selecciona primero un periodo de viernes a jueves en la pestaña Periodo."); return; }
+    let anexados = 0, duplicados = 0, fuera = 0;
+    $("tablaAsistencia").querySelectorAll("input[data-asistencia]:checked").forEach(input => {
+      const r = asistenciaCSV[Number(input.dataset.asistencia)];
+      if (!r || r.error || r.extra <= 0) return;
+      if (r.fecha < inicio || r.fecha > fin) { fuera++; return; }
+      let emp = empleadosAgregados.find(e => e.numEmpleado === r.numero);
+      if (emp?.detalleDias.some(d => d.fecha === r.fecha && (d.horas > 0 || d.entrada || d.salida || d.justificacion))) { duplicados++; return; }
+      if (!emp) {
+        emp = normalizarEmpleado({ numEmpleado: r.numero, nombre: r.nombre, departamento: r.departamento, puesto: r.puesto });
+        empleadosAgregados.push(emp);
+      }
+      const dia = normalizarDia({ dia: ["Domingo", "Lunes", "Martes", "Miercoles", "Jueves", "Viernes", "Sabado"][new Date(r.fecha + "T12:00:00").getDay()], fecha: r.fecha, entrada: r.entradaExtra, salida: r.salida, horas: r.extra / 60, justificacion: "" });
+      const vacio = emp.detalleDias.findIndex(d => d.fecha === r.fecha);
+      if (vacio >= 0) emp.detalleDias[vacio] = dia; else emp.detalleDias.push(dia);
+      emp.totalHoras = normalizarHoras(emp.detalleDias.reduce((sum, d) => sum + d.horas, 0));
+      anexados++;
+      input.checked = false;
+    });
+    renderTablaEmpleados(); actualizarResumen(); actualizarResumenDocumentos();
+    $("resumenAsistencia").textContent = `${anexados} días anexados · ${duplicados} ya existentes · ${fuera} fuera del periodo. Captura las justificaciones en Captura → Empleados agregados → Justificación diaria y guarda el periodo.`;
+    if (anexados) cambiarTab("captura");
+  }
 
   function getSupabaseClient() {
     if (window.supabaseClient && typeof window.supabaseClient.from === "function") {
@@ -36,7 +89,7 @@
     return str || fallback;
   }
 
-  function normalizarHorasEnteras(valor) {
+  function normalizarHoras(valor) {
     const horas = Number(valor || 0);
     return Number.isFinite(horas) && horas > 0 ? Math.floor(horas) : 0;
   }
@@ -60,7 +113,7 @@
     const partes = input.value.split(":");
     if (!partes[0]) return;
 
-    input.value = `${partes[0].padStart(2, "0")}:00`;
+    input.value = `${partes[0].padStart(2, "0")}:${(partes[1] || "00").padStart(2, "0")}`;
   }
 
   function calcularHorasEntre(entrada, salida) {
@@ -71,7 +124,7 @@
     let diferencia = fin - inicio;
     if (diferencia < 0) diferencia += 24 * 60;
 
-    return Math.floor(diferencia / 60);
+    return ETCalculoTiempoExtra.horasEnteras(diferencia);
   }
 
   function normalizarNombreDia(dia) {
@@ -88,7 +141,7 @@
       fecha: texto(dia?.fecha),
       entrada: texto(dia?.entrada),
       salida: texto(dia?.salida),
-      horas: normalizarHorasEnteras(dia?.horas),
+      horas: normalizarHoras(dia?.horas),
       justificacion,
       actividad: justificacion
     };
@@ -112,7 +165,7 @@
       departamento: texto(emp?.departamento),
       puesto: texto(emp?.puesto),
       coste: texto(emp?.coste || emp?.centro_costo),
-      totalHoras,
+      totalHoras: normalizarHoras(totalHoras),
       detalleDias,
       dias: detalleDias
     };
@@ -122,6 +175,8 @@
     configurarTabs();
     configurarHoras();
     configurarBotones();
+    $("archivoAsistencia")?.addEventListener("change", cargarAsistenciaCSV);
+    $("btnAnexarAsistencia")?.addEventListener("click", anexarAsistenciaCSV);
     actualizarResumen();
     actualizarResumenDocumentos();
   });
@@ -155,6 +210,7 @@
       });
 
       [entrada, salida].forEach(function (input) {
+        if (input) input.step = "60";
         input?.addEventListener("change", function () {
           normalizarInputHora(input);
           calcularHorasFila(fila);
@@ -216,11 +272,12 @@
     let total = 0;
 
     document.querySelectorAll(".hora-dia").forEach(function (input) {
-      const horas = normalizarHorasEnteras(input.value);
+      const horas = normalizarHoras(input.value);
       input.value = horas > 0 ? String(horas) : "";
       total += horas;
     });
 
+    total = normalizarHoras(total);
     if ($("totalHorasEmpleado")) $("totalHorasEmpleado").textContent = total;
     return total;
   }
@@ -245,7 +302,7 @@
         fecha: inputs[0]?.value || "",
         entrada: inputs[1]?.value || "",
         salida: inputs[2]?.value || "",
-        horas: normalizarHorasEnteras(inputs[3]?.value),
+        horas: normalizarHoras(inputs[3]?.value),
         justificacion: justificacion?.value || ""
       });
     }).filter(function (item) {
@@ -477,13 +534,13 @@
       return;
     }
 
-    if (modoAltaEmpleado || !$("numEmpleado")?.dataset.empleadoId) {
+    if (modoAltaEmpleado || (!$("numEmpleado")?.dataset.empleadoId && indiceEdicion == null)) {
       alert("Guarda o carga el empleado antes de agregar horas extra.");
       return;
     }
 
     if (totalHoras <= 0) {
-      alert("Captura al menos una hora extra.");
+      alert("Captura un tiempo extra mayor a cero.");
       return;
     }
 
@@ -534,7 +591,9 @@
           <td>${escapeHTML(emp.departamento || "-")}</td>
           <td>${escapeHTML(emp.puesto || "-")}</td>
           <td>${Number(emp.totalHoras || 0)}</td>
-          <td>${contarDiasJustificados(emp)} de ${(emp.detalleDias || []).filter((dia) => Number(dia.horas || 0) > 0).length}</td>
+          <td>${contarDiasJustificados(emp)} de ${(emp.detalleDias || []).filter((dia) => Number(dia.horas || 0) > 0).length}
+            <details><summary>Justificación diaria</summary>${(emp.detalleDias || []).map((dia, diaIndex) => Number(dia.horas || 0) > 0 ? `<label>${escapeHTML(dia.fecha)} · ${dia.horas} h<textarea rows="2" data-empleado="${index}" data-dia="${diaIndex}" aria-label="Justificación ${escapeHTML(emp.nombre)} ${escapeHTML(dia.fecha)}">${escapeHTML(dia.justificacion)}</textarea></label>` : "").join("")}</details>
+          </td>
           <td class="acciones-tabla">
             <button class="btn btn-secondary btn-sm" type="button" data-accion="editar" data-index="${index}">Editar</button>
             <button class="btn btn-danger btn-sm" type="button" data-accion="eliminar" data-index="${index}">Eliminar</button>
@@ -542,6 +601,18 @@
         </tr>
       `;
     }).join("");
+
+    tbody.querySelectorAll("textarea[data-empleado]").forEach(input => {
+      input.addEventListener("input", () => {
+        const dia = empleadosAgregados[Number(input.dataset.empleado)].detalleDias[Number(input.dataset.dia)];
+        dia.justificacion = input.value.trim();
+        dia.actividad = dia.justificacion;
+        // Actualizar el contador sin reconstruir el campo que se está editando.
+        const celda = input.closest("td");
+        const emp = empleadosAgregados[Number(input.dataset.empleado)];
+        celda.firstChild.textContent = `${contarDiasJustificados(emp)} de ${emp.detalleDias.filter(d => d.horas > 0).length} `;
+      });
+    });
 
     tbody.querySelectorAll("button[data-accion]").forEach(function (btn) {
       btn.addEventListener("click", function () {
@@ -642,9 +713,9 @@
   }
 
   function obtenerTotalHoras() {
-    return empleadosAgregados.reduce(function (sum, emp) {
+    return normalizarHoras(empleadosAgregados.reduce(function (sum, emp) {
       return sum + Number(emp.totalHoras || 0);
-    }, 0);
+    }, 0));
   }
 
   function obtenerCounts() {

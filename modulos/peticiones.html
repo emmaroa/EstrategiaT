@@ -2045,10 +2045,10 @@
       filtroEstatusGestionCotizaciones.value = estatus.includes(estatusActual) ? estatusActual : "";
     }
 
-    function renderizarGraficaMontoProveedorCotizaciones() {
+    function renderizarGraficaMontoProveedorCotizaciones(cotizacionesFiltradas) {
       const contenedor = document.getElementById("barrasMontoProveedorCotizaciones");
       if (!contenedor) return;
-      const cotizacionesPendientes = cotizacionesAlmacen.filter(function (cotizacion) {
+      const cotizacionesPendientes = cotizacionesFiltradas.filter(function (cotizacion) {
         return normalizarTextoPeticion(cotizacion.estatus) !== "rechazada" &&
           !cotizacionTieneRequisicion(cotizacion);
       });
@@ -2079,7 +2079,7 @@
 
       poblarProveedoresGestionCotizaciones();
       const cotizacionesFiltradas = obtenerCotizacionesGestionFiltradas();
-      const cotizacionesValidas = cotizacionesAlmacen.filter(function (cotizacion) {
+      const cotizacionesValidas = cotizacionesFiltradas.filter(function (cotizacion) {
         return normalizarTextoPeticion(cotizacion.estatus) !== "rechazada";
       });
       const cotizacionesConRequisicion = cotizacionesValidas.filter(cotizacionTieneRequisicion);
@@ -2093,7 +2093,7 @@
       }, 0));
       document.getElementById("kpiCotInternasConTramite").textContent = cotizacionesConRequisicion.length;
       document.getElementById("kpiCotInternasSinPartida").textContent = cotizacionesValidas.filter(function (cotizacion) { return !String(cotizacion.partida || "").trim(); }).length;
-      renderizarGraficaMontoProveedorCotizaciones();
+      renderizarGraficaMontoProveedorCotizaciones(cotizacionesFiltradas);
 
       tabla.innerHTML = cotizacionesFiltradas.length
         ? cotizacionesFiltradas.map(function (cotizacion) {
@@ -2128,7 +2128,7 @@
                   : "") + "</td>" +
             "</tr>";
           }).join("")
-        : '<tr><td colspan="12">No hay cotizaciones registradas.</td></tr>';
+        : '<tr><td colspan="12">No hay cotizaciones que coincidan con los filtros.</td></tr>';
     }
 
     function abrirDetalleCotizacion(id) {

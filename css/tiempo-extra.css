@@ -396,3 +396,8 @@ hr {
     width: 100%;
   }
 }
+.asistencia-extra { background: rgba(34, 197, 94, .14); }
+.asistencia-extra td:last-child { font-weight: 700; }
+.asistencia-revisar { background: rgba(245, 158, 11, .14); }
+#tablaTiempoExtra details label { display: block; margin-top: .75rem; }
+#tablaTiempoExtra details textarea { display: block; min-width: 220px; width: 100%; }

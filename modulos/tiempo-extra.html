@@ -45,6 +45,7 @@
         <div class="tabs" role="tablist" aria-label="Secciones de tiempo extra">
           <button class="tab-btn active" type="button" data-tab="periodo">Periodo</button>
           <button class="tab-btn" type="button" data-tab="captura">Captura</button>
+          <button class="tab-btn" type="button" data-tab="calculo">Cálculo desde CSV</button>
           <button class="tab-btn" type="button" data-tab="documentos">Documentos</button>
           <button class="tab-btn" type="button" data-tab="historico">Hist&oacute;rico</button>
         </div>
@@ -90,6 +91,16 @@
         </div>
       </section>
 
+      <section class="card tab-panel" id="tab-calculo">
+        <h2>Cálculo de tiempo extra</h2>
+        <p>Carga el reporte Primero &amp; Último. Se cuentan horas enteras con 10 minutos de tolerancia: 7 h 50 min cuentan como 8 horas (1 hora extra); 7 h 49 min no generan horas extra. Se descuentan 7 horas de jornada por día, sin descontar descansos. Las checadas iguales o de posible turno nocturno requieren revisión.</p>
+        <div class="form-group"><label for="archivoAsistencia">Archivo CSV de asistencia</label><input type="file" id="archivoAsistencia" accept=".csv,text/csv"></div>
+        <p id="resumenAsistencia" role="status" aria-live="polite">Selecciona un CSV para comenzar.</p>
+        <p>Selecciona el periodo en la pestaña Periodo antes de anexar. Solo se anexan días de ese periodo. El horario anexado comienza al completar las 7 horas; las horas extra se guardan como números enteros aplicando la tolerancia una sola vez por día.</p>
+        <div class="actions-right"><button type="button" class="btn btn-primary" id="btnAnexarAsistencia" disabled>Anexar seleccionados a Tiempo Extra</button></div>
+        <div class="table-wrapper"><table><thead><tr><th>Seleccionar</th><th>Empleado</th><th>Fecha</th><th>Primera checada</th><th>Última checada</th><th>Trabajado</th><th>Excedente de 7 h</th><th>Resultado</th></tr></thead><tbody id="tablaAsistencia"><tr><td colspan="8">Sin archivo cargado.</td></tr></tbody></table></div>
+      </section>
+
       <section class="card tab-panel" id="tab-captura">
         <h2>Captura por empleado</h2>
 
@@ -129,6 +140,7 @@
         </div>
 
         <h3>Detalle semanal</h3>
+        <p>Las horas extra se cuentan en enteros con 10 minutos de tolerancia: 50 minutos cuentan como 1 hora; 1 h 50 min cuentan como 2 horas.</p>
 
         <div class="table-wrapper table-wrapper-wide">
           <table>
@@ -271,6 +283,7 @@
   <script src="https://cdn.jsdelivr.net/npm/pizzip/dist/pizzip.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/docxtemplater/build/docxtemplater.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/jszip/dist/jszip.min.js"></script>
+  <script src="../js/modules/calculo-tiempo-extra.js"></script>
   <script src="../js/modules/tiempo-extra.js"></script>
 
   <script>
