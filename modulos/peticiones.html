@@ -90,6 +90,7 @@
   <script src="../js/core/layout.js?v=20260824-1"></script>
   <script src="../js/services/peticiones.service.js?v=20260727-1"></script>
   <script src="../js/services/cotizaciones-almacen.service.js?v=20260810-1"></script>
+  <script src="../js/services/dependencias-cotizaciones.js"></script>
   <script src="../js/core/auth.js?v=20260819-3"></script>
 </head>
 <body class="dashboard-body">
@@ -349,7 +350,8 @@
         </div>
         <div class="input-group">
           <label for="dependenciaCotizacionInterna">Dependencia</label>
-          <input type="text" id="dependenciaCotizacionInterna" maxlength="150">
+          <select id="dependenciaCotizacionInterna" required aria-describedby="ayudaDependenciaCotizacion"><option value="">Selecciona una dependencia</option></select>
+          <small id="ayudaDependenciaCotizacion">Selecciona el código de dos dígitos y el nombre del listado oficial.</small>
         </div>
         <div class="input-group">
           <label for="origenCotizacionInterna">Origen</label>
@@ -363,10 +365,13 @@
           <label for="partidaCotizacionInterna">Partida</label>
           <select id="partidaCotizacionInterna">
             <option value="">Pendiente</option>
-            <option value="29601">29601</option>
-            <option value="29801">29801</option>
-            <option value="26102">26102</option>
+            <option value="29601">29601 - Gasolina y vehículos pequeños</option>
+            <option value="29801">29801 - Maquinaria pesada y colectores</option>
+            <option value="26102">26102 - Aceites y lubricantes</option>
           </select>
+          <small id="ayudaPartidaCotizacion">Se calcula con los materiales y el tipo de unidad.</small>
+          <label><input type="checkbox" id="correccionManualCotizacion"> Corregir dependencia y partida manualmente</label>
+          <small>Para registros por revisar, STOCK/0 o unidades sin coincidencia. Elige la dependencia del listado y una de las tres partidas.</small>
         </div>
         <div class="input-group">
           <label for="requisicionCotizacionInterna">Número de requisición</label>
@@ -652,13 +657,14 @@
 
     function puedeEditarGestionCotizaciones() {
       const usuarioActivo = obtenerUsuarioActivoPeticion();
-      return Boolean(window.ETPermissions && ETPermissions.puedeEditarModulo(usuarioActivo, "Gestión de Cotizaciones"));
+      const rol = normalizarRolPeticion(usuarioActivo?.rol || usuarioActivo?.rol_original);
+      return ["superadmin", "admin", "administradordelsistema", "compras"].includes(rol) && Boolean(window.ETPermissions && ETPermissions.puedeEditarModulo(usuarioActivo, "Gestión de Cotizaciones"));
     }
 
     function puedeVerDetalleGestionCotizaciones() {
       const usuarioActivo = obtenerUsuarioActivoPeticion();
       const rol = normalizarRolPeticion(usuarioActivo?.rol || usuarioActivo?.rol_original);
-      return ["admin", "administradordelsistema", "superadmin", "director"].includes(rol);
+      return ["admin", "administradordelsistema", "superadmin", "compras", "director"].includes(rol);
     }
 
 
@@ -2257,7 +2263,25 @@
       abrirModalDatosCotizacion(id, false);
     }
 
+    let unidadClasificacionCotizacion = null;
+    let consultaUnidadCotizacion = 0;
+
+    function esCorreccionManualCotizacion() {
+      return puedeEditarGestionCotizaciones() && document.getElementById("correccionManualCotizacion").checked;
+    }
+
+    function actualizarPartidaAutomaticaCotizacion() {
+      if (esCorreccionManualCotizacion()) return;
+      const resultado = ETDependenciasCotizaciones.clasificarPartida(unidadClasificacionCotizacion, obtenerMaterialesCotizacionInterna());
+      document.getElementById("partidaCotizacionInterna").value = resultado.partida;
+      document.getElementById("ayudaPartidaCotizacion").textContent = resultado.motivo;
+      return resultado;
+    }
+
     function abrirModalDatosCotizacion(id, soloLectura) {
+      consultaUnidadCotizacion++;
+      unidadClasificacionCotizacion = null;
+      document.getElementById("correccionManualCotizacion").checked = false;
       const cotizacion = cotizacionesAlmacen.find(function (item) { return item.id === id; });
       if (!cotizacion) return;
       cotizacionInternaId = soloLectura ? null : id;
@@ -2270,7 +2294,12 @@
       document.getElementById("fechaEntregaCotizacionInterna").value = String(cotizacion.fecha_entrega || "").slice(0, 10);
       document.getElementById("unidadCotizacionInterna").value = cotizacion.unidad || "";
       document.getElementById("serieCotizacionInterna").value = cotizacion.numero_serie || "";
-      document.getElementById("dependenciaCotizacionInterna").value = cotizacion.dependencia || "";
+      const selectorDependencia = document.getElementById("dependenciaCotizacionInterna");
+      selectorDependencia.replaceChildren(new Option("Selecciona una dependencia", ""));
+      ETDependenciasCotizaciones.listado.forEach(function (dependencia) {
+        selectorDependencia.add(new Option(dependencia, dependencia));
+      });
+      asignarDependenciaCotizacion(cotizacion.dependencia);
       document.getElementById("origenCotizacionInterna").value = cotizacion.origen || "Sin petición";
       document.getElementById("estatusCotizacionInterna").value = cotizacion.estatus || "Pendiente de revisión";
       document.getElementById("partidaCotizacionInterna").value = cotizacion.partida || "";
@@ -2288,40 +2317,75 @@
       document.getElementById("btnCerrarDatosInternosCotizacion").textContent = soloLectura ? "Cerrar" : "Cancelar";
       modal.classList.add("show");
       modal.setAttribute("aria-hidden", "false");
+      if (!soloLectura) completarUnidadCotizacionInterna();
     }
 
     function cerrarDatosInternosCotizacion() {
+      consultaUnidadCotizacion++;
+      unidadClasificacionCotizacion = null;
       cotizacionInternaId = null;
       document.getElementById("modalDatosInternosCotizacion").classList.remove("show");
       document.getElementById("modalDatosInternosCotizacion").setAttribute("aria-hidden", "true");
     }
 
+    function asignarDependenciaCotizacion(valor) {
+      const dependencia = ETDependenciasCotizaciones.resolver(valor);
+      document.getElementById("dependenciaCotizacionInterna").value = dependencia;
+      document.getElementById("ayudaDependenciaCotizacion").textContent = dependencia
+        ? "Se guardará el código de dos dígitos junto con el nombre de la dependencia."
+        : valor ? "Dependencia actual: " + valor + ". Selecciona su equivalente del listado oficial."
+        : "Selecciona el código de dos dígitos y el nombre del listado oficial.";
+    }
+
     async function completarUnidadCotizacionInterna() {
+      if (esCorreccionManualCotizacion()) return null;
       const unidadInput = document.getElementById("unidadCotizacionInterna");
       const serieInput = document.getElementById("serieCotizacionInterna");
       const dependenciaInput = document.getElementById("dependenciaCotizacionInterna");
       const valor = String(unidadInput?.value || "").trim();
+      const consulta = ++consultaUnidadCotizacion;
+      unidadClasificacionCotizacion = null;
+
+      if (/^(stock|0)$/i.test(valor)) {
+        document.getElementById("ayudaDependenciaCotizacion").textContent = "STOCK: elige una dependencia del menú. Se guardará con el código y nombre del CSV.";
+        const resultado = ETDependenciasCotizaciones.clasificarPartida(null, obtenerMaterialesCotizacionInterna());
+        if (resultado.partida) document.getElementById("partidaCotizacionInterna").value = resultado.partida;
+        document.getElementById("ayudaPartidaCotizacion").textContent = resultado.partida ? resultado.motivo : "STOCK: selecciona la partida que corresponda.";
+        return { stock: true };
+      }
 
       if (!valor || !window.ETCotizacionesAlmacen) return null;
 
-      const coincidencias = await ETCotizacionesAlmacen.buscarUnidadesParque(valor);
+      let coincidencias;
+      try { coincidencias = await ETCotizacionesAlmacen.buscarUnidadesParque(valor); }
+      catch (_) {
+        if (consulta === consultaUnidadCotizacion) document.getElementById("ayudaDependenciaCotizacion").textContent = "No se pudo consultar la unidad. Intenta nuevamente.";
+        return null;
+      }
+      if (consulta !== consultaUnidadCotizacion || String(unidadInput.value).trim() !== valor) return null;
       if (!coincidencias.length) {
-        dependenciaInput.value = "";
+        asignarDependenciaCotizacion("");
+        actualizarPartidaAutomaticaCotizacion();
+        document.getElementById("ayudaDependenciaCotizacion").textContent = "Unidad no encontrada. Revisa el número de unidad.";
         serieInput.value = "";
-        dependenciaInput.placeholder = "Unidad no encontrada";
         return null;
       }
 
       if (coincidencias.length > 1) {
-        dependenciaInput.value = "";
+        asignarDependenciaCotizacion("");
+        actualizarPartidaAutomaticaCotizacion();
+        document.getElementById("ayudaDependenciaCotizacion").textContent = "Hay varias unidades coincidentes. Escribe el número completo.";
         serieInput.value = "";
-        dependenciaInput.placeholder = "Escribe más dígitos; hay varias coincidencias";
         return null;
       }
 
       const unidad = coincidencias[0];
-      dependenciaInput.value = unidad.dependencia || "";
-      dependenciaInput.placeholder = unidad.dependencia ? "" : "Unidad sin dependencia registrada";
+      const manual = dependenciaInput.value;
+      const dependenciaOficial = ETDependenciasCotizaciones.resolver(unidad.dependencia);
+      asignarDependenciaCotizacion(unidad.dependencia);
+      if (!dependenciaOficial && ETDependenciasCotizaciones.listado.includes(manual)) dependenciaInput.value = manual;
+      unidadClasificacionCotizacion = unidad;
+      actualizarPartidaAutomaticaCotizacion();
       serieInput.value = unidad.serie || unidad.vin || "";
 
       const identificador = unidad.numero_economico || unidad.numero_inventario || unidad.unidad_patrulla;
@@ -2339,8 +2403,19 @@
       const proveedor = document.getElementById("proveedorCotizacionInterna").value.trim();
       const fechaCotizacion = document.getElementById("fechaCotizacionInterna").value;
       const fechaEntrega = document.getElementById("fechaEntregaCotizacionInterna").value;
-      await completarUnidadCotizacionInterna();
+      const idGuardando = cotizacionInternaId;
+      const partidaManual = document.getElementById("partidaCotizacionInterna").value;
+      const correccionManual = esCorreccionManualCotizacion();
+      const unidadParque = correccionManual ? null : await completarUnidadCotizacionInterna();
+      if (cotizacionInternaId !== idGuardando) return;
+      if (!unidadParque && !correccionManual) { alert("Revisa el número de unidad o activa la corrección manual para atender este registro."); return; }
+      if (!document.getElementById("partidaCotizacionInterna").value && ["26102", "29601", "29801"].includes(partidaManual)) document.getElementById("partidaCotizacionInterna").value = partidaManual;
       const unidad = document.getElementById("unidadCotizacionInterna").value.trim();
+      const dependencia = document.getElementById("dependenciaCotizacionInterna").value;
+      if (!ETDependenciasCotizaciones.listado.includes(dependencia)) {
+        alert("Selecciona una dependencia del listado oficial, con su código de dos dígitos.");
+        return;
+      }
       const lineasMateriales = document.getElementById("materialesCotizacionInterna").value.split(/\r?\n/).filter(function (linea) { return linea.trim(); });
       const materiales = obtenerMaterialesCotizacionInterna();
       if (!folio || !proveedor || !fechaCotizacion || !fechaEntrega || !unidad) {
@@ -2352,6 +2427,7 @@
         return;
       }
       const partida = document.getElementById("partidaCotizacionInterna").value;
+      if (!["26102", "29601", "29801"].includes(partida)) { alert("Revisa la clasificación y selecciona una de las tres partidas."); return; }
       const requisicion = document.getElementById("requisicionCotizacionInterna").value.trim();
       const datosActualizadosCotizacion = {
         folio: folio,
@@ -2360,7 +2436,7 @@
         fecha_entrega: fechaEntrega,
         unidad: unidad,
         numero_serie: document.getElementById("serieCotizacionInterna").value.trim() || null,
-        dependencia: document.getElementById("dependenciaCotizacionInterna").value.trim() || null,
+        dependencia: dependencia,
         origen: document.getElementById("origenCotizacionInterna").value,
         estatus: document.getElementById("estatusCotizacionInterna").value,
         partida: partida || null,
@@ -2382,6 +2458,7 @@
           entidad_id: cotizacion.id,
           metadata: {
             antes: cotizacion,
+            correccion_manual: correccionManual,
             despues: cotizacionActualizada || Object.assign({}, cotizacion, datosActualizadosCotizacion)
           }
         });
@@ -2514,6 +2591,22 @@
       ?.addEventListener("click", exportarGestionCotizaciones);
     document.getElementById("materialesCotizacionInterna")
       ?.addEventListener("input", calcularTotalesCotizacionInterna);
+    document.getElementById("materialesCotizacionInterna")
+      ?.addEventListener("input", actualizarPartidaAutomaticaCotizacion);
+    document.getElementById("unidadCotizacionInterna")?.addEventListener("input", function () {
+      consultaUnidadCotizacion++;
+      unidadClasificacionCotizacion = null;
+      if (esCorreccionManualCotizacion()) return;
+      asignarDependenciaCotizacion("");
+      actualizarPartidaAutomaticaCotizacion();
+    });
+    document.getElementById("correccionManualCotizacion")?.addEventListener("change", function () {
+      consultaUnidadCotizacion++;
+      if (esCorreccionManualCotizacion()) {
+        document.getElementById("ayudaDependenciaCotizacion").textContent = "Corrección manual: se conservará la dependencia del listado que selecciones.";
+        document.getElementById("ayudaPartidaCotizacion").textContent = "Corrección manual: se conservará la partida que selecciones.";
+      } else completarUnidadCotizacionInterna();
+    });
     document.getElementById("unidadCotizacionInterna")
       ?.addEventListener("blur", completarUnidadCotizacionInterna);
     proveedorInput?.addEventListener("change", actualizarEstadoFechaEstimadaEntrega);

@@ -100,11 +100,15 @@
     const buscado = String(valor || "").trim();
     if (!client || !buscado || /^(0|stock)$/i.test(buscado)) return [];
 
-    const { data, error } = await client
-      .from("parque_vehicular")
-      .select("id,numero_economico,numero_inventario,unidad_patrulla,serie,vin,dependencia,descripcion");
-
-    if (error) return [];
+    const data = [];
+    for (let desde = 0; ; desde += 1000) {
+      const pagina = await client.from("parque_vehicular")
+        .select("id,numero_economico,numero_inventario,unidad_patrulla,serie,vin,dependencia,descripcion,grupo,combustible,modelo")
+        .order("id", { ascending: true }).range(desde, desde + 999);
+      if (pagina.error) throw new Error("No se pudo consultar el parque vehicular: " + pagina.error.message);
+      data.push(...(pagina.data || []));
+      if ((pagina.data || []).length < 1000) break;
+    }
     const clave = normalizarClaveUnidad(buscado);
     if (!clave) return [];
 

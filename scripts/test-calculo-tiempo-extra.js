@@ -9,7 +9,7 @@ const registros = calculo.analizar('\uFEFF' + csv);
 assert.equal(registros[0].numero, '001');
 assert.equal(registros[0].nombre, 'Nombre, compuesto Apellido');
 assert.equal(registros[0].extra, 0);
-assert.equal(registros[0].entradaExtra, '13:54');
+assert.equal(registros[0].entradaExtra, '14:00');
 assert.equal(registros[1].extra, 0);
 assert.equal(registros[2].extra, 0);
 for (const horarios of ['07:00,07:00', '22:00,06:00', ',14:00', '25:00,14:00']) {
@@ -21,11 +21,17 @@ assert.throws(() => calculo.analizar('Nombre,Fecha\nA,2026-09-04'));
 assert.throws(() => calculo.analizar(cabecera + '\n"abierto'));
 assert.equal(calculo.analizar(csv.replaceAll(',', ';').replace('"Nombre; compuesto"', 'Nombre'))[0].extra, 0);
 
-for (const [salida, esperado] of [['13:50', 0], ['14:00', 0], ['14:49', 0], ['14:50', 1], ['14:59', 1], ['15:00', 1], ['15:49', 1], ['15:50', 2], ['16:00', 2]]) {
+for (const [salida, esperado] of [['13:50', 0], ['14:00', 0], ['14:49', 0], ['14:50', 0], ['14:59', 0], ['15:00', 1], ['15:49', 1], ['15:50', 1], ['16:00', 2]]) {
   const r = calculo.analizar(cabecera + '\n1,A,B,2026-09-04,07:00,' + salida)[0];
   assert.equal(r.extra / 60, esperado, salida);
 }
-const importables = calculo.analizar(cabecera + '\n001,A,B,2026-09-04,06:54,14:44');
+const importables = calculo.analizar(cabecera + '\n001,A,B,2026-09-04,07:10,15:44');
+for (const [entrada, salida, esperado] of [['07:00', '15:00', 1], ['07:10', '15:00', 1], ['07:11', '15:00', 0], ['07:30', '15:30', 0], ['07:30', '16:00', 1], ['06:54', '15:00', 1], ['07:00', '14:50', 0]]) {
+  const r = calculo.analizar(cabecera + '\n1,A,B,2026-09-04,' + entrada + ',' + salida)[0];
+  assert.equal(r.extra / 60, esperado, entrada + '-' + salida);
+  assert.ok(r.entradaExtra.endsWith(':00'));
+  assert.ok(r.salidaExtra.endsWith(':00'));
+}
 
 const nodes = new Map();
 function node(id) {
@@ -46,16 +52,17 @@ api.set(importables); api.anexarAsistenciaCSV();
 assert.equal(api.get().length, 1);
 assert.equal(api.get()[0].totalHoras, 1);
 assert.equal(api.get()[0].detalleDias[0].justificacion, '');
-assert.equal(api.get()[0].detalleDias[0].entrada, '13:54');
+assert.equal(api.get()[0].detalleDias[0].entrada, '14:00');
+assert.equal(api.get()[0].detalleDias[0].salida, '15:00');
 api.get()[0].detalleDias[0].justificacion = 'Trabajo realizado';
 api.anexarAsistenciaCSV();
 assert.equal(api.get()[0].detalleDias.length, 1);
 assert.equal(api.get()[0].detalleDias[0].justificacion, 'Trabajo realizado');
 api.set([{ ...importables[0], numero: '004', fecha: '2026-09-11' }]); api.anexarAsistenciaCSV();
 assert.equal(api.get().length, 1);
-assert.equal(api.calcularHorasEntre('13:54', '14:00'), 0);
-assert.equal(api.calcularHorasEntre('13:54', '14:43'), 0);
-assert.equal(api.calcularHorasEntre('13:54', '14:44'), 1);
-assert.equal(api.calcularHorasEntre('13:54', '15:44'), 2);
+assert.equal(api.calcularHorasEntre('14:00', '14:00'), 0);
+assert.equal(api.calcularHorasEntre('14:00', '14:43'), 0);
+assert.equal(api.calcularHorasEntre('14:00', '14:44'), 0);
+assert.equal(api.calcularHorasEntre('14:00', '15:44'), 1);
 assert.equal(api.calcularHorasEntre(api.get()[0].detalleDias[0].entrada, api.get()[0].detalleDias[0].salida), api.get()[0].totalHoras, 'Editar conserva las horas importadas');
 console.log('Tiempo extra CSV: horas enteras, tolerancia de 10 minutos, validación, anexado, periodo, duplicados y justificaciones verificados.');

@@ -29,8 +29,10 @@
   }
   function horario(min) { return String(Math.floor(min / 60) % 24).padStart(2, "0") + ":" + String(min % 60).padStart(2, "0"); }
   function duracion(min) { return Math.floor(min / 60) + " h " + String(min % 60).padStart(2, "0") + " min"; }
-  function horasEnteras(minutos) {
-    return Number.isFinite(minutos) && minutos > 0 ? Math.floor((minutos + 10) / 60) : 0;
+  function bloquesReloj(entrada, salida) {
+    const inicio = (Math.floor(entrada / 60) + (entrada % 60 > 10 ? 1 : 0)) * 60;
+    const fin = Math.floor(salida / 60) * 60;
+    return { inicio, fin, horas: Math.max(0, (fin - inicio) / 60) };
   }
   function analizar(texto) {
     const filas = leerCSV(texto), encabezados = filas.shift() || [];
@@ -49,13 +51,14 @@
       else if (entrada === null || salida === null) error = "Checada faltante o inválida";
       else if (salida <= entrada) error = "Checadas iguales o salida anterior: revisar";
       const trabajados = error ? 0 : salida - entrada;
-      return { fila: i + 2, numero: valor("id de empleado"), nombre: [valor("nombre"), valor("apellido")].filter(Boolean).join(" "), departamento: valor("departamento"), puesto: valor("cargo"), fecha, entrada: valor("primera checada"), salida: valor("ultima checada"), trabajados, extra: Math.max(0, horasEnteras(trabajados) - 7) * 60, entradaExtra: error ? "" : horario(entrada + 420), error };
+      const bloques = error ? { horas: 0 } : bloquesReloj(entrada, salida);
+      return { fila: i + 2, numero: valor("id de empleado"), nombre: [valor("nombre"), valor("apellido")].filter(Boolean).join(" "), departamento: valor("departamento"), puesto: valor("cargo"), fecha, entrada: valor("primera checada"), salida: valor("ultima checada"), trabajados, extra: Math.max(0, bloques.horas - 7) * 60, entradaExtra: error ? "" : horario(bloques.inicio + 420), salidaExtra: error ? "" : horario(bloques.fin), error };
     });
     const claves = new Map();
     registros.forEach(r => { const k = r.numero + "|" + r.fecha; claves.set(k, (claves.get(k) || 0) + 1); });
     registros.forEach(r => { if (claves.get(r.numero + "|" + r.fecha) > 1) r.error = "Empleado y fecha duplicados en el CSV"; });
     return registros;
   }
-  root.ETCalculoTiempoExtra = { analizar, duracion, horasEnteras };
+  root.ETCalculoTiempoExtra = { analizar, duracion, bloquesReloj };
   if (typeof module !== "undefined") module.exports = root.ETCalculoTiempoExtra;
 })(typeof window !== "undefined" ? window : globalThis);

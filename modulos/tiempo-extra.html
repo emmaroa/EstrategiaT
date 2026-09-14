@@ -93,7 +93,7 @@
 
       <section class="card tab-panel" id="tab-calculo">
         <h2>Cálculo de tiempo extra</h2>
-        <p>Carga el reporte Primero &amp; Último. Se cuentan horas enteras con 10 minutos de tolerancia: 7 h 50 min cuentan como 8 horas (1 hora extra); 7 h 49 min no generan horas extra. Se descuentan 7 horas de jornada por día, sin descontar descansos. Las checadas iguales o de posible turno nocturno requieren revisión.</p>
+        <p>Carga el reporte Primero &amp; Último. Se cuentan bloques del reloj de :00 a :00. Una entrada hasta :10 cuenta desde esa hora; después de :10 cuenta desde la siguiente. La salida se toma hasta la última hora en punto completada. Se descuentan 7 horas de jornada por día, sin descontar descansos. Las checadas iguales o de posible turno nocturno requieren revisión.</p>
         <div class="form-group"><label for="archivoAsistencia">Archivo CSV de asistencia</label><input type="file" id="archivoAsistencia" accept=".csv,text/csv"></div>
         <p id="resumenAsistencia" role="status" aria-live="polite">Selecciona un CSV para comenzar.</p>
         <p>Selecciona el periodo en la pestaña Periodo antes de anexar. Solo se anexan días de ese periodo. El horario anexado comienza al completar las 7 horas; las horas extra se guardan como números enteros aplicando la tolerancia una sola vez por día.</p>
@@ -140,7 +140,7 @@
         </div>
 
         <h3>Detalle semanal</h3>
-        <p>Las horas extra se cuentan en enteros con 10 minutos de tolerancia: 50 minutos cuentan como 1 hora; 1 h 50 min cuentan como 2 horas.</p>
+        <p>Las horas extra se cuentan de :00 a :00, con tolerancia de entrada hasta :10. Ejemplo: 14:10–15:00 cuenta como 1 hora; 14:30–15:30 no completa un bloque del reloj.</p>
 
         <div class="table-wrapper table-wrapper-wide">
           <table>

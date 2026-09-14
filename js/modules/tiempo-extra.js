@@ -51,7 +51,7 @@
         emp = normalizarEmpleado({ numEmpleado: r.numero, nombre: r.nombre, departamento: r.departamento, puesto: r.puesto });
         empleadosAgregados.push(emp);
       }
-      const dia = normalizarDia({ dia: ["Domingo", "Lunes", "Martes", "Miercoles", "Jueves", "Viernes", "Sabado"][new Date(r.fecha + "T12:00:00").getDay()], fecha: r.fecha, entrada: r.entradaExtra, salida: r.salida, horas: r.extra / 60, justificacion: "" });
+      const dia = normalizarDia({ dia: ["Domingo", "Lunes", "Martes", "Miercoles", "Jueves", "Viernes", "Sabado"][new Date(r.fecha + "T12:00:00").getDay()], fecha: r.fecha, entrada: r.entradaExtra, salida: r.salidaExtra, horas: r.extra / 60, justificacion: "" });
       const vacio = emp.detalleDias.findIndex(d => d.fecha === r.fecha);
       if (vacio >= 0) emp.detalleDias[vacio] = dia; else emp.detalleDias.push(dia);
       emp.totalHoras = normalizarHoras(emp.detalleDias.reduce((sum, d) => sum + d.horas, 0));
@@ -124,7 +124,7 @@
     let diferencia = fin - inicio;
     if (diferencia < 0) diferencia += 24 * 60;
 
-    return ETCalculoTiempoExtra.horasEnteras(diferencia);
+    return ETCalculoTiempoExtra.bloquesReloj(inicio, inicio + diferencia).horas;
   }
 
   function normalizarNombreDia(dia) {

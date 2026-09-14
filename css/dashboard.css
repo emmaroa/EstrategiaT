@@ -1061,6 +1061,7 @@
 }
 
 .dashboard-customizer-tools {
+  flex-wrap: wrap;
   display: flex;
   gap: 8px;
   margin: 22px 0 14px;
@@ -1113,6 +1114,12 @@
 .dashboard-palette-option input { position:absolute; opacity:0; pointer-events:none; }
 .dashboard-palette-swatches { display:grid; grid-template-columns:repeat(3,1fr); height:24px; overflow:hidden; border-radius:7px; }
 .dashboard-palette-option strong { font-size:12px; }
+.dashboard-customizer-option[hidden] { display:none; }
+.dashboard-palette-option:focus-within { outline:2px solid var(--text-primary); outline-offset:3px; }
+.dashboard-custom-colors { display:flex; flex-wrap:wrap; gap:16px; margin-top:16px; }
+.dashboard-custom-colors label { display:grid; gap:6px; flex:1 1 140px; }
+.dashboard-custom-colors input { width:100%; min-height:44px; padding:4px; cursor:pointer; }
+#buscarKpisDashboard { width:100%; margin:8px 0 12px; }
 [data-dashboard-user-hidden="true"] { display:none !important; }
 
 .dashboard-customizer-footer {

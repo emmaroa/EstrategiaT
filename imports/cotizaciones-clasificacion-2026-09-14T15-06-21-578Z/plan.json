@@ -1,0 +1,1987 @@
+[
+  {
+    "id": "005cc8ed-4fb8-5077-929f-1036e189210f",
+    "folio": "01590-2026-CT",
+    "unidad": "1932",
+    "cambios": {
+      "dependencia": "10-Dirección General de Desarrollo de Infraestructura"
+    }
+  },
+  {
+    "id": "015f950a-c8ac-4ae2-abf3-c51e56787ca9",
+    "folio": "COT-2026-0051",
+    "unidad": "STOCK",
+    "cambios": {
+      "partida": "26102"
+    }
+  },
+  {
+    "id": "01852073-ff39-4886-a2ae-2ee2c7bd0788",
+    "folio": "COT-2026-0195",
+    "unidad": "211410203310",
+    "cambios": {
+      "dependencia": "11-Dirección General de Servicios Públicos Municipales",
+      "partida": "29801"
+    }
+  },
+  {
+    "id": "0191883a-08af-4937-b10b-c59f79dfcb58",
+    "folio": "COT-2026-0011",
+    "unidad": "3200",
+    "cambios": {
+      "dependencia": "11-Dirección General de Servicios Públicos Municipales",
+      "partida": "29601"
+    }
+  },
+  {
+    "id": "01d39e29-dff0-48ae-8997-f02b6c4f3304",
+    "folio": "COT-2026-0248",
+    "unidad": "4553",
+    "cambios": {
+      "dependencia": "11-Dirección General de Servicios Públicos Municipales",
+      "partida": "29801"
+    }
+  },
+  {
+    "id": "028c969e-1e9f-49c3-8ef8-bea9800241b5",
+    "folio": "COT-2026-0231",
+    "unidad": "211410203330",
+    "cambios": {
+      "dependencia": "11-Dirección General de Servicios Públicos Municipales",
+      "partida": "29801"
+    }
+  },
+  {
+    "id": "030d75fe-3bca-49db-ad8d-4f63b067d84b",
+    "folio": "COT-2026-0268",
+    "unidad": "1787",
+    "cambios": {
+      "dependencia": "10-Dirección General de Desarrollo de Infraestructura",
+      "partida": "29601"
+    }
+  },
+  {
+    "id": "03f6ad8e-cf2a-4e3e-8ab6-1d421eb4e35f",
+    "folio": "COT-2026-0297",
+    "unidad": "3194",
+    "cambios": {
+      "dependencia": "11-Dirección General de Servicios Públicos Municipales",
+      "partida": "29601"
+    }
+  },
+  {
+    "id": "0600e5be-d531-4501-a932-83bac0671e50",
+    "folio": "COT-2026-0218",
+    "unidad": "1417",
+    "cambios": {
+      "dependencia": "10-Dirección General de Desarrollo de Infraestructura",
+      "partida": "29601"
+    }
+  },
+  {
+    "id": "06b7f300-e7bd-486c-a852-452ecee619e6",
+    "folio": "COT-2026-0296",
+    "unidad": "1861",
+    "cambios": {
+      "dependencia": "10-Dirección General de Desarrollo de Infraestructura",
+      "partida": "29601"
+    }
+  },
+  {
+    "id": "07250947-6d1e-514e-b1aa-761026e4bda7",
+    "folio": "01584-2026-CT",
+    "unidad": "3517",
+    "cambios": {
+      "dependencia": "10-Dirección General de Desarrollo de Infraestructura"
+    }
+  },
+  {
+    "id": "078026da-aff5-4a94-acdd-872ca45c6f82",
+    "folio": "COT-2026-0353",
+    "unidad": "STOCK",
+    "cambios": {
+      "partida": "26102"
+    }
+  },
+  {
+    "id": "0a3ac77a-f2d5-4bac-8fc2-369b677e65db",
+    "folio": "COT-2026-0453",
+    "unidad": "STOCK",
+    "cambios": {
+      "partida": "26102"
+    }
+  },
+  {
+    "id": "0bbb4d0e-68ec-43f0-9fd6-a58fa31f4188",
+    "folio": "COT-2026-0175",
+    "unidad": "4562",
+    "cambios": {
+      "dependencia": "10-Dirección General de Desarrollo de Infraestructura",
+      "partida": "29801"
+    }
+  },
+  {
+    "id": "0be71d1f-9a78-433f-bd3e-6a2c6a44177b",
+    "folio": "COT-2026-0307",
+    "unidad": "2207",
+    "cambios": {
+      "partida": "29601"
+    }
+  },
+  {
+    "id": "0d4df912-0978-47c0-ba49-06c3e9db5104",
+    "folio": "COT-2026-0283",
+    "unidad": "STOCK",
+    "cambios": {
+      "partida": "26102"
+    }
+  },
+  {
+    "id": "0e7a4e55-c78b-5745-8f7d-c998dca97a8a",
+    "folio": "01572-2026-CT",
+    "unidad": "3691",
+    "cambios": {
+      "dependencia": "10-Dirección General de Desarrollo de Infraestructura"
+    }
+  },
+  {
+    "id": "118ffa46-e7b6-50bc-8178-16b1016f0153",
+    "folio": "01544-2026-CT",
+    "unidad": "3324",
+    "cambios": {
+      "dependencia": "11-Dirección General de Servicios Públicos Municipales"
+    }
+  },
+  {
+    "id": "123fd00a-1852-4964-8e23-1ab15ae7983e",
+    "folio": "COT-2026-0261",
+    "unidad": "MP2100004560",
+    "cambios": {
+      "dependencia": "10-Dirección General de Desarrollo de Infraestructura",
+      "partida": "29801"
+    }
+  },
+  {
+    "id": "154dff8f-2e5c-4f8b-8681-2ae78c61ac11",
+    "folio": "COT-2026-0132",
+    "unidad": "3521",
+    "cambios": {
+      "dependencia": "10-Dirección General de Desarrollo de Infraestructura",
+      "partida": "29801"
+    }
+  },
+  {
+    "id": "170d085c-d058-41ce-a3b5-6a820fa3d263",
+    "folio": "COT-2026-0238",
+    "unidad": "210200303199",
+    "cambios": {
+      "dependencia": "11-Dirección General de Servicios Públicos Municipales",
+      "partida": "29601"
+    }
+  },
+  {
+    "id": "17bb1df8-e3bc-47f1-8639-e982564ac873",
+    "folio": "COT-2026-0022",
+    "unidad": "STOCK",
+    "cambios": {
+      "partida": "26102"
+    }
+  },
+  {
+    "id": "17d6797e-b9f8-4b14-ad31-4866cf3c16aa",
+    "folio": "COT-2026-0274",
+    "unidad": "4226",
+    "cambios": {
+      "partida": "29601"
+    }
+  },
+  {
+    "id": "1bcfe824-05dc-4fc4-a119-2ed0a7094a1b",
+    "folio": "COT-2026-0192",
+    "unidad": "210200303337",
+    "cambios": {
+      "dependencia": "11-Dirección General de Servicios Públicos Municipales",
+      "partida": "29601"
+    }
+  },
+  {
+    "id": "1bec5ab0-5e86-561a-a3dd-df3666525bf5",
+    "folio": "01638-2026-CT",
+    "unidad": "1935",
+    "cambios": {
+      "dependencia": "10-Dirección General de Desarrollo de Infraestructura"
+    }
+  },
+  {
+    "id": "1e47f547-9211-4174-8486-4613e5e3e723",
+    "folio": "COT-2026-0016",
+    "unidad": "STOCK",
+    "cambios": {
+      "partida": "26102"
+    }
+  },
+  {
+    "id": "20467fa3-aaaf-467e-82ee-19252c784a7d",
+    "folio": "COT-2026-0006",
+    "unidad": "STOCK",
+    "cambios": {
+      "partida": "26102"
+    }
+  },
+  {
+    "id": "21d89c28-fa2a-4d55-bbfb-15dd04506665",
+    "folio": "COT-2026-0081",
+    "unidad": "3522",
+    "cambios": {
+      "dependencia": "10-Dirección General de Desarrollo de Infraestructura",
+      "partida": "29801"
+    }
+  },
+  {
+    "id": "234a5e1a-1869-57b5-b5d3-0c85fb1212bf",
+    "folio": "01615-2026-CT",
+    "unidad": "2757",
+    "cambios": {
+      "dependencia": "11-Dirección General de Servicios Públicos Municipales"
+    }
+  },
+  {
+    "id": "240f0833-9743-501c-8ed9-b7bdaa3aba87",
+    "folio": "01499-2026-CT",
+    "unidad": "4099",
+    "cambios": {
+      "dependencia": "11-Dirección General de Servicios Públicos Municipales"
+    }
+  },
+  {
+    "id": "241d0317-6e6e-5acd-89e8-3d6dd7b2d579",
+    "folio": "01497-2026-CT",
+    "unidad": "3363",
+    "cambios": {
+      "dependencia": "11-Dirección General de Servicios Públicos Municipales"
+    }
+  },
+  {
+    "id": "26fb1711-f330-4526-816a-c2114fa85519",
+    "folio": "COT-2026-0444",
+    "unidad": "VH0100004062",
+    "cambios": {
+      "dependencia": "03-Jefatura de Oficina de la Presidencia Municipal",
+      "partida": "29601"
+    }
+  },
+  {
+    "id": "274eec4c-eb1b-46b7-8f16-117b4f9d04bf",
+    "folio": "COT-2026-0090",
+    "unidad": "4178",
+    "cambios": {
+      "dependencia": "10-Dirección General de Desarrollo de Infraestructura",
+      "partida": "29601"
+    }
+  },
+  {
+    "id": "2767b10d-31e6-4720-ab63-7b85941773f7",
+    "folio": "COT-2026-0184",
+    "unidad": "2756",
+    "cambios": {
+      "dependencia": "11-Dirección General de Servicios Públicos Municipales",
+      "partida": "29601"
+    }
+  },
+  {
+    "id": "27e9e624-b9e7-49d4-ba35-dd5b0e2161f5",
+    "folio": "COT-2026-0193",
+    "unidad": "2026",
+    "cambios": {
+      "dependencia": "10-Dirección General de Desarrollo de Infraestructura",
+      "partida": "29601"
+    }
+  },
+  {
+    "id": "28270179-6912-40d2-8cd6-6b8208f25724",
+    "folio": "COT-2026-0144",
+    "unidad": "2177",
+    "cambios": {
+      "dependencia": "10-Dirección General de Desarrollo de Infraestructura",
+      "partida": "29601"
+    }
+  },
+  {
+    "id": "29a8c8f6-008e-4cc7-a3b1-80e1aa26731b",
+    "folio": "COT-2026-0395",
+    "unidad": "211410102016",
+    "cambios": {
+      "dependencia": "11-Dirección General de Servicios Públicos Municipales",
+      "partida": "29801"
+    }
+  },
+  {
+    "id": "2a0a8967-3859-5ac9-ab7b-a36068793b2c",
+    "folio": "01480-2026-CT",
+    "unidad": "4020",
+    "cambios": {
+      "dependencia": "45-Dirección de Inspección y Vigilancia"
+    }
+  },
+  {
+    "id": "2b8d798c-65ad-48b8-b10a-cdef44176549",
+    "folio": "COT-2026-0288",
+    "unidad": "211410503694",
+    "cambios": {
+      "dependencia": "10-Dirección General de Desarrollo de Infraestructura",
+      "partida": "29801"
+    }
+  },
+  {
+    "id": "2c32968a-5b3e-52e6-ae9f-577813374a76",
+    "folio": "01393-2026-CT",
+    "unidad": "4566",
+    "cambios": {
+      "dependencia": "11-Dirección General de Servicios Públicos Municipales"
+    }
+  },
+  {
+    "id": "2e884205-1952-4fe2-b54f-b20de9b00aba",
+    "folio": "COT-2026-0304",
+    "unidad": "2064",
+    "cambios": {
+      "dependencia": "10-Dirección General de Desarrollo de Infraestructura",
+      "partida": "29601"
+    }
+  },
+  {
+    "id": "2f51c70e-ae94-5b18-813d-d43860a8c32c",
+    "folio": "01639-2026-CT",
+    "unidad": "2434",
+    "cambios": {
+      "dependencia": "11-Dirección General de Servicios Públicos Municipales"
+    }
+  },
+  {
+    "id": "2f593bb7-a668-40bb-a44d-79d3a6f97afd",
+    "folio": "COT-2026-0178",
+    "unidad": "3357",
+    "cambios": {
+      "dependencia": "08-Tesorería Municipal",
+      "partida": "29601"
+    }
+  },
+  {
+    "id": "2fd82eb6-7d24-58fa-8128-4e9857d0f32d",
+    "folio": "01583-2026-CT",
+    "unidad": "3364",
+    "cambios": {
+      "dependencia": "11-Dirección General de Servicios Públicos Municipales"
+    }
+  },
+  {
+    "id": "2fdf2c84-f0ee-41cd-90b4-c4b02b49f57b",
+    "folio": "COT-2026-0287",
+    "unidad": "4462",
+    "cambios": {
+      "dependencia": "11-Dirección General de Servicios Públicos Municipales",
+      "partida": "29601"
+    }
+  },
+  {
+    "id": "30943950-3bbb-4828-8f86-ce4544caf598",
+    "folio": "COT-2026-0235",
+    "unidad": "3335",
+    "cambios": {
+      "dependencia": "11-Dirección General de Servicios Públicos Municipales",
+      "partida": "29601"
+    }
+  },
+  {
+    "id": "33d0e837-0e2b-5a0e-8a97-ad052242e460",
+    "folio": "01604-2026-CT",
+    "unidad": "3366",
+    "cambios": {
+      "dependencia": "11-Dirección General de Servicios Públicos Municipales"
+    }
+  },
+  {
+    "id": "345c4f02-ce39-4f9b-a14e-d331f5624558",
+    "folio": "COT-2026-0246",
+    "unidad": "3095",
+    "cambios": {
+      "partida": "29601"
+    }
+  },
+  {
+    "id": "3632ae68-c3df-5be1-ae41-aa79f912aee9",
+    "folio": "01556-2026-CT",
+    "unidad": "1803",
+    "cambios": {
+      "dependencia": "11-Dirección General de Servicios Públicos Municipales"
+    }
+  },
+  {
+    "id": "36dd17f6-6515-452a-8578-755fbaa6f8a5",
+    "folio": "COT-2026-0150",
+    "unidad": "4022",
+    "cambios": {
+      "dependencia": "10-Dirección General de Desarrollo de Infraestructura",
+      "partida": "29601"
+    }
+  },
+  {
+    "id": "37019c43-f027-4719-ad57-346627655dd4",
+    "folio": "COT-2026-0348",
+    "unidad": "211410002064",
+    "cambios": {
+      "dependencia": "10-Dirección General de Desarrollo de Infraestructura",
+      "partida": "29601"
+    }
+  },
+  {
+    "id": "370b9321-2c6f-4418-913e-66b1a240cfb4",
+    "folio": "COT-2026-0256",
+    "unidad": "211410703522",
+    "cambios": {
+      "dependencia": "10-Dirección General de Desarrollo de Infraestructura",
+      "partida": "29801"
+    }
+  },
+  {
+    "id": "398fa5ec-4c39-529a-bf2b-8732db50a9e3",
+    "folio": "01634-2026-CT",
+    "unidad": "3339",
+    "cambios": {
+      "dependencia": "11-Dirección General de Servicios Públicos Municipales"
+    }
+  },
+  {
+    "id": "39c406cd-0f17-41c2-a2b3-d57d9a735eff",
+    "folio": "COT-2026-0428",
+    "unidad": "210200301864",
+    "cambios": {
+      "partida": "29601"
+    }
+  },
+  {
+    "id": "3adc91be-e7ea-47f0-8e5f-cb13f5ae2df3",
+    "folio": "COT-2026-0211",
+    "unidad": "1968",
+    "cambios": {
+      "dependencia": "10-Dirección General de Desarrollo de Infraestructura",
+      "partida": "29601"
+    }
+  },
+  {
+    "id": "3b21a0cf-ae90-4767-8661-fb0a882246a4",
+    "folio": "COT-2026-0220",
+    "unidad": "4848",
+    "cambios": {
+      "dependencia": "10-Dirección General de Desarrollo de Infraestructura"
+    }
+  },
+  {
+    "id": "3d7d7dc4-8d65-586a-a66b-01f0581be78f",
+    "folio": "01277-2026-CT",
+    "unidad": "3575",
+    "cambios": {
+      "dependencia": "11-Dirección General de Servicios Públicos Municipales"
+    }
+  },
+  {
+    "id": "3da9cff6-02c9-531c-9079-0cd19600903a",
+    "folio": "01643-2026-CT",
+    "unidad": "3316",
+    "cambios": {
+      "dependencia": "11-Dirección General de Servicios Públicos Municipales"
+    }
+  },
+  {
+    "id": "3df50f3e-849c-4e76-a5a0-62347a7334aa",
+    "folio": "COT-2026-0323",
+    "unidad": "2026",
+    "cambios": {
+      "dependencia": "10-Dirección General de Desarrollo de Infraestructura",
+      "partida": "29601"
+    }
+  },
+  {
+    "id": "3fa54130-9b71-4f72-96d2-5f1e06201120",
+    "folio": "COT-2026-0430",
+    "unidad": "STOCK",
+    "cambios": {
+      "partida": "26102"
+    }
+  },
+  {
+    "id": "3fc3f9f1-dd45-4a4f-a86c-41f85a60ca87",
+    "folio": "COT-2026-0173",
+    "unidad": "3609",
+    "cambios": {
+      "dependencia": "10-Dirección General de Desarrollo de Infraestructura",
+      "partida": "29801"
+    }
+  },
+  {
+    "id": "40a8864e-7bfb-4e41-9983-898160b87ad8",
+    "folio": "COT-2026-0200",
+    "unidad": "3331",
+    "cambios": {
+      "dependencia": "11-Dirección General de Servicios Públicos Municipales",
+      "partida": "29801"
+    }
+  },
+  {
+    "id": "40bb22f6-76dc-5b39-8355-1806110f5ac1",
+    "folio": "01602-2026-CT",
+    "unidad": "1206",
+    "cambios": {
+      "dependencia": "10-Dirección General de Desarrollo de Infraestructura"
+    }
+  },
+  {
+    "id": "40dc7d7d-fc16-453c-b9e5-b155d9434495",
+    "folio": "COT-2026-0429",
+    "unidad": "STOCK",
+    "cambios": {
+      "partida": "26102"
+    }
+  },
+  {
+    "id": "419c66e0-ab40-57bb-8c03-c9b015354063",
+    "folio": "01563-2026-CT",
+    "unidad": "3672",
+    "cambios": {
+      "dependencia": "11-Dirección General de Servicios Públicos Municipales"
+    }
+  },
+  {
+    "id": "424e4607-ab71-5c24-9cf5-14d8ce3daab7",
+    "folio": "01586-2026-CT",
+    "unidad": "3694",
+    "cambios": {
+      "dependencia": "10-Dirección General de Desarrollo de Infraestructura"
+    }
+  },
+  {
+    "id": "4326d2e9-01ad-4159-a9da-c9d4dcb83a9a",
+    "folio": "COT-2026-0278",
+    "unidad": "1206",
+    "cambios": {
+      "dependencia": "10-Dirección General de Desarrollo de Infraestructura",
+      "partida": "29801"
+    }
+  },
+  {
+    "id": "4834a7fc-88ec-4071-b8ea-4982b55ee16f",
+    "folio": "COT-2026-0137",
+    "unidad": "1864",
+    "cambios": {
+      "partida": "29601"
+    }
+  },
+  {
+    "id": "4b91ab81-8104-4267-88ba-c9be2c6c1989",
+    "folio": "COT-2026-0189",
+    "unidad": "211410203324",
+    "cambios": {
+      "dependencia": "11-Dirección General de Servicios Públicos Municipales",
+      "partida": "29801"
+    }
+  },
+  {
+    "id": "4bcf3b9c-b618-535f-8f89-e2444a5e7ca5",
+    "folio": "01398-2026-CT",
+    "unidad": "3299",
+    "cambios": {
+      "dependencia": "45-Dirección de Inspección y Vigilancia"
+    }
+  },
+  {
+    "id": "4c751dec-3f09-5ac1-8dc8-66ec2beddf3b",
+    "folio": "01630-2026-CT",
+    "unidad": "2757",
+    "cambios": {
+      "dependencia": "11-Dirección General de Servicios Públicos Municipales"
+    }
+  },
+  {
+    "id": "4cc1ce38-d3b2-4bf3-a617-6f5279eb36b3",
+    "folio": "COT-2026-0055",
+    "unidad": "3516",
+    "cambios": {
+      "dependencia": "11-Dirección General de Servicios Públicos Municipales",
+      "partida": "29801"
+    }
+  },
+  {
+    "id": "4eea308d-39b4-4184-94bd-be1468241e71",
+    "folio": "COT-2026-0121",
+    "unidad": "2121",
+    "cambios": {
+      "dependencia": "10-Dirección General de Desarrollo de Infraestructura",
+      "partida": "29601"
+    }
+  },
+  {
+    "id": "4f67ffe7-0084-4c5f-8803-c09f3b380418",
+    "folio": "COT-2026-0165",
+    "unidad": "3258",
+    "cambios": {
+      "partida": "29601"
+    }
+  },
+  {
+    "id": "501145d8-dcb8-4618-bfe4-9bd25a9cfa31",
+    "folio": "COT-2026-0079",
+    "unidad": "STOCK",
+    "cambios": {
+      "partida": "26102"
+    }
+  },
+  {
+    "id": "5144b407-da72-4572-afed-a4ecd7740a07",
+    "folio": "COT-2026-0117",
+    "unidad": "211410203573",
+    "cambios": {
+      "dependencia": "11-Dirección General de Servicios Públicos Municipales",
+      "partida": "29801"
+    }
+  },
+  {
+    "id": "51cf3654-50b7-5b35-9fe1-be302b1c0bec",
+    "folio": "01278-2026-CT",
+    "unidad": "3351",
+    "cambios": {
+      "dependencia": "02-Sindicatura Municipal"
+    }
+  },
+  {
+    "id": "52af3225-3cda-4ff6-87f0-2826995dbcc5",
+    "folio": "COT-2026-0236",
+    "unidad": "210200303203",
+    "cambios": {
+      "dependencia": "11-Dirección General de Servicios Públicos Municipales",
+      "partida": "29601"
+    }
+  },
+  {
+    "id": "53396b95-96a5-44e4-b5e9-3f608a7dea99",
+    "folio": "COT-2026-0085",
+    "unidad": "4088",
+    "cambios": {
+      "partida": "29601"
+    }
+  },
+  {
+    "id": "536d0cb3-0e41-5154-a389-2693a3e500b7",
+    "folio": "01478-2026-CT",
+    "unidad": "3297",
+    "cambios": {
+      "dependencia": "45-Dirección de Inspección y Vigilancia"
+    }
+  },
+  {
+    "id": "54397d7c-1cc2-4483-bb23-a82b96697c3f",
+    "folio": "COT-2026-0299",
+    "unidad": "3435",
+    "cambios": {
+      "dependencia": "11-Dirección General de Servicios Públicos Municipales",
+      "partida": "29601"
+    }
+  },
+  {
+    "id": "5621ca20-3141-5d16-a495-7fe74991e335",
+    "folio": "01503-2026-CT",
+    "unidad": "3578",
+    "cambios": {
+      "dependencia": "11-Dirección General de Servicios Públicos Municipales"
+    }
+  },
+  {
+    "id": "564c673b-15ef-4ac3-b475-db88def9e01f",
+    "folio": "COT-2026-0249",
+    "unidad": "STOCK",
+    "cambios": {
+      "partida": "26102"
+    }
+  },
+  {
+    "id": "580b528c-fdc7-4a33-99e4-b2e462238d5f",
+    "folio": "COT-2026-0136",
+    "unidad": "3137",
+    "cambios": {
+      "dependencia": "10-Dirección General de Desarrollo de Infraestructura",
+      "partida": "29601"
+    }
+  },
+  {
+    "id": "5a73f43e-b503-47cb-b2dc-dac71eac977f",
+    "folio": "COT-2026-0447",
+    "unidad": "210200202813",
+    "cambios": {
+      "dependencia": "12-Oficialía Mayor",
+      "partida": "29601"
+    }
+  },
+  {
+    "id": "5b24a123-bd3d-5856-b3e6-ff6eb84196e9",
+    "folio": "01483-2026-CT",
+    "unidad": "3618",
+    "cambios": {
+      "dependencia": "47-Coordinación Municipal de Protección Civil"
+    }
+  },
+  {
+    "id": "5cb3b27a-b5d1-4cc5-aaf9-fd7547e0149a",
+    "folio": "COT-2026-0122",
+    "unidad": "3573",
+    "cambios": {
+      "dependencia": "11-Dirección General de Servicios Públicos Municipales",
+      "partida": "29801"
+    }
+  },
+  {
+    "id": "5ce86fc4-c0f3-56bb-a380-147bc5222a23",
+    "folio": "01641-2026-CT",
+    "unidad": "3332",
+    "cambios": {
+      "dependencia": "11-Dirección General de Servicios Públicos Municipales"
+    }
+  },
+  {
+    "id": "5eeaf867-4323-4fab-9d46-c9232fe5b22a",
+    "folio": "COT-2026-0135",
+    "unidad": "1786",
+    "cambios": {
+      "dependencia": "10-Dirección General de Desarrollo de Infraestructura",
+      "partida": "29601"
+    }
+  },
+  {
+    "id": "5f3f7492-6ae4-4171-be95-b0c9a8ef54e4",
+    "folio": "COT-2026-0140",
+    "unidad": "3672",
+    "cambios": {
+      "dependencia": "11-Dirección General de Servicios Públicos Municipales",
+      "partida": "29801"
+    }
+  },
+  {
+    "id": "62a695a2-0036-4d82-aed3-5c0098840354",
+    "folio": "COT-2026-0285",
+    "unidad": "VH0100004174",
+    "cambios": {
+      "partida": "29601"
+    }
+  },
+  {
+    "id": "632489ca-d5c9-41fe-9864-1a6d8661ed72",
+    "folio": "COT-2026-0398",
+    "unidad": "210200103662",
+    "cambios": {
+      "dependencia": "11-Dirección General de Servicios Públicos Municipales",
+      "partida": "29601"
+    }
+  },
+  {
+    "id": "637710e4-3226-42a4-be5a-8710bc086dc0",
+    "folio": "COT-2026-0378",
+    "unidad": "211410203304",
+    "cambios": {
+      "dependencia": "11-Dirección General de Servicios Públicos Municipales",
+      "partida": "29801"
+    }
+  },
+  {
+    "id": "66df8eea-863f-4878-b35a-9e18d18c7a25",
+    "folio": "COT-2026-0082",
+    "unidad": "4083",
+    "cambios": {
+      "partida": "29601"
+    }
+  },
+  {
+    "id": "696880bc-4212-41c0-a355-41cddce3f1bd",
+    "folio": "COT-2026-0151",
+    "unidad": "3526",
+    "cambios": {
+      "dependencia": "11-Dirección General de Servicios Públicos Municipales",
+      "partida": "29601"
+    }
+  },
+  {
+    "id": "6982e59e-682f-574e-b3aa-07cfe5d90507",
+    "folio": "01635-2026-CT",
+    "unidad": "3312",
+    "cambios": {
+      "dependencia": "11-Dirección General de Servicios Públicos Municipales"
+    }
+  },
+  {
+    "id": "69861a57-2d6a-53db-b34d-ee7b99aafc77",
+    "folio": "01453-2026-CT",
+    "unidad": "3671",
+    "cambios": {
+      "dependencia": "11-Dirección General de Servicios Públicos Municipales"
+    }
+  },
+  {
+    "id": "6a1143af-88c8-5b94-9b49-d8cc0e24288d",
+    "folio": "01440-2026-CT",
+    "unidad": "3526",
+    "cambios": {
+      "dependencia": "11-Dirección General de Servicios Públicos Municipales"
+    }
+  },
+  {
+    "id": "6b4a6b7b-ef30-43af-8c89-9548d96cd20f",
+    "folio": "COT-2026-0321",
+    "unidad": "3096",
+    "cambios": {
+      "partida": "29601"
+    }
+  },
+  {
+    "id": "6bce067f-afb5-4155-8c7f-8e2309004984",
+    "folio": "COT-2026-0242",
+    "unidad": "210200303202",
+    "cambios": {
+      "dependencia": "11-Dirección General de Servicios Públicos Municipales",
+      "partida": "29601"
+    }
+  },
+  {
+    "id": "6c951faf-252c-4c44-bccc-d051fcde9dad",
+    "folio": "COT-2026-0163",
+    "unidad": "2434",
+    "cambios": {
+      "dependencia": "11-Dirección General de Servicios Públicos Municipales",
+      "partida": "29601"
+    }
+  },
+  {
+    "id": "6daa3a63-9d49-54f7-a9d5-be4e5a751ad7",
+    "folio": "01505-2026-CT",
+    "unidad": "3578",
+    "cambios": {
+      "dependencia": "11-Dirección General de Servicios Públicos Municipales"
+    }
+  },
+  {
+    "id": "6f857f34-a83e-4a6d-9dc7-c2fe6926d0fe",
+    "folio": "COT-2026-0277",
+    "unidad": "1864",
+    "cambios": {
+      "partida": "29601"
+    }
+  },
+  {
+    "id": "7294f72a-a9c0-41b3-85ae-7a40d5671f7b",
+    "folio": "COT-2026-0376",
+    "unidad": "3194",
+    "cambios": {
+      "dependencia": "11-Dirección General de Servicios Públicos Municipales",
+      "partida": "29601"
+    }
+  },
+  {
+    "id": "743a6e7a-894b-598c-a3c7-391c6d7a9fcc",
+    "folio": "01550-2026-CT",
+    "unidad": "2185",
+    "cambios": {
+      "dependencia": "13-Dirección General de Participación Ciudadana"
+    }
+  },
+  {
+    "id": "750d78ec-793c-4e3a-b469-9142c5cf002e",
+    "folio": "COT-2026-0183",
+    "unidad": "211410203213",
+    "cambios": {
+      "dependencia": "11-Dirección General de Servicios Públicos Municipales",
+      "partida": "29801"
+    }
+  },
+  {
+    "id": "75c739be-548d-471e-94cc-1f4eb8706b52",
+    "folio": "COT-2026-0333",
+    "unidad": "STOCK",
+    "cambios": {
+      "partida": "26102"
+    }
+  },
+  {
+    "id": "76613641-f792-5502-a37d-1f9eb77d3194",
+    "folio": "01346-2026-CT",
+    "unidad": "3299",
+    "cambios": {
+      "dependencia": "45-Dirección de Inspección y Vigilancia"
+    }
+  },
+  {
+    "id": "7736ccef-8eb5-4ef3-9296-e73f50702165",
+    "folio": "COT-2026-0174",
+    "unidad": "3437",
+    "cambios": {
+      "partida": "29601"
+    }
+  },
+  {
+    "id": "77d6bdd0-0039-404a-8d1c-54a38fcc25b2",
+    "folio": "COT-2026-0197",
+    "unidad": "3671",
+    "cambios": {
+      "dependencia": "11-Dirección General de Servicios Públicos Municipales",
+      "partida": "29801"
+    }
+  },
+  {
+    "id": "799b6be1-3091-48cc-950a-66ddb7c40c4c",
+    "folio": "COT-2026-0237",
+    "unidad": "3202",
+    "cambios": {
+      "dependencia": "11-Dirección General de Servicios Públicos Municipales",
+      "partida": "29601"
+    }
+  },
+  {
+    "id": "7afc189f-224e-5610-a15c-9a92ab44ff96",
+    "folio": "01594-2026-CT",
+    "unidad": "3621",
+    "cambios": {
+      "dependencia": "10-Dirección General de Desarrollo de Infraestructura"
+    }
+  },
+  {
+    "id": "7b2429f5-6168-5b21-9760-8bca3a430a9b",
+    "folio": "01549-2026-CT",
+    "unidad": "3339",
+    "cambios": {
+      "dependencia": "11-Dirección General de Servicios Públicos Municipales"
+    }
+  },
+  {
+    "id": "7d5d517c-d9c1-4524-8f0f-cbc59ddb94ce",
+    "folio": "COT-2026-0196",
+    "unidad": "211410203310",
+    "cambios": {
+      "dependencia": "11-Dirección General de Servicios Públicos Municipales",
+      "partida": "29801"
+    }
+  },
+  {
+    "id": "7d8578ec-1d9c-4d25-a2f3-7da0e2111edc",
+    "folio": "COT-2026-0402",
+    "unidad": "STOCK",
+    "cambios": {
+      "partida": "26102"
+    }
+  },
+  {
+    "id": "7e484d31-f8c3-444d-8243-3f82dc788c12",
+    "folio": "COT-2026-0095",
+    "unidad": "4562",
+    "cambios": {
+      "dependencia": "10-Dirección General de Desarrollo de Infraestructura",
+      "partida": "29801"
+    }
+  },
+  {
+    "id": "7e51e2fe-2b3d-4bb0-b439-0b9ae92bf532",
+    "folio": "COT-2026-0187",
+    "unidad": "1970",
+    "cambios": {
+      "dependencia": "10-Dirección General de Desarrollo de Infraestructura",
+      "partida": "29801"
+    }
+  },
+  {
+    "id": "7e95775a-0647-41fb-8161-8e4c4e96bb0e",
+    "folio": "COT-2026-0260",
+    "unidad": "VH0100004173",
+    "cambios": {
+      "partida": "29601"
+    }
+  },
+  {
+    "id": "7ed41083-32cf-48cd-a287-596d44e7c189",
+    "folio": "COT-2026-0247",
+    "unidad": "3616",
+    "cambios": {
+      "dependencia": "03-Jefatura de Oficina de la Presidencia Municipal",
+      "partida": "29601"
+    }
+  },
+  {
+    "id": "7f9d7df1-95ea-540d-bfca-53fd4e7573d7",
+    "folio": "01642-2026-CT",
+    "unidad": "3316",
+    "cambios": {
+      "dependencia": "11-Dirección General de Servicios Públicos Municipales"
+    }
+  },
+  {
+    "id": "8060488b-d42d-4082-a558-9a6dc0835faa",
+    "folio": "COT-2026-0401",
+    "unidad": "STOCK",
+    "cambios": {
+      "partida": "26102"
+    }
+  },
+  {
+    "id": "834b8e8a-0d22-4687-91d2-70eee9c0624a",
+    "folio": "COT-2026-0420",
+    "unidad": "210200202466",
+    "cambios": {
+      "partida": "29601"
+    }
+  },
+  {
+    "id": "839c1964-65a6-59b0-8bb1-5d22005532b3",
+    "folio": "01585-2026-CT",
+    "unidad": "4564",
+    "cambios": {
+      "dependencia": "11-Dirección General de Servicios Públicos Municipales"
+    }
+  },
+  {
+    "id": "83b39d8d-c331-4cdf-9b18-8cd63944b7c7",
+    "folio": "COT-2026-0119",
+    "unidad": "3203",
+    "cambios": {
+      "dependencia": "11-Dirección General de Servicios Públicos Municipales",
+      "partida": "29601"
+    }
+  },
+  {
+    "id": "85124a92-54e7-463d-890c-cd6f00b34ca9",
+    "folio": "COT-2026-0027",
+    "unidad": "3584",
+    "cambios": {
+      "dependencia": "10-Dirección General de Desarrollo de Infraestructura",
+      "partida": "29801"
+    }
+  },
+  {
+    "id": "86dd2328-64cf-5de1-8393-2d7c682e270f",
+    "folio": "01582-2026-CT",
+    "unidad": "3311",
+    "cambios": {
+      "dependencia": "11-Dirección General de Servicios Públicos Municipales"
+    }
+  },
+  {
+    "id": "877b95ae-4f8f-52e9-8a85-571198984548",
+    "folio": "01589-2026-CT",
+    "unidad": "3522",
+    "cambios": {
+      "dependencia": "10-Dirección General de Desarrollo de Infraestructura"
+    }
+  },
+  {
+    "id": "88ff694f-e42f-4e1e-93d0-27b25ddf40d9",
+    "folio": "COT-2026-0443",
+    "unidad": "210200302185",
+    "cambios": {
+      "dependencia": "13-Dirección General de Participación Ciudadana",
+      "partida": "29601"
+    }
+  },
+  {
+    "id": "8a0da3e4-4231-4344-aaca-fdafc5e5b1c9",
+    "folio": "COT-2026-0409",
+    "unidad": "3609",
+    "cambios": {
+      "dependencia": "10-Dirección General de Desarrollo de Infraestructura",
+      "partida": "29801"
+    }
+  },
+  {
+    "id": "8abd7157-0dcf-4273-9b70-1183d71d497b",
+    "folio": "COT-2026-0170",
+    "unidad": "4226",
+    "cambios": {
+      "partida": "29601"
+    }
+  },
+  {
+    "id": "8d15fa18-1eea-4123-9d46-0ad085f3356d",
+    "folio": "COT-2026-0442",
+    "unidad": "VH0100004239",
+    "cambios": {
+      "partida": "29601"
+    }
+  },
+  {
+    "id": "8e9a7ce7-e936-4be8-9622-837a7c91ff6b",
+    "folio": "COT-2026-0143",
+    "unidad": "3481",
+    "cambios": {
+      "partida": "29601"
+    }
+  },
+  {
+    "id": "8f19284c-ea17-4c20-9796-5258c5df2726",
+    "folio": "COT-2026-0139",
+    "unidad": "4184",
+    "cambios": {
+      "dependencia": "10-Dirección General de Desarrollo de Infraestructura",
+      "partida": "29601"
+    }
+  },
+  {
+    "id": "903855cf-6ce1-45c5-a97a-c9c0bd1b664c",
+    "folio": "COT-2026-0250",
+    "unidad": "3096",
+    "cambios": {
+      "partida": "29601"
+    }
+  },
+  {
+    "id": "9086b21a-5a85-5b79-aebf-d0ebfdb852fe",
+    "folio": "01592-2026-CT",
+    "unidad": "3621",
+    "cambios": {
+      "dependencia": "10-Dirección General de Desarrollo de Infraestructura"
+    }
+  },
+  {
+    "id": "92b7a197-0f79-42bf-a0fd-b940bfe0c429",
+    "folio": "COT-2026-0308",
+    "unidad": "211410203324",
+    "cambios": {
+      "dependencia": "11-Dirección General de Servicios Públicos Municipales",
+      "partida": "29801"
+    }
+  },
+  {
+    "id": "95170bd7-66df-5337-a5e5-464ed1b05521",
+    "folio": "01492-2026-CT",
+    "unidad": "STOCK",
+    "cambios": {
+      "partida": "26102"
+    }
+  },
+  {
+    "id": "96d138f7-ea9f-420f-bb2b-123927b0e78f",
+    "folio": "COT-2026-0138",
+    "unidad": "2976",
+    "cambios": {
+      "partida": "29601"
+    }
+  },
+  {
+    "id": "98687b69-ce00-480e-9c91-5d2e286bca76",
+    "folio": "COT-2026-0405",
+    "unidad": "STOCK",
+    "cambios": {
+      "partida": "26102"
+    }
+  },
+  {
+    "id": "9a56d883-97fe-4a28-b5a3-68beaa4045c7",
+    "folio": "COT-2026-0338",
+    "unidad": "211410001205",
+    "cambios": {
+      "dependencia": "10-Dirección General de Desarrollo de Infraestructura",
+      "partida": "29801"
+    }
+  },
+  {
+    "id": "9ab084ef-9ca7-4229-9d0f-e3b767e6f17e",
+    "folio": "COT-2026-0272",
+    "unidad": "1864",
+    "cambios": {
+      "partida": "29601"
+    }
+  },
+  {
+    "id": "9b3c42d7-fefb-5817-a940-13b742543ab9",
+    "folio": "01410-2026-CT",
+    "unidad": "4707",
+    "cambios": {
+      "dependencia": "11-Dirección General de Servicios Públicos Municipales"
+    }
+  },
+  {
+    "id": "9b5629e6-23af-439e-be32-5b8c39d9e65a",
+    "folio": "COT-2026-0054",
+    "unidad": "3477",
+    "cambios": {
+      "partida": "29601"
+    }
+  },
+  {
+    "id": "9e19ffd2-cd17-4396-9277-aea3b6d4b8cb",
+    "folio": "COT-2026-0177",
+    "unidad": "210200302434",
+    "cambios": {
+      "dependencia": "11-Dirección General de Servicios Públicos Municipales",
+      "partida": "29601"
+    }
+  },
+  {
+    "id": "9e33338e-54b7-5b15-89e6-64e36105bee2",
+    "folio": "01606-2026-CT",
+    "unidad": "1861",
+    "cambios": {
+      "dependencia": "10-Dirección General de Desarrollo de Infraestructura"
+    }
+  },
+  {
+    "id": "9ec65377-70bf-4816-98f5-2a8ecf4c79aa",
+    "folio": "COT-2026-0334",
+    "unidad": "STOCK",
+    "cambios": {
+      "partida": "26102"
+    }
+  },
+  {
+    "id": "a0be2ed6-fc5b-4b97-94f5-8036b9c74ce0",
+    "folio": "COT-2026-0350",
+    "unidad": "VH0100004136",
+    "cambios": {
+      "dependencia": "10-Dirección General de Desarrollo de Infraestructura",
+      "partida": "29601"
+    }
+  },
+  {
+    "id": "a3bb0186-1512-595d-baf2-2efa84d01d85",
+    "folio": "01588-2026-CT",
+    "unidad": "2314",
+    "cambios": {
+      "dependencia": "10-Dirección General de Desarrollo de Infraestructura"
+    }
+  },
+  {
+    "id": "a3ca183a-57f3-5ad2-8b80-7fec18da20f7",
+    "folio": "01600-2026-CT",
+    "unidad": "2058",
+    "cambios": {
+      "dependencia": "11-Dirección General de Servicios Públicos Municipales"
+    }
+  },
+  {
+    "id": "a457b3a5-cf29-4a45-bf80-1f739b3bbc2b",
+    "folio": "COT-2026-0069",
+    "unidad": "2026",
+    "cambios": {
+      "dependencia": "10-Dirección General de Desarrollo de Infraestructura",
+      "partida": "29601"
+    }
+  },
+  {
+    "id": "a5d7df36-3ea1-486a-a6d0-08a479adcb13",
+    "folio": "COT-2026-0397",
+    "unidad": "210200303527",
+    "cambios": {
+      "dependencia": "11-Dirección General de Servicios Públicos Municipales",
+      "partida": "29601"
+    }
+  },
+  {
+    "id": "a6090517-5889-52ec-b1e2-0fe528bcea7f",
+    "folio": "01357-2026-CT",
+    "unidad": "4099",
+    "cambios": {
+      "dependencia": "11-Dirección General de Servicios Públicos Municipales"
+    }
+  },
+  {
+    "id": "a61b6331-cc6a-59fe-96ff-19208aa1696e",
+    "folio": "01629-2026-CT",
+    "unidad": "3331",
+    "cambios": {
+      "dependencia": "11-Dirección General de Servicios Públicos Municipales"
+    }
+  },
+  {
+    "id": "a630bea9-5357-4ea8-a03a-8fc106d06ff7",
+    "folio": "COT-2026-0276",
+    "unidad": "4100",
+    "cambios": {
+      "dependencia": "10-Dirección General de Desarrollo de Infraestructura",
+      "partida": "29801"
+    }
+  },
+  {
+    "id": "a6a2af7a-474f-5487-a36d-54c050c4c963",
+    "folio": "01595-2026-CT",
+    "unidad": "4561",
+    "cambios": {
+      "dependencia": "10-Dirección General de Desarrollo de Infraestructura"
+    }
+  },
+  {
+    "id": "a6bc0dad-369c-4198-8762-1abf1d0e213a",
+    "folio": "COT-2026-0188",
+    "unidad": "2613",
+    "cambios": {
+      "dependencia": "10-Dirección General de Desarrollo de Infraestructura",
+      "partida": "29601"
+    }
+  },
+  {
+    "id": "a760a176-c22b-4320-adbc-daeb319fdf4b",
+    "folio": "COT-2026-0009",
+    "unidad": "STOCK",
+    "cambios": {
+      "partida": "26102"
+    }
+  },
+  {
+    "id": "a918ec56-9696-4d9b-a03d-8c9be6ca7e78",
+    "folio": "COT-2026-0295",
+    "unidad": "2026",
+    "cambios": {
+      "dependencia": "10-Dirección General de Desarrollo de Infraestructura",
+      "partida": "29601"
+    }
+  },
+  {
+    "id": "abc37266-ca86-486b-9aed-6d772a693dde",
+    "folio": "COT-2026-0240",
+    "unidad": "210200302755",
+    "cambios": {
+      "dependencia": "11-Dirección General de Servicios Públicos Municipales",
+      "partida": "29601"
+    }
+  },
+  {
+    "id": "ace6ab98-5f16-4217-9d96-e92469ef4401",
+    "folio": "COT-2026-0233",
+    "unidad": "211410203570",
+    "cambios": {
+      "dependencia": "11-Dirección General de Servicios Públicos Municipales",
+      "partida": "29801"
+    }
+  },
+  {
+    "id": "adc01a54-2024-4bac-b59a-025b9e19c0a3",
+    "folio": "COT-2026-0262",
+    "unidad": "211410503521",
+    "cambios": {
+      "dependencia": "10-Dirección General de Desarrollo de Infraestructura",
+      "partida": "29801"
+    }
+  },
+  {
+    "id": "ae88249f-c36e-4016-8423-0f7a51c2bf6a",
+    "folio": "COT-2026-0160",
+    "unidad": "3336",
+    "cambios": {
+      "dependencia": "11-Dirección General de Servicios Públicos Municipales",
+      "partida": "29601"
+    }
+  },
+  {
+    "id": "ae9452e8-6a46-5dc1-be48-2d91e5f71359",
+    "folio": "01482-2026-CT",
+    "unidad": "3618",
+    "cambios": {
+      "dependencia": "47-Coordinación Municipal de Protección Civil"
+    }
+  },
+  {
+    "id": "af017b6c-096a-41d7-b647-afa8ecf1058e",
+    "folio": "COT-2026-0199",
+    "unidad": "3339",
+    "cambios": {
+      "dependencia": "11-Dirección General de Servicios Públicos Municipales",
+      "partida": "29601"
+    }
+  },
+  {
+    "id": "afb596d5-43ee-4765-a5a3-f526b1b849f2",
+    "folio": "COT-2026-0058",
+    "unidad": "211410102018",
+    "cambios": {
+      "dependencia": "11-Dirección General de Servicios Públicos Municipales",
+      "partida": "29801"
+    }
+  },
+  {
+    "id": "b3085112-56be-4c33-a88e-f37ad81d5281",
+    "folio": "COT-2026-0162",
+    "unidad": "3528",
+    "cambios": {
+      "dependencia": "11-Dirección General de Servicios Públicos Municipales",
+      "partida": "29801"
+    }
+  },
+  {
+    "id": "b3ff78cb-8a92-46ab-b683-b7ef2163e928",
+    "folio": "COT-2026-0157",
+    "unidad": "3614",
+    "cambios": {
+      "dependencia": "10-Dirección General de Desarrollo de Infraestructura",
+      "partida": "29601"
+    }
+  },
+  {
+    "id": "b45e30e6-f439-56dd-a1cd-4d73e7ee698d",
+    "folio": "01645-2026-CT",
+    "unidad": "1436",
+    "cambios": {
+      "dependencia": "10-Dirección General de Desarrollo de Infraestructura"
+    }
+  },
+  {
+    "id": "b5e284b0-840c-4706-b207-2877501e2620",
+    "folio": "COT-2026-0182",
+    "unidad": "3203",
+    "cambios": {
+      "dependencia": "11-Dirección General de Servicios Públicos Municipales",
+      "partida": "29601"
+    }
+  },
+  {
+    "id": "b61958cc-9edc-4ee3-a075-dc580c52f7b5",
+    "folio": "COT-2026-0194",
+    "unidad": "2026",
+    "cambios": {
+      "dependencia": "10-Dirección General de Desarrollo de Infraestructura",
+      "partida": "29601"
+    }
+  },
+  {
+    "id": "b824910f-ac96-46fc-83f6-1d6e6b89b50c",
+    "folio": "COT-2026-0167",
+    "unidad": "2434",
+    "cambios": {
+      "dependencia": "11-Dirección General de Servicios Públicos Municipales",
+      "partida": "29601"
+    }
+  },
+  {
+    "id": "b8268b62-a373-48d7-b64a-235c867afd44",
+    "folio": "COT-2026-0303",
+    "unidad": "211410703513",
+    "cambios": {
+      "dependencia": "11-Dirección General de Servicios Públicos Municipales",
+      "partida": "29801"
+    }
+  },
+  {
+    "id": "b874f2c5-cc28-58e7-a144-45fe6da1e6a8",
+    "folio": "01547-2026-CT",
+    "unidad": "3376",
+    "cambios": {
+      "dependencia": "12-Oficialía Mayor"
+    }
+  },
+  {
+    "id": "b91c8ff7-21fa-4bad-92fa-71c240b4bf00",
+    "folio": "COT-2026-0399",
+    "unidad": "211410703513",
+    "cambios": {
+      "dependencia": "11-Dirección General de Servicios Públicos Municipales",
+      "partida": "29801"
+    }
+  },
+  {
+    "id": "bb46d40c-bc88-53fc-af8d-427e08ea5f4f",
+    "folio": "01605-2026-CT",
+    "unidad": "2018",
+    "cambios": {
+      "dependencia": "11-Dirección General de Servicios Públicos Municipales"
+    }
+  },
+  {
+    "id": "bc90317e-c43b-4547-9036-a9210d53995f",
+    "folio": "COT-2026-0141",
+    "unidad": "3672",
+    "cambios": {
+      "dependencia": "11-Dirección General de Servicios Públicos Municipales",
+      "partida": "29801"
+    }
+  },
+  {
+    "id": "bfadf574-bc80-4e9c-afc8-b97d39f35645",
+    "folio": "COT-2026-0298",
+    "unidad": "3526",
+    "cambios": {
+      "dependencia": "11-Dirección General de Servicios Públicos Municipales",
+      "partida": "29601"
+    }
+  },
+  {
+    "id": "c0abe2aa-1d4a-44fa-93b1-0d5aeb8b1e13",
+    "folio": "COT-2026-0108",
+    "unidad": "4083",
+    "cambios": {
+      "partida": "29601"
+    }
+  },
+  {
+    "id": "c1bbeef5-1534-41fd-a44a-f09c674190d8",
+    "folio": "COT-2026-0257",
+    "unidad": "3694",
+    "cambios": {
+      "dependencia": "10-Dirección General de Desarrollo de Infraestructura",
+      "partida": "29801"
+    }
+  },
+  {
+    "id": "c2e7941e-a027-5491-963c-8fc21670bf94",
+    "folio": "01596-2026-CT",
+    "unidad": "3362",
+    "cambios": {
+      "dependencia": "11-Dirección General de Servicios Públicos Municipales"
+    }
+  },
+  {
+    "id": "c394852b-16e4-43df-89b0-bf04c127e5a0",
+    "folio": "COT-2026-0145",
+    "unidad": "4745",
+    "cambios": {
+      "dependencia": "10-Dirección General de Desarrollo de Infraestructura",
+      "partida": "29601"
+    }
+  },
+  {
+    "id": "c4582b83-9658-450a-ac0d-a32460ee11fd",
+    "folio": "COT-2026-0061",
+    "unidad": "STOCK",
+    "cambios": {
+      "partida": "26102"
+    }
+  },
+  {
+    "id": "c5e1954c-c0f3-44a7-9c79-f67d9cbb51b8",
+    "folio": "COT-2026-0161",
+    "unidad": "3315",
+    "cambios": {
+      "dependencia": "11-Dirección General de Servicios Públicos Municipales",
+      "partida": "29801"
+    }
+  },
+  {
+    "id": "c5f022ea-286f-53fd-9609-f41e4e543ca6",
+    "folio": "01484-2026-CT",
+    "unidad": "3672",
+    "cambios": {
+      "dependencia": "11-Dirección General de Servicios Públicos Municipales"
+    }
+  },
+  {
+    "id": "c70dfde5-beca-5fb8-ac23-06c0301f6a01",
+    "folio": "01569-2026-CT",
+    "unidad": "2185",
+    "cambios": {
+      "dependencia": "13-Dirección General de Participación Ciudadana"
+    }
+  },
+  {
+    "id": "c8f438bb-1423-4ad9-8c53-21bc2334a980",
+    "folio": "COT-2026-0123",
+    "unidad": "3573",
+    "cambios": {
+      "dependencia": "11-Dirección General de Servicios Públicos Municipales",
+      "partida": "29801"
+    }
+  },
+  {
+    "id": "ca4d4219-2f62-42ef-afd7-d4c0474bce37",
+    "folio": "COT-2026-0380",
+    "unidad": "210200202466",
+    "cambios": {
+      "partida": "29601"
+    }
+  },
+  {
+    "id": "cad53270-4101-55a5-8b93-e8f4660d4c63",
+    "folio": "01603-2026-CT",
+    "unidad": "2018",
+    "cambios": {
+      "dependencia": "11-Dirección General de Servicios Públicos Municipales"
+    }
+  },
+  {
+    "id": "cbeb6015-917b-5112-b266-5a009d6a3623",
+    "folio": "01452-2026-CT",
+    "unidad": "3672",
+    "cambios": {
+      "dependencia": "11-Dirección General de Servicios Públicos Municipales"
+    }
+  },
+  {
+    "id": "cf4cf3d9-8c47-4174-8c43-204a89ec4a06",
+    "folio": "COT-2026-0148",
+    "unidad": "3203",
+    "cambios": {
+      "dependencia": "11-Dirección General de Servicios Públicos Municipales",
+      "partida": "29601"
+    }
+  },
+  {
+    "id": "d09c575f-23b9-56ac-b0fa-99bdc78a1fb0",
+    "folio": "01274-2026-CT",
+    "unidad": "3351",
+    "cambios": {
+      "dependencia": "02-Sindicatura Municipal"
+    }
+  },
+  {
+    "id": "d2ab1c96-b545-4f0e-a523-a0ed4dd26340",
+    "folio": "COT-2026-0100",
+    "unidad": "STOCK",
+    "cambios": {
+      "partida": "26102"
+    }
+  },
+  {
+    "id": "d3edcc76-4677-4faa-8247-1770f31153fc",
+    "folio": "COT-2026-0266",
+    "unidad": "3113",
+    "cambios": {
+      "partida": "29601"
+    }
+  },
+  {
+    "id": "d4506a22-caa3-48cb-b61a-1e03f5435c28",
+    "folio": "COT-2026-0149",
+    "unidad": "3609",
+    "cambios": {
+      "dependencia": "10-Dirección General de Desarrollo de Infraestructura",
+      "partida": "29801"
+    }
+  },
+  {
+    "id": "d49a825c-0134-4b20-83dd-f364414ce77a",
+    "folio": "COT-2026-0286",
+    "unidad": "4461",
+    "cambios": {
+      "dependencia": "11-Dirección General de Servicios Públicos Municipales",
+      "partida": "29601"
+    }
+  },
+  {
+    "id": "d4f19888-4f00-4c28-99b5-a2a8d29bc629",
+    "folio": "COT-2026-0180",
+    "unidad": "3493",
+    "cambios": {
+      "dependencia": "10-Dirección General de Desarrollo de Infraestructura",
+      "partida": "29601"
+    }
+  },
+  {
+    "id": "d6fcef81-c956-4985-a4e4-27068a13f365",
+    "folio": "COT-2026-0239",
+    "unidad": "210200303203",
+    "cambios": {
+      "dependencia": "11-Dirección General de Servicios Públicos Municipales",
+      "partida": "29601"
+    }
+  },
+  {
+    "id": "d74f6823-c0c6-4d4f-afe6-aee796c3d2a0",
+    "folio": "COT-2026-0164",
+    "unidad": "2207",
+    "cambios": {
+      "partida": "29601"
+    }
+  },
+  {
+    "id": "d840b252-3320-5c49-8475-d6bc7979d8e4",
+    "folio": "01534-2026-CT",
+    "unidad": "STOCK",
+    "cambios": {
+      "partida": "26102"
+    }
+  },
+  {
+    "id": "d8570b42-671e-4f35-b571-a17db3144ab7",
+    "folio": "COT-2026-0368",
+    "unidad": "211410001205",
+    "cambios": {
+      "dependencia": "10-Dirección General de Desarrollo de Infraestructura",
+      "partida": "29801"
+    }
+  },
+  {
+    "id": "d89e4e6f-f882-4a11-9f10-fbf4ac8c001a",
+    "folio": "COT-2026-0381",
+    "unidad": "STOCK",
+    "cambios": {
+      "partida": "26102"
+    }
+  },
+  {
+    "id": "d9184719-8a7a-4594-b507-acdd2e3c14d5",
+    "folio": "COT-2026-0086",
+    "unidad": "211410001803",
+    "cambios": {
+      "dependencia": "11-Dirección General de Servicios Públicos Municipales",
+      "partida": "29801"
+    }
+  },
+  {
+    "id": "d95e9975-d385-52d9-9758-d20ea3532c15",
+    "folio": "01644-2026-CT",
+    "unidad": "3527",
+    "cambios": {
+      "dependencia": "11-Dirección General de Servicios Públicos Municipales",
+      "partida": "29601"
+    }
+  },
+  {
+    "id": "da0dba95-2aa8-5378-9b50-0a8ff9db9ecc",
+    "folio": "01599-2026-CT",
+    "unidad": "993",
+    "cambios": {
+      "dependencia": "10-Dirección General de Desarrollo de Infraestructura"
+    }
+  },
+  {
+    "id": "de0442b1-647a-5be4-b48d-d6472419f757",
+    "folio": "01557-2026-CT",
+    "unidad": "1803",
+    "cambios": {
+      "dependencia": "11-Dirección General de Servicios Públicos Municipales"
+    }
+  },
+  {
+    "id": "e077f954-9901-48c4-addb-77a726a427f0",
+    "folio": "COT-2026-0259",
+    "unidad": "211410703522",
+    "cambios": {
+      "dependencia": "10-Dirección General de Desarrollo de Infraestructura",
+      "partida": "29801"
+    }
+  },
+  {
+    "id": "e0e141f3-9392-4a3f-bdc1-988c74b57273",
+    "folio": "COT-2026-0265",
+    "unidad": "210201803532",
+    "cambios": {
+      "dependencia": "11-Dirección General de Servicios Públicos Municipales",
+      "partida": "29601"
+    }
+  },
+  {
+    "id": "e20c28b7-d40e-4e49-ae94-c08089da7e18",
+    "folio": "COT-2026-0335",
+    "unidad": "STOCK",
+    "cambios": {
+      "partida": "26102"
+    }
+  },
+  {
+    "id": "e30e9dda-7cab-4b37-a48d-ad7209ec8d96",
+    "folio": "COT-2026-0007",
+    "unidad": "2058",
+    "cambios": {
+      "dependencia": "11-Dirección General de Servicios Públicos Municipales",
+      "partida": "29601"
+    }
+  },
+  {
+    "id": "e467bd5a-9db0-55f6-b94d-0706374e9482",
+    "folio": "01445-2026-CT",
+    "unidad": "3618",
+    "cambios": {
+      "dependencia": "47-Coordinación Municipal de Protección Civil"
+    }
+  },
+  {
+    "id": "e4e48c01-0fde-497c-83d7-7117cf2b56cb",
+    "folio": "COT-2026-0311",
+    "unidad": "0",
+    "cambios": {
+      "partida": "26102"
+    }
+  },
+  {
+    "id": "e5f0aae6-a5c9-44cc-a439-5a1921ba209a",
+    "folio": "COT-2026-0367",
+    "unidad": "211410001205",
+    "cambios": {
+      "dependencia": "10-Dirección General de Desarrollo de Infraestructura",
+      "partida": "29801"
+    }
+  },
+  {
+    "id": "e5f8890f-62db-5a40-bf21-7fd827a85f43",
+    "folio": "01479-2026-CT",
+    "unidad": "3672",
+    "cambios": {
+      "dependencia": "11-Dirección General de Servicios Públicos Municipales"
+    }
+  },
+  {
+    "id": "e6b0909f-026d-4389-a4a5-933dbb11e0e5",
+    "folio": "COT-2026-0153",
+    "unidad": "3339",
+    "cambios": {
+      "dependencia": "11-Dirección General de Servicios Públicos Municipales",
+      "partida": "29601"
+    }
+  },
+  {
+    "id": "e84400e0-304e-42c9-ae01-1c0296724a6e",
+    "folio": "COT-2026-0066",
+    "unidad": "2314",
+    "cambios": {
+      "dependencia": "10-Dirección General de Desarrollo de Infraestructura",
+      "partida": "29801"
+    }
+  },
+  {
+    "id": "eac41d90-652d-515e-80b8-1b16327d79b2",
+    "folio": "01631-2026-CT",
+    "unidad": "3329",
+    "cambios": {
+      "dependencia": "11-Dirección General de Servicios Públicos Municipales"
+    }
+  },
+  {
+    "id": "eb7d1b25-9772-4ea1-b1ff-d31e7d77b7c4",
+    "folio": "COT-2026-0169",
+    "unidad": "3694",
+    "cambios": {
+      "dependencia": "10-Dirección General de Desarrollo de Infraestructura",
+      "partida": "29801"
+    }
+  },
+  {
+    "id": "edaca57d-079b-4142-8943-08d25dbcd78d",
+    "folio": "COT-2026-0185",
+    "unidad": "4179",
+    "cambios": {
+      "dependencia": "10-Dirección General de Desarrollo de Infraestructura",
+      "partida": "29601"
+    }
+  },
+  {
+    "id": "ef189a64-ae7d-4ff4-a7fb-999a64f7b42c",
+    "folio": "COT-2026-0078",
+    "unidad": "3345",
+    "cambios": {
+      "dependencia": "11-Dirección General de Servicios Públicos Municipales",
+      "partida": "29801"
+    }
+  },
+  {
+    "id": "f112ad37-d671-4a09-a93b-9f15c81964bc",
+    "folio": "COT-2026-0365",
+    "unidad": "3694",
+    "cambios": {
+      "dependencia": "10-Dirección General de Desarrollo de Infraestructura",
+      "partida": "29801"
+    }
+  },
+  {
+    "id": "f502bcac-38cb-4335-ad47-88bb2a324d44",
+    "folio": "COT-2026-0427",
+    "unidad": "STOCK",
+    "cambios": {
+      "partida": "26102"
+    }
+  },
+  {
+    "id": "f71769f2-3e43-48e3-9e99-1557794d8361",
+    "folio": "COT-2026-0093",
+    "unidad": "211410203314",
+    "cambios": {
+      "dependencia": "11-Dirección General de Servicios Públicos Municipales",
+      "partida": "29801"
+    }
+  },
+  {
+    "id": "f7e2a8bd-1f8f-46ff-b03b-94131d2672b3",
+    "folio": "COT-2026-0273",
+    "unidad": "4225",
+    "cambios": {
+      "partida": "29601"
+    }
+  },
+  {
+    "id": "f86dca73-a7f6-5476-8bf2-77d00a0b9ec1",
+    "folio": "01253-2026-CT",
+    "unidad": "4580",
+    "cambios": {
+      "dependencia": "11-Dirección General de Servicios Públicos Municipales"
+    }
+  },
+  {
+    "id": "f8775c57-c238-5baa-b53d-a6740fc283ca",
+    "folio": "01618-2026-CT",
+    "unidad": "3215",
+    "cambios": {
+      "dependencia": "11-Dirección General de Servicios Públicos Municipales"
+    }
+  },
+  {
+    "id": "f8ae765a-26d7-48dd-b136-36dfda206108",
+    "folio": "COT-2026-0131",
+    "unidad": "4561",
+    "cambios": {
+      "dependencia": "10-Dirección General de Desarrollo de Infraestructura",
+      "partida": "29801"
+    }
+  },
+  {
+    "id": "f93e9029-8541-4cec-a490-9962ab0993b8",
+    "folio": "COT-2026-0445",
+    "unidad": "MP0700004563",
+    "cambios": {
+      "dependencia": "10-Dirección General de Desarrollo de Infraestructura",
+      "partida": "29801"
+    }
+  },
+  {
+    "id": "fb1adda8-083f-49ab-a07e-b34756c8f07b",
+    "folio": "COT-2026-0451",
+    "unidad": "STOCK",
+    "cambios": {
+      "partida": "26102"
+    }
+  },
+  {
+    "id": "fb94d397-ec91-4329-8606-6709d31e2f70",
+    "folio": "COT-2026-0349",
+    "unidad": "STOCK",
+    "cambios": {
+      "partida": "26102"
+    }
+  },
+  {
+    "id": "fc36eba6-d359-486f-bd90-702ef27d74ed",
+    "folio": "COT-2026-0212",
+    "unidad": "1968",
+    "cambios": {
+      "dependencia": "10-Dirección General de Desarrollo de Infraestructura",
+      "partida": "29601"
+    }
+  },
+  {
+    "id": "fcb7c5ef-40f3-4b52-a7aa-b3b2f2b41a36",
+    "folio": "COT-2026-0052",
+    "unidad": "211410203317",
+    "cambios": {
+      "dependencia": "11-Dirección General de Servicios Públicos Municipales",
+      "partida": "29801"
+    }
+  },
+  {
+    "id": "fd50d0f0-5a2c-5421-8320-476a7c453204",
+    "folio": "01570-2026-CT",
+    "unidad": "3402",
+    "cambios": {
+      "dependencia": "12-Oficialía Mayor"
+    }
+  },
+  {
+    "id": "fdcb4bb9-6da1-49dd-b4be-8b9fe5cbe6df",
+    "folio": "COT-2026-0142",
+    "unidad": "2976",
+    "cambios": {
+      "partida": "29601"
+    }
+  },
+  {
+    "id": "ff8e11e3-fcbe-5db1-89cd-27a1346702e2",
+    "folio": "01587-2026-CT",
+    "unidad": "2314",
+    "cambios": {
+      "dependencia": "10-Dirección General de Desarrollo de Infraestructura"
+    }
+  }
+]
