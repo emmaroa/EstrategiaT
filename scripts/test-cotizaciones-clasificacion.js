@@ -8,6 +8,29 @@ assert.equal(catalogo.resolver('Servicios Públicos'), catalogo.resolver('11'));
 assert.equal(catalogo.resolver('11 - Servicios Públicos'), catalogo.resolver('11'));
 assert.equal(catalogo.resolver('01'), '01-H. Ayuntamiento');
 assert.equal(catalogo.resolver('Municipal'), '');
+for (const item of ['INTERNATIONAL', 'Retén Stemco', 'Tambor trasero', 'Tambor delantero', 'Para camión', 'Diésel', 'Cepillos', 'Zapata', 'Fibra de acero', 'RETENES STEMCO', 'Tambores delanteros']) {
+  const regla = catalogo.reglaServiciosPublicos({materiales:[{item}]});
+  assert.equal(regla?.dependencia, catalogo.resolver('11'), item);
+  assert.equal(regla?.partida, '29801', item);
+}
+assert.equal(catalogo.reglaServiciosPublicos({materiales:[{item:'Batería'}]}), null);
+assert.equal(catalogo.reglaServiciosPublicos({observaciones:'Para camion'}).partida, '29801');
+assert.equal(catalogo.clasificarPartida(null,[{item:'Aceite para diesel'}]).partida,'29801');
+for (const [item, partida] of [['Urea','26102'],['Aceite para diesel','26102'],['Foco electrico para Tsuru','29801'],['Filtro de aceite Tsuru','29601'],['Filtro de camion','29801'],['Termostato Tsuru','29601']]) {
+  const resultado = catalogo.clasificarCompleta({unidad:'STOCK',materiales:[{item}]});
+  assert.equal(resultado.partida,partida,item);
+  assert.ok(catalogo.listado.includes(resultado.dependencia));
+}
+const generico = catalogo.clasificarCompleta({unidad:'STOCK',materiales:[{item:'Abrazadera'}]});
+const unidadInfra = {dependencia:catalogo.resolver('10'),combustible:'Gasolina'};
+assert.equal(catalogo.clasificarCompleta({unidad:'1234',materiales:[{item:'Faro international'}]},unidadInfra).dependencia,catalogo.resolver('10'));
+assert.equal(catalogo.clasificarCompleta({unidad:'1234',materiales:[{item:'Bujias'}]},unidadInfra).dependencia,catalogo.resolver('10'));
+assert.equal(catalogo.clasificarCompleta({unidad:'1234',materiales:[{item:'International'}]}).dependencia,'');
+assert.equal(catalogo.clasificarCompleta({unidad:'0',materiales:[{item:'International'}]},unidadInfra).dependencia,catalogo.resolver('11'));
+assert.equal(catalogo.clasificarCompleta({unidad:'STOCK',materiales:[{item:'Bujias'}]},unidadInfra).dependencia,catalogo.resolver('09'));
+assert.equal(generico.dependencia,catalogo.resolver('11'));
+assert.equal(generico.inferenciaGeneral,true);
+assert.equal(catalogo.clasificarCompleta({unidad:'STOCK',materiales:[{item:'Aceite',cantidad:1,precio_unitario:1000},{item:'Foco',cantidad:1,precio_unitario:10}]}).partida,'26102');
 const clasificar = (unidad, ...items) => catalogo.clasificarPartida(unidad, items.map(item => ({item}))).partida;
 assert.equal(clasificar({combustible: 'Gasolina'}, 'Balatas'), '29601');
 assert.equal(clasificar({combustible: 'Diesel', descripcion: 'Pickup'}, 'Batería'), '29601');

@@ -112,6 +112,11 @@
     const clave = normalizarClaveUnidad(buscado);
     if (!clave) return [];
 
+    const porNumeroEconomico = data.filter(function (unidad) {
+      return normalizarClaveUnidad(unidad.numero_economico) === clave;
+    });
+    if (porNumeroEconomico.length) return porNumeroEconomico;
+
     const coincidenciasExactas = (data || []).filter(function (unidad) {
       return [unidad.numero_economico, unidad.numero_inventario, unidad.unidad_patrulla]
         .some(function (campo) { return normalizarClaveUnidad(campo) === clave; });

@@ -1,0 +1,330 @@
+[
+  {
+    "id": "07250947-6d1e-514e-b1aa-761026e4bda7",
+    "folio": "01584-2026-CT",
+    "unidad": "3517",
+    "cambios": {
+      "dependencia": "11-Dirección General de Servicios Públicos Municipales"
+    },
+    "motivo": "Regla de Servicios Públicos: diesel."
+  },
+  {
+    "id": "08061332-cecf-5a98-b882-734f81240907",
+    "folio": "01552-2026-CT",
+    "unidad": "STOCK",
+    "cambios": {
+      "dependencia": "11-Dirección General de Servicios Públicos Municipales"
+    },
+    "motivo": "Regla de Servicios Públicos: international."
+  },
+  {
+    "id": "0a3ac77a-f2d5-4bac-8fc2-369b677e65db",
+    "folio": "COT-2026-0453",
+    "unidad": "STOCK",
+    "cambios": {
+      "dependencia": "11-Dirección General de Servicios Públicos Municipales",
+      "partida": "29801"
+    },
+    "motivo": "Regla de Servicios Públicos: diesel."
+  },
+  {
+    "id": "1486c8b6-8690-52e6-a316-53defe456ce0",
+    "folio": "01181-2026-CT",
+    "unidad": "STOCK",
+    "cambios": {
+      "dependencia": "11-Dirección General de Servicios Públicos Municipales"
+    },
+    "motivo": "Regla de Servicios Públicos: international."
+  },
+  {
+    "id": "1800c181-192e-4ae4-812b-aa053485ad4f",
+    "folio": "COT-2026-0067",
+    "unidad": "STOCK",
+    "cambios": {
+      "dependencia": "11-Dirección General de Servicios Públicos Municipales",
+      "partida": "29801"
+    },
+    "motivo": "Regla de Servicios Públicos: international."
+  },
+  {
+    "id": "19e709f1-2c84-4a52-bafc-0ad0b8a083cb",
+    "folio": "COT-2026-0094",
+    "unidad": "0",
+    "cambios": {
+      "dependencia": "11-Dirección General de Servicios Públicos Municipales",
+      "partida": "29801"
+    },
+    "motivo": "Regla de Servicios Públicos: diesel."
+  },
+  {
+    "id": "20467fa3-aaaf-467e-82ee-19252c784a7d",
+    "folio": "COT-2026-0006",
+    "unidad": "STOCK",
+    "cambios": {
+      "dependencia": "11-Dirección General de Servicios Públicos Municipales",
+      "partida": "29801"
+    },
+    "motivo": "Regla de Servicios Públicos: diesel."
+  },
+  {
+    "id": "22aba775-95fb-4092-9543-0fa658627102",
+    "folio": "COT-2026-0363",
+    "unidad": "0",
+    "cambios": {
+      "dependencia": "11-Dirección General de Servicios Públicos Municipales",
+      "partida": "29801"
+    },
+    "motivo": "Regla de Servicios Públicos: tambor trasero."
+  },
+  {
+    "id": "274eec4c-eb1b-46b7-8f16-117b4f9d04bf",
+    "folio": "COT-2026-0090",
+    "unidad": "4178",
+    "cambios": {
+      "dependencia": "11-Dirección General de Servicios Públicos Municipales",
+      "partida": "29801"
+    },
+    "motivo": "Regla de Servicios Públicos: diesel."
+  },
+  {
+    "id": "2ae02cf5-25a2-4c8d-8138-104bd6e904c1",
+    "folio": "COT-2026-0104",
+    "unidad": "0",
+    "cambios": {
+      "dependencia": "11-Dirección General de Servicios Públicos Municipales",
+      "partida": "29801"
+    },
+    "motivo": "Regla de Servicios Públicos: international."
+  },
+  {
+    "id": "34174318-27ef-49a0-b4a2-ce7850ec2d1a",
+    "folio": "COT-2026-0332",
+    "unidad": "0",
+    "cambios": {
+      "dependencia": "11-Dirección General de Servicios Públicos Municipales",
+      "partida": "29801"
+    },
+    "motivo": "Regla de Servicios Públicos: cepillo."
+  },
+  {
+    "id": "3a3352ee-942b-55d3-967f-e512b31501df",
+    "folio": "01085-2026-CT",
+    "unidad": "S/N",
+    "cambios": {
+      "dependencia": "11-Dirección General de Servicios Públicos Municipales"
+    },
+    "motivo": "Regla de Servicios Públicos: diesel."
+  },
+  {
+    "id": "3b1adb4c-58ef-47d0-8221-2a5324e47eb0",
+    "folio": "COT-2026-0309",
+    "unidad": "0",
+    "cambios": {
+      "dependencia": "11-Dirección General de Servicios Públicos Municipales",
+      "partida": "29801"
+    },
+    "motivo": "Regla de Servicios Públicos: tambor trasero."
+  },
+  {
+    "id": "3c494ee9-b830-5ab1-a505-b457090697d1",
+    "folio": "01628-2026-CT",
+    "unidad": "STOCK INTERNATIONAL 2020",
+    "cambios": {
+      "dependencia": "11-Dirección General de Servicios Públicos Municipales"
+    },
+    "motivo": "Regla de Servicios Públicos: international."
+  },
+  {
+    "id": "3d89974b-451f-4ccb-af3d-09ce3b121126",
+    "folio": "COT-2026-0361",
+    "unidad": "STOCK",
+    "cambios": {
+      "dependencia": "11-Dirección General de Servicios Públicos Municipales",
+      "partida": "29801"
+    },
+    "motivo": "Regla de Servicios Públicos: para camion."
+  },
+  {
+    "id": "4c6e9c7c-50a8-4db7-b827-246f9388b728",
+    "folio": "COT-2026-0098",
+    "unidad": "STOCK",
+    "cambios": {
+      "dependencia": "11-Dirección General de Servicios Públicos Municipales",
+      "partida": "29801"
+    },
+    "motivo": "Regla de Servicios Públicos: international."
+  },
+  {
+    "id": "501145d8-dcb8-4618-bfe4-9bd25a9cfa31",
+    "folio": "COT-2026-0079",
+    "unidad": "STOCK",
+    "cambios": {
+      "dependencia": "11-Dirección General de Servicios Públicos Municipales",
+      "partida": "29801"
+    },
+    "motivo": "Regla de Servicios Públicos: diesel."
+  },
+  {
+    "id": "5a630b15-8fad-407e-baf5-04aeb58eb3cd",
+    "folio": "COT-2026-0097",
+    "unidad": "0",
+    "cambios": {
+      "dependencia": "11-Dirección General de Servicios Públicos Municipales",
+      "partida": "29801"
+    },
+    "motivo": "Regla de Servicios Públicos: tambor trasero."
+  },
+  {
+    "id": "6332c479-39fa-4508-b2d0-b49ea2c235bb",
+    "folio": "COT-2026-0319",
+    "unidad": "0",
+    "cambios": {
+      "dependencia": "11-Dirección General de Servicios Públicos Municipales",
+      "partida": "29801"
+    },
+    "motivo": "Regla de Servicios Públicos: diesel."
+  },
+  {
+    "id": "774d2702-49ba-58ad-94bf-515f91535688",
+    "folio": "01459-2026-CT",
+    "unidad": "STOCK",
+    "cambios": {
+      "dependencia": "11-Dirección General de Servicios Públicos Municipales",
+      "partida": "29801"
+    },
+    "motivo": "Regla de Servicios Públicos: diesel."
+  },
+  {
+    "id": "7afc189f-224e-5610-a15c-9a92ab44ff96",
+    "folio": "01594-2026-CT",
+    "unidad": "3621",
+    "cambios": {
+      "dependencia": "11-Dirección General de Servicios Públicos Municipales"
+    },
+    "motivo": "Regla de Servicios Públicos: diesel."
+  },
+  {
+    "id": "7e484d31-f8c3-444d-8243-3f82dc788c12",
+    "folio": "COT-2026-0095",
+    "unidad": "4562",
+    "cambios": {
+      "dependencia": "11-Dirección General de Servicios Públicos Municipales"
+    },
+    "motivo": "Regla de Servicios Públicos: diesel."
+  },
+  {
+    "id": "877b95ae-4f8f-52e9-8a85-571198984548",
+    "folio": "01589-2026-CT",
+    "unidad": "3522",
+    "cambios": {
+      "dependencia": "11-Dirección General de Servicios Públicos Municipales"
+    },
+    "motivo": "Regla de Servicios Públicos: diesel."
+  },
+  {
+    "id": "9086b21a-5a85-5b79-aebf-d0ebfdb852fe",
+    "folio": "01592-2026-CT",
+    "unidad": "3621",
+    "cambios": {
+      "dependencia": "11-Dirección General de Servicios Públicos Municipales"
+    },
+    "motivo": "Regla de Servicios Públicos: diesel."
+  },
+  {
+    "id": "915be2f1-3aef-5364-b246-24fd36d0c453",
+    "folio": "01561-2026-CT",
+    "unidad": "STOCK",
+    "cambios": {
+      "dependencia": "11-Dirección General de Servicios Públicos Municipales",
+      "partida": "29801"
+    },
+    "motivo": "Regla de Servicios Públicos: diesel."
+  },
+  {
+    "id": "9ec65377-70bf-4816-98f5-2a8ecf4c79aa",
+    "folio": "COT-2026-0334",
+    "unidad": "STOCK",
+    "cambios": {
+      "dependencia": "11-Dirección General de Servicios Públicos Municipales",
+      "partida": "29801"
+    },
+    "motivo": "Regla de Servicios Públicos: diesel."
+  },
+  {
+    "id": "a3bb0186-1512-595d-baf2-2efa84d01d85",
+    "folio": "01588-2026-CT",
+    "unidad": "2314",
+    "cambios": {
+      "dependencia": "11-Dirección General de Servicios Públicos Municipales"
+    },
+    "motivo": "Regla de Servicios Públicos: diesel."
+  },
+  {
+    "id": "a6a2af7a-474f-5487-a36d-54c050c4c963",
+    "folio": "01595-2026-CT",
+    "unidad": "4561",
+    "cambios": {
+      "dependencia": "11-Dirección General de Servicios Públicos Municipales"
+    },
+    "motivo": "Regla de Servicios Públicos: diesel."
+  },
+  {
+    "id": "c10147cb-3087-4f6d-9092-3905e5c037c2",
+    "folio": "COT-2026-0258",
+    "unidad": "0",
+    "cambios": {
+      "dependencia": "11-Dirección General de Servicios Públicos Municipales",
+      "partida": "29801"
+    },
+    "motivo": "Regla de Servicios Públicos: zapatas."
+  },
+  {
+    "id": "cee28b90-50f8-405f-802b-dee412c1c230",
+    "folio": "COT-2026-0329",
+    "unidad": "0",
+    "cambios": {
+      "dependencia": "11-Dirección General de Servicios Públicos Municipales",
+      "partida": "29801"
+    },
+    "motivo": "Regla de Servicios Públicos: fibra de acero."
+  },
+  {
+    "id": "d840b252-3320-5c49-8475-d6bc7979d8e4",
+    "folio": "01534-2026-CT",
+    "unidad": "STOCK",
+    "cambios": {
+      "dependencia": "11-Dirección General de Servicios Públicos Municipales",
+      "partida": "29801"
+    },
+    "motivo": "Regla de Servicios Públicos: international."
+  },
+  {
+    "id": "e30e9dda-7cab-4b37-a48d-ad7209ec8d96",
+    "folio": "COT-2026-0007",
+    "unidad": "2058",
+    "cambios": {
+      "partida": "29801"
+    },
+    "motivo": "Regla de Servicios Públicos: tambores traseros."
+  },
+  {
+    "id": "e8b44104-7f15-5d85-a642-91756bec4d37",
+    "folio": "01611-2026-CT",
+    "unidad": "STOCK",
+    "cambios": {
+      "dependencia": "11-Dirección General de Servicios Públicos Municipales",
+      "partida": "29801"
+    },
+    "motivo": "Regla de Servicios Públicos: diesel."
+  },
+  {
+    "id": "ed2f0568-7708-418a-93e7-3eed80cffe5e",
+    "folio": "COT-2026-0306",
+    "unidad": "0",
+    "cambios": {
+      "dependencia": "11-Dirección General de Servicios Públicos Municipales",
+      "partida": "29801"
+    },
+    "motivo": "Regla de Servicios Públicos: international."
+  }
+]

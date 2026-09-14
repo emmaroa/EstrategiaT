@@ -1,0 +1,1586 @@
+[
+  {
+    "id": "00d6aeaf-7703-5b28-bed3-6d4ed735ae0e",
+    "folio": "00793-2026-CT",
+    "unidad": "STOCK",
+    "cambios": {
+      "dependencia": "11-Dirección General de Servicios Públicos Municipales"
+    },
+    "motivo": "Código de carga presupuestal en observaciones"
+  },
+  {
+    "id": "084fb991-c222-46fc-a3da-926b87026941",
+    "folio": "COT-2026-0449",
+    "unidad": "0",
+    "cambios": {
+      "dependencia": "11-Dirección General de Servicios Públicos Municipales"
+    },
+    "motivo": "Descripción de equipo pesado/colector"
+  },
+  {
+    "id": "088b9d5a-5e92-5e0f-97e8-57dc74aa5600",
+    "folio": "01420-2026-CT",
+    "unidad": "STOCK",
+    "cambios": {
+      "dependencia": "09-Jefatura de Policía Preventiva y Tránsito Municipal"
+    },
+    "motivo": "Código de carga presupuestal en observaciones"
+  },
+  {
+    "id": "0be71d1f-9a78-433f-bd3e-6a2c6a44177b",
+    "folio": "COT-2026-0307",
+    "unidad": "2207",
+    "cambios": {
+      "dependencia": "09-Jefatura de Policía Preventiva y Tránsito Municipal"
+    },
+    "motivo": "Tipo de unidad identificado en parque vehicular"
+  },
+  {
+    "id": "0c0edb27-3e2f-5f75-a64c-b1ff6ede6aa2",
+    "folio": "01024-2026-CT",
+    "unidad": "S/N",
+    "cambios": {
+      "dependencia": "09-Jefatura de Policía Preventiva y Tránsito Municipal"
+    },
+    "motivo": "Código de carga presupuestal en observaciones"
+  },
+  {
+    "id": "0d0bae7a-1da3-5914-b935-da3af594af1f",
+    "folio": "00784-2026-CT",
+    "unidad": "STOCK",
+    "cambios": {
+      "dependencia": "11-Dirección General de Servicios Públicos Municipales"
+    },
+    "motivo": "Código de carga presupuestal en observaciones"
+  },
+  {
+    "id": "0ec9c6cd-9677-452f-ae74-7e325355f879",
+    "folio": "COT-2026-0215",
+    "unidad": "0",
+    "cambios": {
+      "dependencia": "09-Jefatura de Policía Preventiva y Tránsito Municipal"
+    },
+    "motivo": "Área de gasolina o modelo de vehículo ligero"
+  },
+  {
+    "id": "11a4e6c5-cd14-5d28-a6f1-af2e3d65e1b8",
+    "folio": "01055-2026-CT",
+    "unidad": "S/N",
+    "cambios": {
+      "dependencia": "11-Dirección General de Servicios Públicos Municipales"
+    },
+    "motivo": "Código de carga presupuestal en observaciones"
+  },
+  {
+    "id": "12ea3158-6bea-4953-a091-b8bd717b0c1b",
+    "folio": "COT-2026-0327",
+    "unidad": "0",
+    "cambios": {
+      "dependencia": "11-Dirección General de Servicios Públicos Municipales"
+    },
+    "motivo": "Descripción de equipo pesado/colector"
+  },
+  {
+    "id": "13714cbf-7bcf-5d28-9675-830b427fc1c1",
+    "folio": "01368-2026-CT",
+    "unidad": "STOCK",
+    "cambios": {
+      "dependencia": "11-Dirección General de Servicios Públicos Municipales"
+    },
+    "motivo": "Código de carga presupuestal en observaciones"
+  },
+  {
+    "id": "1534c90b-f89c-5e52-8fb5-cb9476991031",
+    "folio": "01040-2026-CT",
+    "unidad": "S/N",
+    "cambios": {
+      "dependencia": "09-Jefatura de Policía Preventiva y Tránsito Municipal"
+    },
+    "motivo": "Código de carga presupuestal en observaciones"
+  },
+  {
+    "id": "1753c1e3-9db7-48e8-86b2-163374edf690",
+    "folio": "COT-2026-0214",
+    "unidad": "STOCK",
+    "cambios": {
+      "dependencia": "09-Jefatura de Policía Preventiva y Tránsito Municipal"
+    },
+    "motivo": "Área de gasolina o modelo de vehículo ligero"
+  },
+  {
+    "id": "17d6797e-b9f8-4b14-ad31-4866cf3c16aa",
+    "folio": "COT-2026-0274",
+    "unidad": "4226",
+    "cambios": {
+      "dependencia": "09-Jefatura de Policía Preventiva y Tránsito Municipal"
+    },
+    "motivo": "Tipo de unidad identificado en parque vehicular"
+  },
+  {
+    "id": "1806ddf3-9b39-539a-b7da-66ac57db998a",
+    "folio": "01568-2026-CT",
+    "unidad": "STOCK",
+    "cambios": {
+      "dependencia": "11-Dirección General de Servicios Públicos Municipales"
+    },
+    "motivo": "Código de carga presupuestal en observaciones"
+  },
+  {
+    "id": "18ad13fa-5b2c-4078-8c56-f5f35ebe2e20",
+    "folio": "COT-2026-0403",
+    "unidad": "0",
+    "cambios": {
+      "dependencia": "11-Dirección General de Servicios Públicos Municipales"
+    },
+    "motivo": "Descripción de equipo pesado/colector"
+  },
+  {
+    "id": "19c2076b-63e6-5399-a600-3c683fe195ce",
+    "folio": "01437-2026-CT",
+    "unidad": "STOCK",
+    "cambios": {
+      "dependencia": "11-Dirección General de Servicios Públicos Municipales"
+    },
+    "motivo": "Código de carga presupuestal en observaciones"
+  },
+  {
+    "id": "1abb74a9-d72e-4298-8e55-6b8e49d858e5",
+    "folio": "COT-2026-0209",
+    "unidad": "0",
+    "cambios": {
+      "dependencia": "09-Jefatura de Policía Preventiva y Tránsito Municipal"
+    },
+    "motivo": "Área de gasolina o modelo de vehículo ligero"
+  },
+  {
+    "id": "1bfae648-59d8-542a-85a3-35b75ab1a38d",
+    "folio": "01088-2026-CT",
+    "unidad": "S/N",
+    "cambios": {
+      "dependencia": "11-Dirección General de Servicios Públicos Municipales"
+    },
+    "motivo": "Código de carga presupuestal en observaciones"
+  },
+  {
+    "id": "2045dffd-2aa3-524c-a4b6-f651867a16be",
+    "folio": "01201-2026-CT",
+    "unidad": "STOCK",
+    "cambios": {
+      "dependencia": "11-Dirección General de Servicios Públicos Municipales"
+    },
+    "motivo": "Código de carga presupuestal en observaciones"
+  },
+  {
+    "id": "2124dfd8-2844-5fb8-8a78-cd39a319dfe3",
+    "folio": "01197-2026-CT",
+    "unidad": "STOCK",
+    "cambios": {
+      "dependencia": "11-Dirección General de Servicios Públicos Municipales"
+    },
+    "motivo": "Código de carga presupuestal en observaciones"
+  },
+  {
+    "id": "22c27450-097b-5b5b-b1b4-205defd46031",
+    "folio": "01434-2026-CT",
+    "unidad": "STOCK",
+    "cambios": {
+      "dependencia": "11-Dirección General de Servicios Públicos Municipales"
+    },
+    "motivo": "Código de carga presupuestal en observaciones"
+  },
+  {
+    "id": "23cfa3e5-2307-5d80-89c5-38ac905767ad",
+    "folio": "01427-2026-CT",
+    "unidad": "STOCK",
+    "cambios": {
+      "dependencia": "11-Dirección General de Servicios Públicos Municipales"
+    },
+    "motivo": "Código de carga presupuestal en observaciones"
+  },
+  {
+    "id": "2591d9ea-a578-58fa-82da-9e9a610d196c",
+    "folio": "01430-2026-CT",
+    "unidad": "STOCK",
+    "cambios": {
+      "dependencia": "11-Dirección General de Servicios Públicos Municipales"
+    },
+    "motivo": "Código de carga presupuestal en observaciones"
+  },
+  {
+    "id": "269ec9b8-c8d4-5d56-8217-5b830d7435a0",
+    "folio": "01065-2026-CT",
+    "unidad": "S/N",
+    "cambios": {
+      "dependencia": "11-Dirección General de Servicios Públicos Municipales"
+    },
+    "motivo": "Código de carga presupuestal en observaciones"
+  },
+  {
+    "id": "270cb6da-d308-5fe2-89c7-a75614dcc7b0",
+    "folio": "01086-2026-CT",
+    "unidad": "S/N",
+    "cambios": {
+      "dependencia": "11-Dirección General de Servicios Públicos Municipales"
+    },
+    "motivo": "Código de carga presupuestal en observaciones"
+  },
+  {
+    "id": "27f53b05-e33c-5a91-8031-419f9de0d6a7",
+    "folio": "01119-2026-CT",
+    "unidad": "S/N",
+    "cambios": {
+      "dependencia": "09-Jefatura de Policía Preventiva y Tránsito Municipal"
+    },
+    "motivo": "Código de carga presupuestal en observaciones"
+  },
+  {
+    "id": "2830308d-bc2f-5420-a1c5-88eb2f662f48",
+    "folio": "01619-2026-CT",
+    "unidad": "STOCK",
+    "cambios": {
+      "dependencia": "09-Jefatura de Policía Preventiva y Tránsito Municipal"
+    },
+    "motivo": "Código de carga presupuestal en observaciones"
+  },
+  {
+    "id": "28c9d12f-3c9c-52d5-a933-f1f52a058b14",
+    "folio": "00974-2026-CT",
+    "unidad": "STOCK",
+    "cambios": {
+      "dependencia": "11-Dirección General de Servicios Públicos Municipales"
+    },
+    "motivo": "Código de carga presupuestal en observaciones"
+  },
+  {
+    "id": "29429309-24f9-5db8-ac73-d0e44c7caea4",
+    "folio": "01276-2026-CT",
+    "unidad": "STOCK",
+    "cambios": {
+      "dependencia": "11-Dirección General de Servicios Públicos Municipales"
+    },
+    "motivo": "Código de carga presupuestal en observaciones"
+  },
+  {
+    "id": "29f9ef66-5f55-5f3e-854b-069bb3b6ac72",
+    "folio": "01545-2026-CT",
+    "unidad": "STOCK",
+    "cambios": {
+      "dependencia": "11-Dirección General de Servicios Públicos Municipales"
+    },
+    "motivo": "Código de carga presupuestal en observaciones"
+  },
+  {
+    "id": "2a8af54c-67a8-511a-b227-9fd318f18fb8",
+    "folio": "01460-2026-CT",
+    "unidad": "0",
+    "cambios": {
+      "dependencia": "11-Dirección General de Servicios Públicos Municipales"
+    },
+    "motivo": "Código de carga presupuestal en observaciones"
+  },
+  {
+    "id": "2cfd6c1b-943b-5064-91fa-13eb3dd04b05",
+    "folio": "01598-2026-CT",
+    "unidad": "STOCK",
+    "cambios": {
+      "dependencia": "11-Dirección General de Servicios Públicos Municipales"
+    },
+    "motivo": "Código de carga presupuestal en observaciones"
+  },
+  {
+    "id": "2d303ea9-859a-5dbf-a952-a976dd2a4730",
+    "folio": "01431-2026-CT",
+    "unidad": "STOCK",
+    "cambios": {
+      "dependencia": "09-Jefatura de Policía Preventiva y Tránsito Municipal"
+    },
+    "motivo": "Código de carga presupuestal en observaciones"
+  },
+  {
+    "id": "2f6a3e6f-13bc-5860-a342-92d7f89b025b",
+    "folio": "01620-2026-CT",
+    "unidad": "STOCK",
+    "cambios": {
+      "dependencia": "11-Dirección General de Servicios Públicos Municipales"
+    },
+    "motivo": "Código de carga presupuestal en observaciones"
+  },
+  {
+    "id": "32b4ab01-418e-4e6c-88f3-9bc135412135",
+    "folio": "COT-2026-0263",
+    "unidad": "0",
+    "cambios": {
+      "dependencia": "11-Dirección General de Servicios Públicos Municipales"
+    },
+    "motivo": "Descripción de equipo pesado/colector"
+  },
+  {
+    "id": "3379ce47-bb42-55b8-852b-cbdeb32c174c",
+    "folio": "01365-2026-CT",
+    "unidad": "STOCK",
+    "cambios": {
+      "dependencia": "11-Dirección General de Servicios Públicos Municipales"
+    },
+    "motivo": "Código de carga presupuestal en observaciones"
+  },
+  {
+    "id": "345c4f02-ce39-4f9b-a14e-d331f5624558",
+    "folio": "COT-2026-0246",
+    "unidad": "3095",
+    "cambios": {
+      "dependencia": "09-Jefatura de Policía Preventiva y Tránsito Municipal"
+    },
+    "motivo": "Tipo de unidad identificado en parque vehicular"
+  },
+  {
+    "id": "34741c3e-ace8-5635-a129-cc79857fe981",
+    "folio": "01591-2026-CT",
+    "unidad": "STOCK",
+    "cambios": {
+      "dependencia": "11-Dirección General de Servicios Públicos Municipales"
+    },
+    "motivo": "Código de carga presupuestal en observaciones"
+  },
+  {
+    "id": "38b5ea3f-acb6-5692-8dbd-698a7b61eee1",
+    "folio": "01488-2026-CT",
+    "unidad": "STOCK",
+    "cambios": {
+      "dependencia": "11-Dirección General de Servicios Públicos Municipales"
+    },
+    "motivo": "Código de carga presupuestal en observaciones"
+  },
+  {
+    "id": "38ecdaca-2963-5d5b-9d7c-bf4b3d948591",
+    "folio": "00831-2026-CT",
+    "unidad": "STOCK",
+    "cambios": {
+      "dependencia": "11-Dirección General de Servicios Públicos Municipales"
+    },
+    "motivo": "Código de carga presupuestal en observaciones"
+  },
+  {
+    "id": "39c406cd-0f17-41c2-a2b3-d57d9a735eff",
+    "folio": "COT-2026-0428",
+    "unidad": "210200301864",
+    "cambios": {
+      "dependencia": "09-Jefatura de Policía Preventiva y Tránsito Municipal"
+    },
+    "motivo": "Tipo de unidad identificado en parque vehicular"
+  },
+  {
+    "id": "3d1c0bb5-e269-527e-9f02-a4d99d2ebe23",
+    "folio": "01543-2026-CT",
+    "unidad": "3481",
+    "cambios": {
+      "dependencia": "09-Jefatura de Policía Preventiva y Tránsito Municipal"
+    },
+    "motivo": "Código de carga presupuestal en observaciones"
+  },
+  {
+    "id": "42258daa-87af-5cbe-bfa6-0e9315f5575e",
+    "folio": "01051-2026-CT",
+    "unidad": "S/N",
+    "cambios": {
+      "dependencia": "09-Jefatura de Policía Preventiva y Tránsito Municipal"
+    },
+    "motivo": "Código de carga presupuestal en observaciones"
+  },
+  {
+    "id": "442c847a-ea7b-5735-b199-e36050121c4d",
+    "folio": "01405-2026-CT",
+    "unidad": "STOCK",
+    "cambios": {
+      "dependencia": "11-Dirección General de Servicios Públicos Municipales"
+    },
+    "motivo": "Código de carga presupuestal en observaciones"
+  },
+  {
+    "id": "44d32a48-0c05-5493-83e0-36576c77560d",
+    "folio": "01083-2026-CT",
+    "unidad": "S/N",
+    "cambios": {
+      "dependencia": "09-Jefatura de Policía Preventiva y Tránsito Municipal"
+    },
+    "motivo": "Código de carga presupuestal en observaciones"
+  },
+  {
+    "id": "453b6c81-6ce9-5e00-9ca1-e5eaa5b27cc0",
+    "folio": "01409-2026-CT",
+    "unidad": "STOCK",
+    "cambios": {
+      "dependencia": "11-Dirección General de Servicios Públicos Municipales"
+    },
+    "motivo": "Código de carga presupuestal en observaciones"
+  },
+  {
+    "id": "45469b4e-e291-4f3e-a70d-6335396add72",
+    "folio": "COT-2026-0364",
+    "unidad": "3664",
+    "cambios": {
+      "dependencia": "11-Dirección General de Servicios Públicos Municipales"
+    },
+    "motivo": "Descripción de equipo pesado/colector"
+  },
+  {
+    "id": "45fb43d3-cfc5-569a-81b1-dfde2e9368b5",
+    "folio": "00815-2026-CT",
+    "unidad": "STOCK",
+    "cambios": {
+      "dependencia": "11-Dirección General de Servicios Públicos Municipales"
+    },
+    "motivo": "Código de carga presupuestal en observaciones"
+  },
+  {
+    "id": "4834a7fc-88ec-4071-b8ea-4982b55ee16f",
+    "folio": "COT-2026-0137",
+    "unidad": "1864",
+    "cambios": {
+      "dependencia": "09-Jefatura de Policía Preventiva y Tránsito Municipal"
+    },
+    "motivo": "Tipo de unidad identificado en parque vehicular"
+  },
+  {
+    "id": "4923e8ba-6fb0-53ca-b57f-6c124bd2a3fe",
+    "folio": "01612-2026-CT",
+    "unidad": "STOCK",
+    "cambios": {
+      "dependencia": "11-Dirección General de Servicios Públicos Municipales"
+    },
+    "motivo": "Código de carga presupuestal en observaciones"
+  },
+  {
+    "id": "49a7f01a-21da-5af9-ae37-0a7b359ff3fe",
+    "folio": "01066-2026-CT",
+    "unidad": "S/N",
+    "cambios": {
+      "dependencia": "11-Dirección General de Servicios Públicos Municipales"
+    },
+    "motivo": "Código de carga presupuestal en observaciones"
+  },
+  {
+    "id": "49f6642f-db28-53d1-8ab6-261cff01d23d",
+    "folio": "01091-2026-CT",
+    "unidad": "S/N",
+    "cambios": {
+      "dependencia": "09-Jefatura de Policía Preventiva y Tránsito Municipal"
+    },
+    "motivo": "Código de carga presupuestal en observaciones"
+  },
+  {
+    "id": "4a72b1bf-0250-4875-9d2d-6d52c9e09ce2",
+    "folio": "COT-2026-0146",
+    "unidad": "3481",
+    "cambios": {
+      "dependencia": "09-Jefatura de Policía Preventiva y Tránsito Municipal"
+    },
+    "motivo": "Tipo de unidad identificado en parque vehicular"
+  },
+  {
+    "id": "4c9aef78-71c0-5553-969d-cb8edb9797f4",
+    "folio": "01249-2026-CT",
+    "unidad": "STOCK",
+    "cambios": {
+      "dependencia": "11-Dirección General de Servicios Públicos Municipales"
+    },
+    "motivo": "Código de carga presupuestal en observaciones"
+  },
+  {
+    "id": "4dd2b6f5-4e06-4ce4-b84b-d302fb5fbaea",
+    "folio": "COT-2026-0219",
+    "unidad": "STOCK",
+    "cambios": {
+      "dependencia": "11-Dirección General de Servicios Públicos Municipales"
+    },
+    "motivo": "Descripción de equipo pesado/colector"
+  },
+  {
+    "id": "4f30a6a7-dd15-5bc8-a6a2-ade7e2a55c7c",
+    "folio": "01042-2026-CT",
+    "unidad": "STOCK",
+    "cambios": {
+      "dependencia": "09-Jefatura de Policía Preventiva y Tránsito Municipal"
+    },
+    "motivo": "Código de carga presupuestal en observaciones"
+  },
+  {
+    "id": "4f67ffe7-0084-4c5f-8803-c09f3b380418",
+    "folio": "COT-2026-0165",
+    "unidad": "3258",
+    "cambios": {
+      "dependencia": "09-Jefatura de Policía Preventiva y Tránsito Municipal"
+    },
+    "motivo": "Tipo de unidad identificado en parque vehicular"
+  },
+  {
+    "id": "53396b95-96a5-44e4-b5e9-3f608a7dea99",
+    "folio": "COT-2026-0085",
+    "unidad": "4088",
+    "cambios": {
+      "dependencia": "09-Jefatura de Policía Preventiva y Tránsito Municipal"
+    },
+    "motivo": "Tipo de unidad identificado en parque vehicular"
+  },
+  {
+    "id": "543f3c3f-b3d4-5748-9ea3-e1ad572314a9",
+    "folio": "01403-2026-CT",
+    "unidad": "STOCK",
+    "cambios": {
+      "dependencia": "09-Jefatura de Policía Preventiva y Tránsito Municipal"
+    },
+    "motivo": "Código de carga presupuestal en observaciones"
+  },
+  {
+    "id": "55d4baaf-b97e-5f64-82ff-5d75ef7e9942",
+    "folio": "01021-2026-CT",
+    "unidad": "S/N",
+    "cambios": {
+      "dependencia": "09-Jefatura de Policía Preventiva y Tránsito Municipal"
+    },
+    "motivo": "Código de carga presupuestal en observaciones"
+  },
+  {
+    "id": "5644e061-46ec-5d12-9c93-24ad341746c1",
+    "folio": "01022-2026-CT",
+    "unidad": "S/N",
+    "cambios": {
+      "dependencia": "09-Jefatura de Policía Preventiva y Tránsito Municipal"
+    },
+    "motivo": "Código de carga presupuestal en observaciones"
+  },
+  {
+    "id": "5842ea64-9a92-5271-9dff-8eb3ba682c91",
+    "folio": "01062-2026-CT",
+    "unidad": "STOCK",
+    "cambios": {
+      "dependencia": "11-Dirección General de Servicios Públicos Municipales"
+    },
+    "motivo": "Código de carga presupuestal en observaciones"
+  },
+  {
+    "id": "5c0cf909-97bc-56a7-a0c6-69ee780324e4",
+    "folio": "01527-2026-CT",
+    "unidad": "3664",
+    "cambios": {
+      "dependencia": "09-Jefatura de Policía Preventiva y Tránsito Municipal"
+    },
+    "motivo": "Código de carga presupuestal en observaciones"
+  },
+  {
+    "id": "5c87d0dd-7e2e-540b-8ee3-118ae2c97c0e",
+    "folio": "01438-2026-CT",
+    "unidad": "STOCK",
+    "cambios": {
+      "dependencia": "09-Jefatura de Policía Preventiva y Tránsito Municipal"
+    },
+    "motivo": "Código de carga presupuestal en observaciones"
+  },
+  {
+    "id": "5fdfdad9-03d2-53f9-996c-1e7993a3236e",
+    "folio": "01528-2026-CT",
+    "unidad": "3664",
+    "cambios": {
+      "dependencia": "09-Jefatura de Policía Preventiva y Tránsito Municipal"
+    },
+    "motivo": "Código de carga presupuestal en observaciones"
+  },
+  {
+    "id": "62a695a2-0036-4d82-aed3-5c0098840354",
+    "folio": "COT-2026-0285",
+    "unidad": "VH0100004174",
+    "cambios": {
+      "dependencia": "09-Jefatura de Policía Preventiva y Tránsito Municipal"
+    },
+    "motivo": "Tipo de unidad identificado en parque vehicular"
+  },
+  {
+    "id": "62e3f191-8018-57bc-a0e3-747ce8fd8edf",
+    "folio": "00791-2026-CT",
+    "unidad": "STOCK",
+    "cambios": {
+      "dependencia": "11-Dirección General de Servicios Públicos Municipales"
+    },
+    "motivo": "Código de carga presupuestal en observaciones"
+  },
+  {
+    "id": "637001fe-4eaa-52c4-bc58-6d73af2b1da4",
+    "folio": "01555-2026-CT",
+    "unidad": "STOCK",
+    "cambios": {
+      "dependencia": "11-Dirección General de Servicios Públicos Municipales"
+    },
+    "motivo": "Código de carga presupuestal en observaciones"
+  },
+  {
+    "id": "6371c3df-b610-5b31-8166-3c18bbc0f7d4",
+    "folio": "00789-2026-CT",
+    "unidad": "STOCK",
+    "cambios": {
+      "dependencia": "11-Dirección General de Servicios Públicos Municipales"
+    },
+    "motivo": "Código de carga presupuestal en observaciones"
+  },
+  {
+    "id": "63d7efd0-7b18-5f3b-99d1-709bfe7e42e1",
+    "folio": "01429-2026-CT",
+    "unidad": "STOCK",
+    "cambios": {
+      "dependencia": "11-Dirección General de Servicios Públicos Municipales"
+    },
+    "motivo": "Código de carga presupuestal en observaciones"
+  },
+  {
+    "id": "6428eb24-19a3-510b-881a-53ebc6f4fbac",
+    "folio": "01325-2026-CT",
+    "unidad": "STOCK",
+    "cambios": {
+      "dependencia": "11-Dirección General de Servicios Públicos Municipales"
+    },
+    "motivo": "Código de carga presupuestal en observaciones"
+  },
+  {
+    "id": "65a4da26-a2b2-5f32-b0d4-95942af3981a",
+    "folio": "01385-2026-CT",
+    "unidad": "STOCK",
+    "cambios": {
+      "dependencia": "09-Jefatura de Policía Preventiva y Tránsito Municipal"
+    },
+    "motivo": "Código de carga presupuestal en observaciones"
+  },
+  {
+    "id": "665da94a-7abb-5f87-8b9f-3fdea9990690",
+    "folio": "00790-2026-CT",
+    "unidad": "STOCK",
+    "cambios": {
+      "dependencia": "11-Dirección General de Servicios Públicos Municipales"
+    },
+    "motivo": "Código de carga presupuestal en observaciones"
+  },
+  {
+    "id": "66df8eea-863f-4878-b35a-9e18d18c7a25",
+    "folio": "COT-2026-0082",
+    "unidad": "4083",
+    "cambios": {
+      "dependencia": "09-Jefatura de Policía Preventiva y Tránsito Municipal"
+    },
+    "motivo": "Tipo de unidad identificado en parque vehicular"
+  },
+  {
+    "id": "6700bc87-57d7-51c3-bd21-412f2fafed50",
+    "folio": "01564-2026-CT",
+    "unidad": "STOCK",
+    "cambios": {
+      "dependencia": "09-Jefatura de Policía Preventiva y Tránsito Municipal"
+    },
+    "motivo": "Código de carga presupuestal en observaciones"
+  },
+  {
+    "id": "670f3c23-2f86-45f0-9610-c1738d79d4be",
+    "folio": "COT-2026-0005",
+    "unidad": "STOCK",
+    "cambios": {
+      "dependencia": "11-Dirección General de Servicios Públicos Municipales"
+    },
+    "motivo": "Descripción de equipo pesado/colector"
+  },
+  {
+    "id": "67c4ab0c-9b11-5aa7-ac51-3703c01628eb",
+    "folio": "01597-2026-CT",
+    "unidad": "STOCK",
+    "cambios": {
+      "dependencia": "11-Dirección General de Servicios Públicos Municipales"
+    },
+    "motivo": "Código de carga presupuestal en observaciones"
+  },
+  {
+    "id": "6b4a6b7b-ef30-43af-8c89-9548d96cd20f",
+    "folio": "COT-2026-0321",
+    "unidad": "3096",
+    "cambios": {
+      "dependencia": "09-Jefatura de Policía Preventiva y Tránsito Municipal"
+    },
+    "motivo": "Área de gasolina o modelo de vehículo ligero"
+  },
+  {
+    "id": "6b897012-bbb8-5797-a59c-402ba389cf1a",
+    "folio": "01196-2026-CT",
+    "unidad": "STOCK",
+    "cambios": {
+      "dependencia": "09-Jefatura de Policía Preventiva y Tránsito Municipal"
+    },
+    "motivo": "Código de carga presupuestal en observaciones"
+  },
+  {
+    "id": "6bf9014d-3621-51f9-813e-5dd7f029c611",
+    "folio": "01016-2026-CT",
+    "unidad": "S/N",
+    "cambios": {
+      "dependencia": "09-Jefatura de Policía Preventiva y Tránsito Municipal"
+    },
+    "motivo": "Código de carga presupuestal en observaciones"
+  },
+  {
+    "id": "6dc29c8e-d3b3-47b8-9e80-fcbd4d7df91b",
+    "folio": "COT-2026-0202",
+    "unidad": "0",
+    "cambios": {
+      "dependencia": "11-Dirección General de Servicios Públicos Municipales"
+    },
+    "motivo": "Descripción de equipo pesado/colector"
+  },
+  {
+    "id": "6f857f34-a83e-4a6d-9dc7-c2fe6926d0fe",
+    "folio": "COT-2026-0277",
+    "unidad": "1864",
+    "cambios": {
+      "dependencia": "09-Jefatura de Policía Preventiva y Tránsito Municipal"
+    },
+    "motivo": "Tipo de unidad identificado en parque vehicular"
+  },
+  {
+    "id": "707781e6-9773-56cd-aaee-b7f6a7e7b197",
+    "folio": "00729-2026-CT",
+    "unidad": "STOCK",
+    "cambios": {
+      "dependencia": "11-Dirección General de Servicios Públicos Municipales"
+    },
+    "motivo": "Código de carga presupuestal en observaciones"
+  },
+  {
+    "id": "70a1490a-ed56-5bb9-8095-8145ebfb5466",
+    "folio": "00967-2026-CT",
+    "unidad": "STOCK",
+    "cambios": {
+      "dependencia": "11-Dirección General de Servicios Públicos Municipales"
+    },
+    "motivo": "Código de carga presupuestal en observaciones"
+  },
+  {
+    "id": "72d56cdd-cbfb-45a9-a6c4-d07a06b43737",
+    "folio": "COT-2026-0216",
+    "unidad": "STOCK",
+    "cambios": {
+      "dependencia": "09-Jefatura de Policía Preventiva y Tránsito Municipal"
+    },
+    "motivo": "Misma descripción/referencia que otra cotización con categoría identificada"
+  },
+  {
+    "id": "75ec9f4a-fd52-4fe9-b3b6-d51eb77bae70",
+    "folio": "COT-2026-0439",
+    "unidad": "STOCK",
+    "cambios": {
+      "dependencia": "11-Dirección General de Servicios Públicos Municipales"
+    },
+    "motivo": "Descripción de equipo pesado/colector"
+  },
+  {
+    "id": "761f4d57-ca64-5774-b770-b126b050b4fc",
+    "folio": "01074-2026-CT",
+    "unidad": "S/N",
+    "cambios": {
+      "dependencia": "09-Jefatura de Policía Preventiva y Tránsito Municipal"
+    },
+    "motivo": "Código de carga presupuestal en observaciones"
+  },
+  {
+    "id": "76230e4c-0d73-42eb-b1ba-ae435535f5ae",
+    "folio": "COT-2026-0404",
+    "unidad": "0",
+    "cambios": {
+      "dependencia": "11-Dirección General de Servicios Públicos Municipales"
+    },
+    "motivo": "Descripción de equipo pesado/colector"
+  },
+  {
+    "id": "7736ccef-8eb5-4ef3-9296-e73f50702165",
+    "folio": "COT-2026-0174",
+    "unidad": "3437",
+    "cambios": {
+      "dependencia": "09-Jefatura de Policía Preventiva y Tránsito Municipal"
+    },
+    "motivo": "Tipo de unidad identificado en parque vehicular"
+  },
+  {
+    "id": "777827ba-93bf-54d3-8f7c-688f0c725123",
+    "folio": "01486-2026-CT",
+    "unidad": "STOCK",
+    "cambios": {
+      "dependencia": "11-Dirección General de Servicios Públicos Municipales"
+    },
+    "motivo": "Código de carga presupuestal en observaciones"
+  },
+  {
+    "id": "77a8e8a5-31b2-5a50-a1ae-aa2ba7e98ed4",
+    "folio": "01198-2026-CT",
+    "unidad": "STOCK",
+    "cambios": {
+      "dependencia": "11-Dirección General de Servicios Públicos Municipales"
+    },
+    "motivo": "Código de carga presupuestal en observaciones"
+  },
+  {
+    "id": "78ed2c51-dfae-5d9d-bb59-1a2143f79d7a",
+    "folio": "00813-2026-CT",
+    "unidad": "STOCK",
+    "cambios": {
+      "dependencia": "11-Dirección General de Servicios Públicos Municipales"
+    },
+    "motivo": "Código de carga presupuestal en observaciones"
+  },
+  {
+    "id": "79167055-292a-52d3-b788-8803755c8947",
+    "folio": "00981-2026-CT",
+    "unidad": "STOCK",
+    "cambios": {
+      "dependencia": "11-Dirección General de Servicios Públicos Municipales"
+    },
+    "motivo": "Código de carga presupuestal en observaciones"
+  },
+  {
+    "id": "7bfdef4d-3ff0-41c5-9b7a-9c021747c5d2",
+    "folio": "COT-2026-0417",
+    "unidad": "0",
+    "cambios": {
+      "dependencia": "11-Dirección General de Servicios Públicos Municipales"
+    },
+    "motivo": "Descripción de equipo pesado/colector"
+  },
+  {
+    "id": "7d9276ed-2431-5d85-adce-7d94744f2020",
+    "folio": "01613-2026-CT",
+    "unidad": "STOCK",
+    "cambios": {
+      "dependencia": "11-Dirección General de Servicios Públicos Municipales"
+    },
+    "motivo": "Código de carga presupuestal en observaciones"
+  },
+  {
+    "id": "7d99a73c-9863-4826-bf55-133251d08efd",
+    "folio": "COT-2026-0450",
+    "unidad": "0",
+    "cambios": {
+      "dependencia": "11-Dirección General de Servicios Públicos Municipales"
+    },
+    "motivo": "Descripción de equipo pesado/colector"
+  },
+  {
+    "id": "7e95775a-0647-41fb-8161-8e4c4e96bb0e",
+    "folio": "COT-2026-0260",
+    "unidad": "VH0100004173",
+    "cambios": {
+      "dependencia": "09-Jefatura de Policía Preventiva y Tránsito Municipal"
+    },
+    "motivo": "Tipo de unidad identificado en parque vehicular"
+  },
+  {
+    "id": "801b8c45-564c-5303-afa5-d6eebab32346",
+    "folio": "00972-2026-CT",
+    "unidad": "STOCK",
+    "cambios": {
+      "dependencia": "11-Dirección General de Servicios Públicos Municipales"
+    },
+    "motivo": "Código de carga presupuestal en observaciones"
+  },
+  {
+    "id": "82c4d6be-398e-4f45-8e69-4aef7b5e27dd",
+    "folio": "COT-2026-0111",
+    "unidad": "STOCK",
+    "cambios": {
+      "dependencia": "11-Dirección General de Servicios Públicos Municipales"
+    },
+    "motivo": "Misma descripción/referencia que otra cotización con categoría identificada"
+  },
+  {
+    "id": "82d99fe1-c7d0-558e-a29b-f501bc6f816d",
+    "folio": "01424-2026-CT",
+    "unidad": "STOCK",
+    "cambios": {
+      "dependencia": "09-Jefatura de Policía Preventiva y Tránsito Municipal"
+    },
+    "motivo": "Código de carga presupuestal en observaciones"
+  },
+  {
+    "id": "834b8e8a-0d22-4687-91d2-70eee9c0624a",
+    "folio": "COT-2026-0420",
+    "unidad": "210200202466",
+    "cambios": {
+      "dependencia": "09-Jefatura de Policía Preventiva y Tránsito Municipal"
+    },
+    "motivo": "Tipo de unidad identificado en parque vehicular"
+  },
+  {
+    "id": "84fcc8bf-8910-5c4d-81e0-ecc265528968",
+    "folio": "01049-2026-CT",
+    "unidad": "S/N",
+    "cambios": {
+      "dependencia": "09-Jefatura de Policía Preventiva y Tránsito Municipal"
+    },
+    "motivo": "Código de carga presupuestal en observaciones"
+  },
+  {
+    "id": "8554cb18-dff5-5889-be77-4133d737d832",
+    "folio": "01199-2026-CT",
+    "unidad": "STOCK",
+    "cambios": {
+      "dependencia": "11-Dirección General de Servicios Públicos Municipales"
+    },
+    "motivo": "Código de carga presupuestal en observaciones"
+  },
+  {
+    "id": "8abd7157-0dcf-4273-9b70-1183d71d497b",
+    "folio": "COT-2026-0170",
+    "unidad": "4226",
+    "cambios": {
+      "dependencia": "09-Jefatura de Policía Preventiva y Tránsito Municipal"
+    },
+    "motivo": "Tipo de unidad identificado en parque vehicular"
+  },
+  {
+    "id": "8c706c64-babf-5fc5-85ad-c8706e71a473",
+    "folio": "01068-2026-CT",
+    "unidad": "S/N",
+    "cambios": {
+      "dependencia": "11-Dirección General de Servicios Públicos Municipales"
+    },
+    "motivo": "Código de carga presupuestal en observaciones"
+  },
+  {
+    "id": "8d15fa18-1eea-4123-9d46-0ad085f3356d",
+    "folio": "COT-2026-0442",
+    "unidad": "VH0100004239",
+    "cambios": {
+      "dependencia": "09-Jefatura de Policía Preventiva y Tránsito Municipal"
+    },
+    "motivo": "Tipo de unidad identificado en parque vehicular"
+  },
+  {
+    "id": "8d87d2c6-4d53-5658-85f1-1961135cb954",
+    "folio": "01273-2026-CT",
+    "unidad": "STOCK",
+    "cambios": {
+      "dependencia": "11-Dirección General de Servicios Públicos Municipales"
+    },
+    "motivo": "Código de carga presupuestal en observaciones"
+  },
+  {
+    "id": "8e9a7ce7-e936-4be8-9622-837a7c91ff6b",
+    "folio": "COT-2026-0143",
+    "unidad": "3481",
+    "cambios": {
+      "dependencia": "09-Jefatura de Policía Preventiva y Tránsito Municipal"
+    },
+    "motivo": "Tipo de unidad identificado en parque vehicular"
+  },
+  {
+    "id": "8fe9b3e7-21bb-519b-921c-97c5cb3a56d6",
+    "folio": "01017-2026-CT",
+    "unidad": "S/N",
+    "cambios": {
+      "dependencia": "09-Jefatura de Policía Preventiva y Tránsito Municipal"
+    },
+    "motivo": "Código de carga presupuestal en observaciones"
+  },
+  {
+    "id": "903855cf-6ce1-45c5-a97a-c9c0bd1b664c",
+    "folio": "COT-2026-0250",
+    "unidad": "3096",
+    "cambios": {
+      "dependencia": "09-Jefatura de Policía Preventiva y Tránsito Municipal"
+    },
+    "motivo": "Tipo de unidad identificado en parque vehicular"
+  },
+  {
+    "id": "906f1f4a-1a1c-5ed1-b831-5757862c9d45",
+    "folio": "00759-2026-CT",
+    "unidad": "STOCK",
+    "cambios": {
+      "dependencia": "11-Dirección General de Servicios Públicos Municipales"
+    },
+    "motivo": "Código de carga presupuestal en observaciones"
+  },
+  {
+    "id": "93831e79-4609-56c9-805e-b525cd616a7b",
+    "folio": "01205-2026-CT",
+    "unidad": "STOCK",
+    "cambios": {
+      "dependencia": "11-Dirección General de Servicios Públicos Municipales"
+    },
+    "motivo": "Código de carga presupuestal en observaciones"
+  },
+  {
+    "id": "95170bd7-66df-5337-a5e5-464ed1b05521",
+    "folio": "01492-2026-CT",
+    "unidad": "STOCK",
+    "cambios": {
+      "dependencia": "11-Dirección General de Servicios Públicos Municipales"
+    },
+    "motivo": "Código de carga presupuestal en observaciones"
+  },
+  {
+    "id": "965ed267-dcef-45c5-ae4b-5ece9ab945ef",
+    "folio": "COT-2026-0416",
+    "unidad": "0",
+    "cambios": {
+      "dependencia": "11-Dirección General de Servicios Públicos Municipales"
+    },
+    "motivo": "Descripción de equipo pesado/colector"
+  },
+  {
+    "id": "96d138f7-ea9f-420f-bb2b-123927b0e78f",
+    "folio": "COT-2026-0138",
+    "unidad": "2976",
+    "cambios": {
+      "dependencia": "09-Jefatura de Policía Preventiva y Tránsito Municipal"
+    },
+    "motivo": "Tipo de unidad identificado en parque vehicular"
+  },
+  {
+    "id": "97ccfb84-25f0-556b-aeb4-2a579038cddc",
+    "folio": "00715-2026-CT",
+    "unidad": "STOCK",
+    "cambios": {
+      "dependencia": "11-Dirección General de Servicios Públicos Municipales"
+    },
+    "motivo": "Código de carga presupuestal en observaciones"
+  },
+  {
+    "id": "98e236bb-ead8-51d4-9c98-5ba1ec60dcb4",
+    "folio": "00977-2026-CT",
+    "unidad": "STOCK",
+    "cambios": {
+      "dependencia": "09-Jefatura de Policía Preventiva y Tránsito Municipal"
+    },
+    "motivo": "Código de carga presupuestal en observaciones"
+  },
+  {
+    "id": "99383115-da67-588f-bac9-49754ccd927a",
+    "folio": "01541-2026-CT",
+    "unidad": "FAW",
+    "cambios": {
+      "dependencia": "09-Jefatura de Policía Preventiva y Tránsito Municipal"
+    },
+    "motivo": "Código de carga presupuestal en observaciones"
+  },
+  {
+    "id": "99e61751-0fe7-4d7f-8119-f44c08edd476",
+    "folio": "COT-2026-0158",
+    "unidad": "STOCK",
+    "cambios": {
+      "dependencia": "09-Jefatura de Policía Preventiva y Tránsito Municipal"
+    },
+    "motivo": "Área de gasolina o modelo de vehículo ligero"
+  },
+  {
+    "id": "9ab084ef-9ca7-4229-9d0f-e3b767e6f17e",
+    "folio": "COT-2026-0272",
+    "unidad": "1864",
+    "cambios": {
+      "dependencia": "09-Jefatura de Policía Preventiva y Tránsito Municipal"
+    },
+    "motivo": "Tipo de unidad identificado en parque vehicular"
+  },
+  {
+    "id": "9b5629e6-23af-439e-be32-5b8c39d9e65a",
+    "folio": "COT-2026-0054",
+    "unidad": "3477",
+    "cambios": {
+      "dependencia": "09-Jefatura de Policía Preventiva y Tránsito Municipal"
+    },
+    "motivo": "Área de gasolina o modelo de vehículo ligero"
+  },
+  {
+    "id": "9deb10a5-265f-4c66-8a81-d6abc6436783",
+    "folio": "COT-2026-0415",
+    "unidad": "0",
+    "cambios": {
+      "dependencia": "11-Dirección General de Servicios Públicos Municipales"
+    },
+    "motivo": "Descripción de equipo pesado/colector"
+  },
+  {
+    "id": "9e96fea6-257b-58c7-9697-de59dc08cee2",
+    "folio": "01081-2026-CT",
+    "unidad": "STOCK",
+    "cambios": {
+      "dependencia": "11-Dirección General de Servicios Públicos Municipales"
+    },
+    "motivo": "Código de carga presupuestal en observaciones"
+  },
+  {
+    "id": "a1ac7960-ce42-5451-8186-bc37751e5779",
+    "folio": "01428-2026-CT",
+    "unidad": "STOCK",
+    "cambios": {
+      "dependencia": "09-Jefatura de Policía Preventiva y Tránsito Municipal"
+    },
+    "motivo": "Código de carga presupuestal en observaciones"
+  },
+  {
+    "id": "a2fa8337-ff5b-5888-9b49-31e1a3428e93",
+    "folio": "01454-2026-CT",
+    "unidad": "STOCK",
+    "cambios": {
+      "dependencia": "11-Dirección General de Servicios Públicos Municipales"
+    },
+    "motivo": "Código de carga presupuestal en observaciones"
+  },
+  {
+    "id": "a53f6061-1f69-54c1-a90c-25543912bfec",
+    "folio": "01063-2026-CT",
+    "unidad": "STOCK",
+    "cambios": {
+      "dependencia": "11-Dirección General de Servicios Públicos Municipales"
+    },
+    "motivo": "Código de carga presupuestal en observaciones"
+  },
+  {
+    "id": "a6646823-af45-553e-855e-a73605cbe5c1",
+    "folio": "00983-2026-CT",
+    "unidad": "STOCK",
+    "cambios": {
+      "dependencia": "09-Jefatura de Policía Preventiva y Tránsito Municipal"
+    },
+    "motivo": "Código de carga presupuestal en observaciones"
+  },
+  {
+    "id": "a78794f5-600e-54e5-81bc-09903b0e3b21",
+    "folio": "01367-2026-CT",
+    "unidad": "STOCK",
+    "cambios": {
+      "dependencia": "11-Dirección General de Servicios Públicos Municipales"
+    },
+    "motivo": "Código de carga presupuestal en observaciones"
+  },
+  {
+    "id": "a81f20a5-f1f0-5d1c-90fa-5c86447ed805",
+    "folio": "01064-2026-CT",
+    "unidad": "S/N",
+    "cambios": {
+      "dependencia": "11-Dirección General de Servicios Públicos Municipales"
+    },
+    "motivo": "Código de carga presupuestal en observaciones"
+  },
+  {
+    "id": "accb5c85-c8ed-57b1-85fe-1deae47cf2d4",
+    "folio": "01581-2026-CT",
+    "unidad": "3192",
+    "cambios": {
+      "dependencia": "11-Dirección General de Servicios Públicos Municipales"
+    },
+    "motivo": "Código de carga presupuestal en observaciones"
+  },
+  {
+    "id": "b0825c51-ea2e-542e-83e5-210f0793c11f",
+    "folio": "01245-2026-CT",
+    "unidad": "S/N",
+    "cambios": {
+      "dependencia": "11-Dirección General de Servicios Públicos Municipales"
+    },
+    "motivo": "Código de carga presupuestal en observaciones"
+  },
+  {
+    "id": "b31a4ff0-8e68-5c81-b0dc-0c84bdee01eb",
+    "folio": "01601-2026-CT",
+    "unidad": "STOCK",
+    "cambios": {
+      "dependencia": "11-Dirección General de Servicios Públicos Municipales"
+    },
+    "motivo": "Código de carga presupuestal en observaciones"
+  },
+  {
+    "id": "baadcea9-768a-46eb-8bf1-34e68ac464cb",
+    "folio": "COT-2026-0065",
+    "unidad": "0",
+    "cambios": {
+      "dependencia": "09-Jefatura de Policía Preventiva y Tránsito Municipal"
+    },
+    "motivo": "Área de gasolina o modelo de vehículo ligero"
+  },
+  {
+    "id": "bc64f4ea-a38d-5b63-993d-96babf2433bc",
+    "folio": "01616-2026-CT",
+    "unidad": "STOCK",
+    "cambios": {
+      "dependencia": "11-Dirección General de Servicios Públicos Municipales"
+    },
+    "motivo": "Código de carga presupuestal en observaciones"
+  },
+  {
+    "id": "bdccc3d7-321b-5800-860b-a7e06207ac7e",
+    "folio": "01425-2026-CT",
+    "unidad": "STOCK",
+    "cambios": {
+      "dependencia": "11-Dirección General de Servicios Públicos Municipales"
+    },
+    "motivo": "Código de carga presupuestal en observaciones"
+  },
+  {
+    "id": "be3c648a-518e-5eb8-8ee5-ca807f4dcb49",
+    "folio": "01381-2026-CT",
+    "unidad": "STOCK",
+    "cambios": {
+      "dependencia": "11-Dirección General de Servicios Públicos Municipales"
+    },
+    "motivo": "Código de carga presupuestal en observaciones"
+  },
+  {
+    "id": "c0abe2aa-1d4a-44fa-93b1-0d5aeb8b1e13",
+    "folio": "COT-2026-0108",
+    "unidad": "4083",
+    "cambios": {
+      "dependencia": "09-Jefatura de Policía Preventiva y Tránsito Municipal"
+    },
+    "motivo": "Tipo de unidad identificado en parque vehicular"
+  },
+  {
+    "id": "c5f09094-5cdf-5eb9-bd0f-23487212532a",
+    "folio": "01426-2026-CT",
+    "unidad": "STOCK",
+    "cambios": {
+      "dependencia": "09-Jefatura de Policía Preventiva y Tránsito Municipal"
+    },
+    "motivo": "Código de carga presupuestal en observaciones"
+  },
+  {
+    "id": "c89a2816-8371-5e95-a9d1-1166736d29d9",
+    "folio": "01633-2026-CT",
+    "unidad": "2128",
+    "cambios": {
+      "dependencia": "09-Jefatura de Policía Preventiva y Tránsito Municipal"
+    },
+    "motivo": "Tipo de unidad identificado en parque vehicular"
+  },
+  {
+    "id": "c8fd4e5a-c3fe-5265-a6b7-6b6b2b96bb18",
+    "folio": "01423-2026-CT",
+    "unidad": "STOCK",
+    "cambios": {
+      "dependencia": "11-Dirección General de Servicios Públicos Municipales"
+    },
+    "motivo": "Código de carga presupuestal en observaciones"
+  },
+  {
+    "id": "ca3f62e2-0cc3-4329-89a9-4a528a29e92b",
+    "folio": "COT-2026-0391",
+    "unidad": "STOCK",
+    "cambios": {
+      "dependencia": "09-Jefatura de Policía Preventiva y Tránsito Municipal"
+    },
+    "motivo": "Área de gasolina o modelo de vehículo ligero"
+  },
+  {
+    "id": "ca4d4219-2f62-42ef-afd7-d4c0474bce37",
+    "folio": "COT-2026-0380",
+    "unidad": "210200202466",
+    "cambios": {
+      "dependencia": "09-Jefatura de Policía Preventiva y Tránsito Municipal"
+    },
+    "motivo": "Tipo de unidad identificado en parque vehicular"
+  },
+  {
+    "id": "caba5589-dc81-51a3-8cea-63b40ba1f1b7",
+    "folio": "01248-2026-CT",
+    "unidad": "STOCK",
+    "cambios": {
+      "dependencia": "09-Jefatura de Policía Preventiva y Tránsito Municipal"
+    },
+    "motivo": "Código de carga presupuestal en observaciones"
+  },
+  {
+    "id": "cd83deac-a657-4597-bb00-eb8f06dbf906",
+    "folio": "COT-2026-0128",
+    "unidad": "0",
+    "cambios": {
+      "dependencia": "09-Jefatura de Policía Preventiva y Tránsito Municipal"
+    },
+    "motivo": "Área de gasolina o modelo de vehículo ligero"
+  },
+  {
+    "id": "cde63a42-a12e-5ee5-8b8a-2317be917f50",
+    "folio": "01614-2026-CT",
+    "unidad": "STOCK",
+    "cambios": {
+      "dependencia": "11-Dirección General de Servicios Públicos Municipales"
+    },
+    "motivo": "Código de carga presupuestal en observaciones"
+  },
+  {
+    "id": "ce9856ce-fc01-54f6-bb05-387f18dc5075",
+    "folio": "01419-2026-CT",
+    "unidad": "STOCK",
+    "cambios": {
+      "dependencia": "11-Dirección General de Servicios Públicos Municipales"
+    },
+    "motivo": "Código de carga presupuestal en observaciones"
+  },
+  {
+    "id": "d24df39d-c8c5-5590-bcd0-cfdf72d4309c",
+    "folio": "00806-2026-CT",
+    "unidad": "STOCK",
+    "cambios": {
+      "dependencia": "11-Dirección General de Servicios Públicos Municipales"
+    },
+    "motivo": "Código de carga presupuestal en observaciones"
+  },
+  {
+    "id": "d2ca5ac1-3d07-40f6-96a5-094e23b1b146",
+    "folio": "COT-2026-0109",
+    "unidad": "STOCK",
+    "cambios": {
+      "dependencia": "11-Dirección General de Servicios Públicos Municipales"
+    },
+    "motivo": "Misma descripción/referencia que otra cotización con categoría identificada"
+  },
+  {
+    "id": "d3edcc76-4677-4faa-8247-1770f31153fc",
+    "folio": "COT-2026-0266",
+    "unidad": "3113",
+    "cambios": {
+      "dependencia": "09-Jefatura de Policía Preventiva y Tránsito Municipal"
+    },
+    "motivo": "Tipo de unidad identificado en parque vehicular"
+  },
+  {
+    "id": "d509d89c-70ab-589f-8138-0100715da625",
+    "folio": "01025-2026-CT",
+    "unidad": "S/N",
+    "cambios": {
+      "dependencia": "09-Jefatura de Policía Preventiva y Tránsito Municipal"
+    },
+    "motivo": "Código de carga presupuestal en observaciones"
+  },
+  {
+    "id": "d6c7ff20-3d5f-5090-a09b-07cbcae5ecb8",
+    "folio": "01565-2026-CT",
+    "unidad": "STOCK",
+    "cambios": {
+      "dependencia": "09-Jefatura de Policía Preventiva y Tránsito Municipal"
+    },
+    "motivo": "Código de carga presupuestal en observaciones"
+  },
+  {
+    "id": "d74f6823-c0c6-4d4f-afe6-aee796c3d2a0",
+    "folio": "COT-2026-0164",
+    "unidad": "2207",
+    "cambios": {
+      "dependencia": "09-Jefatura de Policía Preventiva y Tránsito Municipal"
+    },
+    "motivo": "Tipo de unidad identificado en parque vehicular"
+  },
+  {
+    "id": "d8d5e0f1-6382-5e0a-9fc4-a1f6d5f04cc1",
+    "folio": "01562-2026-CT",
+    "unidad": "STOCK",
+    "cambios": {
+      "dependencia": "11-Dirección General de Servicios Públicos Municipales"
+    },
+    "motivo": "Código de carga presupuestal en observaciones"
+  },
+  {
+    "id": "d931c020-89aa-45d5-aa45-f4d289185d83",
+    "folio": "COT-2026-0107",
+    "unidad": "STOCK",
+    "cambios": {
+      "dependencia": "11-Dirección General de Servicios Públicos Municipales"
+    },
+    "motivo": "Descripción de equipo pesado/colector"
+  },
+  {
+    "id": "da1081c0-ab3f-4162-a3c1-0c3665ef7408",
+    "folio": "COT-2026-0028",
+    "unidad": "0",
+    "cambios": {
+      "dependencia": "09-Jefatura de Policía Preventiva y Tránsito Municipal"
+    },
+    "motivo": "Área de gasolina o modelo de vehículo ligero"
+  },
+  {
+    "id": "db61dd42-0660-52e3-921f-d22432d9f8b5",
+    "folio": "01432-2026-CT",
+    "unidad": "STOCK",
+    "cambios": {
+      "dependencia": "09-Jefatura de Policía Preventiva y Tránsito Municipal"
+    },
+    "motivo": "Código de carga presupuestal en observaciones"
+  },
+  {
+    "id": "dc7b26d9-b564-5139-b806-358c9017d678",
+    "folio": "01407-2026-CT",
+    "unidad": "STOCK",
+    "cambios": {
+      "dependencia": "11-Dirección General de Servicios Públicos Municipales"
+    },
+    "motivo": "Código de carga presupuestal en observaciones"
+  },
+  {
+    "id": "ddd2ae94-10bb-4048-bba1-3785c0cff51b",
+    "folio": "COT-2026-0110",
+    "unidad": "STOCK",
+    "cambios": {
+      "dependencia": "09-Jefatura de Policía Preventiva y Tránsito Municipal"
+    },
+    "motivo": "Área de gasolina o modelo de vehículo ligero"
+  },
+  {
+    "id": "e69fae9a-ee7d-5ed5-825f-d30d00e2b2f4",
+    "folio": "01345-2026-CT",
+    "unidad": "STOCK",
+    "cambios": {
+      "dependencia": "11-Dirección General de Servicios Públicos Municipales"
+    },
+    "motivo": "Código de carga presupuestal en observaciones"
+  },
+  {
+    "id": "e73fb0ed-ed2e-5b06-b121-6cabb16f2585",
+    "folio": "01206-2026-CT",
+    "unidad": "STOCK",
+    "cambios": {
+      "dependencia": "09-Jefatura de Policía Preventiva y Tránsito Municipal"
+    },
+    "motivo": "Código de carga presupuestal en observaciones"
+  },
+  {
+    "id": "ebdf85a3-36a1-4bc7-965f-69c664b8228e",
+    "folio": "COT-2026-0203",
+    "unidad": "0",
+    "cambios": {
+      "dependencia": "11-Dirección General de Servicios Públicos Municipales"
+    },
+    "motivo": "Descripción de equipo pesado/colector"
+  },
+  {
+    "id": "ef39114b-e778-5959-b25b-120a8ba61357",
+    "folio": "01056-2026-CT",
+    "unidad": "S/N",
+    "cambios": {
+      "dependencia": "11-Dirección General de Servicios Públicos Municipales"
+    },
+    "motivo": "Código de carga presupuestal en observaciones"
+  },
+  {
+    "id": "f1cc4e2c-47b5-5448-9cee-45b75b66bb28",
+    "folio": "01384-2026-CT",
+    "unidad": "STOCK",
+    "cambios": {
+      "dependencia": "11-Dirección General de Servicios Públicos Municipales"
+    },
+    "motivo": "Código de carga presupuestal en observaciones"
+  },
+  {
+    "id": "f1ea3e82-4fe4-566c-82e4-be48d2db52fc",
+    "folio": "01204-2026-CT",
+    "unidad": "STOCK",
+    "cambios": {
+      "dependencia": "11-Dirección General de Servicios Públicos Municipales"
+    },
+    "motivo": "Código de carga presupuestal en observaciones"
+  },
+  {
+    "id": "f54b88e5-c42e-5d06-a482-01c1097d4ef8",
+    "folio": "01567-2026-CT",
+    "unidad": "STOCK",
+    "cambios": {
+      "dependencia": "09-Jefatura de Policía Preventiva y Tránsito Municipal"
+    },
+    "motivo": "Código de carga presupuestal en observaciones"
+  },
+  {
+    "id": "f5b6a219-8cf9-5f8c-aa10-d165ef8730dd",
+    "folio": "01376-2026-CT",
+    "unidad": "STOCK",
+    "cambios": {
+      "dependencia": "11-Dirección General de Servicios Públicos Municipales"
+    },
+    "motivo": "Código de carga presupuestal en observaciones"
+  },
+  {
+    "id": "f7e2a8bd-1f8f-46ff-b03b-94131d2672b3",
+    "folio": "COT-2026-0273",
+    "unidad": "4225",
+    "cambios": {
+      "dependencia": "09-Jefatura de Policía Preventiva y Tránsito Municipal"
+    },
+    "motivo": "Tipo de unidad identificado en parque vehicular"
+  },
+  {
+    "id": "f8747ed9-1406-5274-bd7e-c022793f0f89",
+    "folio": "01443-2026-CT",
+    "unidad": "STOCK",
+    "cambios": {
+      "dependencia": "11-Dirección General de Servicios Públicos Municipales"
+    },
+    "motivo": "Código de carga presupuestal en observaciones"
+  },
+  {
+    "id": "f918d472-f971-5dc3-a9e7-6afb4d72955d",
+    "folio": "00971-2026-CT",
+    "unidad": "STOCK",
+    "cambios": {
+      "dependencia": "09-Jefatura de Policía Preventiva y Tránsito Municipal"
+    },
+    "motivo": "Código de carga presupuestal en observaciones"
+  },
+  {
+    "id": "f977689f-06c4-5c51-a27a-e20dfd17c29e",
+    "folio": "01621-2026-CT",
+    "unidad": "STOCK",
+    "cambios": {
+      "dependencia": "11-Dirección General de Servicios Públicos Municipales"
+    },
+    "motivo": "Código de carga presupuestal en observaciones"
+  },
+  {
+    "id": "fad99dbc-00d8-5bea-8e7f-5df0a3479e80",
+    "folio": "01489-2026-CT",
+    "unidad": "STOCK",
+    "cambios": {
+      "dependencia": "11-Dirección General de Servicios Públicos Municipales"
+    },
+    "motivo": "Código de carga presupuestal en observaciones"
+  },
+  {
+    "id": "fb1adc97-7a16-560d-9e7d-5829c3f2f73a",
+    "folio": "01203-2026-CT",
+    "unidad": "STOCK",
+    "cambios": {
+      "dependencia": "11-Dirección General de Servicios Públicos Municipales"
+    },
+    "motivo": "Código de carga presupuestal en observaciones"
+  },
+  {
+    "id": "fd4e0393-84b5-5e8a-8a80-7b4062482c66",
+    "folio": "01071-2026-CT",
+    "unidad": "S/N",
+    "cambios": {
+      "dependencia": "09-Jefatura de Policía Preventiva y Tránsito Municipal"
+    },
+    "motivo": "Código de carga presupuestal en observaciones"
+  },
+  {
+    "id": "fdcb4bb9-6da1-49dd-b4be-8b9fe5cbe6df",
+    "folio": "COT-2026-0142",
+    "unidad": "2976",
+    "cambios": {
+      "dependencia": "09-Jefatura de Policía Preventiva y Tránsito Municipal"
+    },
+    "motivo": "Tipo de unidad identificado en parque vehicular"
+  },
+  {
+    "id": "fe97a78e-ad09-5fa3-a00a-75d0bbbd9cc4",
+    "folio": "01487-2026-CT",
+    "unidad": "STOCK",
+    "cambios": {
+      "dependencia": "09-Jefatura de Policía Preventiva y Tránsito Municipal"
+    },
+    "motivo": "Código de carga presupuestal en observaciones"
+  },
+  {
+    "id": "ff00170a-10d3-57ca-83c7-11934cc8d621",
+    "folio": "01227-2026-CT",
+    "unidad": "4667",
+    "cambios": {
+      "dependencia": "09-Jefatura de Policía Preventiva y Tránsito Municipal"
+    },
+    "motivo": "Código de carga presupuestal en observaciones"
+  }
+]

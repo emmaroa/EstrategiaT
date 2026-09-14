@@ -26,7 +26,34 @@ async function main() {
   const save = (name, value) => fs.writeFileSync(path.join(dir,name + '.json'), JSON.stringify(value,null,2));
   save('antes-cotizaciones', cotizaciones); save('antes-unidades', unidades);
   const plan = [], revision = [];
+  const deducir = process.argv.includes('--deducir') ? require('./deducir-dependencias-cotizaciones.js').prepararDeduccion(cotizaciones, unidades) : null;
   for (const cotizacion of cotizaciones) {
+    if (process.argv.includes('--completar-todas')) {
+      const clave = normal(cotizacion.unidad);
+      const matches = !['','stock','0','sn'].includes(clave) ? unidades.filter(u=>[u.numero_economico,u.numero_inventario,u.unidad_patrulla].some(v=>normal(v)===clave)) : [];
+      const resultado = catalogo.clasificarCompleta(cotizacion, matches.length===1 ? matches[0] : null);
+      const cambios = {};
+      if (resultado.dependencia && cotizacion.dependencia !== resultado.dependencia) cambios.dependencia = resultado.dependencia;
+      if (!resultado.dependencia) revision.push({id:cotizacion.id,folio:cotizacion.folio,unidad:cotizacion.unidad,motivos:['Verificar número económico y dependencia del parque vehicular']});
+      if (cotizacion.partida !== resultado.partida) cambios.partida = resultado.partida;
+      if (Object.keys(cambios).length) plan.push({id:cotizacion.id,folio:cotizacion.folio,unidad:cotizacion.unidad,cambios,motivo:resultado.motivo,inferenciaGeneral:resultado.inferenciaGeneral});
+      continue;
+    }
+    if (deducir) {
+      const resultado = deducir(cotizacion);
+      if (resultado.dependencia) plan.push({id:cotizacion.id,folio:cotizacion.folio,unidad:cotizacion.unidad,cambios:{dependencia:resultado.dependencia},motivo:resultado.motivo});
+      else if (!resultado.omitir) revision.push({id:cotizacion.id,folio:cotizacion.folio,unidad:cotizacion.unidad,dependencia:cotizacion.dependencia,partida:cotizacion.partida,motivos:[resultado.motivo]});
+      continue;
+    }
+    const regla = catalogo.reglaServiciosPublicos(cotizacion);
+    if (regla) {
+      const cambios = {};
+      if (cotizacion.dependencia !== regla.dependencia) cambios.dependencia = regla.dependencia;
+      if (cotizacion.partida !== regla.partida) cambios.partida = regla.partida;
+      if (Object.keys(cambios).length) plan.push({id:cotizacion.id,folio:cotizacion.folio,unidad:cotizacion.unidad,cambios,motivo:regla.motivo});
+      continue;
+    }
+    if (process.argv.includes('--solo-regla11')) continue;
     const clave = normal(cotizacion.unidad);
     const claves = u => [u.numero_economico,u.numero_inventario,u.unidad_patrulla].map(normal).filter(Boolean);
     let coincidencias = clave && !['0','stock'].includes(clave) ? unidades.filter(u => claves(u).includes(clave)) : [];
@@ -49,7 +76,7 @@ async function main() {
   console.log(JSON.stringify(resumen)); save('resumen',resumen);
   if (process.argv.includes('--diagnose')) {
     const original = cotizaciones.find(c=>c.id === plan[0].id);
-    for (const campo of ['unidad','dependencia','partida','updated_at','materiales']) {
+    for (const campo of ['unidad','dependencia','partida','updated_at','materiales','observaciones']) {
       const valor = original[campo];
       const filtro = valor == null ? 'is.null' : 'eq.' + (typeof valor === 'object' ? JSON.stringify(valor) : String(valor));
       const rows = await request('cotizaciones_almacen',{select:'id',id:'eq.'+original.id,[campo]:filtro});
@@ -63,7 +90,7 @@ async function main() {
     const original = cotizaciones.find(c=>c.id === cambio.id);
     const query = {id:'eq.' + cambio.id};
     // Comparar los datos de origen para no sobrescribir ediciones concurrentes.
-    for (const campo of ['unidad','dependencia','partida','updated_at','materiales']) {
+    for (const campo of ['unidad','dependencia','partida','updated_at','materiales','observaciones']) {
       const valor = original[campo];
       query[campo] = valor == null ? 'is.null' : 'eq.' + (typeof valor === 'object' ? JSON.stringify(valor) : String(valor));
     }

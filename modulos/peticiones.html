@@ -248,6 +248,7 @@
           <h2>Gestión privada de cotizaciones</h2>
           <p>Completa la partida y el número de requisición cuando la cotización tenga trámite.</p>
         </div>
+        <a class="btn-secondary" href="reportes-cotizaciones.html">Reportes Cotizaciones</a>
         <button type="button" class="btn-secondary" id="btnExportarGestionCotizaciones">Exportar tabla</button>
       </div>
       <div class="filters">
@@ -366,8 +367,8 @@
           <select id="partidaCotizacionInterna">
             <option value="">Pendiente</option>
             <option value="29601">29601 - Gasolina y vehículos pequeños</option>
-            <option value="29801">29801 - Maquinaria pesada y colectores</option>
-            <option value="26102">26102 - Aceites y lubricantes</option>
+            <option value="29801">29801 - Camiones, maquinaria y material eléctrico</option>
+            <option value="26102">26102 - Aceites y aditivos (incluye urea)</option>
           </select>
           <small id="ayudaPartidaCotizacion">Se calcula con los materiales y el tipo de unidad.</small>
           <label><input type="checkbox" id="correccionManualCotizacion"> Corregir dependencia y partida manualmente</label>
@@ -2270,7 +2271,25 @@
       return puedeEditarGestionCotizaciones() && document.getElementById("correccionManualCotizacion").checked;
     }
 
+    function aplicarReglaServiciosPublicosCotizacion() {
+      if (esCorreccionManualCotizacion()) return null;
+      const regla = ETDependenciasCotizaciones.clasificarCompleta({
+        materiales: obtenerMaterialesCotizacionInterna(),
+        unidad: document.getElementById("unidadCotizacionInterna").value,
+        dependencia: document.getElementById("dependenciaCotizacionInterna").value,
+        observaciones: document.getElementById("observacionesCotizacionInterna").value
+      }, unidadClasificacionCotizacion);
+      if (regla) {
+        asignarDependenciaCotizacion(regla.dependencia);
+        document.getElementById("partidaCotizacionInterna").value = regla.partida;
+        document.getElementById("ayudaPartidaCotizacion").textContent = regla.motivo;
+      }
+      return regla;
+    }
+
     function actualizarPartidaAutomaticaCotizacion() {
+      const regla = aplicarReglaServiciosPublicosCotizacion();
+      if (regla) return regla;
       if (esCorreccionManualCotizacion()) return;
       const resultado = ETDependenciasCotizaciones.clasificarPartida(unidadClasificacionCotizacion, obtenerMaterialesCotizacionInterna());
       document.getElementById("partidaCotizacionInterna").value = resultado.partida;
@@ -2347,6 +2366,7 @@
       unidadClasificacionCotizacion = null;
 
       if (/^(stock|0)$/i.test(valor)) {
+        if (aplicarReglaServiciosPublicosCotizacion()) return { stock: true };
         document.getElementById("ayudaDependenciaCotizacion").textContent = "STOCK: elige una dependencia del menú. Se guardará con el código y nombre del CSV.";
         const resultado = ETDependenciasCotizaciones.clasificarPartida(null, obtenerMaterialesCotizacionInterna());
         if (resultado.partida) document.getElementById("partidaCotizacionInterna").value = resultado.partida;
@@ -2408,7 +2428,8 @@
       const correccionManual = esCorreccionManualCotizacion();
       const unidadParque = correccionManual ? null : await completarUnidadCotizacionInterna();
       if (cotizacionInternaId !== idGuardando) return;
-      if (!unidadParque && !correccionManual) { alert("Revisa el número de unidad o activa la corrección manual para atender este registro."); return; }
+      const reglaServicios = aplicarReglaServiciosPublicosCotizacion();
+      if (!unidadParque && !correccionManual) { alert("Revisa el número económico o activa la corrección manual para atender este registro. Los criterios 11/09 solo se aplican a 0 o STOCK."); return; }
       if (!document.getElementById("partidaCotizacionInterna").value && ["26102", "29601", "29801"].includes(partidaManual)) document.getElementById("partidaCotizacionInterna").value = partidaManual;
       const unidad = document.getElementById("unidadCotizacionInterna").value.trim();
       const dependencia = document.getElementById("dependenciaCotizacionInterna").value;
@@ -2592,6 +2613,8 @@
     document.getElementById("materialesCotizacionInterna")
       ?.addEventListener("input", calcularTotalesCotizacionInterna);
     document.getElementById("materialesCotizacionInterna")
+      ?.addEventListener("input", actualizarPartidaAutomaticaCotizacion);
+    document.getElementById("observacionesCotizacionInterna")
       ?.addEventListener("input", actualizarPartidaAutomaticaCotizacion);
     document.getElementById("unidadCotizacionInterna")?.addEventListener("input", function () {
       consultaUnidadCotizacion++;

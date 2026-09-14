@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Reportes Cotizaciones | EstrategiaT</title>
+  <link rel="stylesheet" href="../css/style.css"><link rel="stylesheet" href="../css/design-system.css"><link rel="stylesheet" href="../css/reportes-cotizaciones.css">
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="../js/core/supabase.js"></script><script src="../js/core/permissions.js"></script><script src="../js/core/theme.js"></script><script src="../js/core/layout.js"></script><script src="../js/core/auth.js"></script>
+  <script src="../js/services/dependencias-cotizaciones.js"></script><script src="../js/services/reportes-cotizaciones.js"></script>
+  <script defer src="../js/modules/reportes-cotizaciones.js"></script>
+  <script src="../js/services/impresion-cotizaciones.js"></script>
+</head>
+<body class="dashboard-body">
+  <aside class="sidebar"><div class="sidebar-logo"><div class="mini-logo">E</div><div><h3>EstrategiaT</h3><small id="etModuleName">Reportes Cotizaciones</small></div></div><nav id="etNav"></nav><button class="logout" id="etLogout">Cerrar sesión</button></aside>
+  <main class="main-content">
+    <header class="report-print-header"><span>EstrategiaT / Administración de Talleres</span><h1>Reporte de deuda por cotizaciones</h1><p>Resumen por dependencia, clave de partida y proveedor · Importes en MXN</p><dl id="resumenFiltrosImpresion"></dl></header>
+    <header class="topbar"><div><h1>Reportes Cotizaciones</h1><p>Deuda por proveedor, dependencia y clave de partida.</p></div><div class="report-actions"><span id="etTemaContainer"></span><a class="btn-secondary" href="peticiones.html?vista=cotizaciones">Gestión de Cotizaciones</a><button type="button" id="actualizarReporte" class="btn-secondary">Actualizar datos</button></div></header>
+    <section class="panel" aria-label="Filtros del reporte">
+      <div class="report-filters">
+        <label>Proveedor<select id="reporteProveedor"><option value="">Todos los proveedores</option></select></label>
+        <label>Dependencia<select id="reporteDependencia"><option value="">Todas las dependencias</option></select></label>
+        <label>Clave de partida<select id="reportePartida"><option value="">Todas las claves</option></select></label>
+        <label>Desde<input type="date" id="reporteDesde"></label><label>Hasta<input type="date" id="reporteHasta"></label>
+      </div>
+      <div class="report-actions"><button type="button" id="limpiarReporte" class="btn-secondary">Limpiar filtros</button><button type="button" id="imprimirReporte" class="btn-secondary" disabled>Imprimir / PDF</button></div>
+    </section>
+    <p id="estadoReporte" role="status" aria-live="polite">Cargando cotizaciones…</p>
+    <p id="criterioReporte">Deuda: importe total de cotizaciones sin requisición, excluyendo rechazadas y registros con estatus Requisición generada. No representa un saldo conciliado de pagos. Fechas: cotización; si falta, fecha de entrega.</p>
+    <p id="filtrosReporte"></p>
+    <div id="contenidoReporte" hidden>
+      <section class="kpi-grid"><div class="kpi-card"><span>Deuda total</span><h2 id="reporteTotal">$0.00</h2></div><div class="kpi-card"><span>Cotizaciones incluidas</span><h2 id="reporteCantidad">0</h2></div><div class="kpi-card"><span>Proveedores</span><h2 id="reporteNumeroProveedores">0</h2></div><div class="kpi-card"><span>Dependencias</span><h2 id="reporteNumeroDependencias">0</h2></div></section>
+      <section class="panel"><div class="panel-header"><h2>Deuda por dependencia y clave</h2><button type="button" class="btn-secondary" data-exportar="dependencias">Exportar CSV</button></div><p>26102: aceites y aditivos · 29601: vehículos pequeños · 29801: camiones, maquinaria y material eléctrico. Importes en MXN.</p><div class="table-container"><table><caption class="sr-only">Deuda por dependencia y clave de partida</caption><thead><tr><th scope="col">Dependencia</th><th scope="col">26102</th><th scope="col">29601</th><th scope="col">29801</th><th scope="col">Otras / sin clave</th><th scope="col">Total</th></tr></thead><tbody id="reporteTablaDependencias"></tbody><tfoot id="reporteTotalesDependencias"></tfoot></table></div></section>
+      <section class="panel"><div class="panel-header"><h2>Deuda por proveedor</h2><button type="button" class="btn-secondary" data-exportar="proveedores">Exportar CSV</button></div><div class="table-container"><table><thead><tr><th scope="col">Proveedor</th><th scope="col">Cotizaciones</th><th scope="col">Total</th></tr></thead><tbody id="reporteTablaProveedores"></tbody><tfoot id="reporteTotalesProveedores"></tfoot></table></div></section>
+      <section class="panel" id="detalleCotizacionesReporte"><div class="panel-header"><h2>Detalle de cotizaciones</h2><button type="button" class="btn-secondary" data-exportar="detalle">Exportar CSV</button></div><div class="table-container"><table><thead><tr><th scope="col">Folio</th><th scope="col">Fecha</th><th scope="col">Proveedor</th><th scope="col">Dependencia</th><th scope="col">Clave</th><th scope="col">Unidad</th><th scope="col">Total</th></tr></thead><tbody id="reporteTablaDetalle"></tbody><tfoot id="reporteTotalesDetalle"></tfoot></table></div></section>
+    </div>
+  </main>
+  <article id="reporteImpresion" aria-label="Formato de impresión del reporte"></article>
+</body></html>
