@@ -22,6 +22,7 @@
   <script src="../js/core/theme.js"></script>
   <script src="../js/core/layout.js?v=20260819-14"></script>
   <script src="../js/core/auth.js?v=20260819-3"></script>
+  <script src="../js/services/auditoria.service.js"></script>
 </head>
 <body class="dashboard-body">
 
@@ -47,7 +48,7 @@
 
       <div class="et-header-actions">
         <span id="etTemaContainer"></span>
-        <button type="button" class="btn-small" onclick="limpiarAuditoria()">Limpiar historial</button>
+        <button type="button" class="btn-small" id="actualizarAuditoria" onclick="inicializarAuditoria()">Actualizar historial</button>
       </div>
     </header>
 
@@ -55,7 +56,7 @@
       <div class="kpi-card">
         <span>Total movimientos</span>
         <h2 id="kpiAuditoriaTotal">0</h2>
-        <p>Registros guardados</p>
+        <p>Registros consultados</p>
       </div>
 
       <div class="kpi-card">
@@ -110,6 +111,7 @@
       </div>
 
       <div class="table-container">
+        <p id="estadoAuditoria" role="status" aria-live="polite"></p>
         <table>
           <thead>
             <tr>
@@ -127,21 +129,24 @@
         </table>
       </div>
 
+      <div class="filters" aria-label="Paginación de auditoría">
+        <button type="button" class="btn-secondary" id="auditoriaAnterior">Anterior</button>
+        <span id="auditoriaPagina"></span>
+        <button type="button" class="btn-secondary" id="auditoriaSiguiente">Siguiente</button>
+      </div>
+
     </section>
 
   </main>
 
   <script>
-    validarPermiso("Auditoría");
+    const accesoAuditoria = validarPermiso("Auditoría");
     ETLayout.inicializar("Auditoría");
     let auditoria = [];
 
-    try {
-      auditoria = JSON.parse(localStorage.getItem("auditoria")) || [];
-    } catch (error) {
-      console.warn("No se pudo parsear la auditoría de localStorage:", error);
-      auditoria = [];
-    }
+    let paginaAuditoria = 0;
+    let cargandoAuditoria = false;
+    const tamPaginaAuditoria = 100;
 
     const tablaAuditoria = document.getElementById("tablaAuditoria");
     const buscarAuditoria = document.getElementById("buscarAuditoria");
@@ -218,9 +223,9 @@
 
     function obtenerCambiosAuditoria(registro) {
       const metadata = obtenerMetadataAuditoria(registro);
-      const antes = metadata.antes || metadata.before || null;
-      const despues = metadata.despues || metadata.after || null;
-      if (!antes || !despues || typeof antes !== "object" || typeof despues !== "object") return [];
+      const antes = metadata.antes || metadata.before || {};
+      const despues = metadata.despues || metadata.after || {};
+      if (typeof antes !== "object" || typeof despues !== "object") return [];
 
       const ignorados = new Set(["id", "created_at", "updated_at"]);
       return Array.from(new Set(Object.keys(antes).concat(Object.keys(despues))))
@@ -248,50 +253,18 @@
 
     async function cargarAuditoriaSupabase() {
       const client = window.supabaseClient || null;
-      if (!client) return false;
+      if (!client) throw new Error('No hay conexión disponible con el historial central.');
 
       const usuarioActivo = obtenerUsuarioActivoAuditoria();
-      let query = client
-        .from("auditoria")
-        .select("id,usuario_id,usuario_nombre,usuario_rol,modulo,accion,detalle,entidad_tipo,entidad_id,metadata,created_at")
-        .order("created_at", { ascending: false })
-        .limit(1000);
-
-      if (!esSuperAdminAuditoria() && usuarioActivo?.id) {
-        query = query.eq("usuario_id", usuarioActivo.id);
-      }
-
-      const { data, error } = await query;
-      if (error) {
-        console.warn("No se pudo cargar auditoria desde Supabase:", error);
-        return false;
-      }
-
-      const registros = data || [];
-      const usuariosPorId = {};
-      const usuariosIds = Array.from(new Set(
-        registros.map(function (registro) { return registro.usuario_id; }).filter(Boolean)
-      ));
-
-      if (usuariosIds.length) {
-        const usuariosResult = await client
-          .from("usuarios")
-          .select("id,nombre,usuario,rol")
-          .in("id", usuariosIds);
-
-        if (!usuariosResult.error) {
-          (usuariosResult.data || []).forEach(function (usuario) {
-            usuariosPorId[usuario.id] = usuario;
-          });
-        }
-      }
+      if (!usuarioActivo?.id || Number(usuarioActivo.sesion_expira_en) <= Date.now()) throw new Error('Inicia sesión nuevamente para consultar auditoría.');
+      const registros = await ETAuditoria.cargar(client, esSuperAdminAuditoria() ? null : usuarioActivo.id,
+        function (total) { document.getElementById('estadoAuditoria').textContent = 'Consultando historial central: ' + total + ' registros…'; });
 
       auditoria = registros.map(function (registro) {
-        const usuario = usuariosPorId[registro.usuario_id] || {};
         return {
           fecha: formatearFechaAuditoria(registro.created_at),
-          usuario: registro.usuario_nombre || usuario.nombre || usuario.usuario || "Usuario no identificado",
-          rol: registro.usuario_rol || usuario.rol || "Sin rol",
+          usuario: registro.usuario_nombre || "Usuario no identificado",
+          rol: registro.usuario_rol || "Sin rol",
           modulo: registro.modulo,
           accion: registro.accion,
           detalle: registro.detalle || "",
@@ -305,8 +278,29 @@
     }
 
     async function inicializarAuditoria() {
-      await cargarAuditoriaSupabase();
-      cargarAuditoria();
+      if (!accesoAuditoria || cargandoAuditoria) return;
+      cargandoAuditoria = true;
+      const boton = document.getElementById('actualizarAuditoria');
+      const estado = document.getElementById('estadoAuditoria');
+      boton.disabled = true; estado.textContent = 'Consultando historial central…';
+      try {
+        await cargarAuditoriaSupabase();
+        actualizarOpcionesAuditoria(filtroModuloAuditoria, 'modulo', 'Todos los módulos');
+        actualizarOpcionesAuditoria(filtroAccionAuditoria, 'accion', 'Todas las acciones');
+        paginaAuditoria = 0; cargarAuditoria();
+        estado.textContent = auditoria.length + ' registros del servidor. ' +
+          (esSuperAdminAuditoria() ? 'Mostrando movimientos de todos los usuarios.' : 'Mostrando únicamente tus movimientos.');
+      } catch (error) {
+        estado.textContent = error.message + (auditoria.length ? ' Se conserva la última consulta.' : ' No se ha cargado el historial.');
+      } finally { cargandoAuditoria = false; boton.disabled = false; }
+    }
+
+    function actualizarOpcionesAuditoria(select, campo, titulo) {
+      const previo = select.value;
+      select.replaceChildren(new Option(titulo, ''));
+      Array.from(new Set(auditoria.map(registro => registro[campo]).filter(Boolean))).sort()
+        .forEach(valor => select.add(new Option(valor, valor)));
+      select.value = Array.from(select.options).some(opcion => opcion.value === previo) ? previo : '';
     }
 
     function cargarAuditoria() {
@@ -327,22 +321,28 @@
           JSON.stringify(obtenerMetadataAuditoria(a)).toLowerCase().includes(texto);
 
         const coincideModulo = modulo === "" || String(a.modulo || "") === modulo;
-        const coincideAccion = accion === "" || String(a.accion || "").includes(accion);
+        const coincideAccion = accion === "" || String(a.accion || "") === accion;
 
         return coincideTexto && coincideModulo && coincideAccion;
       });
 
-      filtrados.forEach(a => {
+      const paginas = Math.max(1, Math.ceil(filtrados.length / tamPaginaAuditoria));
+      paginaAuditoria = Math.min(paginaAuditoria, paginas - 1);
+      document.getElementById('auditoriaPagina').textContent = 'Página ' + (paginaAuditoria + 1) + ' de ' + paginas + ' · ' + filtrados.length + ' movimientos';
+      document.getElementById('auditoriaAnterior').disabled = paginaAuditoria === 0;
+      document.getElementById('auditoriaSiguiente').disabled = paginaAuditoria >= paginas - 1;
+      if (!filtrados.length) tablaAuditoria.innerHTML = '<tr><td colspan="7">No hay movimientos para estos filtros.</td></tr>';
+      filtrados.slice(paginaAuditoria * tamPaginaAuditoria, (paginaAuditoria + 1) * tamPaginaAuditoria).forEach(a => {
         const fila = document.createElement("tr");
 
         fila.innerHTML = `
           <td>${escaparAuditoria(a.fecha)}</td>
-          <td><strong>${escaparAuditoria(a.usuario)}</strong></td>
+          <td><strong>${escaparAuditoria(a.usuario)}</strong><small>${obtenerMetadataAuditoria(a).identidad === 'declarado_por_aplicacion' ? ' · Identidad declarada por la aplicación' : ''}</small></td>
           <td>${escaparAuditoria(a.rol)}</td>
           <td>
             <span class="badge blue">${escaparAuditoria(a.modulo)}</span>
           </td>
-          <td>${escaparAuditoria(a.accion)}</td>
+          <td>${escaparAuditoria(a.accion)}<small>${obtenerMetadataAuditoria(a).origen === 'base_de_datos' ? ' · Cambio en base de datos' : ' · Evento de aplicación'}</small></td>
           <td>${escaparAuditoria(a.detalle)}</td>
           <td>${renderCambiosAuditoria(a)}</td>
         `;
@@ -366,24 +366,12 @@
         auditoria.filter(a => a.modulo === "Vales").length;
     }
 
-    async function limpiarAuditoria() {
-      const confirmar = await ETFeedback.confirmar({
-        title: "Limpiar auditoría",
-        message: "Se eliminará el historial guardado en este dispositivo. Esta acción no se puede deshacer.",
-        confirmLabel: "Limpiar historial",
-        danger: true
-      });
-
-      if (!confirmar) return;
-
-      localStorage.removeItem("auditoria");
-      auditoria = [];
-      cargarAuditoria();
-    }
-
-    buscarAuditoria.addEventListener("input", cargarAuditoria);
-    filtroModuloAuditoria.addEventListener("change", cargarAuditoria);
-    filtroAccionAuditoria.addEventListener("change", cargarAuditoria);
+    function filtrarAuditoria() { paginaAuditoria = 0; cargarAuditoria(); }
+    buscarAuditoria.addEventListener("input", filtrarAuditoria);
+    filtroModuloAuditoria.addEventListener("change", filtrarAuditoria);
+    filtroAccionAuditoria.addEventListener("change", filtrarAuditoria);
+    document.getElementById('auditoriaAnterior').onclick = () => { paginaAuditoria = Math.max(0, paginaAuditoria - 1); cargarAuditoria(); };
+    document.getElementById('auditoriaSiguiente').onclick = () => { paginaAuditoria++; cargarAuditoria(); };
 
     inicializarAuditoria();
 

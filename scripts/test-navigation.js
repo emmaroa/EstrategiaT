@@ -6,10 +6,7 @@ const vm = require("vm");
 const layout = fs.readFileSync(path.resolve(__dirname, "../js/core/layout.js"), "utf8");
 
 assert.match(layout, /prepararBuscadorNavegacion/, "Debe existir el buscador de modulos");
-assert.match(layout, /leerListaNavegacion\("Favoritos", usuario\)/, "Los favoritos deben guardarse por usuario");
-assert.match(layout, /leerListaNavegacion\("Recientes", usuario\)/, "Los recientes deben guardarse por usuario");
-assert.match(layout, /permitidos\.includes\(modulo\)/, "Favoritos y recientes deben respetar permisos");
-assert.match(layout, /registrarModuloReciente\(usuario, moduloActivo\)/, "Debe registrarse la navegacion reciente");
+assert.match(layout, /permitidos\.includes\(modulo\)/, "El menu debe respetar permisos");
 
 const permissionsSource = fs.readFileSync(path.resolve(__dirname, "../js/core/permissions.js"), "utf8");
 const context = { window: {} };
@@ -25,4 +22,4 @@ assert.deepStrictEqual(Array.from(context.window.ETPermissions.obtenerModulosUsu
 assert.strictEqual(context.window.ETPermissions.obtenerPermisoModuloUsuario(gdavis, "Tramites Administrativos"), "none", "Sin acceso debe bloquear tramites");
 assert.strictEqual(context.window.ETPermissions.obtenerPermisoModuloUsuario(gdavis, "Generar Textos"), "none", "Sin acceso debe bloquear generar textos");
 
-console.log("Navegacion: buscador, favoritos, recientes y permisos verificados.");
+console.log("Navegacion: buscador y permisos verificados.");

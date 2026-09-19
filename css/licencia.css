@@ -1,0 +1,15 @@
+.et-licencia { margin: 24px 0 12px; padding: 18px; border: 1px solid #77889966; border-radius: 12px; font-size: .875rem; }
+.et-licencia-datos, .et-licencia-acciones { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; }
+.et-licencia-acciones { margin-top: 12px; }
+.et-licencia button, .et-licencia-dialogo button { padding: 9px 13px; border: 1px solid #77889988; border-radius: 8px; background: transparent; color: inherit; cursor: pointer; min-height: 44px; }
+.et-licencia button:focus-visible, .et-licencia-dialogo button:focus-visible { outline: 3px solid #07b1bc; outline-offset: 2px; }
+.et-licencia [data-licencia-copyright] { margin: 14px 0 0; line-height: 1.6; }
+.et-licencia[data-estado="vencida"], .et-licencia[data-estado="error"] { border-color: #dc8219; border-left-width: 5px; }
+.et-licencia-dialogo { width: min(520px, calc(100% - 32px)); box-sizing: border-box; padding: 24px; border-radius: 14px; border: 1px solid #778899; background: var(--bg-card, #fff); color: var(--text-primary, #17212b); }
+.et-licencia-dialogo::backdrop { background: #0009; }
+.et-licencia-dialogo p { line-height: 1.6; }
+.et-licencia-dialogo label { display: grid; gap: 8px; }
+.et-licencia-dialogo input { padding: 12px; width: 100%; box-sizing: border-box; }
+.et-licencia-dialogo button:disabled { opacity: .55; cursor: wait; }
+.et-licencia [data-licencia-respaldo][hidden] { display: none !important; }
+@media print { .et-licencia, .et-licencia-dialogo { display: none; } }

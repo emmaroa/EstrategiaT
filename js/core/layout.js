@@ -26,12 +26,20 @@
 
   prepararEntornoMovil();
 
+  if (!document.querySelector('script[data-et-license]') && document.currentScript) {
+    const licencia = document.createElement("script");
+    licencia.src = new URL("licencia.js", document.currentScript.src).href;
+    licencia.dataset.etLicense = "true";
+    document.head.appendChild(licencia);
+  }
+
   const MODULOS_IMPLEMENTADOS = [
     "Dashboard",
     "Parque Vehicular",
     "Acuerdos",
     "Calendario",
     "Control de Taller",
+    "Inventario",
     "Peticiones",
     "Gestión de Cotizaciones",
     "Portal Proveedor",
@@ -47,6 +55,7 @@
     "Solicitudes de Pago SIIF",
     "Vales",
     "Usuarios",
+    "Licencias",
     "Auditoría",
     "Tiempo Extra",
     "Tramites Administrativos",
@@ -59,16 +68,17 @@
     { nombre: "General", modulos: ["Dashboard"] },
     {
       nombre: "Operación",
-      modulos: ["Parque Vehicular", "Peticiones", "Gestión de Cotizaciones", "Seguimiento Peticiones", "Acuerdos", "Calendario", "Control de Taller", "Vales"]
+      modulos: ["Parque Vehicular", "Peticiones", "Gestión de Cotizaciones", "Seguimiento Peticiones", "Acuerdos", "Calendario", "Control de Taller", "Inventario", "Vales"]
     },
     {
       nombre: "Administración",
       modulos: ["Requisiciones", "Seguimiento SIIF", "Requisiciones SIIF", "Órdenes de Compra SIIF", "Solicitudes de Pago SIIF", "Importar SIIF", "Tiempo Extra", "Tramites Administrativos", "Generar Textos"]
     },
-    { nombre: "Sistema", modulos: ["Usuarios", "Auditoría"] }
+    { nombre: "Sistema", modulos: ["Usuarios", "Licencias", "Auditoría"] }
   ];
 
   const ICONOS_MODULOS = {
+    "Licencias": '<rect x="4" y="3" width="16" height="18" rx="2"/><path d="M8 7h8M8 11h4m-3 5 2 2 5-5"/>',
     "Dashboard": '<path d="M4 13h6V4H4v9Zm0 7h6v-4H4v4Zm10 0h6v-9h-6v9Zm0-16v4h6V4h-6Z"/>',
     "Parque Vehicular": '<path d="M5 17h14l-1-6-2-3H8l-2 3-1 6Z"/><path d="M7 11h10M7 17v2M17 17v2"/><circle cx="8" cy="15" r="1"/><circle cx="16" cy="15" r="1"/>',
     "Peticiones": '<path d="M6 3h9l3 3v15H6Z"/><path d="M15 3v4h4M9 12h6M9 16h6"/>',
@@ -86,6 +96,7 @@
     "Acuerdos": '<path d="M7 4h10v16H7Z"/><path d="m9 10 2 2 4-4M10 16h4"/>',
     "Calendario": '<rect x="3" y="5" width="18" height="16" rx="2"/><path d="M16 3v4M8 3v4M3 10h18M8 14h2M14 14h2M8 18h2"/>',
     "Control de Taller": '<path d="M14 6 4 16l4 4L18 10"/><path d="m16 4 4 4M3 21l4-1-3-3-1 4Z"/>',
+    "Inventario": '<path d="M4 7h16v13H4zM4 10h16M8 4h8l2 3H6z"/><path d="M8 14h3M8 17h6"/>',
     "Vales": '<path d="M4 6h16v12H4Z"/><path d="M8 10h8M8 14h5"/>',
     "Usuarios": '<circle cx="9" cy="8" r="3"/><path d="M3 20a6 6 0 0 1 12 0M16 5a3 3 0 0 1 0 6M18 14a5 5 0 0 1 3 5"/>',
     "Auditoría": '<path d="M12 3 4 6v5c0 5 3.4 8.7 8 10 4.6-1.3 8-5 8-10V6l-8-3Z"/><path d="m9 12 2 2 4-4"/>',
@@ -282,85 +293,31 @@
     nav.setAttribute("aria-label", "Navegación principal");
   }
 
-  function claveNavegacion(tipo, usuario) {
-    return "etNav" + tipo + "_" + String((usuario || {}).id || (usuario || {}).usuario || "anonimo");
-  }
-
-  function leerListaNavegacion(tipo, usuario) {
-    try {
-      const lista = JSON.parse(localStorage.getItem(claveNavegacion(tipo, usuario)) || "[]");
-      return Array.isArray(lista) ? lista.filter(Boolean) : [];
-    } catch (_) { return []; }
-  }
-
-  function guardarListaNavegacion(tipo, usuario, lista) {
-    localStorage.setItem(claveNavegacion(tipo, usuario), JSON.stringify(lista));
-  }
-
-  function registrarModuloReciente(usuario, modulo) {
-    if (!modulo || modulo === "Dashboard") return;
-    const recientes = leerListaNavegacion("Recientes", usuario).filter(function (item) { return item !== modulo; });
-    recientes.unshift(modulo);
-    guardarListaNavegacion("Recientes", usuario, recientes.slice(0, 5));
-  }
-
   function etiquetaNavegacion(modulo) {
     if (modulo === "Portal Proveedor") return "Dashboard proveedor";
     if (modulo === "Cotizaciones Proveedor") return "Cotizaciones";
     return modulo;
   }
 
-  function filaNavegacionPersonalizada(modulo, moduloActivo, desdeModulo, favoritos, contexto) {
+  function filaNavegacionPersonalizada(modulo, moduloActivo, desdeModulo) {
     const ruta = global.ETPermissions.obtenerRutaModulo(modulo, desdeModulo);
-    const favorito = favoritos.includes(modulo);
     const active = modulo === moduloActivo ? " active" : "";
     const current = modulo === moduloActivo ? ' aria-current="page"' : "";
-    return '<div class="et-nav-row" data-nav-module="' + modulo.toLowerCase() + '" data-nav-context="' + contexto + '">' +
+    return '<div class="et-nav-row" data-nav-module="' + modulo.toLowerCase() + '">' +
       '<a href="' + ruta + '" class="nav-item' + active + '" title="' + modulo + '"' + current + ">" +
-        iconoModulo(modulo) + '<span class="et-nav-label">' + etiquetaNavegacion(modulo) + "</span></a>" +
-      '<button type="button" class="et-nav-favorite' + (favorito ? " is-favorite" : "") + '" data-favorite-module="' + modulo +
-        '" aria-label="' + (favorito ? "Quitar de favoritos" : "Agregar a favoritos") + '" title="' +
-        (favorito ? "Quitar de favoritos" : "Agregar a favoritos") + '"><span aria-hidden="true">' +
-        (favorito ? "&#9733;" : "&#9734;") + "</span></button></div>";
+        iconoModulo(modulo) + '<span class="et-nav-label">' + etiquetaNavegacion(modulo) + "</span></a></div>";
   }
 
-  function renderizarNavegacionPersonalizada(nav, permitidos, moduloActivo, desdeModulo, usuario) {
-    let favoritos = leerListaNavegacion("Favoritos", usuario).filter(function (modulo) { return permitidos.includes(modulo); });
-    const recientes = leerListaNavegacion("Recientes", usuario).filter(function (modulo) {
-      return permitidos.includes(modulo) && !favoritos.includes(modulo);
-    }).slice(0, 4);
-    const accesos = favoritos.concat(recientes);
-    const esPortalProveedor = String(usuario && (usuario.rol || usuario.rol_original) || "").trim().toLowerCase() === "proveedor";
-    const grupoAccesos = accesos.length && !esPortalProveedor
-      ? '<section class="et-nav-group et-nav-personal" aria-label="Tus accesos"><h2 class="et-nav-group-title">Tus accesos</h2>' +
-        accesos.map(function (modulo) {
-          return filaNavegacionPersonalizada(modulo, moduloActivo, desdeModulo, favoritos, favoritos.includes(modulo) ? "favorito" : "reciente");
-        }).join("") + "</section>"
-      : "";
-
-    nav.innerHTML = grupoAccesos + GRUPOS_NAVEGACION.map(function (grupo) {
+  function renderizarNavegacionPersonalizada(nav, permitidos, moduloActivo, desdeModulo) {
+    nav.innerHTML = GRUPOS_NAVEGACION.map(function (grupo) {
       const modulosGrupo = grupo.modulos.filter(function (modulo) { return permitidos.includes(modulo); });
       if (!modulosGrupo.length) return "";
       return '<section class="et-nav-group" aria-label="' + grupo.nombre + '"><h2 class="et-nav-group-title">' + grupo.nombre + "</h2>" +
         modulosGrupo.map(function (modulo) {
-          return filaNavegacionPersonalizada(modulo, moduloActivo, desdeModulo, favoritos, "general");
+          return filaNavegacionPersonalizada(modulo, moduloActivo, desdeModulo);
         }).join("") + "</section>";
     }).join("");
     nav.setAttribute("aria-label", "Navegación principal");
-    nav.etRender = function () { renderizarNavegacionPersonalizada(nav, permitidos, moduloActivo, desdeModulo, usuario); };
-    nav.querySelectorAll("[data-favorite-module]").forEach(function (boton) {
-      boton.addEventListener("click", function () {
-        const modulo = boton.dataset.favoriteModule;
-        favoritos = leerListaNavegacion("Favoritos", usuario);
-        favoritos = favoritos.includes(modulo)
-          ? favoritos.filter(function (item) { return item !== modulo; })
-          : favoritos.concat(modulo);
-        guardarListaNavegacion("Favoritos", usuario, favoritos);
-        nav.etRender();
-        const buscador = document.querySelector(".et-nav-search input");
-        if (buscador && buscador.value) buscador.dispatchEvent(new Event("input"));
-      });
-    });
   }
 
   function crearBotonMenu(clase, etiqueta) {
@@ -2464,8 +2421,7 @@ permitidos = permitidos.filter(function (m) {
   return MODULOS_IMPLEMENTADOS.indexOf(m) >= 0;
 });
 
-      registrarModuloReciente(usuario, moduloActivo);
-      renderizarNavegacionPersonalizada(nav, permitidos, moduloActivo, desdeModulo, usuario);
+      renderizarNavegacionPersonalizada(nav, permitidos, moduloActivo, desdeModulo);
     }
 
     const logout = document.getElementById("etLogout");

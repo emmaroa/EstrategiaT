@@ -1,0 +1,14 @@
+.inventario-code-preview { display:flex; align-items:center; justify-content:center; min-height:180px; padding:16px; background:#fff; border:1px solid #e5e7eb; border-radius:8px; }
+.inventario-code-preview svg, .inventario-code-preview canvas { max-width:100%; height:auto; }
+.inventario-scan-box { min-height:260px; overflow:hidden; border:1px dashed var(--border-color, #cbd5e1); border-radius:8px; background:var(--bg-soft, #f8fafc); }
+.inventario-scan-box video { max-width:100%; }
+.inventario-result { margin-top:12px; padding:12px; border-left:3px solid var(--color-primary); background:var(--bg-soft, #f8fafc); }
+.inventario-location { color:var(--text-muted, #64748b); font-size:.86rem; }
+.stock-low { color:var(--color-danger, #b42318); font-weight:700; }
+.stock-ok { color:var(--color-success, #137333); font-weight:600; }
+@media print { body * { visibility:hidden !important; } #modalCodigo, #modalCodigo * { visibility:visible !important; } #modalCodigo { position:absolute; left:0; top:0; width:100%; } .modal-header button, .modal-actions { display:none !important; } }
+.dashboard-body #btnNuevoInventario[hidden],
+.dashboard-body #btnNuevaUbicacion[hidden],
+.dashboard-body [data-action="edit"][hidden],
+.dashboard-body [data-action="move"][hidden],
+.dashboard-body [data-lectura-movimiento][hidden] { display: none !important; }

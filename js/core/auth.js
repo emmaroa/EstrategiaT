@@ -268,7 +268,7 @@
     programarExpiracionSesion(usuarioActivo);
 
     if (typeof registrarAuditoria === "function") {
-      registrarAuditoria("Login", "Inicio de sesión", usuarioActivo.usuario);
+      await registrarAuditoria("Login", "Inicio de sesión", usuarioActivo.usuario);
     }
 
 
@@ -385,10 +385,10 @@
     return "index.html";
   }
 
-  window.cerrarSesion = function () {
+  window.cerrarSesion = async function () {
     const usuarioActivo = obtenerUsuarioActivo();
     if (usuarioActivo && typeof registrarAuditoria === "function") {
-      registrarAuditoria("Login", "Cierre de sesión", usuarioActivo.usuario);
+      await registrarAuditoria("Login", "Cierre de sesión", usuarioActivo.usuario);
     }
     if (temporizadorExpiracionSesion) {
       clearTimeout(temporizadorExpiracionSesion);
@@ -400,7 +400,8 @@
 
   window.registrarAuditoria = function (modulo, accion, detalle, opciones) {
     const usuarioActivo = obtenerUsuarioActivo();
-    let auditoria = parseJSON(localStorage.getItem("auditoria")) || [];
+    let auditoria = [];
+    try { const guardada = parseJSON(localStorage.getItem("auditoria")); auditoria = Array.isArray(guardada) ? guardada : []; } catch (_) {}
     const extra = opciones || {};
 
     const registro = {
@@ -411,15 +412,17 @@
       accion: accion,
       detalle: detalle,
       entidad_tipo: extra.entidad_tipo || extra.entidadTipo || null,
-      entidad_id: extra.entidad_id || extra.entidadId || null,
-      metadata: extra.metadata || {}
+      entidad_id: /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(extra.entidad_id || extra.entidadId || '') ? (extra.entidad_id || extra.entidadId) : null,
+      metadata: JSON.parse(JSON.stringify(extra.metadata || {}, function (clave, valor) {
+        return /(password|passwd|contras[eñn]|clave|token|secret|api_key|authorization)/i.test(clave) ? '[PROTEGIDO]' : valor;
+      }))
     };
 
     auditoria.unshift(registro);
-    localStorage.setItem("auditoria", JSON.stringify(auditoria));
+    try { localStorage.setItem("auditoria", JSON.stringify(auditoria.slice(0, 200))); } catch (_) {}
 
     if (loginSupabaseClient) {
-      loginSupabaseClient.from("auditoria").insert({
+      return loginSupabaseClient.from("auditoria").insert({
         usuario_id: usuarioActivo ? usuarioActivo.id : null,
         usuario_nombre: usuarioActivo ? usuarioActivo.nombre : "Usuario no identificado",
         usuario_rol: usuarioActivo ? usuarioActivo.rol : "Sin rol",
@@ -451,6 +454,10 @@
 
 
     const rolNormalizado = normalizarRolLogin(usuarioActivo.rol);
+    if (modulo === "Licencias" && (rolNormalizado !== "SuperAdmin" || String(usuarioActivo.usuario || "").trim().toLowerCase() !== "emma")) {
+      window.location.href = esRutaDeModulo(window.location.pathname) ? "../dashboard.html" : "dashboard.html";
+      return false;
+    }
     const modulosPermitidos = window.ETPermissions && typeof window.ETPermissions.obtenerModulosUsuario === "function"
       ? window.ETPermissions.obtenerModulosUsuario(usuarioActivo)
       : (permisos[rolNormalizado] || []);

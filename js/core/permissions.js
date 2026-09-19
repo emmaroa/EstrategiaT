@@ -22,6 +22,7 @@
       CONTROL_TALLER: "Control de Taller",
       VALES: "Vales",
       USUARIOS: "Usuarios",
+      LICENCIAS: "Licencias",
       AUDITORIA: "Auditoría",
       TIEMPO_EXTRA: "Tiempo Extra",
       TRAMITES_ADMINISTRATIVOS: "Tramites Administrativos",
@@ -56,6 +57,7 @@
     [MODULOS.CONTROL_TALLER]: "modulos/control-taller.html",
     [MODULOS.VALES]: "modulos/vales.html",
     [MODULOS.USUARIOS]: "modulos/usuarios.html",
+    [MODULOS.LICENCIAS]: "modulos/licencias.html",
     [MODULOS.AUDITORIA]: "modulos/auditoria.html",
     [MODULOS.TIEMPO_EXTRA]: "modulos/tiempo-extra.html",
     [MODULOS.TRAMITES_ADMINISTRATIVOS]: "modulos/tramites-administrativos.html",
@@ -90,6 +92,7 @@
     [MODULOS.CONTROL_TALLER]: "Ingresos, salidas, fallas, refacciones y seguimiento de unidades en taller.",
     [MODULOS.VALES]: "Vales de salida con folio, firma y trazabilidad.",
     [MODULOS.USUARIOS]: "Administración de usuarios, roles y permisos.",
+    [MODULOS.LICENCIAS]: "Administración exclusiva de licencias de Brote Labs.",
     [MODULOS.AUDITORIA]: "Registro de actividad y trazabilidad del sistema.",
     [MODULOS.INVENTARIO]: "Almacén, kardex, stock mínimo y movimientos.",
     [MODULOS.COMPRAS]: "Cotizaciones, órdenes de compra y aprobaciones.",
@@ -106,9 +109,9 @@
   };
 
   const PERMISOS = {
-    "Administrador del Sistema": Object.values(MODULOS),
-    jefe: Object.values(MODULOS),
-    Jefe: Object.values(MODULOS),
+    "Administrador del Sistema": Object.values(MODULOS).filter(m => m !== MODULOS.LICENCIAS),
+    jefe: Object.values(MODULOS).filter(m => m !== MODULOS.LICENCIAS),
+    Jefe: Object.values(MODULOS).filter(m => m !== MODULOS.LICENCIAS),
     "Jefe de Almacen": [
       MODULOS.DASHBOARD,
       MODULOS.PETICIONES,
@@ -439,14 +442,15 @@
     const permisosModulos = obtenerPermisosModulosUsuario(usuario);
     const rol = normalizarRol((usuario || {}).rol || (usuario || {}).cargo || (usuario || {}).tipo || "");
     if (permisosModulos.length) {
-      return permisosModulos
+      const personalizados = permisosModulos
         .filter(function (item) { return item.permiso !== "none"; })
         .map(function (item) { return item.modulo; })
         .filter(function (modulo) {
-          return Object.values(MODULOS).includes(modulo);
+          return Object.values(MODULOS).includes(modulo) && modulo !== MODULOS.LICENCIAS;
         }).filter(function (modulo, indice, lista) {
           return modulo !== MODULOS.REQUISICIONES && lista.indexOf(modulo) === indice;
         });
+      return esAdministradorLicencias(usuario) ? agregarModuloSiFalta(personalizados, MODULOS.LICENCIAS) : personalizados;
     }
 
     if (rol === "Proveedor") return [
@@ -465,12 +469,23 @@
     return modulosFinalesRol.map(function (modulo) {
       return modulo === MODULOS.REQUISICIONES ? MODULOS.SEGUIMIENTO_SIIF : modulo;
     }).filter(function (modulo, indice, lista) {
-      return lista.indexOf(modulo) === indice;
+      return lista.indexOf(modulo) === indice && (modulo !== MODULOS.LICENCIAS || esAdministradorLicencias(usuario));
     });
+  }
+
+  function esAdministradorLicencias(usuario) {
+    return normalizarRol((usuario || {}).rol) === "SuperAdmin" &&
+      String((usuario || {}).usuario || "").trim().toLowerCase() === "emma";
+  }
+
+  function puedeDescargarRespaldo(usuario) {
+    const rol = String((usuario || {}).rol || '').trim().toLowerCase().replace(/[ _-]/g, '');
+    return ['superadmin', 'director', 'admin'].includes(rol);
   }
 
   function obtenerPermisoModuloUsuario(usuario, modulo) {
     const rol = normalizarRol((usuario || {}).rol || (usuario || {}).cargo || (usuario || {}).tipo || "");
+    if (modulo === MODULOS.LICENCIAS) return esAdministradorLicencias(usuario) ? "editar" : "none";
     if (rol === "Proveedor") {
       return [MODULOS.PORTAL_PROVEEDOR, MODULOS.PETICIONES_PROVEEDOR, MODULOS.COTIZACIONES_PROVEEDOR, MODULOS.SEGUIMIENTO_SIIF_PROVEEDOR].includes(modulo) ? "editar" : "none";
     }
@@ -584,6 +599,8 @@
     DESCRIPCIONES,
     PERMISOS,
     obtenerModulosUsuario,
+    esAdministradorLicencias,
+    puedeDescargarRespaldo,
     obtenerPermisosModulosUsuario,
     obtenerPermisoModuloUsuario,
     puedeAcceder,

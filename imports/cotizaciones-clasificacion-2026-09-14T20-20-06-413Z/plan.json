@@ -1,0 +1,875 @@
+[
+  {
+    "id": "005cc8ed-4fb8-5077-929f-1036e189210f",
+    "folio": "01590-2026-CT",
+    "unidad": "1932",
+    "cambios": {
+      "dependencia": "10-Dirección General de Desarrollo de Infraestructura"
+    },
+    "motivo": "Dependencia por número económico"
+  },
+  {
+    "id": "0191883a-08af-4937-b10b-c59f79dfcb58",
+    "folio": "COT-2026-0011",
+    "unidad": "3200",
+    "cambios": {
+      "dependencia": "11-Dirección General de Servicios Públicos Municipales"
+    },
+    "motivo": "Dependencia por número económico"
+  },
+  {
+    "id": "030d75fe-3bca-49db-ad8d-4f63b067d84b",
+    "folio": "COT-2026-0268",
+    "unidad": "1787",
+    "cambios": {
+      "dependencia": "10-Dirección General de Desarrollo de Infraestructura"
+    },
+    "motivo": "Dependencia por número económico"
+  },
+  {
+    "id": "03f6ad8e-cf2a-4e3e-8ab6-1d421eb4e35f",
+    "folio": "COT-2026-0297",
+    "unidad": "3194",
+    "cambios": {
+      "dependencia": "11-Dirección General de Servicios Públicos Municipales"
+    },
+    "motivo": "Dependencia por número económico"
+  },
+  {
+    "id": "0600e5be-d531-4501-a932-83bac0671e50",
+    "folio": "COT-2026-0218",
+    "unidad": "1417",
+    "cambios": {
+      "dependencia": "10-Dirección General de Desarrollo de Infraestructura"
+    },
+    "motivo": "Dependencia por número económico"
+  },
+  {
+    "id": "06b7f300-e7bd-486c-a852-452ecee619e6",
+    "folio": "COT-2026-0296",
+    "unidad": "1861",
+    "cambios": {
+      "dependencia": "10-Dirección General de Desarrollo de Infraestructura"
+    },
+    "motivo": "Dependencia por número económico"
+  },
+  {
+    "id": "07250947-6d1e-514e-b1aa-761026e4bda7",
+    "folio": "01584-2026-CT",
+    "unidad": "3517",
+    "cambios": {
+      "dependencia": "10-Dirección General de Desarrollo de Infraestructura"
+    },
+    "motivo": "Dependencia por número económico"
+  },
+  {
+    "id": "0bbb4d0e-68ec-43f0-9fd6-a58fa31f4188",
+    "folio": "COT-2026-0175",
+    "unidad": "4562",
+    "cambios": {
+      "dependencia": "10-Dirección General de Desarrollo de Infraestructura"
+    },
+    "motivo": "Dependencia por número económico"
+  },
+  {
+    "id": "0e7a4e55-c78b-5745-8f7d-c998dca97a8a",
+    "folio": "01572-2026-CT",
+    "unidad": "3691",
+    "cambios": {
+      "dependencia": "10-Dirección General de Desarrollo de Infraestructura"
+    },
+    "motivo": "Dependencia por número económico"
+  },
+  {
+    "id": "154dff8f-2e5c-4f8b-8681-2ae78c61ac11",
+    "folio": "COT-2026-0132",
+    "unidad": "3521",
+    "cambios": {
+      "dependencia": "10-Dirección General de Desarrollo de Infraestructura"
+    },
+    "motivo": "Dependencia por número económico"
+  },
+  {
+    "id": "1bec5ab0-5e86-561a-a3dd-df3666525bf5",
+    "folio": "01638-2026-CT",
+    "unidad": "1935",
+    "cambios": {
+      "dependencia": "10-Dirección General de Desarrollo de Infraestructura"
+    },
+    "motivo": "Dependencia por número económico"
+  },
+  {
+    "id": "21d89c28-fa2a-4d55-bbfb-15dd04506665",
+    "folio": "COT-2026-0081",
+    "unidad": "3522",
+    "cambios": {
+      "dependencia": "10-Dirección General de Desarrollo de Infraestructura"
+    },
+    "motivo": "Dependencia por número económico"
+  },
+  {
+    "id": "234a5e1a-1869-57b5-b5d3-0c85fb1212bf",
+    "folio": "01615-2026-CT",
+    "unidad": "2757",
+    "cambios": {
+      "dependencia": "11-Dirección General de Servicios Públicos Municipales"
+    },
+    "motivo": "Dependencia por número económico"
+  },
+  {
+    "id": "274eec4c-eb1b-46b7-8f16-117b4f9d04bf",
+    "folio": "COT-2026-0090",
+    "unidad": "4178",
+    "cambios": {
+      "dependencia": "10-Dirección General de Desarrollo de Infraestructura"
+    },
+    "motivo": "Dependencia por número económico"
+  },
+  {
+    "id": "2767b10d-31e6-4720-ab63-7b85941773f7",
+    "folio": "COT-2026-0184",
+    "unidad": "2756",
+    "cambios": {
+      "dependencia": "11-Dirección General de Servicios Públicos Municipales"
+    },
+    "motivo": "Dependencia por número económico"
+  },
+  {
+    "id": "27e9e624-b9e7-49d4-ba35-dd5b0e2161f5",
+    "folio": "COT-2026-0193",
+    "unidad": "2026",
+    "cambios": {
+      "dependencia": "10-Dirección General de Desarrollo de Infraestructura"
+    },
+    "motivo": "Dependencia por número económico"
+  },
+  {
+    "id": "28270179-6912-40d2-8cd6-6b8208f25724",
+    "folio": "COT-2026-0144",
+    "unidad": "2177",
+    "cambios": {
+      "dependencia": "10-Dirección General de Desarrollo de Infraestructura"
+    },
+    "motivo": "Dependencia por número económico"
+  },
+  {
+    "id": "2a0a8967-3859-5ac9-ab7b-a36068793b2c",
+    "folio": "01480-2026-CT",
+    "unidad": "4020",
+    "cambios": {
+      "dependencia": "45-Dirección de Inspección y Vigilancia"
+    },
+    "motivo": "Dependencia por número económico"
+  },
+  {
+    "id": "2e884205-1952-4fe2-b54f-b20de9b00aba",
+    "folio": "COT-2026-0304",
+    "unidad": "2064",
+    "cambios": {
+      "dependencia": "10-Dirección General de Desarrollo de Infraestructura"
+    },
+    "motivo": "Dependencia por número económico"
+  },
+  {
+    "id": "2f51c70e-ae94-5b18-813d-d43860a8c32c",
+    "folio": "01639-2026-CT",
+    "unidad": "2434",
+    "cambios": {
+      "dependencia": "11-Dirección General de Servicios Públicos Municipales"
+    },
+    "motivo": "Dependencia por número económico"
+  },
+  {
+    "id": "2f593bb7-a668-40bb-a44d-79d3a6f97afd",
+    "folio": "COT-2026-0178",
+    "unidad": "3357",
+    "cambios": {
+      "dependencia": "08-Tesorería Municipal"
+    },
+    "motivo": "Dependencia por número económico"
+  },
+  {
+    "id": "2fdf2c84-f0ee-41cd-90b4-c4b02b49f57b",
+    "folio": "COT-2026-0287",
+    "unidad": "4462",
+    "cambios": {
+      "dependencia": "11-Dirección General de Servicios Públicos Municipales"
+    },
+    "motivo": "Dependencia por número económico"
+  },
+  {
+    "id": "30943950-3bbb-4828-8f86-ce4544caf598",
+    "folio": "COT-2026-0235",
+    "unidad": "3335",
+    "cambios": {
+      "dependencia": "11-Dirección General de Servicios Públicos Municipales"
+    },
+    "motivo": "Dependencia por número económico"
+  },
+  {
+    "id": "36dd17f6-6515-452a-8578-755fbaa6f8a5",
+    "folio": "COT-2026-0150",
+    "unidad": "4022",
+    "cambios": {
+      "dependencia": "10-Dirección General de Desarrollo de Infraestructura"
+    },
+    "motivo": "Dependencia por número económico"
+  },
+  {
+    "id": "398fa5ec-4c39-529a-bf2b-8732db50a9e3",
+    "folio": "01634-2026-CT",
+    "unidad": "3339",
+    "cambios": {
+      "dependencia": "11-Dirección General de Servicios Públicos Municipales"
+    },
+    "motivo": "Dependencia por número económico"
+  },
+  {
+    "id": "3adc91be-e7ea-47f0-8e5f-cb13f5ae2df3",
+    "folio": "COT-2026-0211",
+    "unidad": "1968",
+    "cambios": {
+      "dependencia": "10-Dirección General de Desarrollo de Infraestructura"
+    },
+    "motivo": "Dependencia por número económico"
+  },
+  {
+    "id": "3b21a0cf-ae90-4767-8661-fb0a882246a4",
+    "folio": "COT-2026-0220",
+    "unidad": "4848",
+    "cambios": {
+      "dependencia": "10-Dirección General de Desarrollo de Infraestructura"
+    },
+    "motivo": "Dependencia por número económico"
+  },
+  {
+    "id": "3df50f3e-849c-4e76-a5a0-62347a7334aa",
+    "folio": "COT-2026-0323",
+    "unidad": "2026",
+    "cambios": {
+      "dependencia": "10-Dirección General de Desarrollo de Infraestructura"
+    },
+    "motivo": "Dependencia por número económico"
+  },
+  {
+    "id": "3fc3f9f1-dd45-4a4f-a86c-41f85a60ca87",
+    "folio": "COT-2026-0173",
+    "unidad": "3609",
+    "cambios": {
+      "dependencia": "10-Dirección General de Desarrollo de Infraestructura"
+    },
+    "motivo": "Dependencia por número económico"
+  },
+  {
+    "id": "40bb22f6-76dc-5b39-8355-1806110f5ac1",
+    "folio": "01602-2026-CT",
+    "unidad": "1206",
+    "cambios": {
+      "dependencia": "10-Dirección General de Desarrollo de Infraestructura"
+    },
+    "motivo": "Dependencia por número económico"
+  },
+  {
+    "id": "424e4607-ab71-5c24-9cf5-14d8ce3daab7",
+    "folio": "01586-2026-CT",
+    "unidad": "3694",
+    "cambios": {
+      "dependencia": "10-Dirección General de Desarrollo de Infraestructura"
+    },
+    "motivo": "Dependencia por número económico"
+  },
+  {
+    "id": "4326d2e9-01ad-4159-a9da-c9d4dcb83a9a",
+    "folio": "COT-2026-0278",
+    "unidad": "1206",
+    "cambios": {
+      "dependencia": "10-Dirección General de Desarrollo de Infraestructura"
+    },
+    "motivo": "Dependencia por número económico"
+  },
+  {
+    "id": "4bcf3b9c-b618-535f-8f89-e2444a5e7ca5",
+    "folio": "01398-2026-CT",
+    "unidad": "3299",
+    "cambios": {
+      "dependencia": "45-Dirección de Inspección y Vigilancia"
+    },
+    "motivo": "Dependencia por número económico"
+  },
+  {
+    "id": "4c751dec-3f09-5ac1-8dc8-66ec2beddf3b",
+    "folio": "01630-2026-CT",
+    "unidad": "2757",
+    "cambios": {
+      "dependencia": "11-Dirección General de Servicios Públicos Municipales"
+    },
+    "motivo": "Dependencia por número económico"
+  },
+  {
+    "id": "51cf3654-50b7-5b35-9fe1-be302b1c0bec",
+    "folio": "01278-2026-CT",
+    "unidad": "3351",
+    "cambios": {
+      "dependencia": "02-Sindicatura Municipal"
+    },
+    "motivo": "Dependencia por número económico"
+  },
+  {
+    "id": "536d0cb3-0e41-5154-a389-2693a3e500b7",
+    "folio": "01478-2026-CT",
+    "unidad": "3297",
+    "cambios": {
+      "dependencia": "45-Dirección de Inspección y Vigilancia"
+    },
+    "motivo": "Dependencia por número económico"
+  },
+  {
+    "id": "54397d7c-1cc2-4483-bb23-a82b96697c3f",
+    "folio": "COT-2026-0299",
+    "unidad": "3435",
+    "cambios": {
+      "dependencia": "11-Dirección General de Servicios Públicos Municipales"
+    },
+    "motivo": "Dependencia por número económico"
+  },
+  {
+    "id": "580b528c-fdc7-4a33-99e4-b2e462238d5f",
+    "folio": "COT-2026-0136",
+    "unidad": "3137",
+    "cambios": {
+      "dependencia": "10-Dirección General de Desarrollo de Infraestructura"
+    },
+    "motivo": "Dependencia por número económico"
+  },
+  {
+    "id": "5b24a123-bd3d-5856-b3e6-ff6eb84196e9",
+    "folio": "01483-2026-CT",
+    "unidad": "3618",
+    "cambios": {
+      "dependencia": "47-Coordinación Municipal de Protección Civil"
+    },
+    "motivo": "Dependencia por número económico"
+  },
+  {
+    "id": "5eeaf867-4323-4fab-9d46-c9232fe5b22a",
+    "folio": "COT-2026-0135",
+    "unidad": "1786",
+    "cambios": {
+      "dependencia": "10-Dirección General de Desarrollo de Infraestructura"
+    },
+    "motivo": "Dependencia por número económico"
+  },
+  {
+    "id": "696880bc-4212-41c0-a355-41cddce3f1bd",
+    "folio": "COT-2026-0151",
+    "unidad": "3526",
+    "cambios": {
+      "dependencia": "11-Dirección General de Servicios Públicos Municipales"
+    },
+    "motivo": "Dependencia por número económico"
+  },
+  {
+    "id": "6a1143af-88c8-5b94-9b49-d8cc0e24288d",
+    "folio": "01440-2026-CT",
+    "unidad": "3526",
+    "cambios": {
+      "dependencia": "11-Dirección General de Servicios Públicos Municipales"
+    },
+    "motivo": "Dependencia por número económico"
+  },
+  {
+    "id": "6c951faf-252c-4c44-bccc-d051fcde9dad",
+    "folio": "COT-2026-0163",
+    "unidad": "2434",
+    "cambios": {
+      "dependencia": "11-Dirección General de Servicios Públicos Municipales"
+    },
+    "motivo": "Dependencia por número económico"
+  },
+  {
+    "id": "7294f72a-a9c0-41b3-85ae-7a40d5671f7b",
+    "folio": "COT-2026-0376",
+    "unidad": "3194",
+    "cambios": {
+      "dependencia": "11-Dirección General de Servicios Públicos Municipales"
+    },
+    "motivo": "Dependencia por número económico"
+  },
+  {
+    "id": "743a6e7a-894b-598c-a3c7-391c6d7a9fcc",
+    "folio": "01550-2026-CT",
+    "unidad": "2185",
+    "cambios": {
+      "dependencia": "13-Dirección General de Participación Ciudadana"
+    },
+    "motivo": "Dependencia por número económico"
+  },
+  {
+    "id": "76613641-f792-5502-a37d-1f9eb77d3194",
+    "folio": "01346-2026-CT",
+    "unidad": "3299",
+    "cambios": {
+      "dependencia": "45-Dirección de Inspección y Vigilancia"
+    },
+    "motivo": "Dependencia por número económico"
+  },
+  {
+    "id": "799b6be1-3091-48cc-950a-66ddb7c40c4c",
+    "folio": "COT-2026-0237",
+    "unidad": "3202",
+    "cambios": {
+      "dependencia": "11-Dirección General de Servicios Públicos Municipales"
+    },
+    "motivo": "Dependencia por número económico"
+  },
+  {
+    "id": "7afc189f-224e-5610-a15c-9a92ab44ff96",
+    "folio": "01594-2026-CT",
+    "unidad": "3621",
+    "cambios": {
+      "dependencia": "10-Dirección General de Desarrollo de Infraestructura"
+    },
+    "motivo": "Dependencia por número económico"
+  },
+  {
+    "id": "7b2429f5-6168-5b21-9760-8bca3a430a9b",
+    "folio": "01549-2026-CT",
+    "unidad": "3339",
+    "cambios": {
+      "dependencia": "11-Dirección General de Servicios Públicos Municipales"
+    },
+    "motivo": "Dependencia por número económico"
+  },
+  {
+    "id": "7e484d31-f8c3-444d-8243-3f82dc788c12",
+    "folio": "COT-2026-0095",
+    "unidad": "4562",
+    "cambios": {
+      "dependencia": "10-Dirección General de Desarrollo de Infraestructura"
+    },
+    "motivo": "Dependencia por número económico"
+  },
+  {
+    "id": "7e51e2fe-2b3d-4bb0-b439-0b9ae92bf532",
+    "folio": "COT-2026-0187",
+    "unidad": "1970",
+    "cambios": {
+      "dependencia": "10-Dirección General de Desarrollo de Infraestructura"
+    },
+    "motivo": "Dependencia por número económico"
+  },
+  {
+    "id": "7ed41083-32cf-48cd-a287-596d44e7c189",
+    "folio": "COT-2026-0247",
+    "unidad": "3616",
+    "cambios": {
+      "dependencia": "03-Jefatura de Oficina de la Presidencia Municipal"
+    },
+    "motivo": "Dependencia por número económico"
+  },
+  {
+    "id": "83b39d8d-c331-4cdf-9b18-8cd63944b7c7",
+    "folio": "COT-2026-0119",
+    "unidad": "3203",
+    "cambios": {
+      "dependencia": "11-Dirección General de Servicios Públicos Municipales"
+    },
+    "motivo": "Dependencia por número económico"
+  },
+  {
+    "id": "85124a92-54e7-463d-890c-cd6f00b34ca9",
+    "folio": "COT-2026-0027",
+    "unidad": "3584",
+    "cambios": {
+      "dependencia": "10-Dirección General de Desarrollo de Infraestructura"
+    },
+    "motivo": "Dependencia por número económico"
+  },
+  {
+    "id": "877b95ae-4f8f-52e9-8a85-571198984548",
+    "folio": "01589-2026-CT",
+    "unidad": "3522",
+    "cambios": {
+      "dependencia": "10-Dirección General de Desarrollo de Infraestructura"
+    },
+    "motivo": "Dependencia por número económico"
+  },
+  {
+    "id": "8a0da3e4-4231-4344-aaca-fdafc5e5b1c9",
+    "folio": "COT-2026-0409",
+    "unidad": "3609",
+    "cambios": {
+      "dependencia": "10-Dirección General de Desarrollo de Infraestructura"
+    },
+    "motivo": "Dependencia por número económico"
+  },
+  {
+    "id": "8f19284c-ea17-4c20-9796-5258c5df2726",
+    "folio": "COT-2026-0139",
+    "unidad": "4184",
+    "cambios": {
+      "dependencia": "10-Dirección General de Desarrollo de Infraestructura"
+    },
+    "motivo": "Dependencia por número económico"
+  },
+  {
+    "id": "9086b21a-5a85-5b79-aebf-d0ebfdb852fe",
+    "folio": "01592-2026-CT",
+    "unidad": "3621",
+    "cambios": {
+      "dependencia": "10-Dirección General de Desarrollo de Infraestructura"
+    },
+    "motivo": "Dependencia por número económico"
+  },
+  {
+    "id": "9b3c42d7-fefb-5817-a940-13b742543ab9",
+    "folio": "01410-2026-CT",
+    "unidad": "4707",
+    "cambios": {
+      "dependencia": "11-Dirección General de Servicios Públicos Municipales"
+    },
+    "motivo": "Dependencia por número económico"
+  },
+  {
+    "id": "9e33338e-54b7-5b15-89e6-64e36105bee2",
+    "folio": "01606-2026-CT",
+    "unidad": "1861",
+    "cambios": {
+      "dependencia": "10-Dirección General de Desarrollo de Infraestructura"
+    },
+    "motivo": "Dependencia por número económico"
+  },
+  {
+    "id": "a3bb0186-1512-595d-baf2-2efa84d01d85",
+    "folio": "01588-2026-CT",
+    "unidad": "2314",
+    "cambios": {
+      "dependencia": "10-Dirección General de Desarrollo de Infraestructura"
+    },
+    "motivo": "Dependencia por número económico"
+  },
+  {
+    "id": "a3ca183a-57f3-5ad2-8b80-7fec18da20f7",
+    "folio": "01600-2026-CT",
+    "unidad": "2058",
+    "cambios": {
+      "dependencia": "11-Dirección General de Servicios Públicos Municipales"
+    },
+    "motivo": "Dependencia por número económico"
+  },
+  {
+    "id": "a457b3a5-cf29-4a45-bf80-1f739b3bbc2b",
+    "folio": "COT-2026-0069",
+    "unidad": "2026",
+    "cambios": {
+      "dependencia": "10-Dirección General de Desarrollo de Infraestructura"
+    },
+    "motivo": "Dependencia por número económico"
+  },
+  {
+    "id": "a630bea9-5357-4ea8-a03a-8fc106d06ff7",
+    "folio": "COT-2026-0276",
+    "unidad": "4100",
+    "cambios": {
+      "dependencia": "10-Dirección General de Desarrollo de Infraestructura"
+    },
+    "motivo": "Dependencia por número económico"
+  },
+  {
+    "id": "a6a2af7a-474f-5487-a36d-54c050c4c963",
+    "folio": "01595-2026-CT",
+    "unidad": "4561",
+    "cambios": {
+      "dependencia": "10-Dirección General de Desarrollo de Infraestructura"
+    },
+    "motivo": "Dependencia por número económico"
+  },
+  {
+    "id": "a6bc0dad-369c-4198-8762-1abf1d0e213a",
+    "folio": "COT-2026-0188",
+    "unidad": "2613",
+    "cambios": {
+      "dependencia": "10-Dirección General de Desarrollo de Infraestructura"
+    },
+    "motivo": "Dependencia por número económico"
+  },
+  {
+    "id": "a918ec56-9696-4d9b-a03d-8c9be6ca7e78",
+    "folio": "COT-2026-0295",
+    "unidad": "2026",
+    "cambios": {
+      "dependencia": "10-Dirección General de Desarrollo de Infraestructura"
+    },
+    "motivo": "Dependencia por número económico"
+  },
+  {
+    "id": "ae88249f-c36e-4016-8423-0f7a51c2bf6a",
+    "folio": "COT-2026-0160",
+    "unidad": "3336",
+    "cambios": {
+      "dependencia": "11-Dirección General de Servicios Públicos Municipales"
+    },
+    "motivo": "Dependencia por número económico"
+  },
+  {
+    "id": "ae9452e8-6a46-5dc1-be48-2d91e5f71359",
+    "folio": "01482-2026-CT",
+    "unidad": "3618",
+    "cambios": {
+      "dependencia": "47-Coordinación Municipal de Protección Civil"
+    },
+    "motivo": "Dependencia por número económico"
+  },
+  {
+    "id": "af017b6c-096a-41d7-b647-afa8ecf1058e",
+    "folio": "COT-2026-0199",
+    "unidad": "3339",
+    "cambios": {
+      "dependencia": "11-Dirección General de Servicios Públicos Municipales"
+    },
+    "motivo": "Dependencia por número económico"
+  },
+  {
+    "id": "b3ff78cb-8a92-46ab-b683-b7ef2163e928",
+    "folio": "COT-2026-0157",
+    "unidad": "3614",
+    "cambios": {
+      "dependencia": "10-Dirección General de Desarrollo de Infraestructura"
+    },
+    "motivo": "Dependencia por número económico"
+  },
+  {
+    "id": "b45e30e6-f439-56dd-a1cd-4d73e7ee698d",
+    "folio": "01645-2026-CT",
+    "unidad": "1436",
+    "cambios": {
+      "dependencia": "10-Dirección General de Desarrollo de Infraestructura"
+    },
+    "motivo": "Dependencia por número económico"
+  },
+  {
+    "id": "b5e284b0-840c-4706-b207-2877501e2620",
+    "folio": "COT-2026-0182",
+    "unidad": "3203",
+    "cambios": {
+      "dependencia": "11-Dirección General de Servicios Públicos Municipales"
+    },
+    "motivo": "Dependencia por número económico"
+  },
+  {
+    "id": "b61958cc-9edc-4ee3-a075-dc580c52f7b5",
+    "folio": "COT-2026-0194",
+    "unidad": "2026",
+    "cambios": {
+      "dependencia": "10-Dirección General de Desarrollo de Infraestructura"
+    },
+    "motivo": "Dependencia por número económico"
+  },
+  {
+    "id": "b824910f-ac96-46fc-83f6-1d6e6b89b50c",
+    "folio": "COT-2026-0167",
+    "unidad": "2434",
+    "cambios": {
+      "dependencia": "11-Dirección General de Servicios Públicos Municipales"
+    },
+    "motivo": "Dependencia por número económico"
+  },
+  {
+    "id": "b874f2c5-cc28-58e7-a144-45fe6da1e6a8",
+    "folio": "01547-2026-CT",
+    "unidad": "3376",
+    "cambios": {
+      "dependencia": "12-Oficialía Mayor"
+    },
+    "motivo": "Dependencia por número económico"
+  },
+  {
+    "id": "bfadf574-bc80-4e9c-afc8-b97d39f35645",
+    "folio": "COT-2026-0298",
+    "unidad": "3526",
+    "cambios": {
+      "dependencia": "11-Dirección General de Servicios Públicos Municipales"
+    },
+    "motivo": "Dependencia por número económico"
+  },
+  {
+    "id": "c1bbeef5-1534-41fd-a44a-f09c674190d8",
+    "folio": "COT-2026-0257",
+    "unidad": "3694",
+    "cambios": {
+      "dependencia": "10-Dirección General de Desarrollo de Infraestructura"
+    },
+    "motivo": "Dependencia por número económico"
+  },
+  {
+    "id": "c394852b-16e4-43df-89b0-bf04c127e5a0",
+    "folio": "COT-2026-0145",
+    "unidad": "4745",
+    "cambios": {
+      "dependencia": "10-Dirección General de Desarrollo de Infraestructura"
+    },
+    "motivo": "Dependencia por número económico"
+  },
+  {
+    "id": "c70dfde5-beca-5fb8-ac23-06c0301f6a01",
+    "folio": "01569-2026-CT",
+    "unidad": "2185",
+    "cambios": {
+      "dependencia": "13-Dirección General de Participación Ciudadana"
+    },
+    "motivo": "Dependencia por número económico"
+  },
+  {
+    "id": "cf4cf3d9-8c47-4174-8c43-204a89ec4a06",
+    "folio": "COT-2026-0148",
+    "unidad": "3203",
+    "cambios": {
+      "dependencia": "11-Dirección General de Servicios Públicos Municipales"
+    },
+    "motivo": "Dependencia por número económico"
+  },
+  {
+    "id": "d09c575f-23b9-56ac-b0fa-99bdc78a1fb0",
+    "folio": "01274-2026-CT",
+    "unidad": "3351",
+    "cambios": {
+      "dependencia": "02-Sindicatura Municipal"
+    },
+    "motivo": "Dependencia por número económico"
+  },
+  {
+    "id": "d4506a22-caa3-48cb-b61a-1e03f5435c28",
+    "folio": "COT-2026-0149",
+    "unidad": "3609",
+    "cambios": {
+      "dependencia": "10-Dirección General de Desarrollo de Infraestructura"
+    },
+    "motivo": "Dependencia por número económico"
+  },
+  {
+    "id": "d49a825c-0134-4b20-83dd-f364414ce77a",
+    "folio": "COT-2026-0286",
+    "unidad": "4461",
+    "cambios": {
+      "dependencia": "11-Dirección General de Servicios Públicos Municipales"
+    },
+    "motivo": "Dependencia por número económico"
+  },
+  {
+    "id": "d4f19888-4f00-4c28-99b5-a2a8d29bc629",
+    "folio": "COT-2026-0180",
+    "unidad": "3493",
+    "cambios": {
+      "dependencia": "10-Dirección General de Desarrollo de Infraestructura"
+    },
+    "motivo": "Dependencia por número económico"
+  },
+  {
+    "id": "d95e9975-d385-52d9-9758-d20ea3532c15",
+    "folio": "01644-2026-CT",
+    "unidad": "3527",
+    "cambios": {
+      "dependencia": "11-Dirección General de Servicios Públicos Municipales"
+    },
+    "motivo": "Dependencia por número económico"
+  },
+  {
+    "id": "e30e9dda-7cab-4b37-a48d-ad7209ec8d96",
+    "folio": "COT-2026-0007",
+    "unidad": "2058",
+    "cambios": {
+      "dependencia": "11-Dirección General de Servicios Públicos Municipales"
+    },
+    "motivo": "Dependencia por número económico"
+  },
+  {
+    "id": "e467bd5a-9db0-55f6-b94d-0706374e9482",
+    "folio": "01445-2026-CT",
+    "unidad": "3618",
+    "cambios": {
+      "dependencia": "47-Coordinación Municipal de Protección Civil"
+    },
+    "motivo": "Dependencia por número económico"
+  },
+  {
+    "id": "e6b0909f-026d-4389-a4a5-933dbb11e0e5",
+    "folio": "COT-2026-0153",
+    "unidad": "3339",
+    "cambios": {
+      "dependencia": "11-Dirección General de Servicios Públicos Municipales"
+    },
+    "motivo": "Dependencia por número económico"
+  },
+  {
+    "id": "e84400e0-304e-42c9-ae01-1c0296724a6e",
+    "folio": "COT-2026-0066",
+    "unidad": "2314",
+    "cambios": {
+      "dependencia": "10-Dirección General de Desarrollo de Infraestructura"
+    },
+    "motivo": "Dependencia por número económico"
+  },
+  {
+    "id": "eb7d1b25-9772-4ea1-b1ff-d31e7d77b7c4",
+    "folio": "COT-2026-0169",
+    "unidad": "3694",
+    "cambios": {
+      "dependencia": "10-Dirección General de Desarrollo de Infraestructura"
+    },
+    "motivo": "Dependencia por número económico"
+  },
+  {
+    "id": "edaca57d-079b-4142-8943-08d25dbcd78d",
+    "folio": "COT-2026-0185",
+    "unidad": "4179",
+    "cambios": {
+      "dependencia": "10-Dirección General de Desarrollo de Infraestructura"
+    },
+    "motivo": "Dependencia por número económico"
+  },
+  {
+    "id": "f112ad37-d671-4a09-a93b-9f15c81964bc",
+    "folio": "COT-2026-0365",
+    "unidad": "3694",
+    "cambios": {
+      "dependencia": "10-Dirección General de Desarrollo de Infraestructura"
+    },
+    "motivo": "Dependencia por número económico"
+  },
+  {
+    "id": "f8ae765a-26d7-48dd-b136-36dfda206108",
+    "folio": "COT-2026-0131",
+    "unidad": "4561",
+    "cambios": {
+      "dependencia": "10-Dirección General de Desarrollo de Infraestructura"
+    },
+    "motivo": "Dependencia por número económico"
+  },
+  {
+    "id": "fc36eba6-d359-486f-bd90-702ef27d74ed",
+    "folio": "COT-2026-0212",
+    "unidad": "1968",
+    "cambios": {
+      "dependencia": "10-Dirección General de Desarrollo de Infraestructura"
+    },
+    "motivo": "Dependencia por número económico"
+  },
+  {
+    "id": "fd50d0f0-5a2c-5421-8320-476a7c453204",
+    "folio": "01570-2026-CT",
+    "unidad": "3402",
+    "cambios": {
+      "dependencia": "12-Oficialía Mayor"
+    },
+    "motivo": "Dependencia por número económico"
+  },
+  {
+    "id": "ff8e11e3-fcbe-5db1-89cd-27a1346702e2",
+    "folio": "01587-2026-CT",
+    "unidad": "2314",
+    "cambios": {
+      "dependencia": "10-Dirección General de Desarrollo de Infraestructura"
+    },
+    "motivo": "Dependencia por número económico"
+  }
+]

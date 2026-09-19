@@ -1,11 +1,11 @@
 {
   "name": "estrategiat-mobile",
-  "version": "2.0.69",
+  "version": "2.0.82",
   "private": true,
   "description": "Aplicación móvil multiplataforma de Administración de Talleres",
   "scripts": {
     "version:bump": "node scripts/bump-version.js",
-    "verify": "node scripts/verify-project.js && node scripts/test-acuerdos.js && node scripts/test-calendario.js && node scripts/test-control-taller.js && node scripts/test-control-taller-edicion.js && node scripts/test-control-taller-kpis.js && node scripts/test-control-taller-reporte.js && node scripts/test-personalizacion.js && node scripts/test-navigation.js && node scripts/test-tables.js && node scripts/test-forms.js && node scripts/test-module-layout.js && node scripts/test-ui-states.js && node scripts/test-notifications.js && node scripts/test-microinteractions.js && node scripts/test-accessibility.js && node scripts/test-portal-proveedor.js && node scripts/test-calculo-tiempo-extra.js && node scripts/test-cotizaciones-clasificacion.js && node scripts/test-reportes-cotizaciones.js",
+    "verify": "node scripts/verify-project.js && node scripts/test-acuerdos.js && node scripts/test-calendario.js && node scripts/test-control-taller.js && node scripts/test-control-taller-edicion.js && node scripts/test-control-taller-kpis.js && node scripts/test-control-taller-reporte.js && node scripts/test-personalizacion.js && node scripts/test-navigation.js && node scripts/test-tables.js && node scripts/test-forms.js && node scripts/test-module-layout.js && node scripts/test-ui-states.js && node scripts/test-notifications.js && node scripts/test-microinteractions.js && node scripts/test-accessibility.js && node scripts/test-portal-proveedor.js && node scripts/test-calculo-tiempo-extra.js && node scripts/test-cotizaciones-clasificacion.js && node scripts/test-reportes-cotizaciones.js && node scripts/test-licencia.js && node scripts/test-licencias-admin.js && node scripts/test-licencias-sql.js && node scripts/test-auditoria.js",
     "test:acuerdos": "node scripts/test-acuerdos.js",
     "test:personalizacion": "node scripts/test-personalizacion.js",
     "test:navigation": "node scripts/test-navigation.js",
@@ -19,7 +19,11 @@
     "mobile:build": "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/build-mobile.ps1",
     "mobile:sync": "npm run mobile:build && cap sync",
     "mobile:android": "npm run mobile:sync && cap open android",
-    "mobile:ios": "npm run mobile:sync && cap open ios"
+    "mobile:ios": "npm run mobile:sync && cap open ios",
+    "test:licencia": "node scripts/test-licencia.js",
+    "test:licencias-admin": "node scripts/test-licencias-admin.js",
+    "test:licencias-sql": "node scripts/test-licencias-sql.js",
+    "test:auditoria": "node scripts/test-auditoria.js"
   },
   "dependencies": {
     "@capacitor/android": "^7.0.0",
@@ -27,6 +31,7 @@
     "@capacitor/ios": "^7.0.0"
   },
   "devDependencies": {
-    "@capacitor/cli": "^7.0.0"
+    "@capacitor/cli": "^7.0.0",
+    "@electric-sql/pglite": "0.5.8"
   }
 }

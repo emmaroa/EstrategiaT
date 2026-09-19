@@ -7,6 +7,10 @@
   <link rel="stylesheet" href="../css/style.css">
   <link rel="stylesheet" href="../css/design-system.css?v=20260824-2">
   <style>
+    .peticion-copiar-directo { display:block; margin-top:8px; min-height:44px; padding:8px 12px; }
+    .peticion-texto-copia { width:min(560px, calc(100% - 32px)); padding:20px; border:1px solid var(--border-color, #888); border-radius:12px; background:var(--bg-card, white); color:var(--text-primary, #17212b); }
+    .peticion-texto-copia textarea { width:100%; box-sizing:border-box; min-height:180px; margin:12px 0; font-size:16px; }
+    .peticion-texto-copia::backdrop { background:#0009; }
     #kpisGestionCotizaciones { display:none; }
     #graficaMontoProveedorCotizaciones { display:none; }
     .gestion-cotizaciones-view #kpisPeticiones,
@@ -978,7 +982,8 @@
           fila.innerHTML =
             "<td>" + formatearFecha(p.fecha) + "</td>" +
             "<td><strong>" + p.unidad + "</strong></td>" +
-            "<td>" + p.peticion + "</td>" +
+            "<td>" + p.peticion +
+              (mostrarTextoPedido ? '<button type="button" class="btn-small peticion-copiar-directo" onclick="copiarTextoPedido(\'' + p.id + '\')" aria-label="Copiar texto de la petición">Copiar texto</button>' : '') + "</td>" +
             "<td>" + p.solicitante + "</td>" +
             "<td>" + p.area + "</td>" +
             "<td>" + (p.dependencia || "Sin dependencia") + "</td>" +
@@ -990,7 +995,6 @@
             '<td><div class="action-grid">' +
               botonVerPeticionConNota(p) +
               (puedeVerHistorialPeticiones() ? ETLayout.iconButton("historial", "Ver historial", "verHistorialPeticion('" + p.id + "')") : "") +
-              (mostrarTextoPedido ? ETLayout.iconButton("copiar", "Copiar texto pedido", "copiarTextoPedido('" + p.id + "')") : "") +
               (puedeEditar ? ETLayout.iconButton("editar", "Editar peticion", "editarPeticion('" + p.id + "')", "edit") : "") +
               (puedeEliminar ? ETLayout.iconButton("eliminar", "Eliminar peticion", "eliminarPeticion('" + p.id + "')", "red-btn") : "") +
               (puedeRevisarAlmacen ? ETLayout.iconButton("estatus", "Marcar como Revisado por almacen", "revisarPeticionAlmacen('" + p.id + "')", "orange") : "") +
@@ -1661,8 +1665,7 @@
 
     async function copiarAlPortapapeles(texto) {
       if (navigator.clipboard && window.isSecureContext) {
-        await navigator.clipboard.writeText(texto);
-        return;
+        try { await navigator.clipboard.writeText(texto); return; } catch (_) {}
       }
 
       const textarea = document.createElement("textarea");
@@ -1671,9 +1674,35 @@
       textarea.style.position = "fixed";
       textarea.style.left = "-9999px";
       document.body.appendChild(textarea);
-      textarea.select();
-      document.execCommand("copy");
-      document.body.removeChild(textarea);
+      try {
+        textarea.focus(); textarea.select(); textarea.setSelectionRange(0, texto.length);
+        if (!document.execCommand("copy")) throw new Error('El dispositivo no permitió copiar automáticamente.');
+      } finally { textarea.remove(); }
+    }
+
+    function mostrarTextoParaCopiar(texto) {
+      let dialogo = document.getElementById('peticionTextoCopia');
+      if (!dialogo) {
+        dialogo = document.createElement('dialog');
+        dialogo.id = 'peticionTextoCopia'; dialogo.className = 'peticion-texto-copia';
+        dialogo.setAttribute('aria-labelledby', 'tituloPeticionTextoCopia');
+        dialogo.innerHTML = '<h2 id="tituloPeticionTextoCopia">Texto de la petición</h2><p>Mantén pulsado el texto y elige Copiar. Después puedes pegarlo donde lo necesites.</p><textarea readonly aria-label="Texto para copiar"></textarea><p role="status"></p><button type="button" class="btn-small" data-copiar>Copiar texto</button> <button type="button" class="btn-secondary" data-cerrar>Cerrar</button>';
+        dialogo.querySelector('[data-cerrar]').onclick = () => dialogo.close();
+        dialogo.querySelector('[data-copiar]').onclick = async () => {
+          const area = dialogo.querySelector('textarea');
+          area.focus(); area.select(); area.setSelectionRange(0, area.value.length);
+          try {
+            if (navigator.clipboard && window.isSecureContext) await navigator.clipboard.writeText(area.value);
+            else if (!document.execCommand('copy')) throw new Error('Copia manual');
+            dialogo.querySelector('[role="status"]').textContent = 'Texto copiado. Ya puedes pegarlo.';
+          } catch (_) { dialogo.querySelector('[role="status"]').textContent = 'Mantén pulsado el texto seleccionado y elige Copiar.'; }
+        };
+        document.body.appendChild(dialogo);
+      }
+      dialogo.querySelector('textarea').value = texto;
+      dialogo.querySelector('[role="status"]').textContent = '';
+      if (!dialogo.open) dialogo.showModal();
+      dialogo.querySelector('textarea').focus(); dialogo.querySelector('textarea').select();
     }
 
     function construirTextoPedido(p, unidad) {
@@ -1702,7 +1731,8 @@
       const p = obtenerPeticionPorId(id);
       if (!p) return;
 
-      const unidad = await ETPeticiones.buscarUnidadParque(p.unidad);
+      let unidad = null;
+      try { unidad = await ETPeticiones.buscarUnidadParque(p.unidad); } catch (_) {}
       const texto = construirTextoPedido(p, unidad);
 
       try {
@@ -1710,7 +1740,7 @@
         alert("Texto pedido copiado.");
       } catch (error) {
         console.error("No se pudo copiar el texto pedido:", error);
-        alert(texto);
+        mostrarTextoParaCopiar(texto);
       }
     }
 

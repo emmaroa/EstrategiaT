@@ -28,6 +28,19 @@ async function main() {
   const plan = [], revision = [];
   const deducir = process.argv.includes('--deducir') ? require('./deducir-dependencias-cotizaciones.js').prepararDeduccion(cotizaciones, unidades) : null;
   for (const cotizacion of cotizaciones) {
+    if (process.argv.includes('--dependencia-economico')) {
+      const clave = normal(cotizacion.unidad);
+      const stock = /^(0|stock)$/i.test(String(cotizacion.unidad ?? '').trim());
+      let matches = !stock && clave ? unidades.filter(u => normal(u.numero_economico) === clave) : [];
+      if (!matches.length && !stock && clave) matches = unidades.filter(u => [u.numero_inventario,u.unidad_patrulla].some(v => normal(v) === clave));
+      const unidad = matches.length === 1 ? matches[0] : null;
+      const nombre = String(unidad?.dependencia || '').normalize('NFD').replace(/[\u0300-\u036f]/g,'').trim().toUpperCase();
+      const equivalencias = {'SEGURIDAD PUBLICA':'09', 'DIRECCION GRAL DE ORDENAMIENTO Y DESARROLLO URBANO':'46'};
+      const dependencia = stock ? catalogo.clasificarCompleta(cotizacion, null).dependencia : unidad ? catalogo.resolver(equivalencias[nombre] || unidad.dependencia) : '';
+      if (!dependencia) revision.push({id:cotizacion.id,folio:cotizacion.folio,unidad:cotizacion.unidad,dependencia:cotizacion.dependencia,motivos:[matches.length > 1 ? 'Número económico ambiguo' : unidad ? 'Dependencia sin equivalencia en catálogo' : 'Número económico no encontrado']});
+      else if (cotizacion.dependencia !== dependencia) plan.push({id:cotizacion.id,folio:cotizacion.folio,unidad:cotizacion.unidad,cambios:{dependencia},motivo:stock ? 'Criterio 11/09 para stock' : 'Dependencia por número económico'});
+      continue;
+    }
     if (process.argv.includes('--completar-todas')) {
       const clave = normal(cotizacion.unidad);
       const matches = !['','stock','0','sn'].includes(clave) ? unidades.filter(u=>[u.numero_economico,u.numero_inventario,u.unidad_patrulla].some(v=>normal(v)===clave)) : [];

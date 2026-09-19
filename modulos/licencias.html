@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Brote Labs | Licencias</title>
+  <link rel="stylesheet" href="../css/style.css">
+  <link rel="stylesheet" href="../css/design-system.css?v=20260819-14">
+  <link rel="stylesheet" href="../css/licencias-admin.css">
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="../js/core/supabase.js"></script>
+  <script src="../js/core/permissions.js"></script>
+  <script src="../js/core/theme.js"></script>
+  <script src="../js/core/layout.js"></script>
+  <script src="../js/core/auth.js"></script>
+  <script src="../js/services/licencias.service.js"></script>
+</head>
+<body class="dashboard-body">
+  <aside class="sidebar">
+    <div class="sidebar-logo"><div class="mini-logo">E</div><div><h3>Administración de Talleres</h3><small id="etModuleName">Licencias</small></div></div>
+    <nav id="etNav"></nav>
+    <button type="button" class="logout" id="etLogout">Cerrar sesión</button>
+  </aside>
+  <main class="main-content">
+    <header class="topbar">
+      <div><h1>Licencias</h1><p>Brote Labs · Administración exclusiva del propietario</p></div>
+      <div class="et-header-actions"><span id="etTemaContainer"></span><button type="button" class="btn-secondary" id="bloquearLicencias" hidden>Bloquear módulo</button></div>
+    </header>
+    <p id="estadoLicencias" role="status" aria-live="polite"></p>
+    <section class="panel licencias-acceso" id="accesoLicencias">
+      <h2>Acceso privado</h2>
+      <p>Confirma tu clave de administración de Brote Labs para consultar y modificar licencias. El acceso se bloquea a los 15 minutos.</p>
+      <form id="formAccesoLicencias">
+        <label class="input-group" for="claveAdministracion">Clave privada de administración
+          <input id="claveAdministracion" type="password" autocomplete="off" minlength="32" maxlength="256" required>
+        </label>
+        <button class="btn-small" type="submit">Desbloquear licencias</button>
+      </form>
+    </section>
+    <div id="contenidoLicencias" hidden>
+      <section class="kpi-grid" aria-label="Resumen de licencias">
+        <div class="kpi-card"><span>Licencias</span><h2 id="licenciasTotal">0</h2><p>Clientes registrados</p></div>
+        <div class="kpi-card"><span>Vigentes</span><h2 id="licenciasVigentes">0</h2><p>Dentro de su vigencia</p></div>
+        <div class="kpi-card"><span>Vencidas</span><h2 id="licenciasVencidas">0</h2><p>Operación con aviso</p></div>
+        <div class="kpi-card"><span>Por vencer</span><h2 id="licenciasPorVencer">0</h2><p>En los próximos 30 días</p></div>
+      </section>
+      <section class="panel">
+        <div class="panel-header"><div><h2>Licencias por cliente</h2><p>La licencia «Instalación actual» controla la vigencia que se muestra en este sistema. Registrar otra licencia no habilita todavía cuentas ni datos de ese cliente.</p></div><button type="button" class="btn-small" id="nuevaLicencia">+ Nueva licencia</button></div>
+        <div class="filters">
+          <input id="buscarLicencia" type="search" placeholder="Buscar cliente o código" aria-label="Buscar cliente o código">
+          <select id="filtroLicencia" aria-label="Filtrar por estado"><option value="">Todos los estados</option><option>Vigente</option><option>Vencida</option><option>Programada</option><option>Sin vigencia</option></select>
+          <button type="button" class="btn-secondary" id="actualizarLicencias">Actualizar</button>
+        </div>
+        <div class="table-wrapper"><table><caption class="licencias-caption">Registro de licencias de Brote Labs</caption><thead><tr><th>Código</th><th>Cliente</th><th>Inicio</th><th>Válida hasta</th><th>Días restantes</th><th>Estado</th><th>Acciones</th></tr></thead><tbody id="tablaLicencias"></tbody></table></div>
+      </section>
+    </div>
+  </main>
+  <dialog id="dialogoLicencia" class="licencias-dialogo" aria-labelledby="tituloLicencia">
+    <form id="formLicencia">
+      <h2 id="tituloLicencia">Nueva licencia</h2>
+      <p>Propietario: Brote Labs. Las fechas corresponden a Hermosillo; el vencimiento incluye todo el día seleccionado.</p>
+      <div class="form-grid">
+        <label class="input-group" for="codigoLicencia">Código<input id="codigoLicencia" required minlength="3" maxlength="40" pattern="[A-Za-z0-9][A-Za-z0-9_-]{2,39}" placeholder="ET-CLIENTE-001"></label>
+        <label class="input-group" for="clienteLicencia">Cliente<input id="clienteLicencia" required maxlength="200"></label>
+        <label class="input-group" for="inicioLicencia">Fecha de inicio<input id="inicioLicencia" type="date"></label>
+        <label class="input-group" for="finLicencia">Válida hasta<input id="finLicencia" type="date"></label>
+        <label class="input-group licencias-notas" for="notasLicencia">Notas<textarea id="notasLicencia" rows="3" maxlength="2000"></textarea></label>
+      </div>
+      <p id="errorLicencia" role="alert"></p>
+      <div class="licencias-acciones"><button class="btn-small" type="submit" id="guardarLicencia">Guardar licencia</button><button class="btn-secondary" type="button" id="cancelarLicencia">Cancelar</button></div>
+    </form>
+  </dialog>
+  <script src="../js/modules/licencias.js"></script>
+</body>
+</html>
