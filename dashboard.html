@@ -12,6 +12,7 @@
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <script src="js/core/supabase.js"></script>
+  <script src="js/services/vales.service.js"></script>
   <script src="js/core/permissions.js?v=20260730-1"></script>
   <script src="js/core/theme.js"></script>
   <script src="js/core/layout.js?v=20260819-14"></script>
@@ -789,7 +790,7 @@ let fechaHastaDashboard = "";
             ? dashboardClient.from("acuerdos").select("id,folio,titulo,estado,asignado_a,creado_por,fecha_compromiso,creado_en")
                 .order("creado_en", { ascending: false })
             : Promise.resolve({ data: [], error: null }),
-          dashboardClient.from("vales").select("*").order("created_at", { ascending: false }),
+          ETVales.listar(dashboardClient),
           cargarParqueDashboard(),
           dashboardClient.from("usuarios").select("*").order("created_at", { ascending: false }),
           (modulosPermitidosConsulta.includes("Tramites Administrativos") || puedeVerIndicadoresPersonal(usuarioActivo))
