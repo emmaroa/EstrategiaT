@@ -601,6 +601,7 @@ unidadVale?.addEventListener("blur", async function () {
         return;
       }
 
+      let valeParaImprimir = null;
       if (!idEditandoVale) {
         const { data: valeGuardado, error } = await supabaseClient
           .from("vales")
@@ -621,6 +622,7 @@ unidadVale?.addEventListener("blur", async function () {
         }
 
         folioVale.value = valeGuardado.folio;
+        valeParaImprimir = Object.assign({}, nuevo, valeGuardado);
         registrarAuditoria("Vales", "Creó nuevo vale", valeGuardado.folio + " - Unidad " + nuevo.unidad);
       } else {
         const valeAnterior = obtenerValePorId(idEditandoVale);
@@ -651,9 +653,17 @@ unidadVale?.addEventListener("blur", async function () {
       }
 
       cerrarModalVale();
+      if (valeParaImprimir) {
+        try {
+          imprimirVale(valeParaImprimir.id, valeParaImprimir);
+        } catch (error) {
+          console.error("No se pudo abrir la impresión del vale guardado:", error);
+          alert("El vale " + valeParaImprimir.folio + " ya se guardó. Puedes imprimirlo desde el listado.");
+        }
+      }
       await cargarValesDesdeSupabase();
 
-      alert("Vale guardado correctamente.");
+      if (!valeParaImprimir) alert("Vale guardado correctamente.");
     }
 
     function editarVale(id) {
@@ -826,8 +836,8 @@ unidadVale?.addEventListener("blur", async function () {
       });
     }
 
-    function imprimirVale(id) {
-      const v = obtenerValePorId(id);
+    function imprimirVale(id, valeGuardado) {
+      const v = valeGuardado || obtenerValePorId(id);
       if (!v) return;
       const usuarioGenerador = escaparHTMLVale(
         obtenerUsuarioVale()?.nombre || obtenerUsuarioVale()?.usuario || "Usuario no identificado"
@@ -835,8 +845,25 @@ unidadVale?.addEventListener("blur", async function () {
 
       registrarAuditoria("Vales", "Imprimió vale", v.folio + " - Unidad " + v.unidad);
 
-      const ventana = window.open("", "_blank");
+      let marco = null;
+      let ventana;
+      if (valeGuardado) {
+        document.getElementById("impresionAutomaticaVale")?.remove();
+        marco = document.createElement("iframe");
+        marco.id = "impresionAutomaticaVale";
+        marco.title = "Impresión del vale " + v.folio;
+        marco.style.cssText = "position:fixed;left:-10000px;top:0;width:800px;height:1100px;border:0;";
+        document.body.appendChild(marco);
+        ventana = marco.contentWindow;
+      } else {
+        ventana = window.open("", "_blank");
+      }
+      if (!ventana) {
+        alert("No se pudo abrir la impresión. Permite las ventanas emergentes e inténtalo desde el listado.");
+        return;
+      }
 
+      ventana.document.open();
       ventana.document.write(`
         <html>
         <head>
@@ -892,6 +919,15 @@ unidadVale?.addEventListener("blur", async function () {
 
       `);
 
+      if (marco) {
+        let impresionSolicitada = false;
+        marco.onload = function () {
+          if (impresionSolicitada) return;
+          impresionSolicitada = true;
+          ventana.focus();
+          ventana.print();
+        };
+      }
       ventana.document.close();
     }
 
