@@ -531,7 +531,7 @@ unidadVale?.addEventListener("blur", async function () {
 
       const hoy = new Date().toISOString().split("T")[0];
       fechaVale.value = hoy;
-      folioVale.value = generarFolioVale();
+      folioVale.value = "Se asigna al guardar";
       entregaVale.value = obtenerUsuarioVale()?.nombre || "";
       estatusVale.value = "Pendiente";
       unidadVale?.focus();
@@ -542,32 +542,6 @@ unidadVale?.addEventListener("blur", async function () {
       modalVale?.setAttribute("aria-hidden", "true");
       limpiarFormularioVale();
       idEditandoVale = null;
-    }
-
-    function generarFolioVale(listaVales) {
-      const anio = new Date().getFullYear();
-      const patronFolio = /^(\d+)-(\d{4})-V$/i;
-      const ultimoConsecutivo = (listaVales || vales).reduce(function (mayor, vale) {
-        const coincidencia = String(vale.folio || "").trim().match(patronFolio);
-        if (!coincidencia || Number(coincidencia[2]) !== anio) return mayor;
-        return Math.max(mayor, Number(coincidencia[1]) || 0);
-      }, 0);
-      const consecutivo = ultimoConsecutivo + 1;
-      const numero = String(consecutivo).padStart(4, "0");
-      return `${numero}-${anio}-V`;
-    }
-
-    async function obtenerSiguienteFolioVale() {
-      const { data, error } = await supabaseClient
-        .from("vales")
-        .select("folio");
-
-      if (error) {
-        console.warn("No se pudieron consultar los folios; se usará la lista cargada.", error);
-        return generarFolioVale(vales);
-      }
-
-      return generarFolioVale(data || []);
     }
 
     async function guardarVale() {
@@ -589,13 +563,11 @@ unidadVale?.addEventListener("blur", async function () {
       }
 
       dependenciaVale.value = unidadParque.dependencia || "";
-      if (!idEditandoVale) {
-        folioVale.value = await obtenerSiguienteFolioVale();
-      }
+
 
       const nuevo = {
         fecha: String(fechaVale.value || ""),
-        folio: String(folioVale.value || ""),
+        ...(idEditandoVale ? { folio: String(folioVale.value || "") } : {}),
         unidad: numeroUnidad,
         dependencia: String(unidadParque.dependencia || "").trim(),
         solicitante: idEditandoVale
@@ -624,8 +596,8 @@ unidadVale?.addEventListener("blur", async function () {
         return;
       }
 
-      if (!nuevo.folio || !nuevo.unidad || !nuevo.dependencia || !nuevo.refaccion || !nuevo.entrega || !nuevo.recibe) {
-        alert("Completa folio, unidad, dependencia, material entregado, entrega y recibe.");
+      if ((idEditandoVale && !nuevo.folio) || !nuevo.unidad || !nuevo.dependencia || !nuevo.refaccion || !nuevo.entrega || !nuevo.recibe) {
+        alert("Completa unidad, dependencia, material entregado, entrega y recibe.");
         return;
       }
 
@@ -642,13 +614,14 @@ unidadVale?.addEventListener("blur", async function () {
           return;
         }
 
-        if (!valeGuardado?.folio || valeGuardado.folio !== nuevo.folio) {
-          console.error("Supabase no confirmó el folio enviado.", { enviado: nuevo.folio, recibido: valeGuardado });
+        if (!valeGuardado?.folio) {
+          console.error("Supabase no confirmó el folio asignado.", valeGuardado);
           alert("Supabase guardó el registro sin confirmar correctamente el folio.");
           return;
         }
 
-        registrarAuditoria("Vales", "Creó nuevo vale", nuevo.folio + " - Unidad " + nuevo.unidad);
+        folioVale.value = valeGuardado.folio;
+        registrarAuditoria("Vales", "Creó nuevo vale", valeGuardado.folio + " - Unidad " + nuevo.unidad);
       } else {
         const valeAnterior = obtenerValePorId(idEditandoVale);
         const { data: valeActualizado, error } = await supabaseClient

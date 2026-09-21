@@ -6,12 +6,13 @@
   const $ = (id) => document.getElementById(id);
   const dinero = (value) => Number(value || 0).toLocaleString("es-MX", { style: "currency", currency: "MXN" });
   const esc = (value) => String(value ?? "").replace(/[&<>"']/g, (char) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#039;" }[char]));
-  const abrir = (id) => { const el = $(id); el.classList.add("is-open"); el.setAttribute("aria-hidden", "false"); };
-  const cerrar = (id) => { const el = $(id); el.classList.remove("is-open"); el.setAttribute("aria-hidden", "true"); };
+  const abrir = (id) => { const el = $(id); el.classList.add("show"); el.setAttribute("aria-hidden", "false"); el.querySelector('input:not([type="hidden"]), button')?.focus(); };
+  const cerrar = (id) => { const el = $(id); el.classList.remove("show"); el.setAttribute("aria-hidden", "true"); };
 
   function aplicarPermisosInventario() {
-    document.querySelectorAll('#btnNuevoInventario, #btnNuevaUbicacion, [data-action="edit"], [data-action="move"], [data-lectura-movimiento]')
+    document.querySelectorAll('#btnNuevoInventario, [data-action="edit"], [data-action="move"], [data-lectura-movimiento]')
       .forEach(control => { control.hidden = !servicio.puedeEditar(); });
+    $("btnNuevaUbicacion").hidden = !servicio.puedeCrearUbicacion();
   }
 
   function ubicacion(item) {
@@ -174,7 +175,29 @@
       if (button.dataset.action === "edit") editar(item);
     });
     $("resultadoLectura").addEventListener("click", (event) => { const button = event.target.closest("[data-lectura-movimiento]"); if (!button) return; const item = servicio.state.items.find((candidate) => candidate.id === button.dataset.lecturaMovimiento); if (item) { cerrar("modalLector"); detenerLector(); abrirMovimiento(item); } });
-    $("btnNuevaUbicacion").addEventListener("click", async () => { const codigo = prompt("Código de ubicación, por ejemplo A-01-02"); if (!codigo) return; const nombre = prompt("Nombre de la ubicación"); if (!nombre) return; const result = await servicio.guardarUbicacion({ codigo, nombre, pasillo: "", estante: "", nivel: "" }); if (result.error) alert(`No se pudo guardar la ubicación: ${result.error.message}`); else await cargar(); });
+    $("btnNuevaUbicacion").addEventListener("click", () => {
+      if (!servicio.puedeCrearUbicacion()) return;
+      $("formUbicacion").reset();
+      abrir("modalUbicacion");
+      $("ubicacionNumero").focus();
+    });
+    $("formUbicacion").addEventListener("submit", async (event) => {
+      event.preventDefault();
+      const button = $("btnGuardarUbicacion");
+      if (button.disabled) return;
+      button.disabled = true;
+      try {
+        const result = await servicio.guardarUbicacion({ codigo: $("ubicacionNumero").value, nombre: $("ubicacionDescripcion").value });
+        if (result.error) {
+          alert(result.error.code === '23505' ? 'Ya existe una ubicación con ese número.' : `No se pudo guardar la ubicación: ${result.error.message}`);
+          return;
+        }
+        cerrar("modalUbicacion");
+        await cargar();
+      } catch (error) {
+        alert(`No se pudo guardar la ubicación: ${error.message}`);
+      } finally { button.disabled = false; }
+    });
     cargar();
   });
 })(window);

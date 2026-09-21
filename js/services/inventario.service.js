@@ -14,6 +14,11 @@
 
   function sinPermiso() { return { error: new Error('Tu acceso a Inventario es de solo vista o tu sesión expiró.') }; }
 
+  function puedeCrearUbicacion() {
+    const rol = String(usuario()?.rol || '').normalize('NFD').replace(/[\u0300-\u036f]/g, '').trim().toLowerCase().replace(/\s+/g, ' ');
+    return puedeEditar() && ['admin', 'superadmin', 'jefe de almacen'].includes(rol);
+  }
+
   async function cargar() {
     if (!db) return { error: new Error("Supabase no está disponible") };
     const [items, locations] = await Promise.all([
@@ -51,13 +56,18 @@
   }
 
   async function guardarUbicacion(payload) {
-    if (!puedeEditar()) return sinPermiso();
+    if (!puedeCrearUbicacion()) return { error: new Error('Solo Admin, SuperAdmin y Jefe de Almacén con permiso de edición pueden crear ubicaciones.') };
+    const codigo = String(payload.codigo || '').trim();
+    const nombre = String(payload.nombre || '').trim();
+    if (!codigo || !nombre || codigo.length > 40 || nombre.length > 120) {
+      return { error: new Error('Captura el número (máximo 40 caracteres) y la descripción (máximo 120 caracteres) de la ubicación.') };
+    }
     return db.from("ubicaciones_inventario").insert({
-      codigo: payload.codigo.trim().toUpperCase(),
-      nombre: payload.nombre.trim(),
-      pasillo: payload.pasillo.trim() || null,
-      estante: payload.estante.trim() || null,
-      nivel: payload.nivel.trim() || null
+      codigo: codigo.toUpperCase(),
+      nombre,
+      pasillo: null,
+      estante: null,
+      nivel: null
     }).select().single();
   }
 
@@ -77,5 +87,5 @@
     return db.from("inventario_movimientos").select("*, inventario:inventario(codigo,nombre)").eq("inventario_id", inventarioId).order("created_at", { ascending: false });
   }
 
-  global.ETInventario = { state, cargar, guardarItem, guardarUbicacion, registrarMovimiento, kardex, puedeEditar };
+  global.ETInventario = { state, cargar, guardarItem, guardarUbicacion, registrarMovimiento, kardex, puedeEditar, puedeCrearUbicacion };
 })(window);

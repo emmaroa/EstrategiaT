@@ -20,10 +20,29 @@ vm.runInNewContext(fs.readFileSync('js/services/inventario.service.js', 'utf8'),
   assert.equal(llamadas, 0);
   usuario.modulos_permitidos[0].permiso = 'editar';
   assert.equal(servicio.puedeEditar(), true);
+  for (const rol of ['Admin', 'SuperAdmin', 'Jefe de Almacén', 'Jefe de Almacen']) {
+    usuario.rol = rol;
+    assert.equal(servicio.puedeCrearUbicacion(), true, rol);
+    assert.ok((await servicio.guardarUbicacion({ codigo: ' ', nombre: 'Estante' })).error);
+  }
+  for (const rol of ['Director', 'Técnico', 'Almacenista', '']) {
+    usuario.rol = rol;
+    assert.equal(servicio.puedeCrearUbicacion(), false, rol);
+    assert.ok((await servicio.guardarUbicacion({ codigo: '001', nombre: 'Estante' })).error);
+  }
+  assert.equal(llamadas, 0);
+  usuario.rol = 'Admin';
+  let guardado;
+  contexto.window.supabaseClient.from = () => ({ insert(data) { guardado = data; return { select: () => ({ single: async () => ({ data }) }) }; } });
+  assert.ok(!(await servicio.guardarUbicacion({ codigo: ' 001 ', nombre: ' Estante de filtros ' })).error);
+  assert.equal(guardado.codigo, '001');
+  assert.equal(guardado.nombre, 'Estante de filtros');
   usuario.modulos_permitidos[0].permiso = 'none';
   assert.equal(servicio.puedeEditar(), false);
+  assert.equal(servicio.puedeCrearUbicacion(), false);
   assert.equal(p.obtenerModulosUsuario(usuario).includes('Inventario'), false);
   usuario.modulos_permitidos[0].permiso = 'editar'; usuario.sesion_expira_en = 0;
   assert.equal(servicio.puedeEditar(), false);
+  assert.equal(servicio.puedeCrearUbicacion(), false);
   console.log('Inventario: asignación, solo vista, edición, sin acceso y sesión expirada verificados.');
 })().catch(error => { console.error(error); process.exitCode = 1; });

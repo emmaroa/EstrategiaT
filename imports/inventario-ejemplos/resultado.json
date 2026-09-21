@@ -1,0 +1,172 @@
+{
+  "fecha": "2026-09-21T16:17:35.852Z",
+  "agregados": [
+    {
+      "id": "55ef9a0d-ea2d-4b47-9198-612c009081c9",
+      "codigo": "EJEMPLO-001",
+      "nombre": "[EJEMPLO] Filtro de aceite"
+    },
+    {
+      "id": "1bf5e292-1e3b-4866-8d39-fd3c087e0971",
+      "codigo": "EJEMPLO-002",
+      "nombre": "[EJEMPLO] Filtro de aire"
+    },
+    {
+      "id": "7c7be98c-bbbc-423e-ae4b-bdc26fecf639",
+      "codigo": "EJEMPLO-003",
+      "nombre": "[EJEMPLO] Filtro de combustible"
+    },
+    {
+      "id": "ed7fba4b-251f-4190-aa82-e0c9639d3a05",
+      "codigo": "EJEMPLO-004",
+      "nombre": "[EJEMPLO] Aceite de motor 15W-40"
+    },
+    {
+      "id": "0597a4f6-16d3-413b-ac9e-0ed467e2dc6d",
+      "codigo": "EJEMPLO-005",
+      "nombre": "[EJEMPLO] Anticongelante"
+    },
+    {
+      "id": "da7585d6-228e-4f79-831f-c0d882b1b86a",
+      "codigo": "EJEMPLO-006",
+      "nombre": "[EJEMPLO] Líquido de frenos DOT 4"
+    },
+    {
+      "id": "c50974c1-22ce-48c1-9881-61782c04f150",
+      "codigo": "EJEMPLO-007",
+      "nombre": "[EJEMPLO] Balatas delanteras"
+    },
+    {
+      "id": "f13ec7b5-c1a9-4000-bb87-14ef61c8cee1",
+      "codigo": "EJEMPLO-008",
+      "nombre": "[EJEMPLO] Bujía de encendido"
+    },
+    {
+      "id": "7e2c83a7-5ff2-4d68-b8ed-271dcf0ec4fc",
+      "codigo": "EJEMPLO-009",
+      "nombre": "[EJEMPLO] Banda de accesorios"
+    },
+    {
+      "id": "a3200fb0-1fc9-4515-9adb-0e211f3d7351",
+      "codigo": "EJEMPLO-010",
+      "nombre": "[EJEMPLO] Batería automotriz 12 V"
+    },
+    {
+      "id": "a575d0f9-4c58-4086-8177-ddb6294f0e38",
+      "codigo": "EJEMPLO-011",
+      "nombre": "[EJEMPLO] Foco automotriz H4"
+    },
+    {
+      "id": "9fb861bd-0f4e-48fc-9b9f-b333f4e982a5",
+      "codigo": "EJEMPLO-012",
+      "nombre": "[EJEMPLO] Fusible automotriz 15 A"
+    },
+    {
+      "id": "f1d169fc-e72a-439b-a294-3a7026937e8f",
+      "codigo": "EJEMPLO-013",
+      "nombre": "[EJEMPLO] Limpiaparabrisas"
+    },
+    {
+      "id": "f37527c0-a2cc-4746-a8ea-c3d140159cdb",
+      "codigo": "EJEMPLO-014",
+      "nombre": "[EJEMPLO] Grasa multipropósito"
+    },
+    {
+      "id": "fe518ce9-20f0-441a-a046-6c6463a55ebb",
+      "codigo": "EJEMPLO-015",
+      "nombre": "[EJEMPLO] Guantes de trabajo"
+    }
+  ],
+  "verificados": [
+    {
+      "id": "55ef9a0d-ea2d-4b47-9198-612c009081c9",
+      "codigo": "EJEMPLO-001",
+      "nombre": "[EJEMPLO] Filtro de aceite",
+      "stock_actual": 0
+    },
+    {
+      "id": "1bf5e292-1e3b-4866-8d39-fd3c087e0971",
+      "codigo": "EJEMPLO-002",
+      "nombre": "[EJEMPLO] Filtro de aire",
+      "stock_actual": 0
+    },
+    {
+      "id": "7c7be98c-bbbc-423e-ae4b-bdc26fecf639",
+      "codigo": "EJEMPLO-003",
+      "nombre": "[EJEMPLO] Filtro de combustible",
+      "stock_actual": 0
+    },
+    {
+      "id": "ed7fba4b-251f-4190-aa82-e0c9639d3a05",
+      "codigo": "EJEMPLO-004",
+      "nombre": "[EJEMPLO] Aceite de motor 15W-40",
+      "stock_actual": 0
+    },
+    {
+      "id": "0597a4f6-16d3-413b-ac9e-0ed467e2dc6d",
+      "codigo": "EJEMPLO-005",
+      "nombre": "[EJEMPLO] Anticongelante",
+      "stock_actual": 0
+    },
+    {
+      "id": "da7585d6-228e-4f79-831f-c0d882b1b86a",
+      "codigo": "EJEMPLO-006",
+      "nombre": "[EJEMPLO] Líquido de frenos DOT 4",
+      "stock_actual": 0
+    },
+    {
+      "id": "c50974c1-22ce-48c1-9881-61782c04f150",
+      "codigo": "EJEMPLO-007",
+      "nombre": "[EJEMPLO] Balatas delanteras",
+      "stock_actual": 0
+    },
+    {
+      "id": "f13ec7b5-c1a9-4000-bb87-14ef61c8cee1",
+      "codigo": "EJEMPLO-008",
+      "nombre": "[EJEMPLO] Bujía de encendido",
+      "stock_actual": 0
+    },
+    {
+      "id": "7e2c83a7-5ff2-4d68-b8ed-271dcf0ec4fc",
+      "codigo": "EJEMPLO-009",
+      "nombre": "[EJEMPLO] Banda de accesorios",
+      "stock_actual": 0
+    },
+    {
+      "id": "a3200fb0-1fc9-4515-9adb-0e211f3d7351",
+      "codigo": "EJEMPLO-010",
+      "nombre": "[EJEMPLO] Batería automotriz 12 V",
+      "stock_actual": 0
+    },
+    {
+      "id": "a575d0f9-4c58-4086-8177-ddb6294f0e38",
+      "codigo": "EJEMPLO-011",
+      "nombre": "[EJEMPLO] Foco automotriz H4",
+      "stock_actual": 0
+    },
+    {
+      "id": "9fb861bd-0f4e-48fc-9b9f-b333f4e982a5",
+      "codigo": "EJEMPLO-012",
+      "nombre": "[EJEMPLO] Fusible automotriz 15 A",
+      "stock_actual": 0
+    },
+    {
+      "id": "f1d169fc-e72a-439b-a294-3a7026937e8f",
+      "codigo": "EJEMPLO-013",
+      "nombre": "[EJEMPLO] Limpiaparabrisas",
+      "stock_actual": 0
+    },
+    {
+      "id": "f37527c0-a2cc-4746-a8ea-c3d140159cdb",
+      "codigo": "EJEMPLO-014",
+      "nombre": "[EJEMPLO] Grasa multipropósito",
+      "stock_actual": 0
+    },
+    {
+      "id": "fe518ce9-20f0-441a-a046-6c6463a55ebb",
+      "codigo": "EJEMPLO-015",
+      "nombre": "[EJEMPLO] Guantes de trabajo",
+      "stock_actual": 0
+    }
+  ]
+}

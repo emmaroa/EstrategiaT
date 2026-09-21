@@ -3,14 +3,15 @@
   const LOGIN_SUPABASE_URL = "https://knjuevjxfyohcxrsldpb.supabase.co";
   const LOGIN_SUPABASE_KEY = "sb_publishable_f_1SKtetMWPSNmZ5eSRaOw_RYtHenaR";
 
-  let loginSupabaseClient = null;
+  let loginSupabaseClient = window.supabaseClient || null;
   const DURACION_SESION_MS = 8 * 60 * 60 * 1000;
   let temporizadorExpiracionSesion = null;
 
-  if (typeof supabase !== "undefined") {
+  if (!loginSupabaseClient && typeof supabase !== "undefined") {
     loginSupabaseClient = supabase.createClient(LOGIN_SUPABASE_URL, LOGIN_SUPABASE_KEY, {
       auth: { persistSession: false }
     });
+    window.supabaseClient = loginSupabaseClient;
   }
 
   const permisos = window.ETPermissions
