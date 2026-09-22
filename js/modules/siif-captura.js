@@ -27,7 +27,7 @@
         { key: "clasificacion", label: "Clasificación / partida", wide: true },
         { key: "justificacion", label: "Justificación", type: "textarea", required: true, wide: true }
       ],
-      columnas: ["fecha", "folio", "oficio", "proveedor", "dependencia", "importe", "estatus"],
+      columnas: ["fecha", "folio", "proveedor", "dependencia", "justificacion", "importe", "estatus"],
       claveDuplicado: async function (client, registro, id) {
         let consulta = client.from("requis_siif").select("id").eq("oficio", registro.oficio);
         if (id) consulta = consulta.neq("id", id);
@@ -404,13 +404,17 @@
     const actuales = datos.slice(inicio, inicio + POR_PAGINA);
     document.getElementById("tablaCapturaSiif").innerHTML = actuales.length
       ? actuales.map(function (registro) {
-          return "<tr>" + config.columnas.map(function (campo) {
+          const atributos = tipo === "requisicion"
+            ? ' data-detalle-siif="' + escapar(registro.id) + '" tabindex="0" aria-label="Ver requisición ' + escapar(registro.folio) + '"'
+            : '';
+          return "<tr" + atributos + ">" + config.columnas.map(function (campo) {
             let valor = registro[campo];
             if (campo === "fecha" || campo.startsWith("fecha_")) valor = fecha(valor);
             if (campo === "importe") valor = moneda(valor);
             return "<td>" + escapar(valor ?? "—") + "</td>";
           }).join("") +
-          '<td>' + ETLayout.iconButton("editar", "Editar " + config.singular, "editarRegistroSiif('" + registro.id + "')", "edit") + "</td></tr>";
+          '<td>' + (tipo === "requisicion" ? ETLayout.iconButton("ver", "Ver requisición", "verRegistroSiif('" + registro.id + "')") : '') +
+          ETLayout.iconButton("editar", "Editar " + config.singular, "editarRegistroSiif('" + registro.id + "')", "edit") + "</td></tr>";
         }).join("")
       : '<tr><td colspan="' + (config.columnas.length + 1) + '">No hay registros.</td></tr>';
 
@@ -428,6 +432,26 @@
     document.getElementById("paginaCapturaSiif").textContent = "Página " + pagina + " de " + totalPaginas;
     document.getElementById("btnCapturaAnterior").disabled = pagina <= 1;
     document.getElementById("btnCapturaSiguiente").disabled = pagina >= totalPaginas;
+  }
+
+  function verDetalle(id) {
+    const registro = registros.find(function (fila) { return fila.id === id; });
+    if (!registro || tipo !== "requisicion") return;
+    ETLayout.abrirFichaDetalle({
+      eyebrow: "Requisición SIIF",
+      title: registro.folio || "Sin folio",
+      subtitle: registro.proveedor || "Sin proveedor",
+      status: { label: registro.estatus || "Sin estatus", tone: estaCancelado(registro) ? "red" : "blue" },
+      sections: [{
+        title: "Información de la requisición",
+        fields: config.campos.map(function (campo) {
+          let valor = registro[campo.key];
+          if (campo.key === "fecha") valor = valor ? String(valor).replace("T", " ") : "Sin dato";
+          if (campo.key === "importe") valor = moneda(valor);
+          return { label: campo.label, value: valor ?? "Sin dato", wide: Boolean(campo.wide) };
+        })
+      }]
+    });
   }
 
   function abrir(id) {
@@ -543,12 +567,28 @@
   }
 
   global.editarRegistroSiif = function (id) { abrir(id); };
+  global.verRegistroSiif = verDetalle;
   global.cerrarCapturaSiif = cerrar;
 
   construirFormulario();
   configurarFormatosIdentificadores();
   validarPermiso(config.modulo);
   ETLayout.inicializar(config.modulo);
+  if (tipo === "requisicion") {
+    const tabla = document.getElementById("tablaCapturaSiif");
+    function abrirDesdeFila(event) {
+      if (event.target.closest('button, a, input, select, textarea, [role="button"]')) return;
+      const fila = event.target.closest('[data-detalle-siif]');
+      if (!fila) return;
+      if (event.type === 'keydown') {
+        if (event.target !== fila || !['Enter', ' '].includes(event.key)) return;
+        event.preventDefault();
+      }
+      verDetalle(fila.dataset.detalleSiif);
+    }
+    tabla.addEventListener('click', abrirDesdeFila);
+    tabla.addEventListener('keydown', abrirDesdeFila);
+  }
   cargarProveedoresSiif();
   cargarRequisicionesRelacion();
   document.getElementById("btnNuevoRegistroSiif").addEventListener("click", function () { abrir(); });

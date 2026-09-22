@@ -3,6 +3,11 @@
 <head>
   <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Administración de Talleres | Requisiciones SIIF</title>
+  <style>
+    #tablaCapturaSiif tr[data-detalle-siif] { cursor: pointer; }
+    #tablaCapturaSiif tr[data-detalle-siif]:focus-visible { outline: 2px solid var(--color-primary, #fc712b); outline-offset: -2px; }
+    #tablaCapturaSiif td:nth-child(5) { min-width: 220px; max-width: 420px; white-space: normal; overflow-wrap: anywhere; }
+  </style>
   <link rel="stylesheet" href="../css/style.css"><link rel="stylesheet" href="../css/design-system.css?v=20260819-14">
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="../js/core/supabase.js"></script><script src="../js/core/permissions.js?v=20260730-1"></script>
@@ -26,6 +31,6 @@
     </section>
   </main>
   <div class="modal" id="modalCapturaSiif" role="dialog" aria-modal="true" aria-labelledby="tituloModalCapturaSiif" aria-hidden="true"><div class="modal-card large-modal"><div class="modal-header"><div><h2 id="tituloModalCapturaSiif">Nueva requisición</h2><p>Los campos con * son obligatorios.</p></div><button type="button" class="close-btn" onclick="cerrarCapturaSiif()" aria-label="Cerrar">×</button></div><div class="form-grid" id="camposFormularioSiif"></div><div class="modal-actions"><button type="button" class="btn-secondary" onclick="cerrarCapturaSiif()">Cancelar</button><button type="button" class="btn-small" id="btnGuardarRegistroSiif">Guardar</button></div></div></div>
-  <script src="../js/modules/siif-captura.js?v=20260730-1"></script>
+  <script src="../js/modules/siif-captura.js?v=20260922-1"></script>
 </body>
 </html>
