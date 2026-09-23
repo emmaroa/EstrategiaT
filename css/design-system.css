@@ -3588,3 +3588,23 @@ tbody tr:last-child td { border-bottom: 0; }
   .et-nav-search { margin-top: 2px; }
   .et-nav-search kbd { display: none; }
 }
+
+/* Contraste del modo claro sobre las superficies compartidas. */
+[data-theme="light"] .dashboard-body { color: var(--text-primary); }
+[data-theme="light"] :is(.topbar, .panel-header, .modal-header, .kpi-card, .chart-card) :is(p, small, label),
+[data-theme="light"] :is(.helper-text, .input-group label, .empty-state) { color: var(--text-secondary); }
+[data-theme="light"] table td { color: var(--text-primary); }
+[data-theme="light"] :is(input, textarea)::placeholder { color: var(--text-muted); opacity: 1; }
+[data-theme="light"] .badge.gray { color: #334155; background: #e2e8f0; }
+[data-theme="light"] .btn-secondary { color: var(--text-primary); background: #e2e8f0; }
+[data-theme="light"] .btn-secondary:hover { background: #cbd5e1; }
+[data-palette="turquesa-naranja"] :is(.btn, .btn-small, .btn-primary),
+[data-palette="azul-rey"] :is(.btn, .btn-small, .btn-primary) { color: #fff; }
+
+/* Menú de módulos: texto negro en modo claro, en todas las paletas. */
+[data-theme="light"] .sidebar :is(.nav-item, .nav-item:hover, .nav-item.active, .et-nav-label, .et-nav-group-title),
+[data-theme="light"] .sidebar .et-nav-search input,
+[data-theme="light"] .sidebar .et-nav-search input::placeholder {
+  color: #000;
+  opacity: 1;
+}

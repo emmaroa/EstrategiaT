@@ -186,6 +186,7 @@
 
       <div class="filters" style="display:flex;flex-wrap:nowrap;align-items:center;gap:8px;overflow-x:auto;">
         <input type="text" id="buscarPeticion" placeholder="Buscar petición..." aria-label="Buscar petición" style="min-width:220px;flex:1 1 220px;">
+        <input type="search" id="filtroUnidadPeticion" placeholder="Número de unidad exacto..." aria-label="Filtrar por número de unidad exacto" style="min-width:190px;flex:1 1 190px;">
 
         <div style="display:flex;flex-wrap:nowrap;gap:6px;align-items:center;">
           <button type="button" class="btn-small" id="btnFiltroPendientes" style="padding:6px 10px;font-size:12px;line-height:1;">Pend.</button>
@@ -573,6 +574,7 @@
     const URL_SHEETS = "https://script.google.com/macros/s/AKfycbw8EfQqixNLLkRinVKJeOjqPla3CYwj-kY1OaARSuXk5c_x_k2N4j6i9raYhaPZS-1Xrw/exec";
     const tablaPeticiones = document.getElementById("tablaPeticiones");
     const buscarPeticion = document.getElementById("buscarPeticion");
+    const filtroUnidadPeticion = document.getElementById("filtroUnidadPeticion");
     const filtroEstatus = document.getElementById("filtroEstatus");
     const filtroProveedor = document.getElementById("filtroProveedor");
     const filtroArea = document.getElementById("filtroArea");
@@ -925,6 +927,7 @@
 
     function renderizarPeticiones() {
       const texto = String(buscarPeticion?.value || "").toLowerCase();
+      const unidadFiltro = String(filtroUnidadPeticion?.value || "").trim().toLowerCase();
       const estatus = String(filtroEstatus?.value || "");
       const proveedor = String(filtroProveedor?.value || "");
       const area = String(filtroArea?.value || "");
@@ -941,6 +944,7 @@
       }).filter(function (p) {
         const textoNormalizado = String(p.unidad || "").toLowerCase() + " " + String(p.peticion || "").toLowerCase() + " " + String(p.solicitante || "").toLowerCase() + " " + String(p.area || "").toLowerCase() + " " + String(p.dependencia || "").toLowerCase() + " " + String(p.proveedor || "").toLowerCase();
         const coincideTexto = textoNormalizado.includes(texto);
+        const coincideUnidad = !unidadFiltro || String(p.unidad ?? "").trim().toLowerCase() === unidadFiltro;
 
         const estatusNormalizado = normalizarTextoPeticion(p.estatus);
         const coincideEstatus = estatusFiltro === "" || estatusNormalizado === normalizarTextoPeticion(estatusFiltro);
@@ -949,7 +953,7 @@
           proveedor.trim().replace(/\s+/g, " ").toLocaleLowerCase("es");
         const coincideArea = area === "" || String(p.area || "") === area;
 
-        return coincideTexto && coincideEstatus && coincideProveedor && coincideArea;
+        return coincideTexto && coincideUnidad && coincideEstatus && coincideProveedor && coincideArea;
       });
 
       const filtradasVisibles = vistaTecnico ? filtradas.slice(0, 10) : filtradas;
@@ -1816,6 +1820,7 @@
     }
 
     buscarPeticion?.addEventListener("input", resetearPaginaPeticiones);
+    filtroUnidadPeticion?.addEventListener("input", resetearPaginaPeticiones);
     filtroEstatus?.addEventListener("change", resetearPaginaPeticiones);
     filtroProveedor?.addEventListener("change", resetearPaginaPeticiones);
     filtroArea?.addEventListener("change", resetearPaginaPeticiones);

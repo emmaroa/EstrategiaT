@@ -4,7 +4,7 @@
 (function (global) {
   const STORAGE_KEY = "et_theme";
   const PALETTE_KEY = "et_palette";
-  const PALETTES = ["original", "oceano", "bosque", "violeta", "coral", "personalizada"];
+  const PALETTES = ["original", "turquesa-naranja", "azul-rey", "oceano", "bosque", "violeta", "coral", "personalizada"];
   const DEFAULT_COLORS = { primary: "#fc712b", secondary: "#fd9319", teal: "#07b1bc" };
   const CUSTOM_VARS = ["--color-primary", "--color-primary-hover", "--color-primary-soft", "--color-secondary", "--color-accent", "--color-teal", "--color-teal-dark", "--shadow-focus"];
 
