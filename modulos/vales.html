@@ -88,6 +88,7 @@
 
       <div class="filters">
         <input type="text" id="buscarVale" placeholder="Buscar vale..." aria-label="Buscar vale">
+        <input type="search" id="buscarUnidadVale" placeholder="Buscar por número de unidad..." aria-label="Buscar exclusivamente por número de unidad">
 
         <select id="filtroValeEstatus" aria-label="Filtrar por estatus">
           <option value="">Todos los estatus</option>
@@ -219,6 +220,7 @@
     const tituloModalVale = document.getElementById("tituloModalVale");
     const tablaVales = document.getElementById("tablaVales");
     const buscarVale = document.getElementById("buscarVale");
+    const buscarUnidadVale = document.getElementById("buscarUnidadVale");
     const filtroValeEstatus = document.getElementById("filtroValeEstatus");
     const unidadVale = document.getElementById("unidadVale");
     const dependenciaVale = document.getElementById("dependenciaVale");
@@ -247,6 +249,7 @@
     });
 
     buscarVale?.addEventListener("input", cargarVales);
+    buscarUnidadVale?.addEventListener("input", cargarVales);
     filtroValeEstatus?.addEventListener("change", cargarVales);
 
     function obtenerUsuarioVale() {
@@ -413,6 +416,7 @@ unidadVale?.addEventListener("blur", async function () {
 
     function cargarVales() {
       const texto = String(buscarVale?.value || "").toLowerCase();
+      const numeroUnidad = String(buscarUnidadVale?.value || "").trim().toLowerCase();
       const estatus = String(filtroValeEstatus?.value || "");
 
       if (tablaVales) tablaVales.innerHTML = "";
@@ -429,7 +433,8 @@ unidadVale?.addEventListener("blur", async function () {
           (v.requisicion || "").toLowerCase().includes(texto);
 
         const coincideEstatus = estatus === "" || v.estatus === estatus;
-        return coincideTexto && coincideEstatus;
+        const coincideUnidad = String(v.unidad ?? "").toLowerCase().includes(numeroUnidad);
+        return coincideTexto && coincideEstatus && coincideUnidad;
       });
 
       if (!filtrados.length) {

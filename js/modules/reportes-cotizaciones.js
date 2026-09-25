@@ -6,6 +6,15 @@
   const dinero = centavos => (centavos/100).toLocaleString('es-MX',{style:'currency',currency:'MXN'});
   const escape = value => String(value ?? '').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
   const monto = n => '<td class="monto">'+dinero(n)+'</td>';
+  function itemsCotizados(cotizacion) {
+    return (Array.isArray(cotizacion.materiales) ? cotizacion.materiales : []).map(material => {
+      const precio = material?.precio_unitario ?? material?.precio;
+      const numero = Number(precio);
+      const importe = precio != null && String(precio).trim() !== '' && Number.isFinite(numero) && numero >= 0
+        ? dinero(Math.round(numero * 100)) : 'Sin precio';
+      return (material?.cantidad ?? '') + ' × ' + (material?.item || 'Sin descripción') + ' — ' + importe + ' c/u';
+    });
+  }
   function filtros() { return {proveedor:$('reporteProveedor').value,dependencia:$('reporteDependencia').value,partida:$('reportePartida').value,desde:$('reporteDesde').value,hasta:$('reporteHasta').value}; }
   function contexto() {
     const f = filtros();
@@ -32,8 +41,8 @@
     $('reporteTotalesDependencias').innerHTML='<tr><th scope="row">Total general</th>'+r.claves.map(c=>monto(r.totales[c])).join('')+monto(r.total)+'</tr>';
     $('reporteTablaProveedores').innerHTML=r.proveedores.map(p=>'<tr><th scope="row">'+escape(p.nombre)+'</th><td>'+p.cantidad+'</td>'+monto(p.total)+'</tr>').join('') || '<tr><td colspan="3">Sin proveedores con estos filtros.</td></tr>';
     $('reporteTotalesProveedores').innerHTML='<tr><th scope="row">Total general</th><td>'+r.detalle.length+'</td>'+monto(r.total)+'</tr>';
-    $('reporteTablaDetalle').innerHTML=r.detalle.map(d=>'<tr>'+[d.folio,d.fecha || 'Sin fecha',d.proveedor,d.dependencia,d.partida,d.unidad].map(v=>'<td>'+escape(v)+'</td>').join('')+monto(d.centavos)+'</tr>').join('') || '<tr><td colspan="7">Sin cotizaciones con estos filtros.</td></tr>';
-    $('reporteTotalesDetalle').innerHTML='<tr><th colspan="6" scope="row">Total general</th>'+monto(r.total)+'</tr>';
+    $('reporteTablaDetalle').innerHTML=r.detalle.map(d=>'<tr>'+[d.folio,d.fecha || 'Sin fecha',d.proveedor,d.dependencia,d.partida,d.unidad].map(v=>'<td>'+escape(v)+'</td>').join('')+'<td>'+(itemsCotizados(d).map(escape).join('<br>') || 'Sin ítems registrados')+'</td>'+monto(d.centavos)+'</tr>').join('') || '<tr><td colspan="8">Sin cotizaciones con estos filtros.</td></tr>';
+    $('reporteTotalesDetalle').innerHTML='<tr><th colspan="7" scope="row">Total general</th>'+monto(r.total)+'</tr>';
   }
   function opciones(id,campo,titulo) {
     const actual=$(id).value; $(id).replaceChildren(new Option(titulo,''));
@@ -47,7 +56,7 @@
     try {
       const rows=[];
       for(let desde=0;;desde+=1000) {
-        const {data,error}=await window.supabaseClient.from('cotizaciones_almacen').select('id,folio,proveedor,dependencia,partida,fecha_cotizacion,fecha_entrega,unidad,total,requisicion,estatus').order('id',{ascending:true}).range(desde,desde+999);
+        const {data,error}=await window.supabaseClient.from('cotizaciones_almacen').select('id,folio,proveedor,dependencia,partida,fecha_cotizacion,fecha_entrega,unidad,total,materiales,requisicion,estatus').order('id',{ascending:true}).range(desde,desde+999);
         if(error)throw error;
         rows.push(...(data || []));if((data || []).length<1000)break;
       }
@@ -64,7 +73,7 @@
     const r=resultado;let filas;
     if(tipo==='dependencias') filas=[['Dependencia',...r.claves,'Total'],...r.dependencias.map(d=>[d.nombre,...r.claves.map(c=>d.claves[c]/100),d.total/100]),['Total general',...r.claves.map(c=>r.totales[c]/100),r.total/100]];
     else if(tipo==='proveedores') filas=[['Proveedor','Cotizaciones','Total'],...r.proveedores.map(p=>[p.nombre,p.cantidad,p.total/100]),['Total general',r.detalle.length,r.total/100]];
-    else filas=[['Folio','Fecha','Proveedor','Dependencia','Clave','Unidad','Total'],...r.detalle.map(d=>[d.folio,d.fecha,d.proveedor,d.dependencia,d.partida,d.unidad,d.centavos/100]),['Total general','','','','','',r.total/100]];
+    else filas=[['Folio','Fecha','Proveedor','Dependencia','Clave','Unidad','Ítems cotizados (cantidad × descripción — precio unitario MXN)','Total'],...r.detalle.map(d=>[d.folio,d.fecha,d.proveedor,d.dependencia,d.partida,d.unidad,itemsCotizados(d).join('\n') || 'Sin ítems registrados',d.centavos/100]),['Total general','','','','','','',r.total/100]];
     const celda=v=>{let s=String(v??'');if(typeof v==='string'&&/^[\s]*[=+@-]/.test(s))s="'"+s;return '"'+s.replace(/"/g,'""')+'"';};
     const contenido=[['Reportes Cotizaciones'],[$('criterioReporte').textContent],[contexto()],['Importes en MXN'],[],...filas].map(f=>f.map(celda).join(',')).join('\r\n');
     const url=URL.createObjectURL(new Blob(['\uFEFF'+contenido],{type:'text/csv;charset=utf-8'}));const a=document.createElement('a');a.href=url;a.download='reporte-cotizaciones-'+tipo+'.csv';document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),1000);
