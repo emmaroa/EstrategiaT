@@ -7,7 +7,7 @@
   <link rel="stylesheet" href="../css/style.css">
   <link rel="stylesheet" href="../css/design-system.css?v=20260824-2">
   <style>
-    .peticion-copiar-directo { display:block; margin-top:8px; min-height:44px; padding:8px 12px; }
+    #tablaPeticiones .peticion-copiar-directo { display:block; width:fit-content; min-width:0; margin-top:4px; min-height:28px; padding:3px 8px; font-size:11px; line-height:1.2; border-radius:6px; box-shadow:none; }
     .peticion-texto-copia { width:min(560px, calc(100% - 32px)); padding:20px; border:1px solid var(--border-color, #888); border-radius:12px; background:var(--bg-card, white); color:var(--text-primary, #17212b); }
     .peticion-texto-copia textarea { width:100%; box-sizing:border-box; min-height:180px; margin:12px 0; font-size:16px; }
     .peticion-texto-copia::backdrop { background:#0009; }
@@ -99,7 +99,7 @@
   <script src="../js/services/dependencias-cotizaciones.js"></script>
   <script src="../js/core/auth.js?v=20260819-3"></script>
   <link rel="stylesheet" href="../css/reference-theme.css?v=20260927-1" media="screen">
-<meta name="referrer" content="strict-origin-when-cross-origin"><link rel="stylesheet" href="../css/privacy-accessibility.css?v=20260927-1"><script src="../js/core/privacy.js?v=20260927-1" defer></script><script src="../js/core/accessibility.js?v=20260927-1" defer></script>
+<meta name="referrer" content="strict-origin-when-cross-origin"><link rel="stylesheet" href="../css/privacy-accessibility.css?v=20260927-1"><script src="../js/core/privacy.js?v=20260928-1" defer></script><script src="../js/core/accessibility.js?v=20260927-1" defer></script>
 </head>
 <body class="dashboard-body">
 
@@ -186,6 +186,7 @@
           <h2>Listado de peticiones</h2>
           <p>Busca por unidad, petición, solicitante, área o proveedor.</p>
         </div>
+        <button type="button" class="btn-secondary" id="btnExportarPeticiones" onclick="exportarPeticiones()" title="Descargar todas las peticiones filtradas en CSV">Exportar datos</button>
       </div>
 
       <div class="filters" style="display:flex;flex-wrap:nowrap;align-items:center;gap:8px;overflow-x:auto;">
@@ -930,7 +931,7 @@
       filtroProveedor.value = obtenerNombreCanonicoProveedor(valorActual);
     }
 
-    function renderizarPeticiones() {
+    function obtenerPeticionesFiltradas() {
       const texto = String(buscarPeticion?.value || "").toLowerCase();
       const unidadFiltro = String(filtroUnidadPeticion?.value || "").trim().toLowerCase();
       const estatus = String(filtroEstatus?.value || "");
@@ -938,9 +939,6 @@
       const area = String(filtroArea?.value || "");
       const estatusFiltro = obtenerValorCanonicoEstatusPeticion(estatus);
       const vistaTecnico = esRolTecnicoPeticion();
-      const mostrarProveedor = puedeVerProveedoresPeticion();
-
-      if (tablaPeticiones) tablaPeticiones.innerHTML = "";
 
       const filtradas = peticiones.slice().sort(function (a, b) {
         const fechaA = obtenerFechaOrdenPeticion(a);
@@ -961,7 +959,48 @@
         return coincideTexto && coincideUnidad && coincideEstatus && coincideProveedor && coincideArea;
       });
 
-      const filtradasVisibles = vistaTecnico ? filtradas.slice(0, 10) : filtradas;
+      return vistaTecnico ? filtradas.slice(0, 10) : filtradas;
+    }
+
+    function exportarPeticiones() {
+      if (!puedeAccionPeticion("exportar")) return;
+      const registros = obtenerPeticionesFiltradas();
+      if (!registros.length) { alert("No hay peticiones para exportar con los filtros aplicados."); return; }
+      const mostrarProveedor = puedeVerProveedoresPeticion();
+      const encabezados = ["Fecha", "Unidad", "Petición", "Solicitante", "Área", "Dependencia"];
+      if (mostrarProveedor) encabezados.push("Proveedor");
+      encabezados.push("Fecha estimada de entrega", "Cotizada", "Estatus", "Observaciones");
+      const filas = registros.map(function (p) {
+        const fila = [p.fecha, p.unidad, p.peticion, p.solicitante, p.area, p.dependencia];
+        if (mostrarProveedor) fila.push(p.proveedor);
+        fila.push(p.fecha_estimada_entrega, cotizacionesPorPeticion.has(p.id) ? "Sí" : "No", p.estatus, p.observaciones);
+        return fila;
+      });
+      const proteger = function (valor) {
+        let texto = String(valor ?? "");
+        if (/^[\s\u0000-\u001f]*[=+\-@]/.test(texto)) texto = "'" + texto;
+        return '"' + texto.replace(/"/g, '""') + '"';
+      };
+      const contenido = [encabezados].concat(filas).map(fila => fila.map(proteger).join(",")).join("\r\n");
+      const url = URL.createObjectURL(new Blob(["\ufeff" + contenido], { type: "text/csv;charset=utf-8;" }));
+      const enlace = document.createElement("a");
+      enlace.href = url;
+      enlace.download = "peticiones-" + new Date().toISOString().slice(0, 10) + ".csv";
+      document.body.appendChild(enlace);
+      enlace.click();
+      enlace.remove();
+      setTimeout(function () { URL.revokeObjectURL(url); }, 1000);
+    }
+
+    function renderizarPeticiones() {
+      const filtradasVisibles = obtenerPeticionesFiltradas();
+      const mostrarProveedor = puedeVerProveedoresPeticion();
+      if (tablaPeticiones) tablaPeticiones.innerHTML = "";
+      const botonExportar = document.getElementById("btnExportarPeticiones");
+      if (botonExportar) {
+        botonExportar.hidden = !puedeAccionPeticion("exportar");
+        botonExportar.disabled = !filtradasVisibles.length;
+      }
 
       const totalPaginas = Math.max(1, Math.ceil(filtradasVisibles.length / REGISTROS_POR_PAGINA_PET));
       if (paginaPeticiones > totalPaginas) paginaPeticiones = totalPaginas;

@@ -4,6 +4,7 @@
     "unlabeled": [],
     "checked": 0,
     "unprotected": [],
+    "repeated": 0,
     "violations": []
   },
   {
@@ -11,55 +12,15 @@
     "unlabeled": [],
     "checked": 0,
     "unprotected": [],
-    "violations": [
-      {
-        "id": "color-contrast",
-        "nodes": [
-          {
-            "html": "<p>Requisiciones en inicio de procedimiento</p>",
-            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 2.81 (foreground color: #9a9a9a, background color: #ffffff, font size: 8.3pt (11px), font weight: normal). Expected contrast ratio of 4.5:1"
-          },
-          {
-            "html": "<div class=\"alert-icon\">OC</div>",
-            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 2.81 (foreground color: #9a9a9a, background color: #ffffff, font size: 10.5pt (14px), font weight: normal). Expected contrast ratio of 4.5:1"
-          },
-          {
-            "html": "<p>Órdenes de compra pendientes de autorizar</p>",
-            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 2.81 (foreground color: #9a9a9a, background color: #ffffff, font size: 8.3pt (11px), font weight: normal). Expected contrast ratio of 4.5:1"
-          },
-          {
-            "html": "<div class=\"alert-icon\">SP</div>",
-            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 2.81 (foreground color: #9a9a9a, background color: #ffffff, font size: 10.5pt (14px), font weight: normal). Expected contrast ratio of 4.5:1"
-          },
-          {
-            "html": "<p>Solicitudes de pago en emitido</p>",
-            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 2.81 (foreground color: #9a9a9a, background color: #ffffff, font size: 8.3pt (11px), font weight: normal). Expected contrast ratio of 4.5:1"
-          },
-          {
-            "html": "<p>Solicitudes de pago en rechazado</p>",
-            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 2.81 (foreground color: #9a9a9a, background color: #ffffff, font size: 8.3pt (11px), font weight: normal). Expected contrast ratio of 4.5:1"
-          },
-          {
-            "html": "<p>Solicitudes enviadas</p>",
-            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 2.81 (foreground color: #9a9a9a, background color: #ffffff, font size: 8.3pt (11px), font weight: normal). Expected contrast ratio of 4.5:1"
-          },
-          {
-            "html": "<p>Peticiones sin proveedor</p>",
-            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 2.81 (foreground color: #9a9a9a, background color: #ffffff, font size: 8.3pt (11px), font weight: normal). Expected contrast ratio of 4.5:1"
-          },
-          {
-            "html": "<p>Vales sin solventar</p>",
-            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 2.81 (foreground color: #9a9a9a, background color: #ffffff, font size: 8.3pt (11px), font weight: normal). Expected contrast ratio of 4.5:1"
-          }
-        ]
-      }
-    ]
+    "repeated": 0,
+    "violations": []
   },
   {
     "page": "buscador-unidades.html",
     "unlabeled": [],
     "checked": 0,
     "unprotected": [],
+    "repeated": 0,
     "violations": []
   },
   {
@@ -67,6 +28,7 @@
     "unlabeled": [],
     "checked": 0,
     "unprotected": [],
+    "repeated": 0,
     "violations": []
   },
   {
@@ -74,6 +36,7 @@
     "unlabeled": [],
     "checked": 0,
     "unprotected": [],
+    "repeated": 0,
     "violations": []
   },
   {
@@ -81,6 +44,7 @@
     "unlabeled": [],
     "checked": 0,
     "unprotected": [],
+    "repeated": 0,
     "violations": []
   },
   {
@@ -88,6 +52,7 @@
     "unlabeled": [],
     "checked": 0,
     "unprotected": [],
+    "repeated": 0,
     "violations": []
   },
   {
@@ -95,6 +60,7 @@
     "unlabeled": [],
     "checked": 0,
     "unprotected": [],
+    "repeated": 0,
     "violations": []
   },
   {
@@ -102,6 +68,7 @@
     "unlabeled": [],
     "checked": 0,
     "unprotected": [],
+    "repeated": 0,
     "violations": []
   },
   {
@@ -109,6 +76,7 @@
     "unlabeled": [],
     "checked": 0,
     "unprotected": [],
+    "repeated": 0,
     "violations": []
   },
   {
@@ -116,6 +84,7 @@
     "unlabeled": [],
     "checked": 0,
     "unprotected": [],
+    "repeated": 0,
     "violations": []
   },
   {
@@ -123,6 +92,7 @@
     "unlabeled": [],
     "checked": 0,
     "unprotected": [],
+    "repeated": 0,
     "violations": []
   },
   {
@@ -130,6 +100,7 @@
     "unlabeled": [],
     "checked": 0,
     "unprotected": [],
+    "repeated": 0,
     "violations": []
   },
   {
@@ -137,6 +108,7 @@
     "unlabeled": [],
     "checked": 0,
     "unprotected": [],
+    "repeated": 0,
     "violations": []
   },
   {
@@ -144,6 +116,7 @@
     "unlabeled": [],
     "checked": 0,
     "unprotected": [],
+    "repeated": 0,
     "violations": []
   },
   {
@@ -151,6 +124,7 @@
     "unlabeled": [],
     "checked": 0,
     "unprotected": [],
+    "repeated": 0,
     "violations": []
   },
   {
@@ -158,6 +132,7 @@
     "unlabeled": [],
     "checked": 0,
     "unprotected": [],
+    "repeated": 0,
     "violations": []
   },
   {
@@ -165,6 +140,7 @@
     "unlabeled": [],
     "checked": 0,
     "unprotected": [],
+    "repeated": 0,
     "violations": []
   },
   {
@@ -172,6 +148,7 @@
     "unlabeled": [],
     "checked": 0,
     "unprotected": [],
+    "repeated": 0,
     "violations": []
   },
   {
@@ -179,6 +156,7 @@
     "unlabeled": [],
     "checked": 0,
     "unprotected": [],
+    "repeated": 0,
     "violations": []
   },
   {
@@ -186,6 +164,7 @@
     "unlabeled": [],
     "checked": 0,
     "unprotected": [],
+    "repeated": 0,
     "violations": []
   },
   {
@@ -193,6 +172,7 @@
     "unlabeled": [],
     "checked": 0,
     "unprotected": [],
+    "repeated": 0,
     "violations": []
   },
   {
@@ -200,6 +180,7 @@
     "unlabeled": [],
     "checked": 0,
     "unprotected": [],
+    "repeated": 0,
     "violations": []
   },
   {
@@ -207,6 +188,7 @@
     "unlabeled": [],
     "checked": 0,
     "unprotected": [],
+    "repeated": 0,
     "violations": []
   },
   {
@@ -214,6 +196,7 @@
     "unlabeled": [],
     "checked": 0,
     "unprotected": [],
+    "repeated": 0,
     "violations": []
   },
   {
@@ -221,6 +204,7 @@
     "unlabeled": [],
     "checked": 0,
     "unprotected": [],
+    "repeated": 0,
     "violations": []
   },
   {
@@ -228,6 +212,7 @@
     "unlabeled": [],
     "checked": 0,
     "unprotected": [],
+    "repeated": 0,
     "violations": []
   },
   {
@@ -235,6 +220,7 @@
     "unlabeled": [],
     "checked": 0,
     "unprotected": [],
+    "repeated": 0,
     "violations": []
   },
   {
@@ -242,6 +228,7 @@
     "unlabeled": [],
     "checked": 0,
     "unprotected": [],
+    "repeated": 0,
     "violations": []
   },
   {
@@ -249,6 +236,7 @@
     "unlabeled": [],
     "checked": 0,
     "unprotected": [],
+    "repeated": 0,
     "violations": []
   },
   {
@@ -256,6 +244,7 @@
     "unlabeled": [],
     "checked": 0,
     "unprotected": [],
+    "repeated": 0,
     "violations": []
   },
   {
@@ -263,6 +252,7 @@
     "unlabeled": [],
     "checked": 0,
     "unprotected": [],
+    "repeated": 0,
     "violations": []
   }
 ]

@@ -1,0 +1,544 @@
+﻿<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Administración de Talleres | Peticiones</title>
+  <link rel="stylesheet" href="../css/style.css">
+  <link rel="stylesheet" href="../css/design-system.css?v=20260824-2">
+  <style>
+    .peticion-copiar-directo { display:block; margin-top:8px; min-height:44px; padding:8px 12px; }
+    .peticion-texto-copia { width:min(560px, calc(100% - 32px)); padding:20px; border:1px solid var(--border-color, #888); border-radius:12px; background:var(--bg-card, white); color:var(--text-primary, #17212b); }
+    .peticion-texto-copia textarea { width:100%; box-sizing:border-box; min-height:180px; margin:12px 0; font-size:16px; }
+    .peticion-texto-copia::backdrop { background:#0009; }
+    #kpisGestionCotizaciones { display:none; }
+    #graficaMontoProveedorCotizaciones { display:none; }
+    .gestion-cotizaciones-view #kpisPeticiones,
+    .gestion-cotizaciones-view #panelListadoPeticiones,
+    .gestion-cotizaciones-view #btnNuevaPeticion { display:none; }
+    .gestion-cotizaciones-view #kpisGestionCotizaciones { display:grid; }
+    .gestion-cotizaciones-view #graficaMontoProveedorCotizaciones { display:block; }
+    .cotizaciones-provider-chart { display:grid; gap:12px; margin-top:16px; }
+    .cotizaciones-provider-row { display:grid; grid-template-columns:minmax(130px, 220px) minmax(180px, 1fr) auto; gap:12px; align-items:center; }
+    .cotizaciones-provider-name { overflow:hidden; color:var(--text-secondary); font-size:13px; font-weight:700; text-overflow:ellipsis; white-space:nowrap; }
+    .cotizaciones-provider-track { height:12px; overflow:hidden; border-radius:999px; background:color-mix(in srgb, var(--color-teal) 14%, var(--bg-card)); }
+    .cotizaciones-provider-bar { height:100%; min-width:3px; border-radius:inherit; background:linear-gradient(90deg, var(--color-teal), var(--color-info)); }
+    .cotizaciones-provider-amount { color:var(--text-primary); font-size:13px; font-weight:800; text-align:right; }
+    .cotizaciones-materials-cell { min-width:240px; max-width:360px; white-space:normal; }
+    .cotizaciones-materials-list { display:grid; gap:4px; margin:0; padding-left:18px; }
+    .cotizaciones-materials-list li { line-height:1.35; }
+    #tablaGestionCotizaciones tr.cotizacion-clickable { cursor:pointer; }
+    #tablaGestionCotizaciones tr.cotizacion-clickable:focus-visible { outline:3px solid color-mix(in srgb, var(--color-teal) 55%, transparent); outline-offset:-3px; }
+    #tablaGestionCotizaciones tr.cotizacion-sin-requisicion { background:color-mix(in srgb, var(--color-warning) 9%, transparent); box-shadow:inset 4px 0 0 var(--color-warning); }
+    #tablaGestionCotizaciones tr.cotizacion-sin-requisicion:hover { background:color-mix(in srgb, var(--color-warning) 15%, var(--bg-card)); }
+    .cotizacion-pendiente-badge { display:inline-flex; align-items:center; padding:5px 9px; border:1px solid color-mix(in srgb, var(--color-warning) 45%, transparent); border-radius:999px; background:color-mix(in srgb, var(--color-warning) 14%, transparent); color:var(--text-primary); font-size:11px; font-weight:850; white-space:nowrap; }
+    .cotizacion-preview-card { width:min(1040px, calc(100vw - 28px)); height:min(90vh, 860px); padding:0; overflow:hidden; }
+    .cotizacion-preview-header { padding:18px 22px 14px; border-bottom:1px solid var(--border); }
+    .cotizacion-preview-frame { display:block; width:100%; height:calc(90vh - 158px); min-height:440px; border:0; background:#fff; }
+    .cotizacion-preview-actions { padding:14px 22px; border-top:1px solid var(--border); background:var(--bg-card); }
+    #tablaPeticiones tr.peticion-fila { cursor:pointer; }
+    #tablaPeticiones tr.peticion-fila:focus-visible { outline:2px solid var(--color-teal); outline-offset:-2px; }
+    .peticion-view-note { position:relative; width:36px; height:36px; }
+    .peticion-view-note .action-btn { margin:0; }
+    .peticion-note-indicator { position:absolute; top:-5px; right:-5px; display:flex; align-items:center; justify-content:center; width:17px; height:17px; border:2px solid var(--bg-card); border-radius:50%; background:var(--color-warning); color:#111827; pointer-events:none; z-index:1; }
+    .peticion-note-indicator svg { width:9px; height:9px; fill:none; stroke:currentColor; stroke-width:2; }
+    .status-badge.peticion-status { gap:7px; max-width:190px; padding:6px 11px; border-width:1px; border-style:solid; box-shadow:inset 0 1px 0 rgba(255,255,255,.06); font-weight:850; }
+    .status-badge.peticion-status::before { width:7px; height:7px; flex-basis:7px; box-shadow:0 0 0 3px color-mix(in srgb, currentColor 16%, transparent); }
+    .status-badge.peticion-status--pendiente { color:#fbbf24 !important; border-color:rgba(245,158,11,.30) !important; background:rgba(245,158,11,.13) !important; }
+    .status-badge.peticion-status--revisado { color:#60a5fa !important; border-color:rgba(59,130,246,.30) !important; background:rgba(59,130,246,.13) !important; }
+    .status-badge.peticion-status--cotizacion { color:#c084fc !important; border-color:rgba(168,85,247,.30) !important; background:rgba(168,85,247,.13) !important; }
+    .status-badge.peticion-status--pedido { color:#22d3ee !important; border-color:rgba(6,182,212,.30) !important; background:rgba(6,182,212,.13) !important; }
+    .status-badge.peticion-status--parcial { color:#fb923c !important; border-color:rgba(249,115,22,.30) !important; background:rgba(249,115,22,.13) !important; }
+    .status-badge.peticion-status--recibido { color:#4ade80 !important; border-color:rgba(34,197,94,.30) !important; background:rgba(34,197,94,.13) !important; }
+    .status-badge.peticion-status--cancelado,
+    .status-badge.peticion-status--rechazado { color:#f87171 !important; border-color:rgba(239,68,68,.30) !important; background:rgba(239,68,68,.13) !important; }
+    .status-badge.peticion-status--neutral { color:#cbd5e1 !important; border-color:rgba(148,163,184,.28) !important; background:rgba(148,163,184,.12) !important; }
+    [data-theme="light"] .status-badge.peticion-status--pendiente { color:#92400e !important; }
+    [data-theme="light"] .status-badge.peticion-status--revisado { color:#1d4ed8 !important; }
+    [data-theme="light"] .status-badge.peticion-status--cotizacion { color:#7e22ce !important; }
+    [data-theme="light"] .status-badge.peticion-status--pedido { color:#0e7490 !important; }
+    [data-theme="light"] .status-badge.peticion-status--parcial { color:#c2410c !important; }
+    [data-theme="light"] .status-badge.peticion-status--recibido { color:#15803d !important; }
+    [data-theme="light"] .status-badge.peticion-status--cancelado,
+    [data-theme="light"] .status-badge.peticion-status--rechazado { color:#b91c1c !important; }
+    [data-theme="light"] .status-badge.peticion-status--neutral { color:#475569 !important; }
+    .historial-modal-card { width:min(620px, calc(100vw - 28px)); max-height:min(78vh, 720px); padding:0; overflow:hidden; }
+    .historial-modal-header { padding:22px 24px 16px; border-bottom:1px solid var(--border); background:linear-gradient(135deg, color-mix(in srgb, var(--color-teal) 12%, var(--bg-card)), var(--bg-card)); }
+    .historial-modal-header p { margin:5px 0 0; color:var(--text-secondary); }
+    .historial-content { max-height:calc(78vh - 100px); padding:20px 24px 24px; overflow-y:auto; }
+    .historial-loading, .historial-empty { padding:28px 18px; border:1px dashed var(--border); border-radius:12px; color:var(--text-secondary); text-align:center; }
+    .historial-timeline { display:grid; gap:0; margin:0; padding:0; list-style:none; }
+    .historial-item { position:relative; display:grid; grid-template-columns:18px minmax(0, 1fr); gap:13px; padding-bottom:18px; }
+    .historial-item:not(:last-child)::before { content:""; position:absolute; top:17px; bottom:0; left:7px; width:2px; background:color-mix(in srgb, var(--color-teal) 25%, var(--border)); }
+    .historial-dot { position:relative; width:16px; height:16px; margin-top:4px; border:4px solid color-mix(in srgb, var(--color-teal) 22%, var(--bg-card)); border-radius:50%; background:var(--color-teal); z-index:1; }
+    .historial-entry { padding:14px 16px; border:1px solid var(--border); border-radius:12px; background:var(--bg-card); box-shadow:0 4px 14px rgba(15, 23, 42, .06); }
+    .historial-entry-head { display:flex; justify-content:space-between; align-items:flex-start; gap:12px; margin-bottom:8px; }
+    .historial-entry-head strong { color:var(--text-primary); }
+    .historial-entry-head time { flex:0 0 auto; color:var(--text-secondary); font-size:12px; font-weight:700; }
+    .historial-user { display:block; margin-bottom:7px; color:var(--color-teal); font-size:12px; font-weight:800; }
+    .historial-detail { margin:0; color:var(--text-secondary); line-height:1.5; white-space:pre-wrap; overflow-wrap:anywhere; }
+    .historial-kind { display:inline-flex; align-items:center; margin-bottom:9px; padding:4px 9px; border-radius:999px; font-size:11px; font-weight:900; letter-spacing:.03em; text-transform:uppercase; }
+    .historial-kind.added { background:rgba(34, 197, 94, .13); color:#15803d; }
+    .historial-kind.changed { background:rgba(245, 158, 11, .15); color:#b45309; }
+    .historial-changes { display:grid; gap:8px; margin-top:12px; }
+    .historial-change { display:grid; gap:4px; padding:10px 12px; border-radius:9px; background:color-mix(in srgb, var(--color-teal) 6%, var(--bg-card)); }
+    .historial-change-label { color:var(--text-primary); font-size:12px; font-weight:900; }
+    .historial-change-values { display:flex; flex-wrap:wrap; align-items:center; gap:6px; color:var(--text-secondary); font-size:12px; }
+    .historial-old { text-decoration:line-through; opacity:.75; }
+    .historial-new { color:var(--text-primary); font-weight:800; }
+    .historial-arrow { color:var(--color-teal); font-weight:900; }
+    @media(max-width:700px) { .cotizaciones-provider-row { grid-template-columns:1fr auto; } .cotizaciones-provider-track { grid-column:1 / -1; grid-row:2; } }
+  </style>
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  <link rel="stylesheet" href="../css/reference-theme.css?v=20260927-1" media="screen">
+<meta name="referrer" content="strict-origin-when-cross-origin"><link rel="stylesheet" href="../css/privacy-accessibility.css?v=20260927-1">
+<script src="/js/core/theme.js" defer></script><script src="/js/core/privacy.js" defer></script><script src="/js/core/accessibility.js" defer></script><script src="/.tmp-privacy/axe.min.js"></script></head>
+<body class="dashboard-body">
+
+  <aside class="sidebar">
+    <div class="sidebar-logo">
+      <div class="mini-logo">E</div>
+      <div>
+        <h3>Administración de Talleres</h3>
+        <small id="etModuleName">Peticiones</small>
+      </div>
+    </div>
+    <nav id="etNav"></nav>
+    <button type="button" class="logout" id="etLogout">Cerrar sesión</button>
+  </aside>
+
+  <main class="main-content">
+
+    <header class="topbar">
+      <div>
+        <h1 id="tituloModuloPeticiones">Peticiones a Almacén</h1>
+        <p id="descripcionModuloPeticiones">Control y seguimiento de solicitudes de refacciones.</p>
+      </div>
+
+      <div class="et-header-actions">
+        <span id="etTemaContainer"></span>
+        <button type="button" class="btn-small" id="btnNuevaPeticion" aria-haspopup="dialog">+ Nueva petición</button>
+      </div>
+    </header>
+
+    <section class="kpi-grid" id="kpisPeticiones">
+      <div class="kpi-card">
+        <span>Pendientes de entrega a almacén</span>
+        <h2 id="kpiPendientesEntrega">0</h2>
+        <p>Pedido a proveedor</p>
+      </div>
+
+      <div class="kpi-card">
+        <span>Recibido parcialmente</span>
+        <h2 id="kpiRecibidoParcial">0</h2>
+        <p>Recibido parcial</p>
+      </div>
+
+      <div class="kpi-card">
+        <span>Pendiente de cotización</span>
+        <h2 id="kpiPendienteCotizacion">0</h2>
+        <p>En cotización</p>
+      </div>
+
+      <div class="kpi-card">
+        <span>Pendiente de revisión por almacén</span>
+        <h2 id="kpiPendienteRevision">0</h2>
+        <p>Pendiente</p>
+      </div>
+
+      <div class="kpi-card">
+        <span>Pendiente de asignación de proveedor</span>
+        <h2 id="kpiPendienteProveedor">0</h2>
+        <p>Revisado por almacén</p>
+      </div>
+    </section>
+
+    <section class="kpi-grid" id="kpisGestionCotizaciones">
+      <div class="kpi-card"><span>Total de cotizaciones</span><h2 id="kpiCotInternasTotal">0</h2><p>Registros recibidos</p></div>
+      <div class="kpi-card"><span>Número total sin requisición</span><h2 id="kpiCotInternasSinTramite">0</h2><p>Cotizaciones pendientes de vincular</p></div>
+      <div class="kpi-card"><span>Monto total sin requisición</span><h2 id="kpiCotInternasMontoSinTramite">$0.00</h2><p>Importe pendiente de vincular</p></div>
+      <div class="kpi-card"><span>Con requisición</span><h2 id="kpiCotInternasConTramite">0</h2><p>Trámite asignado</p></div>
+      <div class="kpi-card"><span>Sin partida</span><h2 id="kpiCotInternasSinPartida">0</h2><p>Requieren clasificación</p></div>
+    </section>
+
+    <section class="chart-card" id="graficaMontoProveedorCotizaciones" aria-labelledby="tituloGraficaMontoProveedorCotizaciones">
+      <div class="panel-header">
+        <div>
+          <h2 id="tituloGraficaMontoProveedorCotizaciones">Monto sin requisición por proveedor</h2>
+          <p>Importe pendiente de vincular; no incluye cotizaciones con requisición generada.</p>
+        </div>
+      </div>
+      <div class="cotizaciones-provider-chart" id="barrasMontoProveedorCotizaciones"></div>
+    </section>
+
+    <section class="panel" id="panelListadoPeticiones">
+
+      <div class="panel-header">
+        <div>
+          <h2>Listado de peticiones</h2>
+          <p>Busca por unidad, petición, solicitante, área o proveedor.</p>
+        </div>
+      </div>
+
+      <div class="filters" style="display:flex;flex-wrap:nowrap;align-items:center;gap:8px;overflow-x:auto;">
+        <input type="text" id="buscarPeticion" placeholder="Buscar petición..." aria-label="Buscar petición" style="min-width:220px;flex:1 1 220px;">
+        <input type="search" id="filtroUnidadPeticion" placeholder="Número de unidad exacto..." aria-label="Filtrar por número de unidad exacto" style="min-width:190px;flex:1 1 190px;">
+
+        <div style="display:flex;flex-wrap:nowrap;gap:6px;align-items:center;">
+          <button type="button" class="btn-small" id="btnFiltroPendientes" style="padding:6px 10px;font-size:12px;line-height:1;">Pend.</button>
+          <button type="button" class="btn-small" id="btnFiltroRevisado" style="padding:6px 10px;font-size:12px;line-height:1;">Revisado</button>
+          <button type="button" class="btn-small" id="btnFiltroCotizacion" style="padding:6px 10px;font-size:12px;line-height:1;">Cotización</button>
+        </div>
+
+        <select id="filtroEstatus" aria-label="Filtrar por estatus" style="min-width:150px;">
+          <option value="">Todos los estatus</option>
+          <option value="Pendiente">Pendiente</option>
+          <option value="Revisado por almacen">Revisado por almacen</option>
+          <option value="Pedido a proveedor">Pedido a proveedor</option>
+          <option value="Recibido Parcial">Recibido Parcial</option>
+          <option value="Recibido en Almacen">Recibido en Almacen</option>
+          <option value="En cotización">En cotización</option>
+          <option value="CANCELADO">CANCELADO</option>
+        </select>
+
+        <select id="filtroProveedor" aria-label="Filtrar por proveedor">
+          <option value="">Todos los proveedores</option>
+        </select>
+
+        <select id="filtroArea" aria-label="Filtrar por área">
+          <option value="">Todas las áreas</option>
+        </select>
+      </div>
+
+      <div class="table-container">
+        <table data-mobile-layout="scroll">
+          <thead>
+            <tr>
+              <th>Fecha</th>
+              <th>Unidad</th>
+              <th>Petición</th>
+              <th>Solicitante</th>
+              <th>Área</th>
+              <th>Dependencia</th>
+              <th id="columnaProveedorPeticion">Proveedor</th>
+              <th>Fecha estimada de entrega</th>
+              <th>Cotizada</th>
+              <th>Estatus</th>
+              <th>Acciones</th>
+            </tr>
+          </thead>
+
+          <tbody id="tablaPeticiones"></tbody>
+        </table>
+      </div>
+
+      <div class="pagination-bar" style="display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;margin-top:16px;">
+        <span id="infoPaginacionPeticiones" style="color:var(--muted);font-weight:700;">Mostrando 0 registros</span>
+        <div style="display:flex;gap:8px;align-items:center;">
+          <button type="button" class="btn-secondary" id="btnPetAnterior">Anterior</button>
+          <span id="paginaPetActual" style="font-weight:800;">Pagina 1 de 1</span>
+          <button type="button" class="btn-secondary" id="btnPetSiguiente">Siguiente</button>
+        </div>
+      </div>
+
+    </section>
+
+    <section class="panel" id="panelGestionCotizaciones" style="display:none;">
+      <div class="panel-header">
+        <div>
+          <h2>Gestión privada de cotizaciones</h2>
+          <p>Completa la partida y el número de requisición cuando la cotización tenga trámite.</p>
+        </div>
+        <a class="btn-secondary" href="reportes-cotizaciones.html">Reportes Cotizaciones</a>
+        <button type="button" class="btn-secondary" id="btnExportarGestionCotizaciones">Exportar tabla</button>
+      </div>
+      <div class="filters">
+        <input type="search" id="buscarGestionCotizaciones" placeholder="Buscar folio, proveedor, unidad, material, monto o requisición..." aria-label="Buscar cotizaciones, incluyendo materiales y monto">
+        <select id="filtroProveedorGestionCotizaciones" aria-label="Filtrar por proveedor"><option value="">Todos los proveedores</option></select>
+        <select id="filtroEstatusGestionCotizaciones" aria-label="Filtrar por estatus"><option value="">Todos los estatus</option></select>
+        <select id="filtroPartidaGestionCotizaciones" aria-label="Filtrar por partida"><option value="">Con y sin partida</option><option value="sin-partida">Sin partida</option><option value="con-partida">Con partida</option></select>
+        <label>Desde <input type="date" id="fechaDesdeGestionCotizaciones"></label>
+        <label>Hasta <input type="date" id="fechaHastaGestionCotizaciones"></label>
+      </div>
+      <div class="table-container">
+        <table>
+          <thead>
+            <tr>
+              <th>Folio</th>
+              <th>Proveedor</th>
+              <th>Fecha</th>
+              <th>Unidad</th>
+              <th>Dependencia</th>
+              <th>Materiales</th>
+              <th>Total</th>
+              <th>Partida</th>
+              <th>Requisición</th>
+              <th>Estatus</th>
+              <th>Notas</th>
+              <th>Acciones</th>
+            </tr>
+          </thead>
+          <tbody id="tablaGestionCotizaciones"></tbody>
+        </table>
+      </div>
+    </section>
+
+  <footer class="et-legal-footer"><nav aria-label="Información legal"><a href="../privacidad.html">Privacidad</a><a href="../terminos.html">Términos y condiciones</a><a href="../cookies.html">Cookies y almacenamiento</a><button type="button" data-privacy-settings>Configurar privacidad</button></nav><p>© <span data-copyright-year>2026</span> Ing. Emma Lizbeth Figueroa Cruz. Contenidos propios de EstrategiaT; los materiales de terceros conservan sus derechos y licencias.</p></footer>
+</main>
+
+  <div class="modal" id="modalVistaPreviaCotizacion" role="dialog" aria-modal="true" aria-labelledby="tituloVistaPreviaCotizacion" aria-hidden="true">
+    <div class="modal-card cotizacion-preview-card">
+      <div class="modal-header cotizacion-preview-header">
+        <div>
+          <h2 id="tituloVistaPreviaCotizacion">Vista previa de cotización</h2>
+          <p id="subtituloVistaPreviaCotizacion">Revisa el documento antes de imprimir.</p>
+        </div>
+        <button type="button" class="close-btn" aria-label="Cerrar vista previa">×</button>
+      </div>
+      <iframe id="marcoVistaPreviaCotizacion" class="cotizacion-preview-frame" title="Documento imprimible de la cotización"></iframe>
+      <div class="modal-actions cotizacion-preview-actions">
+        <button type="button" class="btn-secondary">Cerrar</button>
+        <button type="button" class="btn-secondary" id="btnEditarDesdeVistaPrevia">Editar</button>
+        <button type="button" class="btn-small">Imprimir / Guardar PDF</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal" id="modalHistorialPeticion" role="dialog" aria-modal="true" aria-labelledby="tituloHistorialPeticion" aria-hidden="true">
+    <div class="modal-card historial-modal-card">
+      <div class="modal-header historial-modal-header">
+        <div>
+          <h2 id="tituloHistorialPeticion">Historial de petici&oacute;n</h2>
+          <p id="subtituloHistorialPeticion">Movimientos registrados</p>
+        </div>
+        <button type="button" class="close-btn" aria-label="Cerrar historial">&times;</button>
+      </div>
+      <div class="historial-content" id="contenidoHistorialPeticion" aria-live="polite"></div>
+    </div>
+  </div>
+
+  <div class="modal" id="modalDatosInternosCotizacion" role="dialog" aria-modal="true" aria-labelledby="tituloDatosInternosCotizacion" aria-hidden="true">
+    <div class="modal-card">
+      <div class="modal-header">
+        <div>
+          <h2 id="tituloDatosInternosCotizacion">Editar cotización</h2>
+          <p id="subtituloDatosInternosCotizacion"></p>
+        </div>
+        <button type="button" class="close-btn" aria-label="Cerrar diálogo">×</button>
+      </div>
+      <div class="form-grid">
+        <div class="input-group">
+          <label for="folioCotizacionInterna">Folio</label>
+          <input type="text" id="folioCotizacionInterna" maxlength="30">
+        </div>
+        <div class="input-group">
+          <label for="proveedorCotizacionInterna">Proveedor</label>
+          <input type="text" id="proveedorCotizacionInterna" maxlength="150">
+        </div>
+        <div class="input-group">
+          <label for="fechaCotizacionInterna">Fecha de cotización</label>
+          <input type="date" id="fechaCotizacionInterna">
+        </div>
+        <div class="input-group">
+          <label for="fechaEntregaCotizacionInterna">Fecha de entrega</label>
+          <input type="date" id="fechaEntregaCotizacionInterna">
+        </div>
+        <div class="input-group">
+          <label for="unidadCotizacionInterna">Unidad</label>
+          <input type="text" id="unidadCotizacionInterna" maxlength="50">
+        </div>
+        <div class="input-group">
+          <label for="serieCotizacionInterna">Número de serie</label>
+          <input type="text" id="serieCotizacionInterna" maxlength="100">
+        </div>
+        <div class="input-group">
+          <label for="dependenciaCotizacionInterna">Dependencia</label>
+          <select id="dependenciaCotizacionInterna" required aria-describedby="ayudaDependenciaCotizacion"><option value="">Selecciona una dependencia</option></select>
+          <small id="ayudaDependenciaCotizacion">Selecciona el código de dos dígitos y el nombre del listado oficial.</small>
+        </div>
+        <div class="input-group">
+          <label for="origenCotizacionInterna">Origen</label>
+          <select id="origenCotizacionInterna"><option value="Desde petición">Desde petición</option><option value="Sin petición">Sin petición</option></select>
+        </div>
+        <div class="input-group">
+          <label for="estatusCotizacionInterna">Estatus</label>
+          <select id="estatusCotizacionInterna"><option value="Pendiente de revisión">Pendiente de revisión</option><option value="Validada">Validada</option><option value="Requisición generada">Requisición generada</option><option value="Rechazada">Rechazada</option></select>
+        </div>
+        <div class="input-group">
+          <label for="partidaCotizacionInterna">Partida</label>
+          <select id="partidaCotizacionInterna">
+            <option value="">Pendiente</option>
+            <option value="29601">29601 - Gasolina y vehículos pequeños</option>
+            <option value="29801">29801 - Camiones, maquinaria y material eléctrico</option>
+            <option value="26102">26102 - Aceites y aditivos (incluye urea)</option>
+          </select>
+          <small id="ayudaPartidaCotizacion">Se calcula con los materiales y el tipo de unidad.</small>
+          <label><input type="checkbox" id="correccionManualCotizacion"> Corregir dependencia y partida manualmente</label>
+          <small>Para registros por revisar, STOCK/0 o unidades sin coincidencia. Elige la dependencia del listado y una de las tres partidas.</small>
+        </div>
+        <div class="input-group">
+          <label for="requisicionCotizacionInterna">Número de requisición</label>
+          <input type="text" id="requisicionCotizacionInterna" maxlength="100" placeholder="Pendiente">
+        </div>
+        <div class="input-group full">
+          <label for="materialesCotizacionInterna">Materiales</label>
+          <textarea id="materialesCotizacionInterna" rows="6" placeholder="Una línea por material: cantidad | descripción | precio unitario"></textarea>
+          <small>Formato: cantidad | descripción | precio unitario. Ejemplo: 2 | Filtro de aceite | 150.50</small>
+        </div>
+        <div class="input-group">
+          <label for="subtotalCotizacionInterna">Subtotal</label>
+          <input type="text" id="subtotalCotizacionInterna" readonly>
+        </div>
+        <div class="input-group">
+          <label for="ivaCotizacionInterna">IVA</label>
+          <input type="text" id="ivaCotizacionInterna" readonly>
+        </div>
+        <div class="input-group">
+          <label for="totalCotizacionInterna">Total</label>
+          <input type="text" id="totalCotizacionInterna" readonly>
+        </div>
+        <div class="input-group full">
+          <label for="observacionesCotizacionInterna">Notas / observaciones</label>
+          <textarea id="observacionesCotizacionInterna" rows="4" maxlength="2000"></textarea>
+        </div>
+      </div>
+      <div class="modal-actions">
+        <button type="button" class="btn-secondary" id="btnCerrarDatosInternosCotizacion">Cancelar</button>
+        <button data-privacy-submit type="button" class="btn-small" id="btnGuardarDatosInternosCotizacion">Guardar</button>
+      </div>
+    </div>
+  </div>
+
+
+  <div class="modal" id="modalPeticion" role="dialog" aria-modal="true" aria-labelledby="modalPeticionTitulo" aria-hidden="true">
+    <div class="modal-card">
+
+      <div class="modal-header">
+        <div>
+          <h2 id="modalPeticionTitulo">Nueva petición</h2>
+          <p>Captura los datos de la solicitud.</p>
+        </div>
+
+        <button type="button" class="close-btn" aria-label="Cerrar diálogo">×</button>
+      </div>
+
+      <div class="form-grid">
+        <div class="input-group full" id="mensajeCamposTecnico" style="display:none;">
+          <small style="color:var(--muted);display:block;padding:8px 10px;border:1px solid var(--border);border-radius:8px;background:rgba(7,177,188,.08);">
+            Como técnico, el proveedor se dejará vacío, el estatus quedará en Pendiente y la fecha se tomará automáticamente del día de captura.
+          </small>
+        </div>
+
+        <div class="input-group">
+          <label for="unidad">Unidad</label>
+          <input type="text" id="unidad" placeholder="Ej. 2761">
+          <small id="infoUnidadPeticion" class="helper-text"></small>
+        </div>
+
+        <div class="input-group">
+          <label for="solicitante">Quién solicita</label>
+          <input type="text" id="solicitante" placeholder="Nombre del solicitante">
+        </div>
+
+        <div class="input-group">
+          <label for="area">Área</label>
+          <select id="area">
+            <option value="">Selecciona área</option>
+          </select>
+        </div>
+
+        <div class="input-group">
+          <label for="dependencia">Dependencia</label>
+          <input type="text" id="dependencia" placeholder="Se llena con la unidad" readonly>
+        </div>
+
+        <div class="input-group">
+          <label for="proveedor">Proveedor asignado</label>
+          <div style="display:flex;gap:8px;align-items:center;">
+            <select id="proveedor" style="flex:1;min-width:0;">
+              <option value="">Sin proveedor</option>
+            </select>
+            <button type="button" class="btn-small" id="btnAgregarProveedor" style="display:none;">+ Proveedor</button>
+          </div>
+        </div>
+
+        <div class="input-group">
+          <label for="estatus">Estatus</label>
+          <select id="estatus">
+            <option value="Pendiente">Pendiente</option>
+            <option value="Revisado por almacen">Revisado por almacen</option>
+            <option value="En cotización">En cotización</option>
+            <option value="Pedido a proveedor">Pedido a proveedor</option>
+            <option value="Recibido Parcial">Recibido Parcial</option>
+            <option value="Recibido en Almacen">Recibido en Almacen</option>
+            <option value="CANCELADO">CANCELADO</option>
+          </select>
+        </div>
+
+        <div class="input-group">
+          <label for="fechaEstimadaEntrega">Fecha estimada de entrega</label>
+          <input type="date" id="fechaEstimadaEntrega" disabled aria-disabled="true">
+          <small id="ayudaFechaEstimadaEntrega" class="helper-text">Asigna primero un proveedor.</small>
+        </div>
+
+        <div class="input-group">
+          <label for="fecha">Fecha de registro</label>
+          <input type="date" id="fecha" disabled aria-disabled="true" title="La fecha se asigna automáticamente al crear la petición">
+        </div>
+
+        <div class="input-group full">
+          <label for="peticion">Petición</label>
+          <textarea id="peticion" placeholder="Describe la refacción solicitada"></textarea>
+        </div>
+
+        <div class="input-group full">
+          <label for="observaciones">Observaciones</label>
+          <textarea id="observaciones" placeholder="Notas adicionales"></textarea>
+        </div>
+
+      </div>
+
+      <div class="modal-actions">
+        <button type="button" class="btn-secondary">Cancelar</button>
+        <button data-privacy-submit type="button" class="btn-small">Guardar petición</button>
+      </div>
+
+    </div>
+  </div>
+
+  <div class="modal" id="modalProveedor" role="dialog" aria-modal="true" aria-labelledby="modalProveedorTitulo" aria-hidden="true">
+    <div class="modal-card">
+      <div class="modal-header">
+        <div>
+          <h2 id="modalProveedorTitulo">Nuevo proveedor</h2>
+          <p>Alta rápida de proveedores para peticiones.</p>
+        </div>
+        <button type="button" class="close-btn" aria-label="Cerrar diálogo">×</button>
+      </div>
+
+      <div class="form-grid">
+        <div class="input-group full">
+          <label for="nuevoProveedorNombre">Nombre del proveedor</label>
+          <input type="text" id="nuevoProveedorNombre" placeholder="Ej. Proveedora ABC">
+        </div>
+      </div>
+
+      <div class="modal-actions">
+        <button type="button" class="btn-secondary">Cancelar</button>
+        <button data-privacy-submit type="button" class="btn-small">Guardar proveedor</button>
+      </div>
+    </div>
+  </div>
+
+  
+
+</body>
+</html>

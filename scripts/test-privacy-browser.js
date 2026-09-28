@@ -56,19 +56,37 @@ async function run() {
   assert.equal(await evaluate('ETPrivacy.allows("external")'),true);
   await navigate('index.html');
   assert.equal(await evaluate('ETPrivacy.allows("external")'),true);
-  assert.equal(await evaluate('document.querySelector("[data-privacy-accept]").checked'),false);
+  assert.equal(await evaluate('document.querySelector("[data-privacy-accept]")'),null);
   await evaluate('ETPrivacy.configure();document.querySelector("dialog [data-choice=reject]").click()');
   assert.equal(await evaluate('ETPrivacy.allows("external")'),false);
   await evaluate('localStorage.setItem("et_privacy_choices",JSON.stringify({version:ETPrivacy.version,at:Date.now()-181*86400000,external:true}))');
   assert.equal(await evaluate('ETPrivacy.allows("external")'),false);
   await evaluate('localStorage.removeItem("et_privacy_choices")');
+  // Internal forms never require another acceptance, even with empty storage.
+  await evaluate('localStorage.removeItem("et_privacy_policy_accepted")');
+  await navigate('modulos/peticiones.html');
+  assert.equal(await evaluate('document.querySelector("[data-privacy-accept]")'),null);
+  assert.equal(await evaluate(`(() => {
+    const form = document.createElement('form');
+    form.innerHTML = '<input name="registro" value="Nuevo"><button type="submit" data-privacy-submit>Guardar</button>';
+    document.body.append(form);
+    let saves = 0;
+    form.addEventListener('submit', event => { event.preventDefault(); saves++; });
+    form.querySelector('button').click();
+    form.reset();
+    form.querySelector('input').value = 'Modificado';
+    form.querySelector('button').click();
+    form.remove();
+    return saves;
+  })()`),2);
   const reports=[];
   for(const page of pages){
     await navigate(page);
     const report=await evaluate(`(async()=>({
       unlabeled:[...document.querySelectorAll('input:not([type=hidden]),select,textarea')].filter(e=>!e.labels?.length&&!e.hasAttribute('aria-label')&&!e.hasAttribute('aria-labelledby')).map(e=>e.outerHTML),
       checked:[...document.querySelectorAll('[data-privacy-accept]')].filter(e=>e.checked).length,
-      unprotected:[...document.querySelectorAll('[data-privacy-submit]')].filter(e=>!e.closest('[data-privacy-scope]')).map(e=>e.outerHTML),
+      unprotected:[...document.querySelectorAll('[data-privacy-login]')].filter(e=>!e.matches('[data-privacy-scope]')).map(e=>e.outerHTML),
+      repeated:[...document.querySelectorAll('[data-privacy-accept]')].filter(e=>!e.closest('[data-privacy-login]')).length,
       violations:window.axe?(await axe.run(document,{runOnly:{type:'tag',values:['wcag2a','wcag2aa','wcag21aa']}})).violations.map(v=>({id:v.id,nodes:v.nodes.map(n=>({html:n.html,summary:n.failureSummary}))})):[]
     }))()`);
     reports.push({page,...report});
@@ -81,7 +99,7 @@ async function run() {
   const screenshot=await send('Page.captureScreenshot',{format:'png'});
   fs.writeFileSync(path.join(temp,'privacy-mobile.png'),Buffer.from(screenshot.data,'base64'));
   fs.writeFileSync(path.join(temp,'browser-audit.json'),JSON.stringify(reports,null,2));
-  assert.ok(reports.every(r=>!r.unlabeled.length&&!r.checked&&!r.unprotected.length),'Review browser-audit.json');
+  assert.ok(reports.every(r=>!r.unlabeled.length&&!r.checked&&!r.unprotected.length&&!r.repeated),'Review browser-audit.json');
   console.log('Consent blocking, opt-in, withdrawal, expiration, no prechecked forms, and mobile reflow passed.');
   const violations=reports.reduce((n,r)=>n+r.violations.length,0);
   if(violations)throw Error(violations+' accessibility findings; see .tmp-privacy/browser-audit.json');

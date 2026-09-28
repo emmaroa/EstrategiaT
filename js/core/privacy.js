@@ -44,9 +44,11 @@
     document.querySelectorAll('.et-privacy-accept').forEach(block => block.remove());
   }
   function stop(event, scope) {
+    if (!scope?.matches('[data-privacy-login]')) return true;
     if (hasAcceptedPolicy()) return true;
     const checkbox = scope?.querySelector('[data-privacy-accept]');
-    if (!checkbox || checkbox.checked) return true;
+    if (!checkbox) return true;
+    if (checkbox.checked) { acceptPolicy(); return true; }
     event.preventDefault();
     event.stopImmediatePropagation();
     const error = scope.querySelector('[data-privacy-error]');
@@ -59,6 +61,7 @@
     return button.closest('form, .modal-card, .login-card, .card, .panel, .profile-card, section, dialog') || button.parentElement;
   }
   function prepare(scope) {
+    if (!scope?.matches('[data-privacy-login]')) return;
     if (hasAcceptedPolicy()) return;
     if (!scope || scope.closest('[data-privacy-ui]') || scope.dataset.privacyScope) return;
     scope.dataset.privacyScope = 'true';
@@ -66,7 +69,7 @@
     const block = document.createElement('div');
     block.className = 'et-privacy-accept';
     block.innerHTML = '<label for="' + id + '"><input type="checkbox" id="' + id + '" data-privacy-accept required aria-describedby="' + id + 'Note ' + id + 'Error"><span>Acepto la <a target="_blank" rel="noopener" href="' + new URL('privacidad.html', root).href + '">Política de Privacidad<span class="sr-only"> (abre otra pestaña)</span></a>.</span></label>' +
-      '<details><summary>Más información</summary><small id="' + id + 'Note">Esta confirmación no autoriza publicidad, servicios opcionales ni el tratamiento de datos de otras personas sin una base legal.</small></details>' +
+      '<details><summary>Más información</summary><small id="' + id + 'Note">La aceptación se recuerda en este navegador para el uso del sistema, incluida la captura y edición de registros, conforme a la Política de Privacidad. No autoriza publicidad, servicios opcionales ni el tratamiento de datos de otras personas sin una base legal.</small></details>' +
       '<p id="' + id + 'Error" data-privacy-error role="alert" hidden>Lee la Política de Privacidad y marca la casilla antes de continuar.</p>';
     const actions = scope.querySelector('.modal-actions, .profile-actions, .actions-right, .licencias-acciones, .dashboard-customizer-footer');
     if (actions && actions.parentElement) actions.before(block);
@@ -81,8 +84,7 @@
     });
   }
   function prepareForms() {
-    document.querySelectorAll('form:not([data-privacy-ui])').forEach(prepare);
-    document.querySelectorAll('[data-privacy-submit]').forEach(button => prepare(scopeFor(button)));
+    document.querySelectorAll('[data-privacy-login]').forEach(prepare);
   }
   // Capture before native, inline and application handlers. The Enter login path is covered too.
   document.addEventListener('click', event => {
@@ -120,15 +122,7 @@
     document.querySelectorAll('[data-privacy-settings]').forEach(button => button.addEventListener('click', configure));
     document.querySelectorAll('[data-copyright-year]').forEach(el => { el.textContent = new Date().getFullYear(); });
     prepareForms();
-    new MutationObserver(records => {
-      for (const record of records) {
-        if (record.type === 'childList') { prepareForms(); break; }
-        const target = record.target;
-        if ((target.matches('.modal') && !target.classList.contains('show')) || (target.matches('dialog') && !target.open)) {
-          target.querySelectorAll('[data-privacy-accept]').forEach(box => { box.checked = false; });
-        }
-      }
-    }).observe(document.body, { childList: true, subtree: true, attributes: true, attributeFilter: ['class', 'open'] });
+    new MutationObserver(prepareForms).observe(document.body, { childList: true, subtree: true });
     global.addEventListener('storage', event => { if (event.key === KEY || event.key === null) { memory = null; banner.hidden = !!read(); } });
   }
   global.ETPrivacy = { allows, configure, version: VERSION };
