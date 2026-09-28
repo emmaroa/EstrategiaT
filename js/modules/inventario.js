@@ -82,6 +82,9 @@
     $("barPreview").innerHTML = '<svg id="barcodeInventario" aria-label="Código de barras"></svg>';
     const valor = item.codigo_qr || item.codigo;
     new QRCode($("qrPreview"), { text: `INVENTARIO|${valor}`, width: 170, height: 170, correctLevel: QRCode.CorrectLevel.M });
+    $("qrPreview").setAttribute("role", "img");
+    $("qrPreview").setAttribute("aria-label", `Código QR del artículo ${item.codigo}: ${item.nombre}`);
+    $("qrPreview").querySelectorAll("img").forEach(img => { img.alt = ""; });
     JsBarcode("#barcodeInventario", item.codigo_barras || item.codigo, { format: "CODE128", displayValue: true, height: 70, margin: 12 });
     abrir("modalCodigo");
   }

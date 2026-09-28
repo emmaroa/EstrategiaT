@@ -1,0 +1,91 @@
+[
+  {
+    "package": "@supabase/supabase-js",
+    "version": "2.117.2",
+    "license": "MIT",
+    "licenseFile": "-supabase-supabase-js.js.LICENSE",
+    "source": "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2",
+    "file": "-supabase-supabase-js.js",
+    "sha256": "2eebfe06b1b5309985dc1526e8981ea3a18b71beeef83e7f38e04c303e142d6d"
+  },
+  {
+    "package": "chart.js",
+    "version": "4.5.1",
+    "license": "MIT",
+    "licenseFile": "chart.js.js.LICENSE",
+    "source": "https://cdn.jsdelivr.net/npm/chart.js",
+    "file": "chart.js.js",
+    "sha256": "48444a82d4edcb5bec0f1965faacdde18d9c17db3063d042abada2f705c9f54a"
+  },
+  {
+    "package": "qrcodejs",
+    "version": "1.0.0",
+    "licenseFile": "qrcodejs.js.LICENSE",
+    "source": "https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js",
+    "file": "qrcodejs.js",
+    "sha256": "c541ef06327885a8415bca8df6071e14189b4855336def4f36db54bde8484f36"
+  },
+  {
+    "package": "jsbarcode",
+    "version": "3.11.6",
+    "license": "MIT",
+    "licenseFile": "jsbarcode.js.LICENSE",
+    "source": "https://cdn.jsdelivr.net/npm/jsbarcode@3.11.6/dist/JsBarcode.all.min.js",
+    "file": "jsbarcode.js",
+    "sha256": "52e032534c3f98976ad95cb8c20baf80ed0cc83d42590602a8cf1db16e2e22ed"
+  },
+  {
+    "package": "html5-qrcode",
+    "version": "2.3.8",
+    "license": "Apache-2.0",
+    "licenseFile": "html5-qrcode.js.LICENSE",
+    "source": "https://unpkg.com/html5-qrcode",
+    "file": "html5-qrcode.js",
+    "sha256": "660b12437b1d747e3e68b8be0685c08cb728140110ad213f167b14b66f8b1d8e"
+  },
+  {
+    "package": "exceljs",
+    "version": "4.4.0",
+    "license": "MIT",
+    "licenseFile": "exceljs.js.LICENSE",
+    "source": "https://cdn.jsdelivr.net/npm/exceljs/dist/exceljs.min.js",
+    "file": "exceljs.js",
+    "sha256": "7e49da68588e250dbb8bba190d2caa8ab3787cc0284bda1d8b2f805c4df742c9"
+  },
+  {
+    "package": "file-saver",
+    "version": "2.0.5",
+    "license": "MIT",
+    "licenseFile": "file-saver.js.LICENSE",
+    "source": "https://cdn.jsdelivr.net/npm/file-saver/dist/FileSaver.min.js",
+    "file": "file-saver.js",
+    "sha256": "c68874cbaa2fd1650b7d770b328680ea765fb3376023cc3608427fde4f0d0481"
+  },
+  {
+    "package": "pizzip",
+    "version": "3.3.0",
+    "license": "(MIT OR GPL-3.0)",
+    "licenseFile": "pizzip.js.LICENSE",
+    "source": "https://cdn.jsdelivr.net/npm/pizzip/dist/pizzip.min.js",
+    "file": "pizzip.js",
+    "sha256": "9b3239fb8976b004a7bfd327ffe59305344a5cc0273b33328076d0a00ff33efc"
+  },
+  {
+    "package": "docxtemplater",
+    "version": "3.71.0",
+    "license": "MIT",
+    "licenseFile": "docxtemplater.js.LICENSE",
+    "source": "https://cdn.jsdelivr.net/npm/docxtemplater/build/docxtemplater.js",
+    "file": "docxtemplater.js",
+    "sha256": "adb241cdd2403635e14afadd98f3f6bbe9e17223e4626559b62617fc3e31d282"
+  },
+  {
+    "package": "jszip",
+    "version": "3.10.2",
+    "license": "(MIT OR GPL-3.0-or-later)",
+    "licenseFile": "jszip.js.LICENSE",
+    "source": "https://cdn.jsdelivr.net/npm/jszip/dist/jszip.min.js",
+    "file": "jszip.js",
+    "sha256": "7f839b2d4688b845c105ebf5d2f9803075f91ea0fe72bdaac176c3a04dd3d2c1"
+  }
+]

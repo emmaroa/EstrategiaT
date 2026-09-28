@@ -9,10 +9,12 @@
     #tablaCapturaSiif td:nth-child(5) { min-width: 220px; max-width: 420px; white-space: normal; overflow-wrap: anywhere; }
   </style>
   <link rel="stylesheet" href="../css/style.css"><link rel="stylesheet" href="../css/design-system.css?v=20260819-14">
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="../js/vendor/-supabase-supabase-js.js"></script>
   <script src="../js/core/supabase.js"></script><script src="../js/core/permissions.js?v=20260730-1"></script>
   <script src="../js/core/theme.js"></script><script src="../js/core/layout.js?v=20260819-14"></script>
   <script src="../js/core/auth.js?v=20260819-3"></script>
+  <link rel="stylesheet" href="../css/reference-theme.css?v=20260927-1" media="screen">
+<meta name="referrer" content="strict-origin-when-cross-origin"><link rel="stylesheet" href="../css/privacy-accessibility.css?v=20260927-1"><script src="../js/core/privacy.js?v=20260927-1" defer></script><script src="../js/core/accessibility.js?v=20260927-1" defer></script>
 </head>
 <body class="dashboard-body" data-siif-tipo="requisicion">
   <aside class="sidebar"><div class="sidebar-logo"><div class="mini-logo">E</div><div><h3>Administración de Talleres</h3><small id="etModuleName">Requisiciones SIIF</small></div></div><nav id="etNav"></nav><button type="button" class="logout" id="etLogout">Cerrar sesión</button></aside>
@@ -29,8 +31,9 @@
       <div class="table-container"><table><thead id="encabezadoTablaSiif"></thead><tbody id="tablaCapturaSiif"></tbody></table></div>
       <div class="pagination-bar" style="display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;margin-top:16px;"><span id="infoCapturaSiif">Mostrando 0 registros</span><div style="display:flex;gap:8px;align-items:center;"><button type="button" class="btn-secondary" id="btnCapturaAnterior">Anterior</button><span id="paginaCapturaSiif">Página 1 de 1</span><button type="button" class="btn-secondary" id="btnCapturaSiguiente">Siguiente</button></div></div>
     </section>
-  </main>
-  <div class="modal" id="modalCapturaSiif" role="dialog" aria-modal="true" aria-labelledby="tituloModalCapturaSiif" aria-hidden="true"><div class="modal-card large-modal"><div class="modal-header"><div><h2 id="tituloModalCapturaSiif">Nueva requisición</h2><p>Los campos con * son obligatorios.</p></div><button type="button" class="close-btn" onclick="cerrarCapturaSiif()" aria-label="Cerrar">×</button></div><div class="form-grid" id="camposFormularioSiif"></div><div class="modal-actions"><button type="button" class="btn-secondary" onclick="cerrarCapturaSiif()">Cancelar</button><button type="button" class="btn-small" id="btnGuardarRegistroSiif">Guardar</button></div></div></div>
+  <footer class="et-legal-footer"><nav aria-label="Información legal"><a href="../privacidad.html">Privacidad</a><a href="../terminos.html">Términos y condiciones</a><a href="../cookies.html">Cookies y almacenamiento</a><button type="button" data-privacy-settings>Configurar privacidad</button></nav><p>© <span data-copyright-year>2026</span> Ing. Emma Lizbeth Figueroa Cruz. Contenidos propios de EstrategiaT; los materiales de terceros conservan sus derechos y licencias.</p></footer>
+</main>
+  <div class="modal" id="modalCapturaSiif" role="dialog" aria-modal="true" aria-labelledby="tituloModalCapturaSiif" aria-hidden="true"><div class="modal-card large-modal"><div class="modal-header"><div><h2 id="tituloModalCapturaSiif">Nueva requisición</h2><p>Los campos con * son obligatorios.</p></div><button type="button" class="close-btn" onclick="cerrarCapturaSiif()" aria-label="Cerrar">×</button></div><div class="form-grid" id="camposFormularioSiif"></div><div class="modal-actions"><button type="button" class="btn-secondary" onclick="cerrarCapturaSiif()">Cancelar</button><button data-privacy-submit type="button" class="btn-small" id="btnGuardarRegistroSiif">Guardar</button></div></div></div>
   <script src="../js/modules/siif-captura.js?v=20260922-1"></script>
 </body>
 </html>

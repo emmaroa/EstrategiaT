@@ -401,8 +401,6 @@
 
   window.registrarAuditoria = function (modulo, accion, detalle, opciones) {
     const usuarioActivo = obtenerUsuarioActivo();
-    let auditoria = [];
-    try { const guardada = parseJSON(localStorage.getItem("auditoria")); auditoria = Array.isArray(guardada) ? guardada : []; } catch (_) {}
     const extra = opciones || {};
 
     const registro = {
@@ -419,8 +417,7 @@
       }))
     };
 
-    auditoria.unshift(registro);
-    try { localStorage.setItem("auditoria", JSON.stringify(auditoria.slice(0, 200))); } catch (_) {}
+    // Keep the central audit trail; do not duplicate personal records on shared devices.
 
     if (loginSupabaseClient) {
       return loginSupabaseClient.from("auditoria").insert({

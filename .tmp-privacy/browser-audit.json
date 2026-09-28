@@ -1,0 +1,268 @@
+[
+  {
+    "page": "index.html",
+    "unlabeled": [],
+    "checked": 0,
+    "unprotected": [],
+    "violations": []
+  },
+  {
+    "page": "dashboard.html",
+    "unlabeled": [],
+    "checked": 0,
+    "unprotected": [],
+    "violations": [
+      {
+        "id": "color-contrast",
+        "nodes": [
+          {
+            "html": "<p>Requisiciones en inicio de procedimiento</p>",
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 2.81 (foreground color: #9a9a9a, background color: #ffffff, font size: 8.3pt (11px), font weight: normal). Expected contrast ratio of 4.5:1"
+          },
+          {
+            "html": "<div class=\"alert-icon\">OC</div>",
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 2.81 (foreground color: #9a9a9a, background color: #ffffff, font size: 10.5pt (14px), font weight: normal). Expected contrast ratio of 4.5:1"
+          },
+          {
+            "html": "<p>Órdenes de compra pendientes de autorizar</p>",
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 2.81 (foreground color: #9a9a9a, background color: #ffffff, font size: 8.3pt (11px), font weight: normal). Expected contrast ratio of 4.5:1"
+          },
+          {
+            "html": "<div class=\"alert-icon\">SP</div>",
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 2.81 (foreground color: #9a9a9a, background color: #ffffff, font size: 10.5pt (14px), font weight: normal). Expected contrast ratio of 4.5:1"
+          },
+          {
+            "html": "<p>Solicitudes de pago en emitido</p>",
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 2.81 (foreground color: #9a9a9a, background color: #ffffff, font size: 8.3pt (11px), font weight: normal). Expected contrast ratio of 4.5:1"
+          },
+          {
+            "html": "<p>Solicitudes de pago en rechazado</p>",
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 2.81 (foreground color: #9a9a9a, background color: #ffffff, font size: 8.3pt (11px), font weight: normal). Expected contrast ratio of 4.5:1"
+          },
+          {
+            "html": "<p>Solicitudes enviadas</p>",
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 2.81 (foreground color: #9a9a9a, background color: #ffffff, font size: 8.3pt (11px), font weight: normal). Expected contrast ratio of 4.5:1"
+          },
+          {
+            "html": "<p>Peticiones sin proveedor</p>",
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 2.81 (foreground color: #9a9a9a, background color: #ffffff, font size: 8.3pt (11px), font weight: normal). Expected contrast ratio of 4.5:1"
+          },
+          {
+            "html": "<p>Vales sin solventar</p>",
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 2.81 (foreground color: #9a9a9a, background color: #ffffff, font size: 8.3pt (11px), font weight: normal). Expected contrast ratio of 4.5:1"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "page": "buscador-unidades.html",
+    "unlabeled": [],
+    "checked": 0,
+    "unprotected": [],
+    "violations": []
+  },
+  {
+    "page": "privacidad.html",
+    "unlabeled": [],
+    "checked": 0,
+    "unprotected": [],
+    "violations": []
+  },
+  {
+    "page": "terminos.html",
+    "unlabeled": [],
+    "checked": 0,
+    "unprotected": [],
+    "violations": []
+  },
+  {
+    "page": "cookies.html",
+    "unlabeled": [],
+    "checked": 0,
+    "unprotected": [],
+    "violations": []
+  },
+  {
+    "page": "modulos/acuerdos.html",
+    "unlabeled": [],
+    "checked": 0,
+    "unprotected": [],
+    "violations": []
+  },
+  {
+    "page": "modulos/auditoria.html",
+    "unlabeled": [],
+    "checked": 0,
+    "unprotected": [],
+    "violations": []
+  },
+  {
+    "page": "modulos/calendario.html",
+    "unlabeled": [],
+    "checked": 0,
+    "unprotected": [],
+    "violations": []
+  },
+  {
+    "page": "modulos/control-taller.html",
+    "unlabeled": [],
+    "checked": 0,
+    "unprotected": [],
+    "violations": []
+  },
+  {
+    "page": "modulos/empleados.html",
+    "unlabeled": [],
+    "checked": 0,
+    "unprotected": [],
+    "violations": []
+  },
+  {
+    "page": "modulos/generar-textos.html",
+    "unlabeled": [],
+    "checked": 0,
+    "unprotected": [],
+    "violations": []
+  },
+  {
+    "page": "modulos/importar-siif.html",
+    "unlabeled": [],
+    "checked": 0,
+    "unprotected": [],
+    "violations": []
+  },
+  {
+    "page": "modulos/inventario.html",
+    "unlabeled": [],
+    "checked": 0,
+    "unprotected": [],
+    "violations": []
+  },
+  {
+    "page": "modulos/licencias.html",
+    "unlabeled": [],
+    "checked": 0,
+    "unprotected": [],
+    "violations": []
+  },
+  {
+    "page": "modulos/mi-perfil.html",
+    "unlabeled": [],
+    "checked": 0,
+    "unprotected": [],
+    "violations": []
+  },
+  {
+    "page": "modulos/oc-siif.html",
+    "unlabeled": [],
+    "checked": 0,
+    "unprotected": [],
+    "violations": []
+  },
+  {
+    "page": "modulos/ordenes-trabajo.html",
+    "unlabeled": [],
+    "checked": 0,
+    "unprotected": [],
+    "violations": []
+  },
+  {
+    "page": "modulos/parque-vehicular.html",
+    "unlabeled": [],
+    "checked": 0,
+    "unprotected": [],
+    "violations": []
+  },
+  {
+    "page": "modulos/peticiones.html",
+    "unlabeled": [],
+    "checked": 0,
+    "unprotected": [],
+    "violations": []
+  },
+  {
+    "page": "modulos/portal-proveedor.html",
+    "unlabeled": [],
+    "checked": 0,
+    "unprotected": [],
+    "violations": []
+  },
+  {
+    "page": "modulos/proveedores.html",
+    "unlabeled": [],
+    "checked": 0,
+    "unprotected": [],
+    "violations": []
+  },
+  {
+    "page": "modulos/reportes-cotizaciones.html",
+    "unlabeled": [],
+    "checked": 0,
+    "unprotected": [],
+    "violations": []
+  },
+  {
+    "page": "modulos/requis-siif.html",
+    "unlabeled": [],
+    "checked": 0,
+    "unprotected": [],
+    "violations": []
+  },
+  {
+    "page": "modulos/requisiciones.html",
+    "unlabeled": [],
+    "checked": 0,
+    "unprotected": [],
+    "violations": []
+  },
+  {
+    "page": "modulos/seguimiento-peticiones.html",
+    "unlabeled": [],
+    "checked": 0,
+    "unprotected": [],
+    "violations": []
+  },
+  {
+    "page": "modulos/seguimiento-siif.html",
+    "unlabeled": [],
+    "checked": 0,
+    "unprotected": [],
+    "violations": []
+  },
+  {
+    "page": "modulos/sp-siif.html",
+    "unlabeled": [],
+    "checked": 0,
+    "unprotected": [],
+    "violations": []
+  },
+  {
+    "page": "modulos/tiempo-extra.html",
+    "unlabeled": [],
+    "checked": 0,
+    "unprotected": [],
+    "violations": []
+  },
+  {
+    "page": "modulos/tramites-administrativos.html",
+    "unlabeled": [],
+    "checked": 0,
+    "unprotected": [],
+    "violations": []
+  },
+  {
+    "page": "modulos/usuarios.html",
+    "unlabeled": [],
+    "checked": 0,
+    "unprotected": [],
+    "violations": []
+  },
+  {
+    "page": "modulos/vales.html",
+    "unlabeled": [],
+    "checked": 0,
+    "unprotected": [],
+    "violations": []
+  }
+]

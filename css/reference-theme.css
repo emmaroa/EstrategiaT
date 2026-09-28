@@ -1,0 +1,211 @@
+/* DESIGN.md: visual language adapted to the existing working application.
+   Screen only. Table structure, column sizing and print layouts stay intact. */
+:root {
+  --color-signal-white: #ffffff;
+  --color-ink-black: #202020;
+  --color-onyx: #090c1d;
+  --color-brand-violet: #6647f0;
+  --color-signal-blue: #0091ff;
+  --font-sans: Inter, system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-display: "Plus Jakarta Sans", Inter, system-ui, sans-serif;
+  --font-mono: "Sometype Mono", ui-monospace, Consolas, monospace;
+  --radius-sm: 9px;
+  --radius-md: 12px;
+  --radius-lg: 16px;
+  --radius-xl: 20px;
+  --transition-base: 250ms cubic-bezier(.33, 1, .68, 1);
+}
+
+/* The original palette now follows the supplied reference. User palettes remain available. */
+:root:not([data-palette]), :root[data-palette="original"] {
+  --color-primary: #202020;
+  --color-primary-hover: #2a2a2a;
+  --color-primary-soft: rgba(32, 32, 32, .06);
+  --color-secondary: #646464;
+  --color-accent: #6647f0;
+  --color-teal: #0072c9;
+  --color-teal-dark: #005a9e;
+  --color-info: #0072c9;
+  --gradient-brand: linear-gradient(#6647f0, #6647f0);
+  --gradient-warm: linear-gradient(#202020, #202020);
+  --shadow-focus: 0 0 0 4px rgba(0, 145, 255, .16);
+}
+
+:root:not([data-theme="dark"]) {
+  color-scheme: light;
+  --bg-body: #ffffff;
+  --bg-surface: #ffffff;
+  --bg-card: #ffffff;
+  --bg-card-hover: #f8f9fa;
+  --border-subtle: #e8e8e8;
+  --text-primary: #202020;
+  --text-secondary: #646464;
+  --text-muted: #646464;
+  --shadow-card: 0 1px 3px rgba(0, 0, 0, .04);
+  --shadow-sm: 0 1px 3px rgba(0, 0, 0, .04);
+  --shadow-md: 0 4px 16px rgba(0, 0, 0, .06);
+  --shadow-lg: 0 12px 40px rgba(0, 0, 0, .12);
+  --heading-color: #090c1d;
+  --brand-soft: #f0edff;
+  --brand-text: #6647f0;
+}
+
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --bg-body: #151515;
+  --bg-surface: #202020;
+  --bg-card: #202020;
+  --bg-card-hover: #2a2a2a;
+  --border-subtle: #3c3c3c;
+  --text-primary: #f8f9fa;
+  --text-secondary: #d4d4d4;
+  --text-muted: #b3b3b3;
+  --heading-color: #ffffff;
+  --brand-soft: #30284b;
+  --brand-text: #c4b5fd;
+  --shadow-card: none;
+  --shadow-sm: none;
+  --shadow-md: 0 4px 16px rgba(0, 0, 0, .16);
+}
+
+:root {
+  --card-bg: var(--bg-card);
+  --input-bg: var(--bg-surface);
+  --border-color: var(--border-subtle);
+  --text-color: var(--text-primary);
+  --muted-color: var(--text-muted);
+  --muted-text: var(--text-muted);
+  --bg: var(--bg-body);
+  --text: var(--text-primary);
+  --muted: var(--text-muted);
+  --border: var(--border-subtle);
+  --primary: var(--color-primary);
+  --primary-2: var(--color-secondary);
+  --teal: var(--color-teal);
+  --surface-raised: var(--bg-card);
+  --surface-hover: var(--bg-card-hover);
+  --surface-border: var(--border-subtle);
+  --content-primary: var(--text-primary);
+  --content-secondary: var(--text-secondary);
+  --content-muted: var(--text-muted);
+}
+
+body, body.dashboard-body { background: var(--bg-body); color: var(--text-primary); }
+body, body * { font-family: var(--font-sans); }
+body :is(h1, h2, h3, h4) { font-family: var(--font-display); color: var(--heading-color); }
+body h1 { font-weight: 800; letter-spacing: -.04em; }
+body :is(.et-module-header, .dashboard-hero) {
+  background: var(--bg-surface);
+  border: 1px solid var(--border-subtle);
+  border-radius: 20px;
+  box-shadow: none;
+  padding: clamp(20px, 3vw, 32px);
+}
+body :is(.et-module-header, .dashboard-hero)::after { content: none; }
+body :is(.et-module-header, .dashboard-hero) h1 { font-size: clamp(28px, 3.2vw, 44px); line-height: 1.15; }
+body :is(.et-module-eyebrow, .dashboard-eyebrow, .dashboard-section-kicker, .et-nav-group-title) {
+  font-family: var(--font-mono);
+  font-weight: 500;
+  letter-spacing: .08em;
+  color: var(--text-muted);
+}
+body :is(.panel, .chart-card, .module-card, .kpi-card, .login-card) {
+  background: var(--bg-card);
+  border-color: var(--border-subtle);
+  border-radius: 12px;
+  box-shadow: var(--shadow-card);
+}
+body :is(.panel, .chart-card, .module-card, .kpi-card):hover { box-shadow: var(--shadow-card); }
+body .kpi-card { border-top-color: var(--border-subtle); }
+body .kpi-card > span:not(.dashboard-kpi-icon) { color: var(--text-secondary); }
+body .kpi-card h2 { color: var(--heading-color); font-size: clamp(28px, 3vw, 40px); letter-spacing: -.04em; }
+body .dashboard-kpi-card.financial .dashboard-kpi-icon { background: var(--brand-soft); color: var(--brand-text) !important; }
+:root:not([data-theme="dark"]) .dashboard-kpi-card.priority .dashboard-kpi-icon { color: #92400e !important; }
+:root:not([data-theme="dark"]) .dashboard-kpi-card.positive .dashboard-kpi-icon { color: #166534 !important; }
+body .sidebar.et-sidebar {
+  --content-primary: var(--text-primary);
+  --content-secondary: var(--text-secondary);
+  --content-muted: var(--text-muted);
+  --surface-raised: var(--bg-card);
+  --surface-hover: var(--bg-card-hover);
+  --surface-border: var(--border-subtle);
+  background: var(--bg-surface);
+  box-shadow: none;
+}
+body .et-sidebar .nav-item { border-radius: 9999px; }
+body .et-sidebar .nav-item.active {
+  background: var(--brand-soft);
+  color: var(--brand-text);
+  border-color: transparent;
+  box-shadow: none;
+}
+body :is(.logo, .mini-logo) { background: var(--color-brand-violet); color: #fff; }
+body .et-profile-avatar:not(.has-photo) { background: var(--color-brand-violet); color: #fff; }
+body .et-profile-avatar { border-radius: 9999px; }
+
+body :is(.btn, .btn-small, .btn-primary, .btn-secondary, .btn-danger, .btn-light,
+  .collapse-toggle, .topbar-logout, .action-btn, .dashboard-action-button, .portal-action-button) {
+  border-radius: 9999px;
+  font-weight: 700;
+}
+body :is(.btn, .btn-small, .btn-primary) {
+  background: #202020;
+  color: #ffffff;
+  border: 1px solid #202020;
+  box-shadow: none;
+}
+body :is(.btn, .btn-small, .btn-primary):hover { background: #2a2a2a; box-shadow: none; }
+body :is(.btn-secondary, .btn-light, .collapse-toggle) {
+  background: var(--bg-surface);
+  color: var(--text-primary);
+  border: 1px solid var(--border-subtle);
+  box-shadow: none;
+}
+body :is(.btn-secondary, .btn-light, .collapse-toggle):hover {
+  background: var(--bg-card-hover);
+  border-color: var(--color-signal-blue);
+}
+:root:not([data-theme="dark"]) :is(.btn-danger, .topbar-logout) { color: #b91c1c; }
+:root[data-theme="dark"] :is(.btn, .btn-small, .btn-primary) { border-color: #646464; }
+body :is(.badge, .status-badge, .et-status-chip, .tags span, .dashboard-hero-meta span) { border-radius: 9999px; }
+body :is(.input-group, .form-group, .filters) :is(input, select, textarea),
+body :is(input.form-control, select.form-control, textarea.form-control) {
+  background: var(--input-bg);
+  color: var(--text-primary);
+  border: 1px solid var(--border-subtle);
+  border-radius: 9px;
+}
+body :is(.input-group, .form-group) label { color: var(--text-secondary); }
+body :is(input, select, textarea):focus {
+  border-color: var(--color-signal-blue);
+  box-shadow: var(--shadow-focus);
+}
+body :focus-visible { outline: 2px solid var(--color-signal-blue); outline-offset: 3px; }
+body ::selection { background: #dcd4ff; color: #202020; }
+
+/* Paint only: keep every column, row, action and existing responsive behavior. */
+body table th { background: var(--bg-card-hover); color: var(--text-primary); border-color: var(--border-subtle); }
+body table td { border-color: var(--border-subtle); }
+body .table-container { border-color: var(--border-subtle); border-radius: 12px; }
+
+/* Login uses the reference's dark feature panel, without stock photography. */
+body .left-panel { background: #202020; }
+body .brand-box h1 { color: #fff; font-size: clamp(36px, 4vw, 60px); }
+body .brand-box p { color: #d4d4d4; }
+body .right-panel { background: var(--bg-body); }
+body .login-card { border-radius: 20px; }
+body .login-card p, body .extra { color: var(--text-secondary); }
+body .extra .status { color: var(--color-teal); }
+body .tags span { background: #2a2a2a; border-color: #646464; color: #fff; }
+
+@media (max-width: 820px) {
+  body.et-layout-ready .main-content { width: 100%; min-width: 0; max-width: 100%; }
+  body .et-module-header { min-width: 0; max-width: 100%; }
+  body .et-module-header > div { min-width: 0; max-width: 100%; }
+  body .et-header-actions { flex-wrap: wrap; gap: 8px; }
+  body .et-header-actions > * { min-width: 0; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  body *, body *::before, body *::after { scroll-behavior: auto !important; transition: none !important; }
+}

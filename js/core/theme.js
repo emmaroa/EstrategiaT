@@ -55,7 +55,7 @@
   }
 
   function getTheme() {
-    const value = localStorage.getItem(STORAGE_KEY + "_" + getActiveUserId()) || localStorage.getItem(STORAGE_KEY) || "dark";
+    const value = localStorage.getItem(STORAGE_KEY + "_" + getActiveUserId()) || localStorage.getItem(STORAGE_KEY) || "light";
     return value === "light" ? "light" : "dark";
   }
 

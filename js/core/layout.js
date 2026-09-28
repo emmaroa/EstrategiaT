@@ -2334,6 +2334,7 @@
     if (config.options && config.options.length) {
       control = document.createElement("select");
       control.className = "et-feedback-select";
+      control.setAttribute("aria-label", config.label || config.title || "Selecciona una opción");
       config.options.forEach(function (opcion) {
         const option = document.createElement("option");
         option.value = typeof opcion === "string" ? opcion : opcion.value;
@@ -2345,6 +2346,7 @@
     } else if (config.input) {
       control = document.createElement("input");
       control.className = "et-feedback-input";
+      control.setAttribute("aria-label", config.label || config.placeholder || config.title || "Respuesta");
       control.type = config.inputType === "password" ? "password" : "text";
       if (control.type === "password") {
         control.autocomplete = "current-password";

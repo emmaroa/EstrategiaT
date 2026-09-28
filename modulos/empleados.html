@@ -6,13 +6,15 @@
   <title>Administración de Talleres | Empleados</title>
   <link rel="stylesheet" href="../css/style.css">
   <link rel="stylesheet" href="../css/design-system.css?v=20260819-14">
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="../js/vendor/-supabase-supabase-js.js"></script>
   <script src="../js/core/supabase.js"></script>
   <script src="../js/core/permissions.js"></script>
   <script src="../js/core/theme.js"></script>
   <script src="../js/core/layout.js?v=20260819-14"></script>
   <script src="../js/services/tramites-administrativos.service.js"></script>
   <script src="../js/core/auth.js?v=20260819-3"></script>
+  <link rel="stylesheet" href="../css/reference-theme.css?v=20260927-1" media="screen">
+<meta name="referrer" content="strict-origin-when-cross-origin"><link rel="stylesheet" href="../css/privacy-accessibility.css?v=20260927-1"><script src="../js/core/privacy.js?v=20260927-1" defer></script><script src="../js/core/accessibility.js?v=20260927-1" defer></script>
 </head>
 <body class="dashboard-body">
 
@@ -97,7 +99,8 @@
         </table>
       </div>
     </section>
-  </main>
+  <footer class="et-legal-footer"><nav aria-label="Información legal"><a href="../privacidad.html">Privacidad</a><a href="../terminos.html">Términos y condiciones</a><a href="../cookies.html">Cookies y almacenamiento</a><button type="button" data-privacy-settings>Configurar privacidad</button></nav><p>© <span data-copyright-year>2026</span> Ing. Emma Lizbeth Figueroa Cruz. Contenidos propios de EstrategiaT; los materiales de terceros conservan sus derechos y licencias.</p></footer>
+</main>
 
   <div class="modal" id="modalEditarEmpleado" role="dialog" aria-modal="true" aria-labelledby="tituloEditarEmpleado" aria-hidden="true">
     <div class="modal-card">
@@ -119,7 +122,7 @@
           <input type="text" id="editarNombreEmpleado" required>
         </div>
         <div class="input-group">
-          <label for="editarFechaNacimiento">Fecha de nacimiento</label>
+          <label for="editarFechaNacimiento">Fecha de nacimiento (opcional)</label>
           <input type="date" id="editarFechaNacimiento">
         </div>
         <div class="input-group">
@@ -145,7 +148,7 @@
 
       <div class="modal-actions">
         <button type="button" class="btn-secondary" onclick="cerrarModalEmpleado()">Cancelar</button>
-        <button type="button" class="btn-small" id="btnGuardarEdicionEmpleado" onclick="ETLoading.ejecutar(this, guardarEmpleado)">Guardar cambios</button>
+        <button data-privacy-submit type="button" class="btn-small" id="btnGuardarEdicionEmpleado" onclick="ETLoading.ejecutar(this, guardarEmpleado)">Guardar cambios</button>
       </div>
     </div>
   </div>

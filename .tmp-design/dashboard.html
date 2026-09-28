@@ -1,0 +1,519 @@
+﻿<!DOCTYPE html>
+<html lang="es" data-theme="light">
+<head><base href="../">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>Administración de Talleres | Dashboard</title>
+
+  <link rel="stylesheet" href="css/style.css?v=20260730-1">
+  <link rel="stylesheet" href="css/design-system.css?v=20260819-14">
+  <link rel="stylesheet" href="css/dashboard.css?v=20260819-4">
+  <link rel="stylesheet" href="css/mobile-app.css">
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  <link rel="stylesheet" href="css/reference-theme.css?v=20260927-1" media="screen">
+</head>
+
+<body class="dashboard-body">
+
+  <aside class="sidebar">
+    <div class="sidebar-logo">
+      <div class="mini-logo">E</div>
+      <div>
+        <h3>Administración de Talleres</h3>
+        <small id="etModuleName">Dashboard</small>
+      </div>
+    </div>
+
+    <nav id="etNav"></nav>
+
+    <button class="logout" id="etLogout">Cerrar sesión</button>
+  </aside>
+
+  <main class="main-content">
+
+    <header class="topbar dashboard-hero">
+      <div class="dashboard-hero-copy">
+        <span class="dashboard-eyebrow">Centro de control</span>
+        <h1 id="saludoDashboard">Dashboard</h1>
+        <p id="bienvenida">Bienvenido al sistema</p>
+        <div class="dashboard-hero-meta">
+          <span id="fechaDashboard"></span>
+          <span id="ultimaActualizacion" aria-live="polite">Preparando información…</span>
+        </div>
+      </div>
+
+      <div class="dashboard-hero-side">
+        <div class="dashboard-attention" id="resumenAtencion" aria-live="polite" tabindex="0" aria-describedby="detalleResumenAtencion">
+          <span class="dashboard-attention-dot"></span>
+          Calculando pendientes…
+          <div class="dashboard-attention-tooltip" id="detalleResumenAtencion" role="tooltip">
+            <strong>Resumen de pendientes</strong>
+            <div id="listaResumenAtencion">Calculando desglose…</div>
+          </div>
+        </div>
+        <div class="dashboard-actions" aria-label="Acciones del dashboard">
+          <button type="button" class="btn-small dashboard-unit-search-button" onclick="abrirVentanaBuscadorUnidades()">Buscar unidad</button>
+          <button type="button" class="btn-secondary dashboard-action-button" onclick="exportarDashboardCSV()">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v12m0 0 5-5m-5 5-5-5"/><path d="M5 20h14"/></svg>
+            <span>Exportar Excel</span>
+          </button>
+          <button type="button" class="btn-secondary dashboard-action-button" onclick="imprimirDashboard()">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 9V3h12v6"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><path d="M6 14h12v7H6Z"/></svg>
+            <span>Imprimir / PDF</span>
+          </button>
+          <span id="etTemaContainer"></span>
+          <details class="dashboard-user-menu">
+            <summary aria-label="Abrir menú de usuario">
+              <span class="user-badge" id="rolUsuario"></span>
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m7 10 5 5 5-5"/></svg>
+            </summary>
+            <div class="dashboard-user-menu-popover">
+              <span>Cuenta activa</span>
+              <a href="modulos/mi-perfil.html">Personalizar experiencia</a>
+              <button type="button" onclick="cerrarSesion()">Cerrar sesión</button>
+            </div>
+          </details>
+        </div>
+      </div>
+    </header>
+
+    <section class="dashboard-command-bar" aria-label="Filtros y accesos rápidos">
+      <div class="dashboard-command-copy">
+        <strong>Resumen operativo</strong>
+        <span>Filtra la información sin perder el contexto.</span>
+      </div>
+      <div class="filter-bar dashboard-filter-group" aria-label="Filtros del dashboard">
+        <label>
+          Año
+          <select id="filtroAnioDashboard" class="dashboard-select" aria-label="Filtrar por año">
+            <option value="">Todos</option>
+          </select>
+        </label>
+        <label>
+          Desde
+          <input type="date" id="filtroDesde" class="dashboard-select" aria-label="Fecha desde">
+        </label>
+        <label>
+          Hasta
+          <input type="date" id="filtroHasta" class="dashboard-select" aria-label="Fecha hasta">
+        </label>
+        <button type="button" class="dashboard-clear-filters" id="limpiarFiltrosDashboard">Limpiar</button>
+      </div>
+    </section>
+
+    <div class="dashboard-section-heading">
+      <div>
+        <span class="dashboard-section-kicker">Resumen</span>
+        <h2>Estado general y pendientes</h2>
+      </div>
+      <div class="dashboard-section-actions">
+        <p>Selecciona una tarjeta para abrir el módulo relacionado.</p>
+        <button type="button" class="btn-secondary dashboard-customize-button" id="personalizarDashboard">
+          <span aria-hidden="true">⚙</span> Personalizar dashboard
+        </button>
+      </div>
+    </div>
+
+    <section class="dashboard-kpi-groups" aria-label="Indicadores generales">
+      <article class="dashboard-kpi-group dashboard-kpi-group-financial">
+        <div class="dashboard-kpi-group-heading"><span>Finanzas</span><small>Gasto del periodo</small></div>
+        <div class="dashboard-kpi-group-grid">
+      <div class="kpi-card highlight-teal dashboard-kpi-card financial" id="kpiCostoAnualCard">
+        <span class="dashboard-kpi-icon" aria-hidden="true">$</span>
+        <span>Costo total anual</span>
+        <h2 id="kpiCostoAnual">$0</h2>
+        <p id="kpiCostoAnualDesc">Año en curso</p>
+      </div>
+      <div class="kpi-card highlight dashboard-kpi-card financial" id="kpiCostoMensualCard">
+        <span class="dashboard-kpi-icon" aria-hidden="true">↗</span>
+        <span>Costo mensual</span>
+        <h2 id="kpiCostoMensual">$0</h2>
+        <p id="kpiCostoMensualDesc">Mes en curso</p>
+      </div>
+        </div>
+      </article>
+      <article class="dashboard-kpi-group" id="grupoKpiCotizacionesSinRequisicion">
+        <div class="dashboard-kpi-group-heading"><span>Cotizaciones</span><small>Pendientes de vincular</small></div>
+        <div class="dashboard-kpi-group-grid">
+      <div class="kpi-card dashboard-kpi-card dashboard-link-card priority" data-href="modulos/peticiones.html?vista=cotizaciones" role="link" tabindex="0">
+        <span class="dashboard-kpi-icon" aria-hidden="true">C</span>
+        <span>Número total sin requisición</span>
+        <h2 id="kpiDashboardCotizacionesSinRequisicion">0</h2>
+        <p>Cotizaciones pendientes de vincular</p>
+      </div>
+      <div class="kpi-card dashboard-kpi-card dashboard-link-card financial" data-href="modulos/peticiones.html?vista=cotizaciones" role="link" tabindex="0">
+        <span class="dashboard-kpi-icon" aria-hidden="true">$</span>
+        <span>Monto total sin requisición</span>
+        <h2 id="kpiDashboardMontoSinRequisicion">$0</h2>
+        <p>Importe pendiente de vincular</p>
+      </div>
+        </div>
+      </article>
+      <article class="dashboard-kpi-group">
+        <div class="dashboard-kpi-group-heading"><span>Peticiones</span><small>Atención de solicitudes</small></div>
+        <div class="dashboard-kpi-group-grid">
+      <div class="kpi-card dashboard-kpi-card dashboard-link-card priority" data-module="Peticiones" data-href="modulos/peticiones.html" role="link" tabindex="0">
+        <span class="dashboard-kpi-icon" aria-hidden="true">P</span>
+        <span>Peticiones pendientes</span>
+        <h2 id="kpiPeticiones">0</h2>
+        <p>Sin atender</p>
+      </div>
+      <div class="kpi-card dashboard-kpi-card dashboard-link-card priority" data-module="Peticiones" data-href="modulos/peticiones.html" role="link" tabindex="0">
+        <span class="dashboard-kpi-icon" aria-hidden="true">PR</span>
+        <span>Pendientes de asignar proveedor</span>
+        <h2 id="kpiPeticionesPendienteProveedor">0</h2>
+        <p>Revisadas por almacén</p>
+      </div>
+        </div>
+      </article>
+      <article class="dashboard-kpi-group" id="grupoKpiAcuerdos">
+        <div class="dashboard-kpi-group-heading"><span>Tickets de trabajo</span><small>Tareas asignadas y seguimiento</small></div>
+        <div class="dashboard-kpi-group-grid">
+      <div class="kpi-card dashboard-kpi-card dashboard-link-card priority" data-module="Acuerdos" data-href="modulos/acuerdos.html" role="link" tabindex="0">
+        <span class="dashboard-kpi-icon" aria-hidden="true">A</span>
+        <span>Tickets abiertos</span>
+        <h2 id="kpiAcuerdosPendientes">0</h2>
+        <p>Trabajos por terminar</p>
+      </div>
+      <div class="kpi-card dashboard-kpi-card dashboard-link-card priority" data-module="Acuerdos" data-href="modulos/acuerdos.html?estado=Para%20revisi%C3%B3n" role="link" tabindex="0">
+        <span class="dashboard-kpi-icon" aria-hidden="true">AR</span>
+        <span>Tickets en revisión</span>
+        <h2 id="kpiAcuerdosRevision">0</h2>
+        <p>Esperando validación</p>
+      </div>
+        </div>
+      </article>
+      <article class="dashboard-kpi-group dashboard-kpi-group-wide">
+        <div class="dashboard-kpi-group-heading"><span>Requisiciones y operación</span><small>Seguimiento administrativo</small></div>
+        <div class="dashboard-kpi-group-grid">
+      <div class="kpi-card dashboard-kpi-card dashboard-link-card" data-module="Seguimiento SIIF" data-href="modulos/seguimiento-siif.html" role="link" tabindex="0">
+        <span class="dashboard-kpi-icon" aria-hidden="true">R</span>
+        <span>Requisiciones abiertas</span>
+        <h2 id="kpiRequisiciones">0</h2>
+        <p>Sin cerrar</p>
+      </div>
+      <div class="kpi-card dashboard-kpi-card dashboard-link-card priority" data-module="Seguimiento SIIF" data-href="modulos/seguimiento-siif.html" role="link" tabindex="0">
+        <span class="dashboard-kpi-icon" aria-hidden="true">!</span>
+        <span>Requisiciones por autorizar</span>
+        <h2 id="kpiRequisicionesAutorizar">0</h2>
+        <p>Por revisar</p>
+      </div>
+      <div class="kpi-card dashboard-kpi-card dashboard-link-card positive" data-module="Seguimiento SIIF" data-href="modulos/seguimiento-siif.html" role="link" tabindex="0">
+        <span class="dashboard-kpi-icon" aria-hidden="true">✓</span>
+        <span>Con solicitud de pago</span>
+        <h2 id="kpiRequisicionesXml">0</h2>
+        <p>Trámite registrado en SP SIIF</p>
+      </div>
+      <div class="kpi-card dashboard-kpi-card dashboard-link-card" data-module="Vales" data-href="modulos/vales.html" role="link" tabindex="0">
+        <span class="dashboard-kpi-icon" aria-hidden="true">V</span>
+        <span id="labelKpiVales">Vales emitidos</span>
+        <h2 id="kpiValesEmitidos">0</h2>
+        <p id="kpiValesEmitidosDesc">Del periodo</p>
+      </div>
+        </div>
+      </article>
+      <article class="dashboard-kpi-group">
+        <div class="dashboard-kpi-group-heading"><span>Personal</span><small>Disponibilidad del equipo</small></div>
+        <div class="dashboard-kpi-group-grid">
+      <div class="kpi-card highlight-teal dashboard-kpi-card dashboard-link-card" data-module="Tramites Administrativos" data-indicador-personal="true" data-href="modulos/empleados.html" role="link" tabindex="0">
+        <span class="dashboard-kpi-icon" aria-hidden="true">C</span>
+        <span>Cumpleaños de la semana</span>
+        <h2 id="kpiCumpleanosHoy" class="et-kpi-text-value">Nadie</h2>
+        <p>Hoy y próximos 6 días</p>
+      </div>
+      <div class="kpi-card highlight dashboard-kpi-card dashboard-link-card priority kpi-ausentes-card" id="kpiAusentesCard" data-module="Tramites Administrativos" data-indicador-personal="true" data-href="modulos/tramites-administrativos.html" role="link" tabindex="0" aria-describedby="detalleAusentesHoy">
+        <span class="dashboard-kpi-icon" aria-hidden="true">A</span>
+        <span>Empleados ausentes hoy</span>
+        <h2 id="kpiAusentesHoy">0</h2>
+        <p>Permiso, vacaciones o incapacidad</p>
+        <div class="kpi-ausentes-tooltip" id="detalleAusentesHoy" role="tooltip">
+          <strong>Ausencias de hoy</strong>
+          <div id="listaAusentesHoy">No hay empleados ausentes.</div>
+        </div>
+      </div>
+        </div>
+      </article>
+    </section>
+
+    <dialog class="dashboard-customizer" id="dashboardCustomizer" aria-labelledby="dashboardCustomizerTitle">
+      <form method="dialog" class="dashboard-customizer-card">
+        <div class="dashboard-customizer-header">
+          <div>
+            <span class="dashboard-section-kicker">Tu espacio de trabajo</span>
+            <h2 id="dashboardCustomizerTitle">Elige qué quieres ver</h2>
+            <p>Los cambios se guardan para tu usuario en este dispositivo.</p>
+          </div>
+          <button type="submit" class="dashboard-customizer-close" aria-label="Cerrar">×</button>
+        </div>
+        <div class="dashboard-customizer-tools">
+          <button type="button" id="seleccionarKpisPrioritarios">Solo prioritarios</button>
+          <button type="button" id="seleccionarTodosKpisDashboard">Mostrar todos</button>
+          <button type="button" id="ocultarTodosKpisDashboard">Ocultar todos</button>
+        </div>
+        <h3 class="dashboard-customizer-section-title">Indicadores KPI</h3>
+        <label for="buscarKpisDashboard">Buscar indicador o grupo</label>
+        <input type="search" id="buscarKpisDashboard" placeholder="Ej. cotizaciones, personal, parque…">
+        <div class="dashboard-customizer-list" id="dashboardCustomizerList"></div>
+        <h3 class="dashboard-customizer-section-title">Paneles, gráficas y tablas</h3>
+        <div class="dashboard-customizer-list" id="dashboardWidgetsCustomizerList"></div>
+        <h3 class="dashboard-customizer-section-title">Paleta de colores del sistema</h3>
+        <div class="dashboard-palette-list" id="dashboardPaletteList" role="radiogroup" aria-label="Paleta de colores"></div>
+        <div class="dashboard-custom-colors" id="dashboardCustomColors">
+          <label>Color principal<input type="color" id="dashboardColorPrimary" value="#fc712b"></label>
+          <label>Color secundario<input type="color" id="dashboardColorSecondary" value="#fd9319"></label>
+          <label>Color de acento<input type="color" id="dashboardColorTeal" value="#07b1bc"></label>
+        </div>
+        <p>Elegir un color activa la paleta Personalizada. Guarda la vista para aplicarla a la plataforma.</p>
+        <label for="dashboardTheme">Apariencia</label>
+        <select id="dashboardTheme"><option value="dark">Oscura</option><option value="light">Clara</option></select>
+        <div class="dashboard-customizer-footer">
+          <span id="dashboardCustomizerCount" aria-live="polite"></span>
+          <div>
+            <button type="button" class="btn-secondary" id="cancelarPersonalizacionDashboard">Cancelar</button>
+            <button type="button" class="btn-small" id="guardarPersonalizacionDashboard">Guardar vista</button>
+          </div>
+        </div>
+      </form>
+    </dialog>
+
+    <section class="dashboard-action-grid" id="seccionAccionesRapidas" data-dashboard-widget="quick-actions" data-dashboard-title="Acciones frecuentes" data-dashboard-kind="Panel">
+    <article class="panel dashboard-quick-panel">
+      <div class="panel-header">
+        <div>
+          <span class="dashboard-section-kicker">Atajos</span>
+          <h2>Acciones frecuentes</h2>
+          <p>Accede rápidamente a las herramientas permitidas para tu rol.</p>
+        </div>
+      </div>
+      <div class="dashboard-quick-actions" id="dashboardQuickActions"></div>
+    </article>
+    </section>
+
+    <section class="dashboard-priority-grid" id="dashboardPriorityGrid" data-dashboard-widget="alerts" data-dashboard-title="Alertas del sistema" data-dashboard-kind="Panel">
+    <section class="panel collapsible-panel is-open" id="dashboardAlertsPanel" data-collapsible>
+      <div class="panel-header">
+        <div>
+          <h2>Alertas del sistema</h2>
+          <p>Seguimiento rápido de pendientes y situaciones importantes.</p>
+        </div>
+        <button type="button" class="collapse-toggle" aria-expanded="true">Ocultar</button>
+      </div>
+
+      <div class="panel-content">
+      <div class="alerts-grid">
+        <div class="alert-card amber dashboard-link-card" data-module="Seguimiento SIIF" data-href="modulos/seguimiento-siif.html" role="link" tabindex="0">
+          <div class="alert-icon">⚠️</div>
+          <div>
+            <h3 id="alertReqInicioProcedimiento">0</h3>
+            <p>Requisiciones en inicio de procedimiento</p>
+          </div>
+        </div>
+
+        <div class="alert-card amber dashboard-link-card" data-module="Seguimiento SIIF" data-href="modulos/seguimiento-siif.html" role="link" tabindex="0">
+          <div class="alert-icon">OC</div>
+          <div>
+            <h3 id="alertOcPendientesAutorizar">0</h3>
+            <p>Órdenes de compra pendientes de autorizar</p>
+          </div>
+        </div>
+
+        <div class="alert-card amber dashboard-link-card" data-module="Seguimiento SIIF" data-href="modulos/seguimiento-siif.html" role="link" tabindex="0">
+          <div class="alert-icon">SP</div>
+          <div>
+            <h3 id="alertSpEmitidas">0</h3>
+            <p>Solicitudes de pago en emitido</p>
+          </div>
+        </div>
+
+        <div class="alert-card red dashboard-link-card" data-module="Seguimiento SIIF" data-href="modulos/seguimiento-siif.html" role="link" tabindex="0">
+          <div class="alert-icon">!</div>
+          <div>
+            <h3 id="alertSpRechazadas">0</h3>
+            <p>Solicitudes de pago en rechazado</p>
+          </div>
+        </div>
+
+        <div class="alert-card blue dashboard-link-card" data-module="Seguimiento SIIF" data-href="modulos/seguimiento-siif.html" role="link" tabindex="0">
+          <div class="alert-icon">→</div>
+          <div>
+            <h3 id="alertSpEnviadas">0</h3>
+            <p>Solicitudes enviadas</p>
+          </div>
+        </div>
+
+        <div class="alert-card amber dashboard-link-card" data-module="Peticiones" data-href="modulos/peticiones.html" role="link" tabindex="0">
+          <div class="alert-icon">?</div>
+          <div>
+            <h3 id="alertPeticionesSinProveedor">0</h3>
+            <p>Peticiones sin proveedor</p>
+          </div>
+        </div>
+
+        <div class="alert-card blue dashboard-link-card" data-module="Vales" data-href="modulos/vales.html" role="link" tabindex="0">
+          <div class="alert-icon">V</div>
+          <div>
+            <h3 id="alertValesSinSolventar">0</h3>
+            <p>Vales sin solventar</p>
+          </div>
+        </div>
+      </div>
+      </div>
+    </section>
+
+    </section>
+
+    <div class="dashboard-section-heading dashboard-analysis-heading" id="seccionAnalisisHeading">
+      <div>
+        <span class="dashboard-section-kicker">Análisis</span>
+        <h2>Explora tendencias y detalle</h2>
+      </div>
+      <p>Estas secciones inician contraídas para mantener el foco en la operación.</p>
+    </div>
+
+<section class="panel collapsible-panel is-collapsed" id="seccionGraficasOperativas" data-collapsible data-dashboard-widget="operational-charts" data-dashboard-title="Gráficas operativas" data-dashboard-kind="Gráficas">
+  <div class="panel-header">
+    <div>
+      <h2>Gráficas operativas</h2>
+      <p>Resumen visual del comportamiento del sistema.</p>
+      <span class="dashboard-panel-summary" id="resumenGraficasOperativas">Preparando resumen…</span>
+    </div>
+    <button type="button" class="collapse-toggle" aria-expanded="true">Ocultar</button>
+  </div>
+
+  <div class="panel-content">
+  <div class="charts-grid">
+
+  <div class="chart-card">
+    <h3>Gasto por mes</h3>
+    <canvas id="graficaGastoMes"></canvas>
+  </div>
+
+  <div class="chart-card">
+    <h3>Gasto por dependencia</h3>
+    <canvas id="graficaGastoDependencia"></canvas>
+  </div>
+
+  <div class="chart-card">
+    <h3>Total por proveedor</h3>
+    <canvas id="graficaProveedor"></canvas>
+  </div>
+
+  <div class="chart-card">
+    <h3>Unidades con más gasto</h3>
+    <canvas id="graficaUnidadesGasto"></canvas>
+  </div>
+
+</div>
+</div>
+</section>
+
+<section class="panel collapsible-panel is-collapsed" id="seccionGastoProveedor" data-collapsible data-dashboard-widget="provider-spend" data-dashboard-title="Gasto por proveedor" data-dashboard-kind="Tabla">
+  <div class="panel-header">
+    <div>
+      <h2>Gasto por proveedor</h2>
+      <p>Total anual y gasto del mes en curso por proveedor.</p>
+      <span class="dashboard-panel-summary" id="resumenGastoProveedor">Preparando resumen…</span>
+    </div>
+    <div class="dashboard-panel-actions">
+      <button type="button" class="dashboard-export-icon" onclick="exportarTablaDashboard('tablaResumenGastoProveedor', 'gasto_por_proveedor')" aria-label="Exportar gasto por proveedor" title="Exportar gasto por proveedor">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v12m0 0 5-5m-5 5-5-5"/><path d="M5 20h14"/></svg>
+      </button>
+      <button type="button" class="collapse-toggle" aria-expanded="true">Ocultar</button>
+    </div>
+  </div>
+
+  <div class="panel-content">
+  <div class="dashboard-table-toolbar">
+    <label class="dashboard-table-search">
+      <span>Buscar proveedor</span>
+      <input type="search" id="buscarGastoProveedor" placeholder="Nombre del proveedor" autocomplete="off">
+    </label>
+    <span id="conteoGastoProveedor" aria-live="polite"></span>
+  </div>
+  <div class="table-container proveedor-gasto-table">
+    <table id="tablaResumenGastoProveedor">
+      <thead>
+        <tr>
+          <th><button type="button" class="table-sort" data-sort-proveedor="proveedor">Proveedor</button></th>
+          <th><button type="button" class="table-sort" data-sort-proveedor="anual">Gasto total anual</button></th>
+          <th><button type="button" class="table-sort" data-sort-proveedor="mensual">Gasto mes en curso</button></th>
+        </tr>
+      </thead>
+      <tbody id="tablaGastoProveedor">
+        <tr>
+          <td colspan="3">Sin datos en el periodo</td>
+        </tr>
+      </tbody>
+      <tfoot id="tablaGastoProveedorTotales">
+        <tr>
+          <td>Total general</td>
+          <td>$0.00</td>
+          <td>$0.00</td>
+        </tr>
+      </tfoot>
+    </table>
+  </div>
+  </div>
+</section>
+
+<section class="panel collapsible-panel is-collapsed" id="seccionMatrizSolicitudesPago" data-collapsible style="display:none" data-dashboard-widget="payment-requests" data-dashboard-title="Solicitudes de pago por proveedor y estatus" data-dashboard-kind="Tabla">
+  <div class="panel-header">
+    <div>
+      <h2>Solicitudes de pago por proveedor y estatus</h2>
+      <p>Suma de importes registrada directamente en SP SIIF.</p>
+      <span class="dashboard-panel-summary" id="resumenSolicitudesPago">Preparando resumen…</span>
+    </div>
+    <div class="dashboard-panel-actions">
+      <button type="button" class="dashboard-export-icon" onclick="exportarTablaDashboard('tablaResumenSolicitudesPago', 'solicitudes_pago_por_proveedor_y_estatus')" aria-label="Exportar solicitudes de pago por proveedor y estatus" title="Exportar solicitudes de pago por proveedor y estatus">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v12m0 0 5-5m-5 5-5-5"/><path d="M5 20h14"/></svg>
+      </button>
+      <button type="button" class="collapse-toggle" aria-expanded="false">Mostrar</button>
+    </div>
+  </div>
+  <div class="panel-content">
+    <div class="dashboard-table-toolbar">
+      <label class="dashboard-table-search">
+        <span>Buscar proveedor</span>
+        <input type="search" id="buscarSolicitudesPago" placeholder="Nombre del proveedor" autocomplete="off">
+      </label>
+      <span id="conteoSolicitudesPago" aria-live="polite"></span>
+    </div>
+    <div class="table-container dashboard-matrix-table">
+      <table id="tablaResumenSolicitudesPago">
+        <thead id="encabezadoMatrizSp">
+          <tr><th>Proveedor</th><th>Total</th></tr>
+        </thead>
+        <tbody id="tablaMatrizSp">
+          <tr><td colspan="2">Sin datos en el periodo</td></tr>
+        </tbody>
+        <tfoot id="totalesMatrizSp"></tfoot>
+      </table>
+    </div>
+  </div>
+</section>
+
+    <section class="module-section dashboard-modules" data-dashboard-widget="modules" data-dashboard-title="Todos tus módulos" data-dashboard-kind="Navegación">
+      <span class="dashboard-section-kicker">Navegación</span>
+      <h2>Todos tus módulos</h2>
+      <p>Las opciones se muestran según los permisos de tu cuenta.</p>
+
+      <div class="module-grid" id="modulosCards"></div>
+    </section>
+
+  </main>
+
+  
+
+</body>
+</html>

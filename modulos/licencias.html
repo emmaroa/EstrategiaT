@@ -7,13 +7,15 @@
   <link rel="stylesheet" href="../css/style.css">
   <link rel="stylesheet" href="../css/design-system.css?v=20260819-14">
   <link rel="stylesheet" href="../css/licencias-admin.css">
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="../js/vendor/-supabase-supabase-js.js"></script>
   <script src="../js/core/supabase.js"></script>
   <script src="../js/core/permissions.js"></script>
   <script src="../js/core/theme.js"></script>
   <script src="../js/core/layout.js"></script>
   <script src="../js/core/auth.js"></script>
   <script src="../js/services/licencias.service.js"></script>
+  <link rel="stylesheet" href="../css/reference-theme.css?v=20260927-1" media="screen">
+<meta name="referrer" content="strict-origin-when-cross-origin"><link rel="stylesheet" href="../css/privacy-accessibility.css?v=20260927-1"><script src="../js/core/privacy.js?v=20260927-1" defer></script><script src="../js/core/accessibility.js?v=20260927-1" defer></script>
 </head>
 <body class="dashboard-body">
   <aside class="sidebar">
@@ -54,7 +56,8 @@
         <div class="table-wrapper"><table><caption class="licencias-caption">Registro de licencias de Brote Labs</caption><thead><tr><th>Código</th><th>Cliente</th><th>Inicio</th><th>Válida hasta</th><th>Días restantes</th><th>Estado</th><th>Acciones</th></tr></thead><tbody id="tablaLicencias"></tbody></table></div>
       </section>
     </div>
-  </main>
+  <footer class="et-legal-footer"><nav aria-label="Información legal"><a href="../privacidad.html">Privacidad</a><a href="../terminos.html">Términos y condiciones</a><a href="../cookies.html">Cookies y almacenamiento</a><button type="button" data-privacy-settings>Configurar privacidad</button></nav><p>© <span data-copyright-year>2026</span> Ing. Emma Lizbeth Figueroa Cruz. Contenidos propios de EstrategiaT; los materiales de terceros conservan sus derechos y licencias.</p></footer>
+</main>
   <dialog id="dialogoLicencia" class="licencias-dialogo" aria-labelledby="tituloLicencia">
     <form id="formLicencia">
       <h2 id="tituloLicencia">Nueva licencia</h2>
@@ -67,7 +70,7 @@
         <label class="input-group licencias-notas" for="notasLicencia">Notas<textarea id="notasLicencia" rows="3" maxlength="2000"></textarea></label>
       </div>
       <p id="errorLicencia" role="alert"></p>
-      <div class="licencias-acciones"><button class="btn-small" type="submit" id="guardarLicencia">Guardar licencia</button><button class="btn-secondary" type="button" id="cancelarLicencia">Cancelar</button></div>
+      <div class="licencias-acciones"><button data-privacy-submit class="btn-small" type="submit" id="guardarLicencia">Guardar licencia</button><button class="btn-secondary" type="button" id="cancelarLicencia">Cancelar</button></div>
     </form>
   </dialog>
   <script src="../js/modules/licencias.js"></script>

@@ -9,12 +9,14 @@
   <link rel="stylesheet" href="../css/tiempo-extra.css">
   <link rel="stylesheet" href="../css/design-system.css?v=20260819-14">
 
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="../js/vendor/-supabase-supabase-js.js"></script>
   <script src="../js/core/supabase.js"></script>
   <script src="../js/core/permissions.js"></script>
   <script src="../js/core/theme.js"></script>
   <script src="../js/core/layout.js?v=20260819-14"></script>
   <script src="../js/core/auth.js?v=20260819-3"></script>
+  <link rel="stylesheet" href="../css/reference-theme.css?v=20260927-1" media="screen">
+<meta name="referrer" content="strict-origin-when-cross-origin"><link rel="stylesheet" href="../css/privacy-accessibility.css?v=20260927-1"><script src="../js/core/privacy.js?v=20260927-1" defer></script><script src="../js/core/accessibility.js?v=20260927-1" defer></script>
 </head>
 
 <body>
@@ -87,7 +89,7 @@
         </div>
 
         <div class="actions-right">
-          <button class="btn btn-primary" id="btnGuardarPeriodo" type="button">Guardar periodo</button>
+          <button data-privacy-submit class="btn btn-primary" id="btnGuardarPeriodo" type="button">Guardar periodo</button>
         </div>
       </section>
 
@@ -97,7 +99,7 @@
         <div class="form-group"><label for="archivoAsistencia">Archivo CSV de asistencia</label><input type="file" id="archivoAsistencia" accept=".csv,text/csv"></div>
         <p id="resumenAsistencia" role="status" aria-live="polite">Selecciona un CSV para comenzar.</p>
         <p>Selecciona el periodo en la pestaña Periodo antes de anexar. Solo se anexan días de ese periodo. El horario anexado comienza al completar las 7 horas; las horas extra se guardan como números enteros aplicando la tolerancia una sola vez por día.</p>
-        <div class="actions-right"><button type="button" class="btn btn-primary" id="btnAnexarAsistencia" disabled>Anexar seleccionados a Tiempo Extra</button></div>
+        <div class="actions-right"><button data-privacy-submit type="button" class="btn btn-primary" id="btnAnexarAsistencia" disabled>Anexar seleccionados a Tiempo Extra</button></div>
         <div class="table-wrapper"><table><thead><tr><th>Seleccionar</th><th>Empleado</th><th>Fecha</th><th>Primera checada</th><th>Última checada</th><th>Trabajado</th><th>Excedente de 7 h</th><th>Resultado</th></tr></thead><tbody id="tablaAsistencia"><tr><td colspan="8">Sin archivo cargado.</td></tr></tbody></table></div>
       </section>
 
@@ -135,7 +137,7 @@
           <p id="altaEmpleadoMensaje">El empleado no existe. Captura sus datos b&aacute;sicos y gu&aacute;rdalo en el cat&aacute;logo.</p>
           <div class="actions-right">
             <button class="btn btn-light" id="btnCancelarAltaEmpleado" type="button">Cancelar alta</button>
-            <button class="btn btn-secondary" id="btnGuardarAltaEmpleado" type="button">Guardar empleado</button>
+            <button data-privacy-submit class="btn btn-secondary" id="btnGuardarAltaEmpleado" type="button">Guardar empleado</button>
           </div>
         </div>
 
@@ -170,7 +172,7 @@
 
         <div class="actions-right">
           <button class="btn btn-secondary" id="btnCancelarEdicion" type="button" hidden>Cancelar edici&oacute;n</button>
-          <button class="btn btn-primary" id="btnAgregarEmpleado" type="button">Agregar empleado</button>
+          <button data-privacy-submit class="btn btn-primary" id="btnAgregarEmpleado" type="button">Agregar empleado</button>
         </div>
 
         <hr>
@@ -221,7 +223,7 @@
         <div class="actions-right">
           <button class="btn btn-secondary" id="btnVistaPrevia" type="button">Vista previa</button>
           <button class="btn btn-secondary" id="btnImprimirPDF" type="button">Imprimir PDF</button>
-          <button class="btn btn-primary" id="btnGenerarPDF" type="button">Generar paquete</button>
+          <button data-privacy-submit class="btn btn-primary" id="btnGenerarPDF" type="button">Generar paquete</button>
         </div>
 
         <div class="preview-box" id="vistaPreviaTiempoExtra" hidden></div>
@@ -275,14 +277,15 @@
           </table>
         </div>
       </section>
-    </main>
+    <footer class="et-legal-footer"><nav aria-label="Información legal"><a href="../privacidad.html">Privacidad</a><a href="../terminos.html">Términos y condiciones</a><a href="../cookies.html">Cookies y almacenamiento</a><button type="button" data-privacy-settings>Configurar privacidad</button></nav><p>© <span data-copyright-year>2026</span> Ing. Emma Lizbeth Figueroa Cruz. Contenidos propios de EstrategiaT; los materiales de terceros conservan sus derechos y licencias.</p></footer>
+</main>
   </div>
 
-  <script src="https://cdn.jsdelivr.net/npm/exceljs/dist/exceljs.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/file-saver/dist/FileSaver.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/pizzip/dist/pizzip.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/docxtemplater/build/docxtemplater.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/jszip/dist/jszip.min.js"></script>
+  <script src="../js/vendor/exceljs.js"></script>
+  <script src="../js/vendor/file-saver.js"></script>
+  <script src="../js/vendor/pizzip.js"></script>
+  <script src="../js/vendor/docxtemplater.js"></script>
+  <script src="../js/vendor/jszip.js"></script>
   <script src="../js/modules/calculo-tiempo-extra.js"></script>
   <script src="../js/modules/tiempo-extra.js"></script>
 
