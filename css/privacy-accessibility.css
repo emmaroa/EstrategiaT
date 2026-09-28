@@ -11,10 +11,14 @@
 .legal-page a { color: #0069b8; text-decoration: underline; text-underline-offset: 3px; }
 .legal-page table { min-width: 600px; }
 .legal-page address { font-style: normal; }
-.et-privacy-accept { margin: 16px 0; padding: 12px; border: 1px solid var(--border-subtle, #d4d4d4); border-radius: 9px; text-align: left; grid-column: 1 / -1; flex-basis: 100%; }
+.et-privacy-accept { margin: 10px 0; padding: 0; text-align: left; grid-column: 1 / -1; flex-basis: 100%; font-size: 13px; line-height: 1.5; }
 .et-privacy-accept label, .et-privacy-option { display: flex; align-items: flex-start; gap: 12px; cursor: pointer; color: var(--text-primary, #202020); }
 .et-privacy-accept input[type="checkbox"], .et-privacy-option input[type="checkbox"] { flex: 0 0 20px; width: 20px; height: 20px; min-height: 20px; margin: 2px 0; accent-color: #202020; }
+.et-privacy-accept label { align-items: center; gap: 8px; min-height: 32px; margin: 0; font-size: inherit; font-weight: 400; color: var(--text-secondary, #646464); }
+.et-privacy-accept input[type="checkbox"] { flex-basis: 16px; width: 16px; height: 16px; min-height: 16px; accent-color: var(--text-secondary, #646464); }
 .et-privacy-accept a { color: inherit; text-decoration: underline; }
+.et-privacy-accept details { margin-left: 24px; color: var(--text-secondary, #646464); }
+.et-privacy-accept summary { width: fit-content; cursor: pointer; font-size: 12px; padding: 3px 0; }
 .et-privacy-accept small { display: block; margin-top: 8px; color: var(--text-secondary, #646464); line-height: 1.5; }
 .et-privacy-accept [data-privacy-error] { margin: 8px 0 0; color: #b91c1c; }
 .et-privacy-banner, .et-privacy-dialog { background: #fff; color: #202020; border: 1px solid #d4d4d4; border-radius: 16px; padding: 20px; font: 14px/1.5 system-ui, sans-serif; }

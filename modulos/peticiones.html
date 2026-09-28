@@ -36,6 +36,8 @@
     .cotizacion-preview-header { padding:18px 22px 14px; border-bottom:1px solid var(--border); }
     .cotizacion-preview-frame { display:block; width:100%; height:calc(90vh - 158px); min-height:440px; border:0; background:#fff; }
     .cotizacion-preview-actions { padding:14px 22px; border-top:1px solid var(--border); background:var(--bg-card); }
+    #tablaPeticiones tr.peticion-fila { cursor:pointer; }
+    #tablaPeticiones tr.peticion-fila:focus-visible { outline:2px solid var(--color-teal); outline-offset:-2px; }
     .peticion-view-note { position:relative; width:36px; height:36px; }
     .peticion-view-note .action-btn { margin:0; }
     .peticion-note-indicator { position:absolute; top:-5px; right:-5px; display:flex; align-items:center; justify-content:center; width:17px; height:17px; border:2px solid var(--bg-card); border-radius:50%; background:var(--color-warning); color:#111827; pointer-events:none; z-index:1; }
@@ -980,6 +982,20 @@
         const puedeEnviarCotizacion = puedeAccionPeticion("editar");
         paginaActual.forEach(function (p) {
           const fila = document.createElement("tr");
+          fila.classList.add("peticion-fila");
+          fila.tabIndex = 0;
+          fila.title = "Ver detalle de la petición";
+          fila.setAttribute("aria-label", "Ver petición de " + (p.unidad || "Sin unidad") + ": " + (p.peticion || ""));
+          fila.addEventListener("click", function (evento) {
+            if (evento.target.closest("button, a, input, select, textarea, [role='button']")) return;
+            if (window.getSelection()?.toString()) return;
+            verPeticion(p.id);
+          });
+          fila.addEventListener("keydown", function (evento) {
+            if (evento.target !== fila || (evento.key !== "Enter" && evento.key !== " ")) return;
+            evento.preventDefault();
+            verPeticion(p.id);
+          });
           const puedeEditar = puedeAccionPeticion("editar");
           const puedeEliminar = puedeAccionPeticion("eliminar");
           const puedeRevisarAlmacen =

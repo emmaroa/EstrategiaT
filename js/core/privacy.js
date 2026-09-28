@@ -3,6 +3,8 @@
   const root = new URL('../../', document.currentScript.src);
   const VERSION = '2026-09-27';
   const KEY = 'et_privacy_choices';
+  const ACCEPTANCE_KEY = 'et_privacy_policy_accepted';
+  let policyAccepted = false;
   const MAX_AGE = 180 * 24 * 60 * 60 * 1000;
   let memory = null, dialog, banner, opener;
   let sequence = 0;
@@ -33,7 +35,16 @@
     dialog.querySelector('#etExternalConsent').checked = allows('external');
     dialog.showModal();
   }
+  function hasAcceptedPolicy() {
+    try { return policyAccepted || localStorage.getItem(ACCEPTANCE_KEY) === VERSION; } catch (_) { return policyAccepted; }
+  }
+  function acceptPolicy() {
+    policyAccepted = true;
+    try { localStorage.setItem(ACCEPTANCE_KEY, VERSION); } catch (_) {}
+    document.querySelectorAll('.et-privacy-accept').forEach(block => block.remove());
+  }
   function stop(event, scope) {
+    if (hasAcceptedPolicy()) return true;
     const checkbox = scope?.querySelector('[data-privacy-accept]');
     if (!checkbox || checkbox.checked) return true;
     event.preventDefault();
@@ -48,13 +59,14 @@
     return button.closest('form, .modal-card, .login-card, .card, .panel, .profile-card, section, dialog') || button.parentElement;
   }
   function prepare(scope) {
+    if (hasAcceptedPolicy()) return;
     if (!scope || scope.closest('[data-privacy-ui]') || scope.dataset.privacyScope) return;
     scope.dataset.privacyScope = 'true';
     const id = 'etPrivacyAccept' + (++sequence);
     const block = document.createElement('div');
     block.className = 'et-privacy-accept';
-    block.innerHTML = '<label for="' + id + '"><input type="checkbox" id="' + id + '" data-privacy-accept required aria-describedby="' + id + 'Note ' + id + 'Error"><span>He leído y acepto la <a target="_blank" rel="noopener" href="' + new URL('privacidad.html', root).href + '">Política de Privacidad (abre otra pestaña)</a>.</span></label>' +
-      '<small id="' + id + 'Note">Esta confirmación no autoriza publicidad, servicios opcionales ni el tratamiento de datos de otras personas sin una base legal.</small>' +
+    block.innerHTML = '<label for="' + id + '"><input type="checkbox" id="' + id + '" data-privacy-accept required aria-describedby="' + id + 'Note ' + id + 'Error"><span>Acepto la <a target="_blank" rel="noopener" href="' + new URL('privacidad.html', root).href + '">Política de Privacidad<span class="sr-only"> (abre otra pestaña)</span></a>.</span></label>' +
+      '<details><summary>Más información</summary><small id="' + id + 'Note">Esta confirmación no autoriza publicidad, servicios opcionales ni el tratamiento de datos de otras personas sin una base legal.</small></details>' +
       '<p id="' + id + 'Error" data-privacy-error role="alert" hidden>Lee la Política de Privacidad y marca la casilla antes de continuar.</p>';
     const actions = scope.querySelector('.modal-actions, .profile-actions, .actions-right, .licencias-acciones, .dashboard-customizer-footer');
     if (actions && actions.parentElement) actions.before(block);
@@ -65,6 +77,7 @@
     block.querySelector('input').addEventListener('change', function () {
       this.removeAttribute('aria-invalid');
       block.querySelector('[data-privacy-error]').hidden = true;
+      if (this.checked) acceptPolicy();
     });
   }
   function prepareForms() {
