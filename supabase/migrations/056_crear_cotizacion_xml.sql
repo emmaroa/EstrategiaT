@@ -46,6 +46,8 @@ BEGIN
       (jsonb_typeof(x)='string' AND btrim(x #>> '{}') = 'Crear cotización') OR btrim(coalesce(x->>'modulo',x->>'nombre',x->>'module')) = 'Crear cotización' LIMIT 1;
   ELSIF rol IN ('superadmin', 'admin', 'administradordelsistema', 'jefe', 'compras') THEN permiso := 'editar';
   END IF;
+  -- Las listas anteriores a este módulo heredan su acceso por rol; una denegación explícita prevalece.
+  IF permiso IS NULL AND rol IN ('superadmin','compras') THEN permiso := 'editar'; END IF;
   permiso := CASE WHEN permiso IN ('vista','view','solo vista') THEN 'ver' WHEN permiso IN ('edit','write','modificar') THEN 'editar' WHEN permiso IN ('moderador','moderate') THEN 'moderar' ELSE permiso END;
   IF coalesce(permiso,'none') NOT IN ('ver','editar','moderar') OR (p_editar AND permiso <> 'editar') THEN
     RAISE EXCEPTION 'Sin permiso para esta acción en Crear cotización' USING ERRCODE='42501';

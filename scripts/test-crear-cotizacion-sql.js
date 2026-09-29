@@ -17,6 +17,8 @@ const data = {
       INSERT INTO usuarios(id,usuario,rol,activo,password) VALUES ('${user}','compras','Compras',true,'test'),('${denied}','consulta','Consulta',true,'test');`);
     await db.exec(fs.readFileSync('supabase/migrations/056_crear_cotizacion_xml.sql','utf8'));
     await db.exec(fs.readFileSync('supabase/migrations/057_independizar_crear_cotizacion.sql','utf8'));
+    await db.exec(fs.readFileSync('supabase/migrations/058_acceso_crear_cotizacion_roles.sql','utf8'));
+    await db.query('UPDATE usuarios SET modulos_permitidos=$1 WHERE id=$2',[[{modulo:'Dashboard',permiso:'editar'}],user]);
     await db.exec('SET ROLE anon');
     const save = q=>db.query('SELECT public.guardar_cotizacion_xml($1,$2,$3) AS q',[user,'test',q]);
     for (const table of ['cotizaciones_xml','cotizaciones_xml_conceptos','cotizaciones_xml_origen']) await assert.rejects(()=>db.query('SELECT * FROM '+table),e=>e.code==='42501');
@@ -44,6 +46,10 @@ const data = {
     await db.exec('SET ROLE anon');
     await db.query('SELECT public.listar_cotizaciones_xml($1,$2)',[user,'test']);
     await assert.rejects(()=>save(updated),e=>e.code==='42501');
+    await db.exec('RESET ROLE');
+    await db.query('UPDATE usuarios SET modulos_permitidos=$1 WHERE id=$2',[[{modulo:'Crear cotización',permiso:'none'}],user]);
+    await db.exec('SET ROLE anon');
+    await assert.rejects(()=>db.query('SELECT public.listar_cotizaciones_xml($1,$2)',[user,'test']),e=>e.code==='42501');
     await db.exec('RESET ROLE');
     await db.query("UPDATE usuarios SET modulos_permitidos='[]',rol='SuperAdmin' WHERE id=$1",[user]);
     await db.exec('SET ROLE anon');

@@ -454,6 +454,10 @@
         }).filter(function (modulo, indice, lista) {
           return modulo !== MODULOS.REQUISICIONES && lista.indexOf(modulo) === indice;
         });
+      if (["SuperAdmin", "Compras"].includes(rol) &&
+          !permisosModulos.some(item => item.modulo === MODULOS.CREAR_COTIZACION)) {
+        personalizados.push(MODULOS.CREAR_COTIZACION);
+      }
       return esAdministradorLicencias(usuario) ? agregarModuloSiFalta(personalizados, MODULOS.LICENCIAS) : personalizados;
     }
 
@@ -499,6 +503,7 @@
       return item.modulo === modulo;
     });
 
+    if (!encontrado && modulo === MODULOS.CREAR_COTIZACION && ["SuperAdmin", "Compras"].includes(rol)) return "editar";
     if (permisosModulos.length) return encontrado ? encontrado.permiso : "none";
 
     if (modulo === MODULOS.SEGUIMIENTO_PETICIONES && rolVeSeguimientoPeticiones(rol)) {

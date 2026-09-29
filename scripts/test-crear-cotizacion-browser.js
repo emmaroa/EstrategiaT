@@ -10,7 +10,7 @@ const server=http.createServer((req,res)=>{
   if(p.endsWith(path.join('core','licencia.js')))body=Buffer.from('// License is not part of this isolated test.');
   if(p.endsWith('crear-cotizacion.html')){
     body=body.toString().replace(/<script[^>]+src="[^\"]*(?:-supabase-supabase-js|core\/(?:supabase|auth|privacy|accessibility))\.js"[^>]*><\/script>/g,'');
-    body=body.replace('</head>',`<script>localStorage.setItem('usuarioActivo',JSON.stringify({id:'11111111-1111-4111-8111-111111111111',rol:'Compras',sesion_expira_en:Date.now()+3600000}));window.validarPermiso=()=>true;window.printCalls=0;window.print=()=>printCalls++;window.supabaseClient={from:()=>{let chain=new Proxy({},{get:(_,k)=>k==='then'?(ok=>Promise.resolve({data:[],error:null}).then(ok)):(()=>chain)});return chain;},rpc:async()=>({error:{code:'PGRST202',message:'Missing migration'}})};</script></head>`);
+    body=body.replace('</head>',`<script>localStorage.setItem('usuarioActivo',JSON.stringify({id:'11111111-1111-4111-8111-111111111111',rol:'SuperAdmin',modulos_permitidos:[{modulo:'Dashboard',permiso:'editar'}],sesion_expira_en:Date.now()+3600000}));window.validarPermiso=()=>true;window.printCalls=0;window.print=()=>printCalls++;window.supabaseClient={from:()=>{let chain=new Proxy({},{get:(_,k)=>k==='then'?(ok=>Promise.resolve({data:[],error:null}).then(ok)):(()=>chain)});return chain;},rpc:async()=>({error:{code:'PGRST202',message:'Missing migration'}})};</script></head>`);
   }
   res.setHeader('Content-Type',p.endsWith('.html')?'text/html;charset=utf-8':p.endsWith('.js')?'text/javascript':p.endsWith('.css')?'text/css':p.endsWith('.ttf')?'font/ttf':'application/octet-stream');res.end(body);
 });
@@ -27,6 +27,7 @@ let browser,socket;
   await send('Page.enable');await send('Emulation.setDeviceMetricsOverride',{width:1440,height:1000,deviceScaleFactor:1,mobile:false});
   await send('Page.navigate',{url:origin+'/modulos/crear-cotizacion.html'});
   for(let i=0;i<100;i++){if(await evaluate('!!window.ETCotizacionPDF'))break;await new Promise(r=>setTimeout(r,100));}
+  assert.ok(await evaluate("!!document.querySelector('#etNav a[href*=\"crear-cotizacion.html\"]')"),'SuperAdmin con permisos antiguos ve el modulo en el sidebar');
   await evaluate('window.fixture='+fixture.toString());
   const result=await evaluate(`(async()=>{
     const tests=[]; const check=(v,n)=>{if(!v)throw Error(n);tests.push(n);};

@@ -23,3 +23,13 @@ assert.strictEqual(context.window.ETPermissions.obtenerPermisoModuloUsuario(gdav
 assert.strictEqual(context.window.ETPermissions.obtenerPermisoModuloUsuario(gdavis, "Generar Textos"), "none", "Sin acceso debe bloquear generar textos");
 
 console.log("Navegacion: buscador y permisos verificados.");
+
+for (const rol of ['SuperAdmin', 'Compras']) {
+  const usuario = { rol, modulos_permitidos: [{ modulo: 'Dashboard', permiso: 'editar' }] };
+  const api = context.window.ETPermissions;
+  assert.ok(api.obtenerModulosUsuario(usuario).includes('Crear cotización'), 'El módulo nuevo debe aparecer con listas antiguas para ' + rol);
+  assert.equal(api.obtenerPermisoModuloUsuario(usuario, 'Crear cotización'), 'editar');
+  usuario.modulos_permitidos.push({ modulo: 'Crear cotización', permiso: 'none' });
+  assert.ok(!api.obtenerModulosUsuario(usuario).includes('Crear cotización'), 'Una denegación explícita debe respetarse');
+  assert.equal(api.obtenerPermisoModuloUsuario(usuario, 'Crear cotización'), 'none');
+}
