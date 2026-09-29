@@ -1,11 +1,11 @@
 {
   "name": "estrategiat-mobile",
-  "version": "2.0.100",
+  "version": "2.0.103",
   "private": true,
   "description": "Aplicación móvil multiplataforma de Administración de Talleres",
   "scripts": {
     "version:bump": "node scripts/bump-version.js",
-    "verify": "node scripts/verify-project.js && node scripts/test-acuerdos.js && node scripts/test-calendario.js && node scripts/test-control-taller.js && node scripts/test-control-taller-edicion.js && node scripts/test-control-taller-kpis.js && node scripts/test-control-taller-reporte.js && node scripts/test-personalizacion.js && node scripts/test-navigation.js && node scripts/test-tables.js && node scripts/test-forms.js && node scripts/test-module-layout.js && node scripts/test-ui-states.js && node scripts/test-notifications.js && node scripts/test-microinteractions.js && node scripts/test-accessibility.js && node scripts/test-portal-proveedor.js && node scripts/test-calculo-tiempo-extra.js && node scripts/test-cotizaciones-clasificacion.js && node scripts/test-reportes-cotizaciones.js && node scripts/test-licencia.js && node scripts/test-licencias-admin.js && node scripts/test-licencias-sql.js && node scripts/test-auditoria.js",
+    "verify": "node scripts/verify-project.js && node scripts/test-acuerdos.js && node scripts/test-calendario.js && node scripts/test-control-taller.js && node scripts/test-control-taller-edicion.js && node scripts/test-control-taller-kpis.js && node scripts/test-control-taller-reporte.js && node scripts/test-personalizacion.js && node scripts/test-navigation.js && node scripts/test-tables.js && node scripts/test-forms.js && node scripts/test-module-layout.js && node scripts/test-ui-states.js && node scripts/test-notifications.js && node scripts/test-microinteractions.js && node scripts/test-accessibility.js && node scripts/test-portal-proveedor.js && node scripts/test-calculo-tiempo-extra.js && node scripts/test-cotizaciones-clasificacion.js && node scripts/test-reportes-cotizaciones.js && node scripts/test-licencia.js && node scripts/test-licencias-admin.js && node scripts/test-licencias-sql.js && node scripts/test-auditoria.js && node scripts/test-crear-cotizacion-sql.js",
     "test:acuerdos": "node scripts/test-acuerdos.js",
     "test:personalizacion": "node scripts/test-personalizacion.js",
     "test:navigation": "node scripts/test-navigation.js",
@@ -23,7 +23,8 @@
     "test:licencia": "node scripts/test-licencia.js",
     "test:licencias-admin": "node scripts/test-licencias-admin.js",
     "test:licencias-sql": "node scripts/test-licencias-sql.js",
-    "test:auditoria": "node scripts/test-auditoria.js"
+    "test:auditoria": "node scripts/test-auditoria.js",
+    "test:crear-cotizacion": "node scripts/test-crear-cotizacion-browser.js && node scripts/test-crear-cotizacion-sql.js"
   },
   "dependencies": {
     "@capacitor/android": "^7.0.0",

@@ -42,6 +42,7 @@
     "Inventario",
     "Peticiones",
     "Gestión de Cotizaciones",
+    "Crear cotización",
     "Portal Proveedor",
     "Cotizaciones Proveedor",
     "Peticiones de almacén",
@@ -68,7 +69,7 @@
     { nombre: "General", modulos: ["Dashboard"] },
     {
       nombre: "Operación",
-      modulos: ["Parque Vehicular", "Peticiones", "Gestión de Cotizaciones", "Seguimiento Peticiones", "Acuerdos", "Calendario", "Control de Taller", "Inventario", "Vales"]
+      modulos: ["Parque Vehicular", "Peticiones", "Gestión de Cotizaciones", "Crear cotización", "Seguimiento Peticiones", "Acuerdos", "Calendario", "Control de Taller", "Inventario", "Vales"]
     },
     {
       nombre: "Administración",

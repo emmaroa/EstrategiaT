@@ -7,6 +7,7 @@
       DASHBOARD: "Dashboard",
       PARQUE: "Parque Vehicular",
       PETICIONES: "Peticiones",
+      CREAR_COTIZACION: "Crear cotización",
       GESTION_COTIZACIONES: "Gestión de Cotizaciones",
       COTIZACIONES_PROVEEDOR: "Cotizaciones Proveedor",
       SEGUIMIENTO_SIIF_PROVEEDOR: "Seguimiento de trámites SIIF",
@@ -42,6 +43,7 @@
     [MODULOS.DASHBOARD]: "dashboard.html",
     [MODULOS.PARQUE]: "modulos/parque-vehicular.html",
     [MODULOS.PETICIONES]: "modulos/peticiones.html",
+    [MODULOS.CREAR_COTIZACION]: "modulos/crear-cotizacion.html",
     [MODULOS.GESTION_COTIZACIONES]: "modulos/peticiones.html?vista=cotizaciones",
     [MODULOS.COTIZACIONES_PROVEEDOR]: "modulos/portal-proveedor.html?vista=cotizaciones",
     [MODULOS.SEGUIMIENTO_SIIF_PROVEEDOR]: "modulos/portal-proveedor.html?vista=seguimiento-siif#moduloSeguimientoSiif",
@@ -77,6 +79,7 @@
     [MODULOS.DASHBOARD]: "Indicadores ejecutivos y KPIs operativos.",
     [MODULOS.PARQUE]: "Expediente digital de unidades y seguimiento de flota.",
     [MODULOS.PETICIONES]: "Solicitudes de refacciones al almacén.",
+    [MODULOS.CREAR_COTIZACION]: "Cotizaciones editables desde XML, con PDF de una página.",
     [MODULOS.GESTION_COTIZACIONES]: "Gestión interna de partidas, requisiciones y montos de cotizaciones.",
     [MODULOS.COTIZACIONES_PROVEEDOR]: "Gestión privada de cotizaciones del proveedor.",
     [MODULOS.SEGUIMIENTO_SIIF_PROVEEDOR]: "Seguimiento privado de requisiciones, órdenes de compra y solicitudes de pago del proveedor.",
@@ -229,6 +232,7 @@
     ],
     Compras: 
     [
+      MODULOS.CREAR_COTIZACION,
       MODULOS.DASHBOARD, 
       MODULOS.PETICIONES, 
       MODULOS.GESTION_COTIZACIONES,

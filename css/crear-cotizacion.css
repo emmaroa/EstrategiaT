@@ -1,0 +1,47 @@
+@font-face { font-family:CotizacionNoto; src:url('../js/vendor/fonts/NotoSans-Regular.ttf') format('truetype'); font-display:swap; }
+.cq-main { min-width:0; }
+.cq-main .btn-small { background:#fc712b; color:#202020; }
+.cq-main .cq-drop { border-color:#fc712b; background:color-mix(in srgb,#fc712b 6%,var(--bg-card)); }
+.cq-main .panel { margin-bottom:18px; min-width:0; }
+.cq-main h2 { margin-bottom:12px; }
+.cq-drop { padding:24px; margin:16px 0; border:2px dashed var(--color-primary,#fc712b); border-radius:14px; background:color-mix(in srgb, var(--color-primary,#fc712b) 6%,var(--bg-card)); }
+.cq-drop.dragging { background:color-mix(in srgb,var(--color-primary) 18%,var(--bg-card)); }
+.cq-drop label { display:block; font-weight:700; margin-bottom:10px; }
+.cq-drop input { width:100%; min-width:0; }
+.cq-drop p,.cq-help { font-size:12px; color:var(--text-secondary); margin-top:10px; }
+.cq-files { list-style:none; display:grid; gap:8px; margin-top:12px; padding:0; }
+.cq-file { display:flex; flex-wrap:wrap; align-items:center; gap:8px; padding:12px; border:1px solid var(--border); border-radius:10px; }
+.cq-file span { flex:1 1 180px; overflow-wrap:anywhere; }
+.cq-file button { font-size:12px; min-height:30px; padding:4px 10px; }
+.cq-status:empty { display:none; }
+.cq-status { padding:12px; border-left:3px solid var(--color-primary); background:var(--bg-card); margin-bottom:14px; overflow-wrap:anywhere; }
+.cq-work { display:grid; grid-template-columns:minmax(0,1fr) minmax(0,1fr); gap:18px; align-items:start; }
+.cq-main [hidden] { display:none !important; }
+.cq-grid { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:12px; }
+.cq-editor label { display:flex; flex-direction:column; gap:5px; font-size:12px; min-width:0; }
+.cq-editor input,.cq-editor select,.cq-editor textarea { width:100%; min-width:0; max-width:100%; box-sizing:border-box; }
+.cq-editor textarea { min-height:72px; resize:vertical; }
+.cq-editor fieldset { border:1px solid var(--border); padding:14px; border-radius:10px; margin:16px 0; min-width:0; }
+.cq-editor legend { font-weight:700; padding:0 6px; }
+.cq-editor details { padding:10px 0; }
+.cq-editor summary { cursor:pointer; margin-bottom:10px; overflow-wrap:anywhere; }
+.cq-wide { grid-column:1 / -1; }
+.cq-tax { border-top:1px solid var(--border); padding:10px 0; margin-top:10px; }
+.cq-tax button { margin-top:10px; }
+.cq-actions { display:flex; flex-wrap:wrap; gap:8px; margin-top:16px; }
+#cqAcceso { display:flex; flex-wrap:wrap; gap:10px; align-items:end; margin:12px 0; }
+#cqAcceso label { display:grid; gap:5px; }
+#cqPreview { background:#e8e0d5; padding:8px; border-radius:6px; }
+#cqPreview svg { display:block; width:100%; height:auto; }
+#cqPreview svg text { font-family:CotizacionNoto,sans-serif; }
+#cqEscala,#cqAdvertencia { color:var(--text-secondary); font-size:13px; margin-bottom:12px; }
+.cq-totals { font-size:13px; margin-top:12px; overflow-wrap:anywhere; }
+@media(max-width:1100px) { .cq-work { grid-template-columns:minmax(0,1fr); } }
+@media(max-width:520px) { .cq-grid { grid-template-columns:minmax(0,1fr); } .cq-main .panel { padding:14px; } .cq-drop { padding:14px; } }
+@page { size:letter portrait; margin:0; }
+@media print {
+  body { background:white; }
+  body > :not(.main-content),.cq-main > :not(#cqTrabajo),.cq-editor,.cq-document > :not(#cqPreview) { display:none !important; }
+  .cq-main,#cqTrabajo,.cq-document,#cqPreview { display:block !important; margin:0 !important; padding:0 !important; border:0 !important; box-shadow:none !important; width:8.5in !important; max-width:none !important; }
+  #cqPreview svg { width:8.5in; height:11in; print-color-adjust:exact; -webkit-print-color-adjust:exact; break-inside:avoid; }
+}

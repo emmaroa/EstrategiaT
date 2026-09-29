@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>EstrategiaT | Crear cotización</title>
+  <link rel="stylesheet" href="../css/style.css"><link rel="stylesheet" href="../css/design-system.css">
+  <link rel="stylesheet" href="../css/reference-theme.css" media="screen"><link rel="stylesheet" href="../css/privacy-accessibility.css">
+  <link rel="stylesheet" href="../css/crear-cotizacion.css">
+  <script src="../js/vendor/-supabase-supabase-js.js"></script><script src="../js/core/supabase.js"></script>
+  <script src="../js/core/permissions.js"></script><script src="../js/core/theme.js"></script><script src="../js/core/layout.js"></script>
+  <script src="../js/core/auth.js"></script>
+  <script src="../js/core/privacy.js" defer></script><script src="../js/core/accessibility.js" defer></script>
+</head>
+<body class="dashboard-body">
+  <aside class="sidebar"><div class="sidebar-logo"><div class="mini-logo">E</div><div><h3>Administración de Talleres</h3><small id="etModuleName">Crear cotización</small></div></div><nav id="etNav"></nav><button type="button" class="logout" id="etLogout">Cerrar sesión</button></aside>
+  <main class="main-content cq-main">
+    <header class="topbar"><div><h1>Crear cotización</h1><p>De XML a cotización · Un documento por archivo, una página por cotización.</p></div><div class="et-header-actions"><span id="etTemaContainer"></span></div></header>
+    <p id="cqEstado" class="cq-status" role="status" aria-live="polite"></p>
+    <section class="panel" id="cqCarga"><h2>Archivos de origen</h2>
+      <div id="cqDrop" class="cq-drop"><label for="cqArchivos">Selecciona o arrastra tus XML aquí</label><input id="cqArchivos" type="file" accept=".xml" multiple><p>CFDI 3.3 y 4.0 · Hasta 5 MB por archivo y 20 archivos por lote. Los XML se procesan en este dispositivo.</p></div>
+      <p id="cqContador">Sin archivos cargados.</p><ul id="cqLista" class="cq-files" aria-label="Archivos y cotizaciones"></ul>
+    </section>
+    <details class="panel" id="cqConexion"><summary>Conectar guardado y recuperar cotizaciones</summary>
+      <p>Confirma tu contraseña de EstrategiaT para guardar y consultar. Se conserva solo en memoria durante 15 minutos.</p>
+      <form id="cqAcceso"><label for="cqPassword">Contraseña<input id="cqPassword" type="password" autocomplete="current-password" required></label><button class="btn-small" type="submit">Conectar guardado</button><button id="cqBloquear" class="btn-secondary" type="button">Desconectar</button></form>
+      <div id="cqGuardadas" class="cq-files"></div><button id="cqMas" class="btn-secondary" type="button" hidden>Cargar más</button>
+    </details>
+    <section id="cqTrabajo" class="cq-work" hidden>
+      <div class="panel cq-editor"><h2 id="cqTitulo">Editar cotización</h2><p id="cqAdvertencia" role="status"></p><form id="cqFormulario" novalidate></form></div>
+      <div class="panel cq-document"><div class="panel-header"><h2>Vista previa</h2><span>Carta · 1 página</span></div>
+        <p id="cqEscala" role="status"></p><div id="cqPreview"></div><div id="cqTotales" class="cq-totals"></div>
+        <div class="cq-actions"><button type="button" class="btn-small" id="cqGuardar">Guardar cotización</button><button type="button" class="btn-secondary" id="cqPDF">Descargar PDF</button><button type="button" class="btn-secondary" id="cqImprimir">Imprimir</button></div>
+        <p class="cq-help">El folio interno se asigna al guardar y no aparece en el documento. Antes de guardar puedes descargar una vista marcada como BORRADOR.</p>
+      </div>
+    </section>
+    <footer class="et-legal-footer"><nav aria-label="Información legal"><a href="../privacidad.html">Privacidad</a><a href="../terminos.html">Términos y condiciones</a><button type="button" data-privacy-settings>Configurar privacidad</button></nav><p>© <span data-copyright-year>2026</span> EstrategiaT</p></footer>
+  </main>
+  <script src="../js/vendor/jspdf.js"></script><script src="../js/services/cotizacion-xml.js"></script><script src="../js/services/cotizacion-pdf.js"></script><script src="../js/services/crear-cotizacion.service.js"></script><script src="../js/modules/crear-cotizacion.js"></script>
+</body></html>
