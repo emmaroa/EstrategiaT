@@ -97,7 +97,7 @@
     if (!selected) return;
     const current = revision, record = selected;
     try {
-      const result = await global.ETCotizacionPDF.build(structuredClone(record.q));
+      const result = await global.ETCotizacionPDF.build(structuredClone(record.q), $('cqFormato').value);
       if (current !== revision || record !== selected) return;
       preview = result; $('cqPreview').replaceChildren(result.svg);
       $('cqEscala').textContent = result.scale < .75 ? 'Contenido extenso: escala ' + Math.round(result.scale*100) + ' %. El texto se reduce para conservar todos los conceptos en una página.' : 'Documento completo · Una página carta';
@@ -108,7 +108,7 @@
   async function output(kind) {
     if (!selected) return;
     try {
-      const result = await global.ETCotizacionPDF.build(structuredClone(selected.q));
+      const result = await global.ETCotizacionPDF.build(structuredClone(selected.q), $('cqFormato').value);
       if(kind === 'download') result.pdf.save(result.filename);
       else { await document.fonts.load('12px CotizacionNoto'); $('cqPreview').replaceChildren(result.svg); await new Promise(r=>requestAnimationFrame(r)); window.print(); }
     } catch(e) { status('No se pudo generar el PDF: ' + e.message); }
@@ -132,6 +132,7 @@
   $('cqAcceso').addEventListener('submit',async e=>{e.preventDefault(); const password=$('cqPassword').value; $('cqPassword').value=''; try{savedList(await API.connect(password),true);status('Guardado conectado durante 15 minutos.');}catch(error){status(error.message);}});
   $('cqBloquear').addEventListener('click',()=>{API.lock();$('cqGuardadas').replaceChildren();$('cqMas').hidden=true;status('Guardado desconectado.');});
   $('cqMas').addEventListener('click',async()=>{try{savedList(await API.list(offset),false);}catch(e){status(e.message);}});
+  $('cqFormato').addEventListener('change',schedule);
   $('cqPDF').addEventListener('click',()=>output('download')); $('cqImprimir').addEventListener('click',()=>output('print'));
   $('cqArchivos').disabled = !canEdit; $('cqArchivos').addEventListener('change',e=>load(Array.from(e.target.files)));
   $('cqDrop').addEventListener('dragover',e=>{e.preventDefault();$('cqDrop').classList.add('dragging');});

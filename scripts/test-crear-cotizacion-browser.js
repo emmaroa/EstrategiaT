@@ -50,6 +50,16 @@ let browser,socket;
     const noNote=await ETCotizacionPDF.build(q);check(noNote.pdf.getNumberOfPages()===1,'PDF una página');check(!noNote.svg.textContent.includes('NOTA'),'Nota vacía no imprime bloque');
     check(!/folio/i.test(noNote.svg.textContent)&&!noNote.svg.textContent.includes(q.folio)&&!noNote.svg.textContent.includes(q.origen.Folio),'Documento sin folios');
     q.nota='Entrega en taller';const withNote=await ETCotizacionPDF.build(q);check(withNote.svg.textContent.includes('Entrega en taller'),'Nota visible');
+    const designs=[];
+    for(const format of Object.keys(ETCotizacionPDF.formats)) {
+      const result=await ETCotizacionPDF.build(q,format);designs.push(result.svg.outerHTML);
+      check(result.svg.textContent===withNote.svg.textContent,'Misma información: '+format);
+      check(!/Estrategia|origen|referencia|BORRADOR/i.test(result.svg.textContent),'Documento genérico: '+format);
+      const totals=[...result.svg.querySelectorAll('text')].filter(n=>/^(Subtotal:|Descuentos:|Impuestos:|Retenciones:|TOTAL:)/.test(n.textContent));
+      check(totals.length===5&&new Set(totals.map(n=>n.getAttribute('y'))).size===5&&totals.every(n=>n.getAttribute('text-anchor')==='end'),'Totales separados a la derecha: '+format);
+      check(result.pdf.getNumberOfPages()===1,'Una página: '+format);
+    }
+    check(new Set(designs).size===5,'Cinco diseños distintos');
     const long=api.parse(fixture('4.0',150),'long.xml');long.nota='Nota extensa '.repeat(300);const fit=await ETCotizacionPDF.build(long);
     check(fit.pdf.getNumberOfPages()===1&&fit.scale<.75,'150 conceptos y nota ajustados a una página');
     check(fit.svg.textContent.includes('Concepto 150'),'Último concepto conservado');

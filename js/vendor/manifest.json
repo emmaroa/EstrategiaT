@@ -96,5 +96,14 @@
     "source": "https://cdn.jsdelivr.net/npm/jspdf@4.2.1/dist/jspdf.umd.min.js",
     "file": "jspdf.js",
     "sha256": "e6551fcdc32f09d6853b2c5126d18d01d9447e0da618a41a11ebeee0f6c20d54"
+  },
+  {
+    "package": "xlsx",
+    "version": "0.20.3",
+    "license": "Apache-2.0",
+    "licenseFile": "xlsx.js.LICENSE",
+    "source": "https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js",
+    "file": "xlsx.js",
+    "sha256": "cc015130aa8521e7f088f88898eba949ccdcbfb38df0bd129b44b7273c3a6f41"
   }
 ]

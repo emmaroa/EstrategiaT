@@ -28,12 +28,13 @@
     <section id="cqTrabajo" class="cq-work" hidden>
       <div class="panel cq-editor"><h2 id="cqTitulo">Editar cotización</h2><p id="cqAdvertencia" role="status"></p><form id="cqFormulario" novalidate></form></div>
       <div class="panel cq-document"><div class="panel-header"><h2>Vista previa</h2><span>Carta · 1 página</span></div>
+        <label for="cqFormato">Diseño de la cotización</label><select id="cqFormato"><option value="clasico">Clásico</option><option value="ejecutivo">Ejecutivo azul</option><option value="minimalista">Minimalista</option><option value="elegante">Elegante verde</option><option value="moderno">Moderno borgoña</option></select>
         <p id="cqEscala" role="status"></p><div id="cqPreview"></div><div id="cqTotales" class="cq-totals"></div>
         <div class="cq-actions"><button type="button" class="btn-small" id="cqGuardar">Guardar cotización</button><button type="button" class="btn-secondary" id="cqPDF">Descargar PDF</button><button type="button" class="btn-secondary" id="cqImprimir">Imprimir</button></div>
-        <p class="cq-help">El folio interno se asigna al guardar y no aparece en el documento. Antes de guardar puedes descargar una vista marcada como BORRADOR.</p>
+        <p class="cq-help">Los cinco diseños contienen la misma información y se imprimen en una página. El folio interno y las referencias del XML no aparecen en el documento.</p>
       </div>
     </section>
     <footer class="et-legal-footer"><nav aria-label="Información legal"><a href="../privacidad.html">Privacidad</a><a href="../terminos.html">Términos y condiciones</a><button type="button" data-privacy-settings>Configurar privacidad</button></nav><p>© <span data-copyright-year>2026</span> EstrategiaT</p></footer>
   </main>
-  <script src="../js/vendor/jspdf.js"></script><script src="../js/services/cotizacion-xml.js"></script><script src="../js/services/cotizacion-pdf.js"></script><script src="../js/services/crear-cotizacion.service.js"></script><script src="../js/modules/crear-cotizacion.js"></script>
+  <script src="../js/vendor/jspdf.js"></script><script src="../js/services/cotizacion-xml.js"></script><script src="../js/services/cotizacion-pdf.js?v=2.0.108"></script><script src="../js/services/crear-cotizacion.service.js"></script><script src="../js/modules/crear-cotizacion.js?v=2.0.108"></script>
 </body></html>

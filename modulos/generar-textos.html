@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Administracion de Talleres | Generar Textos</title>
 
+  <link rel="stylesheet" href="../css/style.css">
   <link rel="stylesheet" href="../css/styletexto.css">
   <link rel="stylesheet" href="../css/design-system.css?v=20260819-14">
 
@@ -172,6 +173,7 @@
   </style>
   <link rel="stylesheet" href="../css/reference-theme.css?v=20260927-1" media="screen">
 <meta name="referrer" content="strict-origin-when-cross-origin"><link rel="stylesheet" href="../css/privacy-accessibility.css?v=20260927-1"><script src="../js/core/privacy.js?v=20260928-1" defer></script><script src="../js/core/accessibility.js?v=20260927-1" defer></script>
+  <link rel="stylesheet" href="../css/generar-textos-importacion.css?v=2.0.108">
 </head>
 
 <body class="dashboard-body">
@@ -288,16 +290,29 @@ PROCEDIMIENTO EN PORTAL WEB DE COMPRAS: T26-00</button>
         </div>
       </section>
 
+      <section class="panel gt-import" aria-labelledby="gtImportarTitulo">
+        <div class="panel-header"><div><h2 id="gtImportarTitulo">Importar archivo</h2><p>Excel o CSV · La unidad se obtiene de la columna F. Si no contiene un número de unidad, se utiliza UNIDADES.</p></div></div>
+        <div class="gt-drop" id="gtDrop"><p>Arrastra un archivo .xlsx, .xls o .csv aquí</p><button class="btn-small" type="button" id="gtSeleccionar">Seleccionar archivo</button><input type="file" id="gtArchivo" accept=".xlsx,.xls,.csv" hidden aria-label="Archivo para importar"><p>Procesamiento local · Hasta 10 MB y 10,000 filas.</p></div>
+        <p id="gtEstado" role="status" aria-live="polite"></p>
+        <div id="gtConfiguracion" hidden>
+          <div class="gt-toolbar"><label>Hoja<select id="gtHoja"></select></label><label>Fila de encabezados (0 = sin encabezados)<input type="number" min="0" step="1" id="gtEncabezado"></label></div>
+          <p id="gtDeteccion"></p><div id="gtColumnas" class="gt-mapping"></div>
+          <h3>Vista previa de las primeras filas</h3><div id="gtPreview" class="gt-preview"></div>
+          <button class="btn-small" type="button" id="gtProcesar">Procesar archivo</button>
+        </div>
+        <button class="btn-secondary" type="button" id="gtCancelar" hidden>Cancelar importación</button>
+      </section>
+
       <section class="panel">
         <div class="panel-header">
           <div>
             <h2>Datos para generar</h2>
-            <p>Captura una fila por unidad. Las filas sin unidad se omiten.</p>
+            <p>Captura o importa filas. Los datos incompletos se marcan para corregirlos antes de generar el texto.</p>
           </div>
 
           <div class="generator-actions">
-            <button type="button" class="secondary" onclick="agregarFila()">Agregar fila</button>
-            <button data-privacy-submit type="button" onclick="generar()">Generar textos</button>
+            <button type="button" class="secondary" id="gtAgregar">Agregar fila</button>
+            <button type="button" id="gtGenerar">Generar textos</button>
           </div>
         </div>
 
@@ -313,6 +328,7 @@ PROCEDIMIENTO EN PORTAL WEB DE COMPRAS: T26-00</button>
                 <th>Requisicion</th>
                 <th>Entrada Almacen</th>
                 <th>Folio Web</th>
+                <th>Acciones</th>
               </tr>
             </thead>
 
@@ -380,8 +396,17 @@ PROCEDIMIENTO EN PORTAL WEB DE COMPRAS: T26-00</button>
           </div>
         </div>
 
+        <div class="gt-toolbar">
+          <input type="search" id="gtBuscar" aria-label="Buscar por unidad, factura, requisición u orden de compra" placeholder="Unidad, factura, requisición u OC">
+          <select id="gtFiltro" aria-label="Filtrar resultados"><option value="todos">Todos</option><option value="completos">Completos</option><option value="incompletos">Incompletos</option></select>
+          <button type="button" class="btn-secondary" id="gtCopiarTodos">Copiar todos</button>
+          <button type="button" class="btn-secondary" id="gtDescargar">Descargar textos</button>
+          <button type="button" class="btn-secondary" id="gtLimpiar">Limpiar resultados</button>
+        </div>
+        <p>Copiar todos y Descargar textos incluyen todos los textos completos, separados por una línea en blanco.</p>
+        <div id="gtResumen" role="status" aria-live="polite"></div>
         <div id="resultado" class="result-grid">
-          <div class="empty-result">Captura al menos una unidad y presiona Generar textos.</div>
+          <div class="empty-result">Captura una fila o importa un archivo para generar textos.</div>
         </div>
       </section>
     </div>
@@ -389,7 +414,7 @@ PROCEDIMIENTO EN PORTAL WEB DE COMPRAS: T26-00</button>
   <footer class="et-legal-footer"><nav aria-label="Información legal"><a href="../privacidad.html">Privacidad</a><a href="../terminos.html">Términos y condiciones</a><a href="../cookies.html">Cookies y almacenamiento</a><button type="button" data-privacy-settings>Configurar privacidad</button></nav><p>© <span data-copyright-year>2026</span> Ing. Emma Lizbeth Figueroa Cruz. Contenidos propios de EstrategiaT; los materiales de terceros conservan sus derechos y licencias.</p></footer>
 </main>
 
-  <div id="toast" class="toast">Copiado al portapapeles</div>
+  <div id="toast" class="toast" role="status" aria-live="polite">Texto copiado al portapapeles</div>
 
   <script src="../js/vendor/-supabase-supabase-js.js"></script>
   <script src="../js/core/supabase.js"></script>
@@ -398,170 +423,8 @@ PROCEDIMIENTO EN PORTAL WEB DE COMPRAS: T26-00</button>
   <script src="../js/core/layout.js?v=2.0.104"></script>
   <script src="../js/core/auth.js?v=20260819-3"></script>
 
-  <script>
-    document.addEventListener("DOMContentLoaded", function () {
-      if (typeof validarPermiso === "function") {
-        validarPermiso("Generar Textos");
-      }
-
-      if (window.ETLayout && typeof ETLayout.inicializar === "function") {
-        ETLayout.inicializar("Generar Textos");
-      }
-
-      inicializarBiblioteca();
-    });
-
-    function inicializarBiblioteca() {
-      const botones = document.querySelectorAll("[data-copy]");
-      const buscador = document.getElementById("buscarTexto");
-      const tarjetas = document.querySelectorAll("[data-section]");
-
-      botones.forEach(function (boton) {
-        boton.addEventListener("click", function () {
-          copiarTexto(this.dataset.copy);
-        });
-      });
-
-      if (buscador) {
-        buscador.addEventListener("input", function () {
-          const texto = this.value.toLowerCase().trim();
-
-          tarjetas.forEach(function (tarjeta) {
-            const contenido = tarjeta.textContent.toLowerCase();
-            tarjeta.style.display = contenido.includes(texto) ? "" : "none";
-          });
-        });
-      }
-    }
-
-    function agregarFila() {
-      const tbody = document.querySelector("#tabla tbody");
-      const fila = document.createElement("tr");
-      const etiquetas = [
-        "Unidad",
-        "No. Factura",
-        "Descripcion",
-        "Dependencia",
-        "OC",
-        "Requisicion",
-        "Entrada Almacen",
-        "Folio Web"
-      ];
-
-      etiquetas.forEach(function (etiqueta) {
-        const td = document.createElement("td");
-        const input = document.createElement("input");
-        input.setAttribute("aria-label", etiqueta);
-        td.appendChild(input);
-        fila.appendChild(td);
-      });
-
-      tbody.appendChild(fila);
-    }
-
-    function generar() {
-      const filas = document.querySelectorAll("#tabla tbody tr");
-      const resultado = document.getElementById("resultado");
-      let generados = 0;
-      let salida = "";
-
-      filas.forEach(function (fila, index) {
-        const c = fila.querySelectorAll("input");
-        const unidad = c[0].value.trim();
-
-        if (unidad === "") return;
-
-        const factura = c[1].value.trim();
-        const descripcion = c[2].value.trim();
-        const dependencia = c[3].value.trim();
-        const oc = c[4].value.trim();
-        const req = c[5].value.trim();
-        const ea = c[6].value.trim();
-        const folio = c[7].value.trim();
-
-        generados += 1;
-        const textoGenerado =
-          unidad + ': PAGO DE FACTURA ' + factura +
-          ' POR ADQUISICION DE ' + descripcion +
-          ' PARA UNIDAD ' + unidad +
-          ' DE ' + dependencia + '.\n\n' +
-          'OC ' + oc + ' REQ ' + req + ' EA-' + ea + '\n' +
-          'PROCEDIMIENTO EN PORTAL WEB DE COMPRAS: T26-' + folio;
-
-        salida +=
-          '<div class="result-card" role="button" tabindex="0" data-copy-generated="' + escaparAtributo(textoGenerado) + '">' +
-            '<strong>' + (index + 1) + '.</strong><br><br>' +
-            escaparHtml(unidad) + ': PAGO DE FACTURA ' + escaparHtml(factura) +
-            ' POR ADQUISICION DE ' + escaparHtml(descripcion) +
-            ' PARA UNIDAD ' + escaparHtml(unidad) +
-            ' DE ' + escaparHtml(dependencia) + '.<br><br>' +
-            'OC ' + escaparHtml(oc) + ' REQ ' + escaparHtml(req) + ' EA-' + escaparHtml(ea) + '<br>' +
-            'PROCEDIMIENTO EN PORTAL WEB DE COMPRAS: T26-' + escaparHtml(folio) +
-          '</div>';
-      });
-
-      resultado.innerHTML = salida || '<div class="empty-result">No hay filas con unidad capturada.</div>';
-      inicializarResultadosCopiables();
-    }
-
-    function inicializarResultadosCopiables() {
-      document.querySelectorAll("[data-copy-generated]").forEach(function (tarjeta) {
-        if (tarjeta.dataset.bound === "1") return;
-        tarjeta.dataset.bound = "1";
-        tarjeta.addEventListener("click", function () {
-          copiarTexto(tarjeta.dataset.copyGenerated);
-        });
-        tarjeta.addEventListener("keydown", function (event) {
-          if (event.key === "Enter" || event.key === " ") {
-            event.preventDefault();
-            copiarTexto(tarjeta.dataset.copyGenerated);
-          }
-        });
-      });
-    }
-
-    function escaparHtml(valor) {
-      return String(valor || "")
-        .replace(/&/g, "&amp;")
-        .replace(/</g, "&lt;")
-        .replace(/>/g, "&gt;")
-        .replace(/"/g, "&quot;")
-        .replace(/'/g, "&#039;");
-    }
-
-    function escaparAtributo(valor) {
-      return escaparHtml(valor).replace(/\n/g, "&#10;");
-    }
-
-    async function copiarTexto(texto) {
-      try {
-        await navigator.clipboard.writeText(texto);
-        mostrarToast("Copiado al portapapeles");
-      } catch (error) {
-        copiarFallback(texto);
-      }
-    }
-
-    function copiarFallback(texto) {
-      const temporal = document.createElement("textarea");
-      temporal.value = texto;
-      document.body.appendChild(temporal);
-      temporal.select();
-      document.execCommand("copy");
-      document.body.removeChild(temporal);
-      mostrarToast("Copiado al portapapeles");
-    }
-
-    function mostrarToast(mensaje) {
-      const toast = document.getElementById("toast");
-      toast.textContent = mensaje;
-      toast.classList.add("show");
-
-      setTimeout(function () {
-        toast.classList.remove("show");
-      }, 1800);
-    }
-  </script>
+  <script src="../js/services/textos-tabulares.js?v=2.0.108"></script>
+  <script src="../js/modules/generar-textos.js?v=2.0.108"></script>
 
 </body>
 </html>

@@ -1,5 +1,6 @@
 node_modules/
 .tmp-cotizacion/
+.tmp-textos/
 .env
 .env.*
 !.env.example
