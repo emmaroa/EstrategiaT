@@ -121,7 +121,7 @@
       if(!file.size||file.size>api.MAX_SIZE)throw Error('El archivo está vacío o supera 10 MB.');
       const buffer=await file.arrayBuffer();if(token!==epoch)return;
       const data=await new Promise((resolve,reject)=>{
-        const current=new Worker(new URL('textos-importacion.worker.js?v=2.0.108',scriptURL));worker=current;
+        const current=new Worker(new URL('textos-importacion.worker.js?v=2.0.110',scriptURL));worker=current;
         const timeout=setTimeout(()=>{current.terminate();reject(Error('El archivo tardó demasiado en procesarse. Divide el archivo e inténtalo de nuevo.'));},60000);
         current.onmessage=event=>{clearTimeout(timeout);current.terminate();event.data.error?reject(Error(event.data.error)):resolve(event.data.data);};
         current.onerror=()=>{clearTimeout(timeout);current.terminate();reject(Error('No se pudo iniciar el lector local. Abre el sistema mediante su servidor web.'));};

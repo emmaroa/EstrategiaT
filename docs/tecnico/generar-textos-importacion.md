@@ -24,7 +24,7 @@ PROCEDIMIENTO EN PORTAL WEB DE COMPRAS: T26-01458
 
 Cada texto tiene **tres renglones y dos saltos de línea internos**, sin líneas vacías entre ellos. Se eliminan espacios redundantes y se convierte a mayúsculas. No se añaden `OC-`, `REQ-`, `EA-` ni `T26-`; los prefijos presentes en los datos sí se conservan. Artículo y dependencia no se convierten a números.
 
-Si la unidad no contiene ningún dígito (incluidos vacío, STOCK o SIN UNIDAD), el texto usa `UNIDADES: ... PARA UNIDADES DE ...`. Se conservan unidades numéricas y alfanuméricas, incluido `0` y sus ceros iniciales. `2743.0` pasa a `2743` en identificadores. También se respetan máscaras numéricas como `000000`: un valor 35 se importa como `000035`. Si Excel ya eliminó los ceros y el archivo no contiene una máscara que los indique, no se inventan ceros. Los números enteros fuera de la precisión segura y las fórmulas sin resultado guardado se marcan para corregir; no se ejecutan fórmulas. El folio de entrada se imprime directamente después de REQ, sin añadir la palabra ENTRADA.
+Si la unidad no contiene ningún dígito (incluidos vacío, STOCK o SIN UNIDAD), el texto usa `STOCK: ... PARA UNIDADES DE ...`. Se conservan unidades numéricas y alfanuméricas, incluido `0` y sus ceros iniciales. `2743.0` pasa a `2743` en identificadores. También se respetan máscaras numéricas como `000000`: un valor 35 se importa como `000035`. Si Excel ya eliminó los ceros y el archivo no contiene una máscara que los indique, no se inventan ceros. Los números enteros fuera de la precisión segura y las fórmulas sin resultado guardado se marcan para corregir; no se ejecutan fórmulas. El folio de entrada se imprime directamente después de REQ, sin añadir la palabra ENTRADA.
 
 ## Librerías y seguridad
 

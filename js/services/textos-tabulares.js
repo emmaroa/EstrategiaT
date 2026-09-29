@@ -24,11 +24,12 @@
   }
   function format(values) {
     const v = Object.fromEntries(fields.map(f => [f.key,clean(values[f.key], !['articulo','dependencia'].includes(f.key))]));
+    v.unidad = clean(v.unidad.replace(/^TALLERES\b[\s,:;\-]*(?:(?:PARA\s+)?UNIDAD\s*[:#-]?\s*)?/i, ''), true);
     if (!/\d/.test(v.unidad)) v.unidad = 'UNIDADES';
     const missing = fields.filter(f=>!v[f.key]).map(f=>f.key);
     if(missing.length) return { text:'', missing, values:v };
     const destino = v.unidad === 'UNIDADES' ? 'UNIDADES' : 'UNIDAD ' + v.unidad;
-    const text = `${v.unidad}: PAGO DE FACTURA ${v.factura} POR ADQUISICION DE ${v.articulo} PARA ${destino} DE ${v.dependencia}.\nOC ${v.oc} REQ ${v.requisicion} ${v.entrada}\nPROCEDIMIENTO EN PORTAL WEB DE COMPRAS: ${v.procedimiento}`.toUpperCase();
+    const text = `${v.unidad === 'UNIDADES' ? 'STOCK' : v.unidad}: PAGO DE FACTURA ${v.factura} POR ADQUISICION DE ${v.articulo} PARA ${destino} DE ${v.dependencia}.\nOC ${v.oc} REQ ${v.requisicion} ${v.entrada}\nPROCEDIMIENTO EN PORTAL WEB DE COMPRAS: ${v.procedimiento}`.toUpperCase();
     return {text,missing,values:v};
   }
   function cell(raw, numberFormat) {

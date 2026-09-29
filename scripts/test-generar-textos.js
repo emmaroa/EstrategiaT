@@ -9,7 +9,8 @@ function buffer(b){return b.buffer.slice(b.byteOffset,b.byteOffset+b.byteLength)
 (async()=>{
   const ejemplo={unidad:'1234',factura:'5555',articulo:'CRUCETA',dependencia:'SERVICIOS PUBLICOS MUNICIPALES',oc:'12',requisicion:'58',entrada:'EA-000587',procedimiento:'T26-00058'};
   assert.equal(api.format(ejemplo).text,'1234: PAGO DE FACTURA 5555 POR ADQUISICION DE CRUCETA PARA UNIDAD 1234 DE SERVICIOS PUBLICOS MUNICIPALES.\nOC 12 REQ 58 EA-000587\nPROCEDIMIENTO EN PORTAL WEB DE COMPRAS: T26-00058');
-  for(const unidad of ['', 'STOCK', 'SIN UNIDAD', 'N/A']) assert.match(api.format({...ejemplo,unidad}).text,/^UNIDADES: .* PARA UNIDADES DE /);
+  for(const unidad of ['TALLERES 1234','TALLERES, PARA UNIDAD 1234','TALLERES: UNIDAD 1234']) assert.equal(api.format({...ejemplo,unidad}).text,api.format(ejemplo).text);
+  for(const unidad of ['', 'STOCK', 'SIN UNIDAD', 'N/A']) assert.match(api.format({...ejemplo,unidad}).text,/^STOCK: .* PARA UNIDADES DE /);
   for(const [input,out] of [['003351','003351'],['3351.0','3351'],['0003.0','0003'],['STOCK','STOCK'],['0','0'],['AB-01','AB-01'],['  2743.0  ','2743']])assert.equal(api.clean(input,true),out);
   for(const bad of [undefined,null,NaN,{},'undefined','null','NaN','[object Object]'])assert.equal(api.clean(bad,true),'');
   assert.equal(api.normalize(' NÚM.   Entrada-Almacén '),api.normalize('No Entrada Almacen'));
@@ -20,7 +21,7 @@ function buffer(b){return b.buffer.slice(b.byteOffset,b.byteOffset+b.byteLength)
   const converted=convert(parsed);assert.equal(converted.omitted,1);assert.equal(converted.records[0].source.row,4);assert.equal(api.format(converted.records[0].values).text,expected);
   assert.equal(converted.records[1].values.unidad,'000035');assert.equal(converted.records[2].values.unidad,'UNIDADES');assert.equal(converted.records[3].values.unidad,'0');assert.equal(converted.records[4].values.unidad,'UNIDADES');
   assert.deepEqual(api.format(converted.records[4].values).missing,[]);
-  assert.match(api.format(converted.records[4].values).text,/^UNIDADES: .* PARA UNIDADES DE /);
+  assert.match(api.format(converted.records[4].values).text,/^STOCK: .* PARA UNIDADES DE /);
   assert.equal(api.format({...converted.records[4].values,unidad:'0007'}).text.split('\n').length,3);
   const csv=headers.join(';')+'\r\n'+row.join(';')+'\r\n'+['2743.0','Material, con "comillas"','Dependencia','OC-22','REQ-4','0012','EA-2','WEB-1'].map(v=>'"'+v.replace(/"/g,'""')+'"').join(';');
   const csvBook=await api.readBuffer('prueba.csv',buffer(Buffer.from('\ufeff'+csv)));assert.equal(api.format(convert(csvBook).records[0].values).text,expected);
