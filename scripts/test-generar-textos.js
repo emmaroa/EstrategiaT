@@ -11,6 +11,16 @@ function buffer(b){return b.buffer.slice(b.byteOffset,b.byteOffset+b.byteLength)
   assert.equal(api.format(ejemplo).text,'1234: PAGO DE FACTURA 5555 POR ADQUISICION DE CRUCETA PARA UNIDAD 1234 DE SERVICIOS PUBLICOS MUNICIPALES.\nOC 12 REQ 58 EA-000587\nPROCEDIMIENTO EN PORTAL WEB DE COMPRAS: T26-00058');
   for(const unidad of ['TALLERES 1234','TALLERES, PARA UNIDAD 1234','TALLERES: UNIDAD 1234']) assert.equal(api.format({...ejemplo,unidad}).text,api.format(ejemplo).text);
   for(const unidad of ['', 'STOCK', 'SIN UNIDAD', 'N/A']) assert.match(api.format({...ejemplo,unidad}).text,/^STOCK: .* PARA UNIDADES DE /);
+  const record=(values,errors={})=>({values:{...ejemplo,...values},errors});
+  const originals=[record({articulo:'CRUCETA'}),record({articulo:'BALATAS'}),record({articulo:'FILTRO'})];
+  const grouped=api.group(originals);
+  assert.equal(grouped.length,1);assert.equal(grouped[0].values.articulo,'CRUCETA, BALATAS, FILTRO');assert.equal(grouped[0].members.length,3);
+  assert.equal(originals[0].values.articulo,'CRUCETA','Grouping preserves original rows');
+  for(const key of ['factura','unidad','dependencia','oc','requisicion','entrada','procedimiento'])assert.equal(api.group([record({}),record({[key]:'OTRO-99'})]).length,2,key+' must match');
+  assert.equal(api.group([record({}),record({dependencia:' servicios publicos municipales '})]).length,1);
+  assert.equal(api.group([record({unidad:'STOCK'}),record({unidad:''})]).length,1);
+  assert.equal(api.group([record({}),record({articulo:''}),record({},{articulo:'Error de celda'})]).length,3,'Incomplete and erroneous rows remain visible');
+  assert.equal(api.group([record({}),record({})])[0].values.articulo,'CRUCETA, CRUCETA','Repeated source articles are not silently discarded');
   for(const [input,out] of [['003351','003351'],['3351.0','3351'],['0003.0','0003'],['STOCK','STOCK'],['0','0'],['AB-01','AB-01'],['  2743.0  ','2743']])assert.equal(api.clean(input,true),out);
   for(const bad of [undefined,null,NaN,{},'undefined','null','NaN','[object Object]'])assert.equal(api.clean(bad,true),'');
   assert.equal(api.normalize(' NÚM.   Entrada-Almacén '),api.normalize('No Entrada Almacen'));

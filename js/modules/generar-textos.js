@@ -51,10 +51,11 @@
   function agregarFila(){if(rows.length>=api.MAX_ROWS){mostrarToast('El límite es de 10,000 filas.');return;}rows.push({id:nextId++,values:blank(),errors:{},generated:false});tablePage=Math.ceil(rows.length/pageSize);renderTable();document.querySelector('#tabla tbody tr:last-child input')?.focus();}
   function generar(){showing=true;rows.forEach(r=>{r.generated=!isEmpty(r);});resultPage=1;renderTable();renderResults();}
   function editRow(r){tablePage=Math.floor(rows.indexOf(r)/pageSize)+1;renderTable();const tr=document.querySelector('#tabla tr[data-row-id="'+r.id+'"]');tr?.scrollIntoView({behavior:'smooth',block:'center'});tr?.querySelector('input')?.focus();}
-  function completeTexts(){return rows.filter(r=>r.generated&&!isEmpty(r)&&!missing(r).length&&!Object.keys(r.errors).length).map(r=>api.format(r.values).text);}
+  function groupedResults(){return api.group(rows.filter(r=>r.generated&&!isEmpty(r)));}
+  function completeTexts(){return groupedResults().filter(r=>!missing(r).length&&!Object.keys(r.errors).length).map(r=>api.format(r.values).text);}
   function renderResults(){
     const host=$('resultado');host.replaceChildren();
-    const generated=rows.filter(r=>r.generated&&!isEmpty(r)), search=api.clean($('gtBuscar').value).toUpperCase(), filter=$('gtFiltro').value;
+    const generated=groupedResults(), search=api.clean($('gtBuscar').value).toUpperCase(), filter=$('gtFiltro').value;
     const visible=generated.filter(r=>{
       const complete=!missing(r).length&&!Object.keys(r.errors).length;
       return (!search||['unidad','factura','requisicion','oc'].some(key=>api.clean(r.values[key]).toUpperCase().includes(search)))&&(filter==='todos'||(filter==='completos'?complete:!complete));
@@ -64,6 +65,7 @@
       const output=api.format(r.values),complete=!output.missing.length&&!Object.keys(r.errors).length;
       const card=element('article',undefined,'result-card gt-result');card.dataset.rowId=r.id;
       card.append(element('strong',source(r)+' · Unidad: '+(api.clean(r.values.unidad,true)||'Sin unidad')));
+      if(r.members.length>1)card.append(element('p',r.members.length+' filas de la misma solicitud · Artículos reunidos en orden de captura.'));
       if(complete)card.append(element('pre',output.text));
       else{
         const notices=output.missing.map(key=>'Falta '+(key==='unidad'?'Unidad en la columna F':api.fields.find(f=>f.key===key).label)+'.');
@@ -71,7 +73,13 @@
         card.append(element('p',notices.join(' '),'gt-warning'));
       }
       const actions=element('div',undefined,'gt-result-actions');const copy=button('Copiar',()=>copiarTexto(api.format(r.values).text));copy.disabled=!complete;
-      actions.append(copy,button('Editar',()=>editRow(r)),button('Regenerar',()=>{r.generated=true;renderResults();}));card.append(actions);host.append(card);
+      let memberSelect;
+      if(r.members.length>1){
+        const label=element('label','Fila para editar ');memberSelect=element('select');
+        r.members.forEach((member,index)=>{const option=element('option',source(member)+' · '+api.clean(member.values.articulo));option.value=index;memberSelect.append(option);});
+        label.append(memberSelect);actions.append(label);
+      }
+      actions.append(copy,button('Editar',()=>editRow(r.members[Number(memberSelect?.value)||0])),button('Regenerar',()=>{r.members.forEach(member=>{member.generated=true;});renderResults();}));card.append(actions);host.append(card);
     });
     if(!visible.length)host.append(element('div',showing?'No hay resultados que coincidan. Revisa la captura y los filtros.':'Captura una fila o importa un archivo para generar textos.','empty-result'));
     pagination($('gtResultadoPaginas'),resultPage,visible.length,p=>{resultPage=p;renderResults();});
@@ -80,7 +88,7 @@
     const errors=generated.reduce((n,r)=>n+Object.keys(r.errors).length,0);
     const omitted=rows.filter(isEmpty).length+(lastImport?.omitted||0);
     $('gtResumen').textContent=(lastImport?'Último archivo: '+lastImport.name+' · Total de filas encontradas: '+lastImport.total+' · Filas omitidas del archivo: '+lastImport.omitted+'. ':'')+
-      'Captura actual: '+totals.length+' textos generados · '+incomplete+' filas incompletas · '+omitted+' filas vacías omitidas · '+errors+' errores detectados.';
+      'Captura actual: '+totals.length+' textos generados por solicitud · '+rows.filter(r=>r.generated&&!isEmpty(r)).length+' filas de origen · '+incomplete+' filas incompletas · '+omitted+' filas vacías omitidas · '+errors+' errores detectados.';
   }
   function currentSheet(){return pending?.sheets[Number($('gtHoja').value)||0];}
   function columnName(index){let s='';for(let n=index+1;n>0;n=Math.floor((n-1)/26))s=String.fromCharCode(65+(n-1)%26)+s;return s;}
@@ -121,7 +129,7 @@
       if(!file.size||file.size>api.MAX_SIZE)throw Error('El archivo está vacío o supera 10 MB.');
       const buffer=await file.arrayBuffer();if(token!==epoch)return;
       const data=await new Promise((resolve,reject)=>{
-        const current=new Worker(new URL('textos-importacion.worker.js?v=2.0.110',scriptURL));worker=current;
+        const current=new Worker(new URL('textos-importacion.worker.js?v=2.0.111',scriptURL));worker=current;
         const timeout=setTimeout(()=>{current.terminate();reject(Error('El archivo tardó demasiado en procesarse. Divide el archivo e inténtalo de nuevo.'));},60000);
         current.onmessage=event=>{clearTimeout(timeout);current.terminate();event.data.error?reject(Error(event.data.error)):resolve(event.data.data);};
         current.onerror=()=>{clearTimeout(timeout);current.terminate();reject(Error('No se pudo iniciar el lector local. Abre el sistema mediante su servidor web.'));};

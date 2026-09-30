@@ -14,6 +14,12 @@ La captura manual y la biblioteca de textos frecuentes permanecen disponibles. L
 
 **Cancelar importación** descarta solo el archivo pendiente. **Limpiar resultados** oculta los resultados conservando las filas editables; **Generar textos** los vuelve a generar. Agregar fila y Eliminar funcionan sin importar archivos. La tabla y los resultados se paginan de 50 en 50, con un máximo de 10,000 filas de datos en la captura.
 
+## Artículos de una misma solicitud
+
+Los resultados agrupan las filas completas cuando coinciden factura, unidad, dependencia, OC, requisición, entrada y procedimiento. Se comparan los valores limpios sin distinguir mayúsculas; se conservan los ceros iniciales y los prefijos. Los artículos se concatenan con coma y espacio en el orden de captura, sin eliminar artículos repetidos. Las unidades sin número corresponden a STOCK.
+
+Las filas originales permanecen en la tabla. Cada resultado agrupado indica cuántas filas contiene y permite seleccionar la fila que se quiere editar. Al editar o eliminar una fila se recalcula la agrupación; también se aplica a la copia individual, Copiar todos y la descarga. Las filas con campos faltantes o errores permanecen separadas y visibles para corregirlas. Se agrupa toda la captura activa, incluidas importaciones adicionales.
+
 ## Formato exacto
 
 ```text

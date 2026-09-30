@@ -32,6 +32,25 @@
     const text = `${v.unidad === 'UNIDADES' ? 'STOCK' : v.unidad}: PAGO DE FACTURA ${v.factura} POR ADQUISICION DE ${v.articulo} PARA ${destino} DE ${v.dependencia}.\nOC ${v.oc} REQ ${v.requisicion} ${v.entrada}\nPROCEDIMIENTO EN PORTAL WEB DE COMPRAS: ${v.procedimiento}`.toUpperCase();
     return {text,missing,values:v};
   }
+  function group(records) {
+    const groups = [], byKey = new Map();
+    for (const record of records) {
+      const output = format(record.values);
+      // Una fila incompleta o con errores debe seguir visible para corregirse.
+      const eligible = !output.missing.length && !Object.keys(record.errors || {}).length;
+      const key = eligible ? JSON.stringify(fields.filter(f=>f.key!=='articulo').map(f=>output.values[f.key].toUpperCase())) : null;
+      const existing = key === null ? null : byKey.get(key);
+      if (existing) {
+        existing.members.push(record);
+        existing.values.articulo += ', ' + output.values.articulo;
+      } else {
+        const entry = {...record, values:{...output.values}, members:[record]};
+        groups.push(entry);
+        if (key !== null) byKey.set(key,entry);
+      }
+    }
+    return groups;
+  }
   function cell(raw, numberFormat) {
     if(raw && typeof raw === 'object') {
       if(raw.error) return {text:'',error:'Error de celda: '+raw.error};
@@ -133,7 +152,7 @@
     });
     return {records,total:rows.length,omitted};
   }
-  const api={fields,clean,normalize,format,cell,parseCSV,detect,readBuffer,convert,MAX_ROWS,MAX_SIZE};
+  const api={fields,clean,normalize,format,group,cell,parseCSV,detect,readBuffer,convert,MAX_ROWS,MAX_SIZE};
   root.ETTextosTabulares=api;
   if(typeof module!=='undefined'&&module.exports)module.exports=api;
 })(typeof window!=='undefined'?window:globalThis);
