@@ -1,0 +1,626 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard de Control de Mantenimiento Vehicular</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- PapaParse para procesamiento CSV -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
+    <!-- Chart.js para gráficas -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        .gradient-bg { background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%); }
+        .card-hover:hover { transform: translateY(-3px); transition: all 0.2s ease-in-out; }
+    </style>
+</head>
+<body class="bg-slate-100 min-h-screen text-slate-800 font-sans">
+
+    <!-- Header / Navbar -->
+    <header class="gradient-bg text-white shadow-lg py-5 px-6">
+        <div class="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center gap-4">
+            <div class="flex items-center space-x-3">
+                <div class="p-3 bg-emerald-500 rounded-lg text-white font-bold text-xl">
+                    <i class="fa-solid fa-bolt-lightning"></i>
+                </div>
+                <div>
+                    <h1 class="text-2xl font-bold tracking-wide">Control de Mantenimiento Vehicular</h1>
+                    <p class="text-xs text-slate-400">Análisis Operativo: Unidades Eléctricas vs No Eléctricas</p>
+                </div>
+            </div>
+            <div id="fileInfo" class="text-xs bg-slate-800/80 px-4 py-2 rounded-lg border border-slate-700 hidden">
+                <i class="fa-solid fa-file-csv text-emerald-400 mr-2"></i>
+                <span id="fileName" class="font-semibold text-slate-200"></span>
+                <span id="fileRows" class="text-slate-400 ml-2"></span>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
+
+        <!-- Dropzone / File Loader -->
+        <div id="dropzoneContainer" class="bg-white rounded-2xl shadow-sm border-2 border-dashed border-slate-300 p-8 text-center hover:border-emerald-500 transition-colors cursor-pointer group">
+            <input type="file" id="csvFileInput" accept=".csv" class="hidden">
+            <div class="space-y-4" onclick="document.getElementById('csvFileInput').click()">
+                <div class="w-16 h-16 bg-emerald-50 text-emerald-600 rounded-full flex items-center justify-center mx-auto group-hover:scale-110 transition-transform">
+                    <i class="fa-solid fa-cloud-arrow-up text-2xl"></i>
+                </div>
+                <div>
+                    <p class="text-lg font-semibold text-slate-700">Carga aquí tu archivo CSV de mantenimiento</p>
+                    <p class="text-sm text-slate-500 mt-1">Haz clic para seleccionar o arrastra el archivo <span class="font-mono text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded">ReporteOperativoManteRefacciones...csv</span></p>
+                </div>
+                <div class="pt-2">
+                    <span class="inline-flex items-center text-xs text-slate-400">
+                        <i class="fa-solid fa-circle-info mr-1 text-emerald-500"></i> Detección automática de modelos eléctricos (JAC E10X, ESEI, Dolphin, Frison EV, Dulevo EV, S12-EV)
+                    </span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Dashboard Section (Hidden until CSV is loaded) -->
+        <div id="dashboardSection" class="hidden space-y-8">
+
+            <!-- Global Filters Bar -->
+            <div class="bg-white p-5 rounded-xl shadow-sm border border-slate-200 grid grid-cols-1 md:grid-cols-4 gap-4 items-end">
+                <div>
+                    <label class="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1">Buscar por Palabra Clave</label>
+                    <div class="relative">
+                        <i class="fa-solid fa-magnifying-glass absolute left-3 top-3 text-slate-400 text-sm"></i>
+                        <input type="text" id="searchInput" placeholder="Vehículo, folio, refacción..." class="w-full pl-9 pr-3 py-2 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-emerald-500 focus:outline-none">
+                    </div>
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1">Dependencia</label>
+                    <select id="dependenciaFilter" class="w-full py-2 px-3 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-emerald-500 focus:outline-none bg-white">
+                        <option value="TODAS">Todas las Dependencias</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1">Tipo de Mantenimiento</label>
+                    <select id="tipoMantoFilter" class="w-full py-2 px-3 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-emerald-500 focus:outline-none bg-white">
+                        <option value="TODOS">Todos los Tipos</option>
+                    </select>
+                </div>
+                <div>
+                    <button id="resetFiltersBtn" class="w-full bg-slate-100 hover:bg-slate-200 text-slate-600 font-medium py-2 px-4 rounded-lg text-sm transition-colors flex items-center justify-center space-x-2">
+                        <i class="fa-solid fa-rotate-left"></i>
+                        <span>Limpiar Filtros</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Executive Summary Cards -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+
+                <!-- Total Flota Card -->
+                <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-6 card-hover">
+                    <div class="flex justify-between items-start">
+                        <div>
+                            <p class="text-xs font-bold text-slate-400 uppercase tracking-wider">Total General de Folios</p>
+                            <h3 id="cardTotalFolios" class="text-3xl font-extrabold text-slate-800 mt-2">0</h3>
+                            <p id="cardTotalPartidas" class="text-xs text-slate-500 mt-1">(0 partidas de servicio)</p>
+                        </div>
+                        <div class="p-3 bg-slate-100 text-slate-600 rounded-xl">
+                            <i class="fa-solid fa-list-check text-xl"></i>
+                        </div>
+                    </div>
+                    <div class="mt-4 pt-4 border-t border-slate-100 flex justify-between text-xs text-slate-500">
+                        <span>Órdenes Atendidas: <strong id="cardTotalAtendidos" class="text-slate-700">0</strong></span>
+                        <span id="cardTotalPct" class="font-bold text-slate-700">0%</span>
+                    </div>
+                </div>
+
+                <!-- Unidades Eléctricas Card -->
+                <div class="bg-white rounded-xl shadow-sm border-2 border-emerald-500/30 p-6 card-hover relative overflow-hidden">
+                    <div class="absolute top-0 right-0 w-2 h-full bg-emerald-500"></div>
+                    <div class="flex justify-between items-start">
+                        <div>
+                            <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-bold bg-emerald-100 text-emerald-800 mb-1">
+                                <i class="fa-solid fa-bolt mr-1"></i> Eléctricas
+                            </span>
+                            <h3 id="cardEvFolios" class="text-3xl font-extrabold text-emerald-600 mt-1">0</h3>
+                            <p id="cardEvPartidas" class="text-xs text-slate-500 mt-1">(0 partidas de servicio)</p>
+                        </div>
+                        <div class="p-3 bg-emerald-50 text-emerald-600 rounded-xl">
+                            <i class="fa-solid fa-car-battery text-xl"></i>
+                        </div>
+                    </div>
+                    <div class="mt-4 pt-4 border-t border-slate-100 flex justify-between items-center text-xs">
+                        <span class="text-slate-500">Atendidos (Folio Orden): <strong id="cardEvAtendidos" class="text-emerald-700">0</strong></span>
+                        <span id="cardEvPct" class="font-bold bg-emerald-50 text-emerald-700 px-2 py-0.5 rounded-full">0%</span>
+                    </div>
+                </div>
+
+                <!-- Unidades No Eléctricas Card -->
+                <div class="bg-white rounded-xl shadow-sm border-2 border-blue-500/30 p-6 card-hover relative overflow-hidden">
+                    <div class="absolute top-0 right-0 w-2 h-full bg-blue-500"></div>
+                    <div class="flex justify-between items-start">
+                        <div>
+                            <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-bold bg-blue-100 text-blue-800 mb-1">
+                                <i class="fa-solid fa-gas-pump mr-1"></i> No Eléctricas / Combustión
+                            </span>
+                            <h3 id="cardCombFolios" class="text-3xl font-extrabold text-blue-600 mt-1">0</h3>
+                            <p id="cardCombPartidas" class="text-xs text-slate-500 mt-1">(0 partidas de servicio)</p>
+                        </div>
+                        <div class="p-3 bg-blue-50 text-blue-600 rounded-xl">
+                            <i class="fa-solid fa-truck-monster text-xl"></i>
+                        </div>
+                    </div>
+                    <div class="mt-4 pt-4 border-t border-slate-100 flex justify-between items-center text-xs">
+                        <span class="text-slate-500">Atendidos (Folio Orden): <strong id="cardCombAtendidos" class="text-blue-700">0</strong></span>
+                        <span id="cardCombPct" class="font-bold bg-blue-50 text-blue-700 px-2 py-0.5 rounded-full">0%</span>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- Visual Charts Row -->
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+
+                <!-- Comparison Chart -->
+                <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-200">
+                    <h4 class="text-base font-bold text-slate-700 mb-4 flex items-center">
+                        <i class="fa-solid fa-chart-column text-emerald-500 mr-2"></i>
+                        Comparativo: Programado vs Realizado (Folios Únicos)
+                    </h4>
+                    <div class="h-64 relative">
+                        <canvas id="chartComparison"></canvas>
+                    </div>
+                </div>
+
+                <!-- Top EV Models Chart -->
+                <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-200">
+                    <h4 class="text-base font-bold text-slate-700 mb-4 flex items-center">
+                        <i class="fa-solid fa-bolt text-amber-500 mr-2"></i>
+                        Modelos Eléctricos Más Atendidos
+                    </h4>
+                    <div class="h-64 relative">
+                        <canvas id="chartEvModels"></canvas>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- Detailed Data Table Section -->
+            <div class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
+                <div class="p-5 border-b border-slate-200 flex flex-col md:flex-row justify-between items-center gap-4">
+                    <div>
+                        <h4 class="text-base font-bold text-slate-800">Detalle Operativo de Registros</h4>
+                        <p class="text-xs text-slate-500">Mostrando registros según los filtros seleccionados</p>
+                    </div>
+                    <div class="flex items-center space-x-3">
+                        <span id="tableRecordCount" class="text-xs bg-slate-100 text-slate-600 px-3 py-1 rounded-full font-medium">0 registros</span>
+                        <button id="exportCsvBtn" class="bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-semibold px-3 py-2 rounded-lg flex items-center space-x-1.5 transition-colors">
+                            <i class="fa-solid fa-file-export"></i>
+                            <span>Exportar CSV</span>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left text-xs text-slate-600">
+                        <thead class="bg-slate-50 text-slate-500 font-semibold uppercase tracking-wider border-b border-slate-200">
+                            <tr>
+                                <th class="p-3">Tipo Flota</th>
+                                <th class="p-3">Folio Sol.</th>
+                                <th class="p-3">Folio Orden</th>
+                                <th class="p-3">Descripción Vehículo</th>
+                                <th class="p-3">Dependencia</th>
+                                <th class="p-3">Tipo Mantenimiento</th>
+                                <th class="p-3 text-right">Costo Total</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tableBody" class="divide-y divide-slate-100">
+                            <!-- Dynamic Rows -->
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Table Pagination -->
+                <div class="p-4 border-t border-slate-200 flex items-center justify-between text-xs text-slate-500">
+                    <div id="paginationInfo">Página 1 de 1</div>
+                    <div class="flex space-x-2">
+                        <button id="prevPageBtn" class="px-3 py-1 border border-slate-300 rounded hover:bg-slate-50 disabled:opacity-50">Anterior</button>
+                        <button id="nextPageBtn" class="px-3 py-1 border border-slate-300 rounded hover:bg-slate-50 disabled:opacity-50">Siguiente</button>
+                    </div>
+                </div>
+
+            </div>
+
+        </div>
+
+    </main>
+
+    <!-- JavaScript Logic -->
+    <script>
+        // --- State Management ---
+        let rawData = [];
+        let filteredData = [];
+        let currentPage = 1;
+        const pageSize = 15;
+
+        // Chart instances
+        let comparisonChartInstance = null;
+        let evModelsChartInstance = null;
+
+        // --- EV Identification Logic ---
+        // Matches electric vehicles specifically while filtering stationary generators or non-EVs
+        function isElectricVehicle(row) {
+            // Find text in relevant columns regardless of exact header casing
+            const descCorta = (row['Descripción Corta'] || row['DESCRIPCION CORTA'] || row['Descripcion Corta'] || '').toString().trim();
+            const descSol = (row['Descripción Sol. Manto'] || row['DESCRIPCION SOL. MANTO'] || '').toString().trim();
+
+            const fullText = (descCorta + ' ' + descSol).toUpperCase();
+
+            // Explicit Exclusions (Generators or Gas Vehicles)
+            if (fullText.includes('PLANTA ELECTRICA') || fullText.includes('GENERADOR')) {
+                return false;
+            }
+
+            // Keyword patterns for electric vehicles in your fleet
+            const evKeywords = [
+                'ELECTRICO', 'ELECTRICA', 'DOLPHIN', 'E10X', 
+                'ESEI', 'E-SEI', 'EFRISON', 'S12-EV', 
+                'DULEVO', 'BARREDORA ELECTRICA', 'EJ7', 'EV '
+            ];
+
+            return evKeywords.some(keyword => fullText.includes(keyword));
+        }
+
+        // --- DOM Elements ---
+        const csvFileInput = document.getElementById('csvFileInput');
+        const dropzoneContainer = document.getElementById('dropzoneContainer');
+        const dashboardSection = document.getElementById('dashboardSection');
+        const fileInfo = document.getElementById('fileInfo');
+
+        const searchInput = document.getElementById('searchInput');
+        const dependenciaFilter = document.getElementById('dependenciaFilter');
+        const tipoMantoFilter = document.getElementById('tipoMantoFilter');
+        const resetFiltersBtn = document.getElementById('resetFiltersBtn');
+
+        // File Selection Handlers
+        csvFileInput.addEventListener('change', (e) => {
+            if (e.target.files.length > 0) processCSVFile(e.target.files[0]);
+        });
+
+        dropzoneContainer.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            dropzoneContainer.classList.add('border-emerald-500', 'bg-emerald-50/50');
+        });
+
+        dropzoneContainer.addEventListener('dragleave', () => {
+            dropzoneContainer.classList.remove('border-emerald-500', 'bg-emerald-50/50');
+        });
+
+        dropzoneContainer.addEventListener('drop', (e) => {
+            e.preventDefault();
+            dropzoneContainer.classList.remove('border-emerald-500', 'bg-emerald-50/50');
+            if (e.dataTransfer.files.length > 0) processCSVFile(e.dataTransfer.files[0]);
+        });
+
+        // Parse CSV with PapaParse
+        function processCSVFile(file) {
+            Papa.parse(file, {
+                header: true,
+                skipEmptyLines: true,
+                transformHeader: function(header) {
+                    // Clean BOM characters and whitespace from headers
+                    return header.replace(/^\ufeff/, '').trim();
+                },
+                complete: function(results) {
+                    if (results.data && results.data.length > 0) {
+                        rawData = results.data.map(row => ({
+                            ...row,
+                            _isEV: isElectricVehicle(row)
+                        }));
+
+                        // Update header file info
+                        document.getElementById('fileName').innerText = file.name;
+                        document.getElementById('fileRows').innerText = `(${rawData.length.toLocaleString()} filas)`;
+                        fileInfo.classList.remove('hidden');
+
+                        // Build filter options & show dashboard
+                        populateFilterDropdowns();
+                        applyFilters();
+
+                        dropzoneContainer.classList.add('hidden');
+                        dashboardSection.classList.remove('hidden');
+                    } else {
+                        alert('El archivo CSV parece estar vacío o con un formato no compatible.');
+                    }
+                },
+                error: function(err) {
+                    alert('Error al leer el archivo CSV: ' + err.message);
+                }
+            });
+        }
+
+        // Populate Dropdown Options dynamically
+        function populateFilterDropdowns() {
+            const dependencias = new Set();
+            const tiposManto = new Set();
+
+            rawData.forEach(r => {
+                const dep = r['Dependencia'] || r['DEPENDENCIA'];
+                const tipo = r['Tipo Manto'] || r['TIPO MANTO'];
+                if (dep) dependencias.add(dep.trim());
+                if (tipo) tiposManto.add(tipo.trim());
+            });
+
+            // Populate Dependencias
+            dependenciaFilter.innerHTML = '<option value="TODAS">Todas las Dependencias</option>';
+            Array.from(dependencias).sort().forEach(dep => {
+                const opt = document.createElement('option');
+                opt.value = dep;
+                opt.textContent = dep;
+                dependenciaFilter.appendChild(opt);
+            });
+
+            // Populate Tipos Manto
+            tipoMantoFilter.innerHTML = '<option value="TODOS">Todos los Tipos</option>';
+            Array.from(tiposManto).sort().forEach(tipo => {
+                const opt = document.createElement('option');
+                opt.value = tipo;
+                opt.textContent = tipo;
+                tipoMantoFilter.appendChild(opt);
+            });
+        }
+
+        // Filter Event Listeners
+        searchInput.addEventListener('input', () => { currentPage = 1; applyFilters(); });
+        dependenciaFilter.addEventListener('change', () => { currentPage = 1; applyFilters(); });
+        tipoMantoFilter.addEventListener('change', () => { currentPage = 1; applyFilters(); });
+
+        resetFiltersBtn.addEventListener('click', () => {
+            searchInput.value = '';
+            dependenciaFilter.value = 'TODAS';
+            tipoMantoFilter.value = 'TODOS';
+            currentPage = 1;
+            applyFilters();
+        });
+
+        // Apply Filters
+        function applyFilters() {
+            const searchVal = searchInput.value.toLowerCase().trim();
+            const depVal = dependenciaFilter.value;
+            const tipoVal = tipoMantoFilter.value;
+
+            filteredData = rawData.filter(row => {
+                // Dependencia match
+                if (depVal !== 'TODAS' && (row['Dependencia'] || '').trim() !== depVal) return false;
+                
+                // Tipo Manto match
+                if (tipoVal !== 'TODOS' && (row['Tipo Manto'] || '').trim() !== tipoVal) return false;
+
+                // Search keyword match
+                if (searchVal) {
+                    const rowText = Object.values(row).join(' ').toLowerCase();
+                    if (!rowText.includes(searchVal)) return false;
+                }
+
+                return true;
+            });
+
+            updateMetricsAndCharts();
+            renderTable();
+        }
+
+        // Calculate Unique Folios and Metrics
+        function updateMetricsAndCharts() {
+            // Helper for counting unique Folio Sol. Manto
+            function getStats(dataset) {
+                const allFolios = new Set();
+                const completedFolios = new Set();
+                let partidasCount = dataset.length;
+                let completedPartidas = 0;
+
+                dataset.forEach(r => {
+                    const folioSol = (r['Folio Sol. Manto'] || r['FOLIO SOL. MANTO'] || '').toString().trim();
+                    const folioOrden = (r['Folio Orden'] || r['FOLIO ORDEN'] || '').toString().trim();
+
+                    if (folioSol) {
+                        allFolios.add(folioSol);
+                        if (folioOrden && folioOrden !== '0' && folioOrden !== 'NaN') {
+                            completedFolios.add(folioSol);
+                        }
+                    }
+
+                    if (folioOrden && folioOrden !== '0' && folioOrden !== 'NaN') {
+                        completedPartidas++;
+                    }
+                });
+
+                return {
+                    uniqueFolios: allFolios.size,
+                    completedFolios: completedFolios.size,
+                    totalPartidas: partidasCount,
+                    completedPartidas: completedPartidas
+                };
+            }
+
+            const totalStats = getStats(filteredData);
+            const evData = filteredData.filter(r => r._isEV);
+            const evStats = getStats(evData);
+
+            const combData = filteredData.filter(r => !r._isEV);
+            const combStats = getStats(combData);
+
+            // Render Cards Info
+            document.getElementById('cardTotalFolios').innerText = totalStats.uniqueFolios.toLocaleString();
+            document.getElementById('cardTotalPartidas').innerText = `(${totalStats.totalPartidas.toLocaleString()} partidas de servicio)`;
+            document.getElementById('cardTotalAtendidos').innerText = totalStats.completedFolios.toLocaleString();
+            const totalPct = totalStats.uniqueFolios ? ((totalStats.completedFolios / totalStats.uniqueFolios) * 100).toFixed(1) : 0;
+            document.getElementById('cardTotalPct').innerText = `${totalPct}% cumplido`;
+
+            document.getElementById('cardEvFolios').innerText = evStats.uniqueFolios.toLocaleString();
+            document.getElementById('cardEvPartidas').innerText = `(${evStats.totalPartidas.toLocaleString()} partidas de servicio)`;
+            document.getElementById('cardEvAtendidos').innerText = evStats.completedFolios.toLocaleString();
+            const evPct = evStats.uniqueFolios ? ((evStats.completedFolios / evStats.uniqueFolios) * 100).toFixed(1) : 0;
+            document.getElementById('cardEvPct').innerText = `${evPct}% cumplido`;
+
+            document.getElementById('cardCombFolios').innerText = combStats.uniqueFolios.toLocaleString();
+            document.getElementById('cardCombPartidas').innerText = `(${combStats.totalPartidas.toLocaleString()} partidas de servicio)`;
+            document.getElementById('cardCombAtendidos').innerText = combStats.completedFolios.toLocaleString();
+            const combPct = combStats.uniqueFolios ? ((combStats.completedFolios / combStats.uniqueFolios) * 100).toFixed(1) : 0;
+            document.getElementById('cardCombPct').innerText = `${combPct}% cumplido`;
+
+            // Update Charts
+            renderCharts(evStats, combStats, evData);
+        }
+
+        // Render Chart.js
+        function renderCharts(evStats, combStats, evData) {
+            // Chart 1: Comparison
+            const ctx1 = document.getElementById('chartComparison').getContext('2d');
+            if (comparisonChartInstance) comparisonChartInstance.destroy();
+
+            comparisonChartInstance = new Chart(ctx1, {
+                type: 'bar',
+                data: {
+                    labels: ['Unidades Eléctricas', 'Combustión / No Eléctricas'],
+                    datasets: [
+                        {
+                            label: 'Folios Programados (Solicitados)',
+                            data: [evStats.uniqueFolios, combStats.uniqueFolios],
+                            backgroundColor: ['rgba(16, 185, 129, 0.3)', 'rgba(59, 130, 246, 0.3)'],
+                            borderColor: ['#10b981', '#3b82f6'],
+                            borderWidth: 2,
+                            borderRadius: 6
+                        },
+                        {
+                            label: 'Folios Realizados (Con Orden)',
+                            data: [evStats.completedFolios, combStats.completedFolios],
+                            backgroundColor: ['#10b981', '#3b82f6'],
+                            borderRadius: 6
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { position: 'top' }
+                    },
+                    scales: {
+                        y: { beginAtZero: true }
+                    }
+                }
+            });
+
+            // Chart 2: Top EV Models
+            const ctx2 = document.getElementById('chartEvModels').getContext('2d');
+            if (evModelsChartInstance) evModelsChartInstance.destroy();
+
+            // Count EV occurrences by model name
+            const modelCounts = {};
+            evData.forEach(r => {
+                const model = (r['Descripción Corta'] || 'SIN ESPECIFICAR').toString().trim();
+                modelCounts[model] = (modelCounts[model] || 0) + 1;
+            });
+
+            const sortedModels = Object.entries(modelCounts)
+                .sort((a, b) => b[1] - a[1])
+                .slice(0, 6);
+
+            evModelsChartInstance = new Chart(ctx2, {
+                type: 'doughnut',
+                data: {
+                    labels: sortedModels.map(m => m[0]),
+                    datasets: [{
+                        data: sortedModels.map(m => m[1]),
+                        backgroundColor: [
+                            '#10b981', '#059669', '#34d399', 
+                            '#0284c7', '#06b6d4', '#6366f1'
+                        ]
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { position: 'right', labels: { boxWidth: 12, font: { size: 10 } } }
+                    }
+                }
+            });
+        }
+
+        // Render Table Data
+        function renderTable() {
+            const tableBody = document.getElementById('tableBody');
+            document.getElementById('tableRecordCount').innerText = `${filteredData.length.toLocaleString()} partidas`;
+
+            const totalPages = Math.ceil(filteredData.length / pageSize) || 1;
+            if (currentPage > totalPages) currentPage = totalPages;
+
+            const startIndex = (currentPage - 1) * pageSize;
+            const pageData = filteredData.slice(startIndex, startIndex + pageSize);
+
+            tableBody.innerHTML = '';
+
+            if (pageData.length === 0) {
+                tableBody.innerHTML = `<tr><td colspan="7" class="p-8 text-center text-slate-400">No se encontraron registros que coincidan con los filtros.</td></tr>`;
+            } else {
+                pageData.forEach(row => {
+                    const tr = document.createElement('tr');
+                    tr.className = 'hover:bg-slate-50 transition-colors';
+
+                    const isEV = row._isEV;
+                    const badge = isEV 
+                        ? `<span class="px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-100 text-emerald-800"><i class="fa-solid fa-bolt mr-1"></i>Eléctrico</span>`
+                        : `<span class="px-2 py-0.5 rounded text-[10px] font-bold bg-slate-100 text-slate-600">Combustión</span>`;
+
+                    tr.innerHTML = `
+                        <td class="p-3">${badge}</td>
+                        <td class="p-3 font-semibold text-slate-700">${row['Folio Sol. Manto'] || '-'}</td>
+                        <td class="p-3 font-mono text-slate-600">${row['Folio Orden'] || '<span class="text-amber-600 bg-amber-50 px-1.5 py-0.5 rounded">Pendiente</span>'}</td>
+                        <td class="p-3 font-medium text-slate-800">${row['Descripción Corta'] || '-'}</td>
+                        <td class="p-3 text-slate-600">${row['Dependencia'] || '-'}</td>
+                        <td class="p-3 text-slate-600">${row['Tipo Manto'] || '-'}</td>
+                        <td class="p-3 text-right font-medium text-slate-700">$${Number(row['Costo Total'] || 0).toLocaleString('es-MX', {minimumFractionDigits: 2})}</td>
+                    `;
+                    tableBody.appendChild(tr);
+                });
+            }
+
+            // Pagination Controls
+            document.getElementById('paginationInfo').innerText = `Página ${currentPage} de ${totalPages}`;
+            document.getElementById('prevPageBtn').disabled = (currentPage === 1);
+            document.getElementById('nextPageBtn').disabled = (currentPage === totalPages);
+        }
+
+        document.getElementById('prevPageBtn').addEventListener('click', () => {
+            if (currentPage > 1) { currentPage--; renderTable(); }
+        });
+
+        document.getElementById('nextPageBtn').addEventListener('click', () => {
+            const totalPages = Math.ceil(filteredData.length / pageSize);
+            if (currentPage < totalPages) { currentPage++; renderTable(); }
+        });
+
+        // Export Filtered Table to CSV
+        document.getElementById('exportCsvBtn').addEventListener('click', () => {
+            if (filteredData.length === 0) return alert('No hay datos para exportar.');
+            
+            const exportData = filteredData.map(r => {
+                const cleaned = { ...r };
+                delete cleaned._isEV;
+                cleaned['Es Eléctrico'] = r._isEV ? 'SI' : 'NO';
+                return cleaned;
+            });
+
+            const csv = Papa.unparse(exportData);
+            const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+            const link = document.createElement('a');
+            link.href = URL.createObjectURL(blob);
+            link.setAttribute('download', 'Reporte_Mantenimiento_Filtrado.csv');
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        });
+    </script>
+</body>
+</html>
