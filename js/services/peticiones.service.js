@@ -141,6 +141,10 @@
   async function eliminar(id) {
     const client = getClient();
     if (!client) return { error: { message: "Sin conexión" } };
+    if(edicionSoloPropias()) {
+      const ownership=await consultarPropias(id);
+      if(ownership.error || !ownership.data.includes(id))return {error:{message:'Solo puedes eliminar las peticiones que tú creaste. No se pudo confirmar tu autoría.'}};
+    }
 
     return client.from("peticiones").delete().eq("id", id);
   }

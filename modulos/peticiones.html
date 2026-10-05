@@ -96,7 +96,7 @@
   <script src="../js/core/table-columns.js?v=2.0.112"></script>
   <script src="../js/core/calendar-notifications.js?v=2.0.114"></script>
   <script src="../js/core/layout.js?v=2.0.114"></script>
-  <script src="../js/services/peticiones.service.js?v=2.0.115"></script>
+  <script src="../js/services/peticiones.service.js?v=2.0.116"></script>
   <script src="../js/services/cotizaciones-almacen.service.js?v=20260810-1"></script>
   <script src="../js/services/dependencias-cotizaciones.js"></script>
   <script src="../js/core/auth.js?v=20260819-3"></script>
@@ -759,7 +759,7 @@
 
     function puedeAccionPeticion(accion, peticion = null) {
       const usuarioActivo = obtenerUsuarioActivoPeticion();
-      if (accion === 'editar' && ETPeticiones.edicionSoloPropias(usuarioActivo)) {
+      if (['editar', 'eliminar'].includes(accion) && ETPeticiones.edicionSoloPropias(usuarioActivo)) {
         return ETPeticiones.puedeEditarPropia(peticion || (idEditando ? obtenerPeticionPorId(idEditando) : null));
       }
       if (
@@ -1047,7 +1047,7 @@
             verPeticion(p.id);
           });
           const puedeEditar = puedeAccionPeticion("editar", p);
-          const puedeEliminar = puedeAccionPeticion("eliminar");
+          const puedeEliminar = puedeAccionPeticion("eliminar", p);
           const puedeRevisarAlmacen =
             esJefeAlmacenPeticion() &&
             normalizarTextoPeticion(p.estatus) === "pendiente";
@@ -1949,9 +1949,8 @@
     }
 
     async function eliminarPeticion(id) {
-      if (!puedeAccionPeticion("eliminar")) return;
       const p = obtenerPeticionPorId(id);
-      if (!p) return;
+      if (!p || !puedeAccionPeticion("eliminar", p)) return;
       const confirmar = await ETFeedback.confirmar({
         title: "Eliminar petición",
         message: "Se eliminará la petición de la unidad " + p.unidad + ".",
