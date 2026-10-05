@@ -1,0 +1,34 @@
+const fs=require('node:fs'),vm=require('node:vm'),assert=require('node:assert/strict');
+const storage=new Map();
+const context=vm.createContext({console,Date,URLSearchParams,encodeURIComponent,localStorage:{getItem:k=>storage.get(k),setItem:(k,v)=>storage.set(k,v)}});
+vm.runInContext(fs.readFileSync('js/core/calendar-notifications.js','utf8'),context);
+const api=context.ETCalendarNotifications, user={id:'11111111-1111-4111-8111-111111111111',rol:'Admin'},now=Date.now();
+const event={id:'event',titulo:'Reunión',alcance:'Seleccionados',destinatarios:[user.id],creado_por:'other',fecha_inicio:new Date(now+20*60000).toISOString(),fecha_fin:new Date(now+80*60000).toISOString(),creado_en:new Date(now-60000).toISOString()};
+assert.equal(api.build([event],user,now).length,2);
+assert.equal(api.build([{...event,destinatarios:['other']}],user,now).length,0);
+assert.equal(api.build([{...event,alcance:'Personal'}],user,now).length,0);
+assert.equal(api.build([{...event,alcance:'Todos',destinatarios:[]}],user,now).length,2);
+assert.equal(api.build([{...event,alcance:'Personal',creado_por:user.id}],user,now).length,1);
+assert.equal(api.build([event],{...user,rol:'Proveedor'},now).length,0);
+assert.equal(api.build([{...event,fecha_inicio:'bad'}],user,now).length,0);
+assert.equal(api.build([event],user,now+90*60000).length,0);
+assert.equal(api.build([{...event,fecha_inicio:new Date(now+30*60000).toISOString()}],user,now).length,2);
+assert.equal(api.build([{...event,fecha_inicio:new Date(now+30*60000+1).toISOString()}],user,now).length,1);
+assert.equal(api.build([event],user,now+21*60000).length,1,'Started events do not trigger reminders');
+assert.ok(api.build([event],user,now)[0].enlace.includes('&evento=event'));
+let events=[event],error=null,calls=[];
+const client={from(table){assert.equal(table,'eventos_calendario');const query={select(){return query;},gte(){return query;},or(filter){assert.ok(filter.includes(user.id));return query;},order(){return query;},range(a,b){calls.push(a);return Promise.resolve({data:events.slice(a,b+1),error});}};return query;}};
+(async()=>{
+  const service=api.create(client,user);
+  let result=await service.load();assert.equal(result.fresh.length,2);
+  assert.equal((await service.load()).fresh.length,0,'Do not repeat toasts');
+  service.mark(result.items);assert.ok((await api.create(client,user).load()).items.every(n=>n.leida),'Read state survives navigation');
+  events=[{...event,fecha_inicio:new Date(now+10*60000).toISOString(),actualizado_en:new Date(now).toISOString()}];
+  result=await service.load();assert.equal(result.fresh.length,2,'Rescheduling produces updated invitation and reminder');
+  error={message:'offline'};await assert.rejects(service.load);error=null;
+  assert.equal((await service.load()).fresh.length,0,'Failures do not reset seen state');
+  events=[];assert.equal((await service.load()).items.length,0,'Deleted or unshared events disappear');
+  events=Array.from({length:501},(_,i)=>({...event,id:'event-'+i}));calls=[];assert.equal((await service.load()).items.length,1002);assert.deepEqual(calls,[0,500]);
+  for(const file of fs.readdirSync('modulos').filter(f=>f.endsWith('.html'))){const html=fs.readFileSync('modulos/'+file,'utf8');if(html.includes('core/layout.js'))assert.ok(html.includes('core/calendar-notifications.js'),file);}
+  console.log('Avisos de calendario: destinatarios, privacidad, 30 minutos, cambios de horario, lectura, deduplicación, fallos, cancelaciones y paginación aprobados.');
+})().catch(error=>{console.error(error);process.exitCode=1;});

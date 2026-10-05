@@ -108,7 +108,9 @@
   <script src="../js/core/supabase.js"></script>
   <script src="../js/core/permissions.js?v=2.0.104"></script>
   <script src="../js/core/theme.js"></script>
-  <script src="../js/core/layout.js?v=2.0.104"></script>
+  <script src="../js/core/table-columns.js?v=2.0.112"></script>
+  <script src="../js/core/calendar-notifications.js?v=2.0.114"></script>
+  <script src="../js/core/layout.js?v=2.0.114"></script>
   <script src="../js/services/cotizaciones-almacen.service.js?v=20260805-1"></script>
   <script src="../js/core/auth.js?v=20260819-3"></script>
   <link rel="stylesheet" href="../css/reference-theme.css?v=20260927-1" media="screen">
@@ -1131,9 +1133,11 @@
       return '"' + texto.replace(/"/g, '""') + '"';
     }
 
-    function descargarCSV(nombreArchivo, encabezados, filas) {
+    async function descargarCSV(nombreArchivo, encabezados, filas) {
+      const seleccion = await ETTableColumns.selectExport(encabezados, nombreArchivo);
+      if (!seleccion) return;
       const contenido = [encabezados].concat(filas).map(function (fila) {
-        return fila.map(protegerCeldaCSV).join(",");
+        return seleccion.map(i => protegerCeldaCSV(fila[i])).join(",");
       }).join("\r\n");
       const blob = new Blob(["\ufeff" + contenido], { type: "text/csv;charset=utf-8;" });
       const enlace = document.createElement("a");

@@ -7,7 +7,7 @@ const checks = [
   [layout.includes("prepararEstructuraModulo"), "Falta la estructura común de módulos"],
   [layout.includes('moduloActivo === "Dashboard"'), "El dashboard debe conservar su estructura propia"],
   [layout.includes("et-module-eyebrow"), "Falta el contexto visual del módulo"],
-  [layout.includes("et-section-label"), "Falta la jerarquía de indicadores"],
+  [layout.includes("et-module-kpis"), "Falta el estilo común de indicadores"],
   [layout.includes("aria-labelledby"), "Falta relacionar los paneles con sus títulos"],
   [styles.includes(".et-module-header"), "Falta el encabezado visual uniforme"],
   [styles.includes(".et-module-content"), "Falta el estilo común del contenido"]

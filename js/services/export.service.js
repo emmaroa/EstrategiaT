@@ -36,7 +36,10 @@
     return valor;
   }
 
-  function exportarCSV(nombreArchivo, columnas, filas) {
+  async function exportarCSV(nombreArchivo, columnas, filas) {
+    const seleccion = await global.ETTableColumns.selectExport(columnas.map(c => c.label), nombreArchivo);
+    if (!seleccion) return;
+    columnas = seleccion.map(i => columnas[i]);
     const header = columnas.map(function (c) { return escapeCSV(c.label); }).join(",");
     const body = filas.map(function (fila) {
       return columnas.map(function (c) { return escapeCSV(obtenerValorCSV(fila, c)); }).join(",");

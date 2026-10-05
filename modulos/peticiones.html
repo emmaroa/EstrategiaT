@@ -93,8 +93,10 @@
   <script src="../js/core/supabase.js"></script>
   <script src="../js/core/permissions.js?v=2.0.104"></script>
   <script src="../js/core/theme.js"></script>
-  <script src="../js/core/layout.js?v=2.0.104"></script>
-  <script src="../js/services/peticiones.service.js?v=20260727-1"></script>
+  <script src="../js/core/table-columns.js?v=2.0.112"></script>
+  <script src="../js/core/calendar-notifications.js?v=2.0.114"></script>
+  <script src="../js/core/layout.js?v=2.0.114"></script>
+  <script src="../js/services/peticiones.service.js?v=2.0.115"></script>
   <script src="../js/services/cotizaciones-almacen.service.js?v=20260810-1"></script>
   <script src="../js/services/dependencias-cotizaciones.js"></script>
   <script src="../js/core/auth.js?v=20260819-3"></script>
@@ -755,8 +757,11 @@
       return ["superadmin", "admin", "compras"].includes(rol);
     }
 
-    function puedeAccionPeticion(accion) {
+    function puedeAccionPeticion(accion, peticion = null) {
       const usuarioActivo = obtenerUsuarioActivoPeticion();
+      if (accion === 'editar' && ETPeticiones.edicionSoloPropias(usuarioActivo)) {
+        return ETPeticiones.puedeEditarPropia(peticion || (idEditando ? obtenerPeticionPorId(idEditando) : null));
+      }
       if (
         accion === "crear" &&
         usuarioActivo &&
@@ -862,6 +867,10 @@
         return;
       }
       peticiones = (data || []).map(normalizarPeticion);
+      if (ETPeticiones.edicionSoloPropias()) {
+        const autoria = await ETPeticiones.cargarPropias();
+        if (autoria.error) alert('No se pudo verificar cuáles peticiones creaste. La edición permanecerá desactivada hasta volver a cargar.');
+      }
       const cotizacionesResultado = (puedeGestionarCotizaciones() || puedeCopiarTextoPedido())
         ? await ETCotizacionesAlmacen.listar()
         : await ETCotizacionesAlmacen.listarPorPeticiones(
@@ -962,7 +971,7 @@
       return vistaTecnico ? filtradas.slice(0, 10) : filtradas;
     }
 
-    function exportarPeticiones() {
+    async function exportarPeticiones() {
       if (!puedeAccionPeticion("exportar")) return;
       const registros = obtenerPeticionesFiltradas();
       if (!registros.length) { alert("No hay peticiones para exportar con los filtros aplicados."); return; }
@@ -981,7 +990,9 @@
         if (/^[\s\u0000-\u001f]*[=+\-@]/.test(texto)) texto = "'" + texto;
         return '"' + texto.replace(/"/g, '""') + '"';
       };
-      const contenido = [encabezados].concat(filas).map(fila => fila.map(proteger).join(",")).join("\r\n");
+      const seleccion = await ETTableColumns.selectExport(encabezados, "exportarPeticiones");
+      if (!seleccion) return;
+      const contenido = [encabezados].concat(filas).map(fila => seleccion.map(i => proteger(fila[i])).join(",")).join("\r\n");
       const url = URL.createObjectURL(new Blob(["\ufeff" + contenido], { type: "text/csv;charset=utf-8;" }));
       const enlace = document.createElement("a");
       enlace.href = url;
@@ -1035,7 +1046,7 @@
             evento.preventDefault();
             verPeticion(p.id);
           });
-          const puedeEditar = puedeAccionPeticion("editar");
+          const puedeEditar = puedeAccionPeticion("editar", p);
           const puedeEliminar = puedeAccionPeticion("eliminar");
           const puedeRevisarAlmacen =
             esJefeAlmacenPeticion() &&
@@ -1475,7 +1486,7 @@
           label: "Ver historial",
           onClick: function () { verHistorialPeticion(id); }
         });
-      if (puedeAccionPeticion("editar")) {
+      if (puedeAccionPeticion("editar", p)) {
         acciones.push({
           label: "Editar petición",
           variant: "primary",
@@ -1920,9 +1931,8 @@
     });
 
     function editarPeticion(id) {
-      if (!puedeAccionPeticion("editar")) return;
       const p = obtenerPeticionPorId(id);
-      if (!p) return;
+      if (!p || !puedeAccionPeticion("editar", p)) return;
       idEditando = id;
       abrirModal();
       fechaInput.value = String(p.fecha || "").split("T")[0];
@@ -2601,7 +2611,7 @@
       document.getElementById("totalCotizacionInterna").value = monedaCotizacionInterna(subtotal + iva);
     }
 
-    function exportarGestionCotizaciones() {
+    async function exportarGestionCotizaciones() {
       const encabezados = ["Folio", "Proveedor", "Fecha", "Unidad", "Dependencia", "Materiales", "Total", "Partida", "Requisición", "Estatus", "Notas"];
       const filas = obtenerCotizacionesGestionFiltradas().map(function (cotizacion) {
         return [cotizacion.folio, cotizacion.proveedor, cotizacion.fecha_cotizacion, cotizacion.unidad,
@@ -2614,8 +2624,10 @@
         if (/^[=+\-@]/.test(texto)) texto = "'" + texto;
         return '"' + texto.replace(/"/g, '""') + '"';
       };
+      const seleccion = await ETTableColumns.selectExport(encabezados, "exportarGestionCotizaciones");
+      if (!seleccion) return;
       const contenido = [encabezados].concat(filas).map(function (fila) {
-        return fila.map(proteger).join(",");
+        return seleccion.map(i => proteger(fila[i])).join(",");
       }).join("\r\n");
       const url = URL.createObjectURL(new Blob(["\ufeff" + contenido], { type: "text/csv;charset=utf-8;" }));
       const enlace = document.createElement("a");

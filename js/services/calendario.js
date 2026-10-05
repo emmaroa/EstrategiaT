@@ -75,6 +75,11 @@ async function cargarCalendario() {
     return ticket.estado !== "Concluido" && (ticket.asignado_a === usuario?.id || ticket.creado_por === usuario?.id || puedeVerTodosTickets(usuario));
   });
   renderizarCalendario();
+  const eventoParametro = new URLSearchParams(location.search).get('evento');
+  if (eventoParametro && !window.eventoNotificacionAbierto) {
+    const invitacion = eventosCalendario.find(evento=>evento.id===eventoParametro);
+    if (invitacion) { abrirDetalleEvento(invitacion); window.eventoNotificacionAbierto=true; }
+  }
 }
 
 function puedeVerTodosTickets(usuario) {
@@ -241,11 +246,14 @@ async function guardarEvento() {
   if (!datos.titulo || !datos.fecha_inicio || !datos.fecha_fin) { alert("Completa el título, inicio y fin."); return; }
   if (datos.alcance==="Seleccionados"&&!datos.destinatarios.length) { alert("Selecciona al menos un usuario para compartir el evento."); return; }
   if (new Date(datos.fecha_fin) < new Date(datos.fecha_inicio)) { alert("La fecha de fin no puede ser anterior al inicio."); return; }
+  datos.fecha_inicio = new Date(datos.fecha_inicio).toISOString();
+  datos.fecha_fin = new Date(datos.fecha_fin).toISOString();
   let resultado;
   if (eventoEditandoId) resultado = await calendarioDb.from("eventos_calendario").update(datos).eq("id",eventoEditandoId).eq("creado_por",usuario.id);
   else resultado = await calendarioDb.from("eventos_calendario").insert(Object.assign(datos,{creado_por:usuario.id,creado_por_nombre:usuario.nombre || usuario.usuario || "Usuario"}));
   if (resultado.error) { alert("No se pudo guardar el evento. " + resultado.error.message); return; }
   cerrarEvento(); await cargarCalendario();
+  window.dispatchEvent(new Event('et-calendar-changed'));
 }
 
 async function eliminarEvento() {
@@ -254,4 +262,5 @@ async function eliminarEvento() {
   const resultado = await calendarioDb.from("eventos_calendario").delete().eq("id",eventoEditandoId).eq("creado_por",usuarioCalendario().id);
   if (resultado.error) { alert("No se pudo eliminar el evento."); return; }
   cerrarEvento(); await cargarCalendario();
+  window.dispatchEvent(new Event('et-calendar-changed'));
 }

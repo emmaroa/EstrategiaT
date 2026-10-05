@@ -68,12 +68,15 @@
       registros=[];$('estadoReporte').textContent='No se pudo cargar el reporte. Pulsa Actualizar datos para intentar de nuevo.';console.error('Reportes Cotizaciones:',error);
     } finally {cargando=false;$('actualizarReporte').disabled=false;}
   }
-  function exportar(tipo) {
+  async function exportar(tipo) {
     if(!resultado || cargando)return;
     const r=resultado;let filas;
     if(tipo==='dependencias') filas=[['Dependencia',...r.claves,'Total'],...r.dependencias.map(d=>[d.nombre,...r.claves.map(c=>d.claves[c]/100),d.total/100]),['Total general',...r.claves.map(c=>r.totales[c]/100),r.total/100]];
     else if(tipo==='proveedores') filas=[['Proveedor','Cotizaciones','Total'],...r.proveedores.map(p=>[p.nombre,p.cantidad,p.total/100]),['Total general',r.detalle.length,r.total/100]];
     else filas=[['Folio','Fecha','Proveedor','Dependencia','Clave','Unidad','Ítems cotizados (cantidad × descripción — precio unitario MXN)','Total'],...r.detalle.map(d=>[d.folio,d.fecha,d.proveedor,d.dependencia,d.partida,d.unidad,itemsCotizados(d).join('\n') || 'Sin ítems registrados',d.centavos/100]),['Total general','','','','','','',r.total/100]];
+    const seleccion=await ETTableColumns.selectExport(filas[0],'reporte-cotizaciones-'+tipo);
+    if(!seleccion)return;
+    filas=filas.map(fila=>seleccion.map(i=>fila[i]));
     const celda=v=>{let s=String(v??'');if(typeof v==='string'&&/^[\s]*[=+@-]/.test(s))s="'"+s;return '"'+s.replace(/"/g,'""')+'"';};
     const contenido=[['Reportes Cotizaciones'],[$('criterioReporte').textContent],[contexto()],['Importes en MXN'],[],...filas].map(f=>f.map(celda).join(',')).join('\r\n');
     const url=URL.createObjectURL(new Blob(['\uFEFF'+contenido],{type:'text/csv;charset=utf-8'}));const a=document.createElement('a');a.href=url;a.download='reporte-cotizaciones-'+tipo+'.csv';document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),1000);

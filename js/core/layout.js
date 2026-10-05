@@ -565,12 +565,6 @@
 
     main.querySelectorAll(":scope > .kpi-grid, :scope > .stats-grid").forEach(function (seccion) {
       seccion.classList.add("et-module-kpis");
-      if (!seccion.previousElementSibling || !seccion.previousElementSibling.classList.contains("et-section-label")) {
-        const titulo = document.createElement("div");
-        titulo.className = "et-section-label";
-        titulo.innerHTML = "<span>Resumen</span><strong>Indicadores principales</strong>";
-        seccion.insertAdjacentElement("beforebegin", titulo);
-      }
     });
 
     main.querySelectorAll(":scope > .panel, :scope > section.panel").forEach(function (panel, indice) {
@@ -975,6 +969,8 @@
     panel.classList.add("et-notifications-panel-floating");
     document.body.appendChild(panel);
     let notificaciones = [];
+    const calendario = global.ETCalendarNotifications?.create(client, usuario);
+    let cargandoAvisos = false, finalizado = false;
 
     function grupoFecha(fechaValor) {
       const fecha = new Date(fechaValor);
@@ -989,6 +985,7 @@
     }
 
     function tipoNotificacion(item) {
+      if (String(item.tipo || '').startsWith('calendario')) return { clase: "info", icono: "C", etiqueta: "Calendario" };
       const texto = (String(item.tipo || "") + " " + String(item.titulo || "") + " " + String(item.mensaje || ""))
         .normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
       if (/acuerdo|compromiso/.test(texto)) return { clase: "agreement", icono: "A", etiqueta: "Acuerdo" };
@@ -1033,16 +1030,36 @@
     }
 
     async function cargar() {
+      if (cargandoAvisos || finalizado) return;
+      let actual; try { actual = JSON.parse(localStorage.getItem('usuarioActivo') || 'null'); } catch (_) {}
+      if (!actual || actual.id !== usuario.id || (actual.sesion_expira_en && Number(actual.sesion_expira_en) <= Date.now())) return;
+      cargandoAvisos = true;
+      try {
+      let avisosCalendario = {items:[],fresh:[]};
+      let errorCalendario = false;
+      if (calendario) {
+        try { avisosCalendario = await calendario.load(); }
+        catch (error) { errorCalendario=true;avisosCalendario.items=notificaciones.filter(item=>item.calendar);console.warn('No se pudieron consultar los avisos del calendario:', error); }
+      }
       const resultado = await client.from("notificaciones")
         .select("id,tipo,titulo,mensaje,leida,enlace,created_at")
         .eq("usuario_id", usuario.id).order("created_at", { ascending: false }).limit(20);
       if (resultado.error) {
         console.error("No se pudieron cargar las notificaciones:", resultado.error);
-        lista.innerHTML = '<p class="et-notifications-empty">No fue posible cargar las notificaciones.</p>';
-        return;
       }
-      notificaciones = resultado.data || [];
+      try { actual = JSON.parse(localStorage.getItem('usuarioActivo') || 'null'); } catch (_) { actual=null; }
+      if(finalizado || actual?.id !== usuario.id)return;
+      notificaciones = (resultado.data || []).concat(avisosCalendario.items).sort((a,b)=>Number(a.leida)-Number(b.leida)||new Date(b.created_at)-new Date(a.created_at));
       renderizar();
+      if (errorCalendario) lista.insertAdjacentHTML('beforeend','<p class="et-notifications-empty">No se pudo actualizar el calendario. Se volverá a intentar automáticamente.</p>');
+      if (resultado.error) lista.insertAdjacentHTML('beforeend','<p class="et-notifications-empty">No fue posible actualizar los demás avisos. Se volverá a intentar automáticamente.</p>');
+      if(avisosCalendario.fresh.length) {
+        const reminder=avisosCalendario.fresh.find(item=>item.tipo==='calendario_recordatorio');
+        const first=reminder||avisosCalendario.fresh[0];
+        mostrarToast(first.titulo + ': ' + first.mensaje + (avisosCalendario.fresh.length>1 ? ' · Revisa los demás avisos en la campana.' : ''), 'info');
+      }
+      } catch(error) { console.warn('No se pudieron actualizar los avisos:',error); }
+      finally { cargandoAvisos = false; }
     }
 
     trigger.addEventListener("click", function (event) {
@@ -1050,6 +1067,7 @@
       panel.hidden = !panel.hidden;
       trigger.setAttribute("aria-expanded", String(!panel.hidden));
       posicionarPanel();
+      if (!panel.hidden) cargar();
     });
     document.addEventListener("click", function (event) {
       if (!contenedor.contains(event.target) && !panel.contains(event.target)) {
@@ -1067,14 +1085,17 @@
       const marcar = event.target.closest("[data-read-one]");
       const abrirElemento = event.target.closest("[data-open-notification]");
       if (item && !item.leida && (marcar || abrirElemento)) {
-        const resultado = await client.from("notificaciones").update({ leida: true }).eq("id", id).eq("usuario_id", usuario.id);
+        const resultado = item.calendar ? (calendario.mark([item]), {error:null}) : await client.from("notificaciones").update({ leida: true }).eq("id", id).eq("usuario_id", usuario.id);
         if (!resultado.error) { item.leida = true; renderizar(); }
       }
       if (abrirElemento && item && item.enlace) global.location.href = esRutaDeModulo(global.location.pathname) ? item.enlace.replace(/^modulos\//, "") : item.enlace;
     });
     panel.querySelector("[data-read-all]").addEventListener("click", async function () {
+      calendario?.mark(notificaciones.filter(item=>item.calendar));
+      notificaciones.filter(item=>item.calendar).forEach(item=>{item.leida=true;});
       const resultado = await client.from("notificaciones").update({ leida: true }).eq("usuario_id", usuario.id).eq("leida", false);
-      if (!resultado.error) { notificaciones.forEach(function (item) { item.leida = true; }); renderizar(); }
+      if (!resultado.error) { notificaciones.forEach(function (item) { item.leida = true; }); }
+      renderizar();
     });
     panel.querySelector("[data-close-notifications]").addEventListener("click", function () {
       panel.hidden = true;
@@ -1084,6 +1105,13 @@
     document.addEventListener("keydown", function (event) {
       if (event.key === "Escape" && !panel.hidden) panel.querySelector("[data-close-notifications]").click();
     });
+    const refrescar = () => { if (!document.hidden) cargar(); };
+    const intervalo = global.setInterval(refrescar, 30000);
+    global.addEventListener('focus', refrescar);
+    global.addEventListener('pageshow', refrescar);
+    global.addEventListener('et-calendar-changed', refrescar);
+    document.addEventListener('visibilitychange', refrescar);
+    global.addEventListener('pagehide', event => { if(event.persisted)return;finalizado=true;global.clearInterval(intervalo);global.removeEventListener('focus',refrescar);global.removeEventListener('pageshow',refrescar);global.removeEventListener('et-calendar-changed',refrescar);document.removeEventListener('visibilitychange',refrescar); });
     await cargar();
   }
 

@@ -21,7 +21,9 @@
   <script src="../js/core/supabase.js"></script>
   <script src="../js/core/permissions.js?v=2.0.104"></script>
   <script src="../js/core/theme.js"></script>
-  <script src="../js/core/layout.js?v=2.0.104"></script>
+  <script src="../js/core/table-columns.js?v=2.0.112"></script>
+  <script src="../js/core/calendar-notifications.js?v=2.0.114"></script>
+  <script src="../js/core/layout.js?v=2.0.114"></script>
   <script src="../js/core/auth.js?v=20260819-3"></script>
   <link rel="stylesheet" href="../css/reference-theme.css?v=20260927-1" media="screen">
 <meta name="referrer" content="strict-origin-when-cross-origin"><link rel="stylesheet" href="../css/privacy-accessibility.css?v=20260927-1"><script src="../js/core/privacy.js?v=20260928-1" defer></script><script src="../js/core/accessibility.js?v=20260927-1" defer></script>
@@ -419,7 +421,7 @@
       document.getElementById("modalDetalleSiif").setAttribute("aria-hidden", "true");
     }
 
-    function exportarSeguimientoSiif() {
+    async function exportarSeguimientoSiif() {
       const encabezados = ["Fecha", "Requisición", "Oficio", "Unidad", "Dependencia", "Concepto", "Importe", "OC", "Proveedor", "SP", "Etapa", "Estatus"];
       const filas = obtenerFiltradosSiif().map(function (fila) {
         return [fechaSiif(fila.fecha_req), fila.numero_req, fila.oficio_req, fila.unidad, fila.dependencia,
@@ -430,8 +432,10 @@
         if (/^[=+\-@]/.test(texto)) texto = "'" + texto;
         return '"' + texto.replace(/"/g, '""') + '"';
       }
+      const seleccion = await ETTableColumns.selectExport(encabezados, "exportarSeguimientoSiif");
+      if (!seleccion) return;
       const contenido = [encabezados].concat(filas).map(function (fila) {
-        return fila.map(celda).join(",");
+        return seleccion.map(i => celda(fila[i])).join(",");
       }).join("\r\n");
       const enlace = document.createElement("a");
       const url = URL.createObjectURL(new Blob(["\ufeff" + contenido], { type: "text/csv;charset=utf-8" }));

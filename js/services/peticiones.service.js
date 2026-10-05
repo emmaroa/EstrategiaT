@@ -7,6 +7,37 @@
   }
 
   const TAMANO_BLOQUE = 1000;
+  const GDAVIS_ID = '827cb6d4-5879-4a85-9fdf-b325f37250e6';
+  let propias = new Set();
+  function usuarioActual() { try { return JSON.parse(localStorage.getItem('usuarioActivo') || 'null'); } catch (_) { return null; } }
+  function edicionSoloPropias(usuario = usuarioActual()) {
+    return usuario?.id === GDAVIS_ID;
+  }
+  function puedeEditarPropia(peticion) {
+    const usuario = usuarioActual();
+    return edicionSoloPropias(usuario) && usuario.activo !== false && Boolean(peticion?.id && propias.has(peticion.id));
+  }
+  async function consultarPropias(id) {
+    const usuario = usuarioActual();
+    if (!edicionSoloPropias(usuario) || usuario.activo === false) return {data:[],error:null};
+    const ids = new Set();
+    for(let offset=0;;offset+=TAMANO_BLOQUE) {
+      let query=getClient().from('auditoria').select('entidad_id').eq('usuario_id',usuario.id).eq('entidad_tipo','peticiones')
+        .or('metadata->>operacion.eq.INSERT,accion.eq.Creo nueva peticion').order('id',{ascending:true});
+      if(id)query=query.eq('entidad_id',id);
+      const response=await query.range(offset,offset+TAMANO_BLOQUE-1);
+      if(response.error)return {data:[],error:response.error};
+      (response.data||[]).forEach(row=>{if(row.entidad_id)ids.add(row.entidad_id);});
+      if((response.data||[]).length<TAMANO_BLOQUE)break;
+    }
+    return {data:Array.from(ids),error:null};
+  }
+  async function cargarPropias() {
+    propias=new Set();
+    const response=await consultarPropias();
+    if(!response.error)propias=new Set(response.data);
+    return response;
+  }
 
   async function listarEnBloques(configurarConsulta) {
     const client = getClient();
@@ -94,6 +125,10 @@
   async function actualizar(id, payload) {
     const client = getClient();
     if (!client) return { data: null, error: { message: "Sin conexión" } };
+    if(edicionSoloPropias()) {
+      const ownership=await consultarPropias(id);
+      if(ownership.error || !ownership.data.includes(id))return {data:null,error:{message:'Solo puedes editar las peticiones que tú creaste. No se pudo confirmar tu autoría.'}};
+    }
 
     return client
       .from("peticiones")
@@ -166,6 +201,9 @@
   }
 
   global.ETPeticiones = {
+    edicionSoloPropias,
+    puedeEditarPropia,
+    cargarPropias,
     listar,
     listarPorAreas,
     crear,
