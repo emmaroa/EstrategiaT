@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Administración de Talleres | Seguimiento SIIF</title>
   <link rel="stylesheet" href="../css/style.css">
-  <link rel="stylesheet" href="../css/flujo-siif.css?v=2.0.120">
+  <link rel="stylesheet" href="../css/flujo-siif.css?v=2.0.122">
   <link rel="stylesheet" href="../css/design-system.css?v=20260819-14">
   <style>
     .siif-progress{display:flex;align-items:center;gap:4px;min-width:150px}
@@ -71,6 +71,12 @@
         <button id="flujoLimpiar" type="button" class="btn-secondary">Quitar selección</button>
         <span id="flujoSeleccion">0 seleccionados</span>
         <button id="flujoMover" type="button" class="btn-small" disabled>Mover seleccionados</button>
+        <button id="flujoCsvSubir" type="button" class="btn-secondary" disabled>Cargar requisiciones desde CSV</button>
+        <input id="flujoCsvArchivo" type="file" accept=".csv,text/csv" hidden>
+        <button data-flujo-destino="1" type="button" class="btn-secondary" disabled>A Compras</button>
+        <button data-flujo-destino="5" type="button" class="btn-secondary" disabled>A Administrativo</button>
+        <button data-flujo-destino="8" type="button" class="btn-secondary" disabled>A Almacén</button>
+        <button data-flujo-destino="10" type="button" class="btn-secondary" disabled>Marcar enviado</button>
         <button id="flujoActualizar" type="button" class="btn-secondary">Actualizar seguimiento</button>
       </div>
       <p id="flujoEstado" role="status" aria-live="polite"></p>
@@ -184,12 +190,25 @@
     </div>
   </div>
 
+  <dialog id="flujoCsvDialogo" class="flujo-dialogo" aria-labelledby="flujoCsvTitulo">
+    <h2 id="flujoCsvTitulo">Revisar requisiciones del CSV</h2>
+    <p id="flujoCsvNombre"></p>
+    <p>Busca en todas las requisiciones importadas, independientemente de los filtros del listado. No modifica registros hasta guardar el movimiento.</p>
+    <label><input id="flujoCsvEncabezado" type="checkbox"> La primera fila contiene encabezados</label>
+    <label for="flujoCsvColumna">Columna del número de requisición</label><select id="flujoCsvColumna"></select>
+    <label for="flujoCsvAnio">Año de la requisición</label><select id="flujoCsvAnio"><option value="">Todos los años</option></select>
+    <p id="flujoCsvResumen" role="status"></p>
+    <div class="table-container flujo-csv-preview"><table><thead><tr><th>Fila CSV</th><th>Requisición</th><th>Resultado</th></tr></thead><tbody id="flujoCsvResultados"></tbody></table></div>
+    <p id="flujoCsvError" role="alert"></p>
+    <div class="modal-actions"><button id="flujoCsvCancelar" type="button" class="btn-secondary">Cancelar</button><button id="flujoCsvContinuar" type="button" class="btn-small" disabled>Elegir estatus y responsable</button></div>
+  </dialog>
   <dialog id="flujoDialogo" class="flujo-dialogo" aria-labelledby="flujoLoteTitulo">
     <form id="flujoFormulario">
       <h2 id="flujoLoteTitulo">Registrar movimiento</h2>
       <p id="flujoLoteLista"></p>
       <p>La etapa, ubicación, responsable, proveedor y nota elegidos se aplicarán a todos los trámites seleccionados.</p>
-      <label for="flujoEtapa">Etapa</label><select id="flujoEtapa" required><option value="">Selecciona una etapa</option></select>
+      <div id="flujoPasos" class="flujo-pasos" role="group" aria-label="Elegir etapa"></div>
+      <label for="flujoEtapa">Etapa elegida</label><select id="flujoEtapa" required><option value="">Selecciona una etapa</option></select>
       <label for="flujoLugar">Ubicación actual</label><select id="flujoLugar" required><option value="">Selecciona una ubicación</option></select>
       <label for="flujoPersona">¿Quién tiene el trámite?</label><input id="flujoPersona" required maxlength="150" placeholder="Nombre de la persona responsable">
       <label for="flujoProveedor">Proveedor del que se espera respuesta</label><input id="flujoProveedor" maxlength="150" placeholder="Obligatorio al esperar cotización o factura">
@@ -199,8 +218,9 @@
       <div class="modal-actions"><button id="flujoCancelar" type="button" class="btn-secondary">Cancelar</button><button id="flujoGuardar" type="submit" class="btn-small">Guardar movimiento</button></div>
     </form>
   </dialog>
-  <script src="../js/services/flujo-siif.js?v=2.0.120"></script>
-  <script src="../js/modules/flujo-siif.js?v=2.0.120"></script>
+  <script src="../js/services/flujo-siif.js?v=2.0.122"></script>
+  <script src="../js/services/flujo-siif-csv.js?v=2.0.122"></script>
+  <script src="../js/modules/flujo-siif.js?v=2.0.122"></script>
   <script>
     validarPermiso("Seguimiento SIIF");
     ETLayout.inicializar("Seguimiento SIIF");
@@ -390,7 +410,7 @@
           "<td>" + escaparSiif(fila.numero_sp || "Pendiente") + (fila.cantidad_sp > 1 ? " (" + fila.cantidad_sp + ")" : "") + "</td>" +
           '<td>' + progresoSiif(fila) + '<span class="badge status-badge ' + tonoEtapaSiif(fila.etapa_actual) + '">' + escaparSiif(fila.etapa_actual) + "</span></td>" +
           "<td>" + escaparSiif(fila.estatus || "—") + "</td>" +
-          '<td>' + ETLayout.iconButton("ver", "Ver trámite completo", "verDetalleSiif('" + fila.id + "')") + "</td>" +
+          '<td><div class="flujo-acciones">' + ETFlujoVista.acciones(fila) + ETLayout.iconButton("ver", "Ver trámite completo", "verDetalleSiif('" + fila.id + "')") + "</div></td>" +
         "</tr>";
       }).join("") : '<tr><td colspan="17">No hay trámites que coincidan con los filtros.</td></tr>';
 

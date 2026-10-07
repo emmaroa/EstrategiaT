@@ -2,6 +2,7 @@
   'use strict';
   const api=global.ETFlujoSiif, seleccion=new Set();
   let conectado=false, ocupado=false, destino=[], lote=[];
+  let csvRows=[], csvResultado={ids:[],detalles:[]}, leyendoCsv=false;
   const $=id=>document.getElementById(id);
   const texto=(tag,value)=>{const n=document.createElement(tag);n.textContent=value;return n;};
   function puedeEditar() {
@@ -22,6 +23,8 @@
     $('flujoSeleccion').textContent=seleccion.size+' seleccionados';
     $('flujoMover').disabled=!conectado || ocupado || !puedeEditar() || !seleccion.size;
     $('flujoTodos').disabled=!conectado || ocupado || !puedeEditar();
+    $('flujoCsvSubir').disabled=!conectado||ocupado||leyendoCsv||!puedeEditar();
+    document.querySelectorAll('[data-flujo-destino]').forEach(b=>{b.disabled=!conectado||ocupado||!puedeEditar()||!seleccion.size;});
     document.querySelectorAll('[data-flujo-check]').forEach(c=>{c.checked=seleccion.has(c.dataset.flujoCheck);});
   }
   async function cargar() {
@@ -49,7 +52,7 @@
   }
   function celdas(fila) {
     const f=estado(fila),esc=escaparSiif;
-    return '<td>'+esc(conectado?api.etapas[f.etapa].nombre:'No consultado')+(conectado&&f.proveedor_espera?'<small class="flujo-espera">En espera de '+esc(f.proveedor_espera)+'</small>':'')+'</td><td>'+esc(conectado?f.ubicacion:'—')+'</td><td>'+esc(conectado?(f.responsable||'Sin asignar'):'—')+'</td><td>'+esc(conectado?(api.dias(f.desde)??'—'):'—')+'</td>';
+    return '<td>'+esc(conectado?api.etapas[f.etapa].nombre:'No consultado')+(conectado&&f.automatico_sp?'<small class="flujo-espera">Automático por SP</small>':'')+(conectado&&f.proveedor_espera?'<small class="flujo-espera">En espera de '+esc(f.proveedor_espera)+'</small>':'')+'</td><td>'+esc(conectado?f.ubicacion:'—')+'</td><td>'+esc(conectado?(f.responsable||'Sin asignar'):'—')+'</td><td>'+esc(conectado?(api.dias(f.desde)??'—'):'—')+'</td>';
   }
   function render() {
     const lista=obtenerFiltradosSiif();
@@ -59,7 +62,53 @@
     $('flujoSinRegistro').textContent=conectado?lista.filter(r=>!estado(r).etapa).length+' trámites filtrados sin seguimiento registrado.':'No se pudo cargar el seguimiento para consultar ubicación y responsable.';
     actualizarSeleccion();
   }
-  function abrir(ids) {
+  function revisarCsv() {
+    try {
+      csvResultado=ETFlujoCSV.match(csvRows,seguimientoSiif,{columna:Number($('flujoCsvColumna').value),header:$('flujoCsvEncabezado').checked,year:$('flujoCsvAnio').value});
+    }catch(e){csvResultado={ids:[],detalles:[]};$('flujoCsvError').textContent=e.message;$('flujoCsvResumen').textContent='Revisa el archivo antes de continuar.';$('flujoCsvResultados').replaceChildren();$('flujoCsvContinuar').disabled=true;return;}
+    const {ids,detalles}=csvResultado,omitidas=detalles.length-ids.length;
+    $('flujoCsvResumen').textContent=ids.length+' requisiciones encontradas; '+omitidas+' filas omitidas (repetidas, vacías, no encontradas o ambiguas). Se muestran hasta 200 filas de revisión.';
+    $('flujoCsvResultados').replaceChildren();
+    detalles.slice(0,200).forEach(r=>{const tr=document.createElement('tr');[r.fila,r.numero,r.estado].forEach(v=>tr.append(texto('td',v)));$('flujoCsvResultados').append(tr);});
+    $('flujoCsvError').textContent=ids.length>500?'Hay más de 500 coincidencias. Divide el archivo en lotes más pequeños.':'';
+    $('flujoCsvContinuar').disabled=!ids.length||ids.length>500;
+    $('flujoCsvContinuar').textContent='Continuar con '+ids.length+' coincidencias';
+  }
+  async function leerCsv() {
+    const archivo=$('flujoCsvArchivo').files[0];
+    if(!archivo||!conectado||ocupado||!puedeEditar())return;
+    leyendoCsv=true;actualizarSeleccion();
+    try {
+      if(archivo.size>1024*1024)throw Error('El CSV debe ser menor a 1 MB.');
+      const bytes=await archivo.arrayBuffer();let contenido;
+      try{contenido=new TextDecoder('utf-8',{fatal:true}).decode(bytes);}catch(_){contenido=new TextDecoder('windows-1252').decode(bytes);}
+      csvRows=ETFlujoCSV.parse(contenido);
+      const encabezado=csvRows[0].some(ETFlujoCSV.encabezado);
+      $('flujoCsvEncabezado').checked=encabezado;
+      $('flujoCsvNombre').textContent=archivo.name;
+      $('flujoCsvColumna').replaceChildren();
+      const columnas=Math.max(...csvRows.map(r=>r.length));
+      for(let i=0;i<columnas;i++)opcion($('flujoCsvColumna'),i,'Columna '+(i+1)+(csvRows[0][i]?' · '+csvRows[0][i].slice(0,80):''));
+      $('flujoCsvColumna').value=Math.max(0,csvRows[0].findIndex(ETFlujoCSV.encabezado));
+      $('flujoCsvAnio').replaceChildren(new Option('Todos los años',''));
+      [...new Set(seguimientoSiif.map(r=>String(r.fecha_req||'').slice(0,4)).filter(y=>/^\d{4}$/.test(y)))].sort().reverse().forEach(y=>opcion($('flujoCsvAnio'),y,y));
+      revisarCsv();$('flujoCsvDialogo').showModal();
+    }catch(e){aviso(e.message);}
+    finally{leyendoCsv=false;$('flujoCsvArchivo').value='';actualizarSeleccion();}
+  }
+  function acciones(fila) {
+    if(!conectado||!puedeEditar())return '';
+    const f=estado(fila);
+    return (f.etapa<10?'<button type="button" class="btn-small" data-flujo-avanzar="'+escaparSiif(fila.id)+'">'+(f.etapa?'Avanzar →':'Iniciar')+'</button>':'')+
+      '<button type="button" class="btn-secondary" data-flujo-mover="'+escaparSiif(fila.id)+'">Mover</button>';
+  }
+  function elegirEtapa(etapa) {
+    $('flujoEtapa').value=etapa;
+    $('flujoLugar').value=api.etapas[etapa]?.area||'';
+    esperaProveedor();
+    document.querySelectorAll('[data-flujo-paso]').forEach(b=>b.setAttribute('aria-pressed',String(Number(b.dataset.flujoPaso)===Number(etapa))));
+  }
+  function abrir(ids,etapa) {
     if(!conectado||ocupado||!puedeEditar())return;
     destino=seguimientoSiif.filter(r=>ids.includes(r.id));
     if(!destino.length||destino.length>500){aviso('Selecciona entre 1 y 500 trámites.');return;}
@@ -76,6 +125,12 @@
       $('flujoAcuse').value=f.acuse;
       $('flujoProveedor').value=f.proveedor_espera||destino[0].proveedor||'';
     }
+    if(destino.length>1) {
+      const personas=new Set(destino.map(r=>estado(r).responsable).filter(Boolean));
+      if(personas.size===1&&destino.every(r=>estado(r).responsable))$('flujoPersona').value=[...personas][0];
+    }
+    if(etapa)elegirEtapa(etapa);
+    else document.querySelectorAll('[data-flujo-paso]').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.flujoPaso===$('flujoEtapa').value)));
     esperaProveedor();$('flujoDialogo').showModal();
   }
   async function guardar(event) {
@@ -127,6 +182,7 @@
           li.append(texto('small',new Date(h.fecha).toLocaleString('es-MX')+' · Registró: '+h.usuario_nombre));
           if(d.nota)li.append(texto('p',d.nota));
           if(d.acuse)li.append(texto('p','Acuse: '+d.acuse));
+          if(d.motivo_automatico)li.append(texto('p',d.motivo_automatico));
           if(d.proveedor_espera)li.append(texto('p','En espera de: '+d.proveedor_espera));
           lista.append(li);
         });
@@ -138,6 +194,16 @@
     mas.addEventListener('click',cargarHistorial);await cargarHistorial();
   }
   function init() {
+    $('flujoCsvSubir').addEventListener('click',()=>$('flujoCsvArchivo').click());
+    $('flujoCsvArchivo').addEventListener('change',leerCsv);
+    ['flujoCsvColumna','flujoCsvEncabezado','flujoCsvAnio'].forEach(id=>$(id).addEventListener('change',revisarCsv));
+    $('flujoCsvCancelar').addEventListener('click',()=>$('flujoCsvDialogo').close());
+    $('flujoCsvContinuar').addEventListener('click',()=>{
+      if(!conectado||ocupado||!puedeEditar()||!csvResultado.ids.length||csvResultado.ids.length>500)return;
+      $('flujoCsvDialogo').close();abrir(csvResultado.ids);
+    });
+    api.etapas.forEach((p,i)=>{if(!i)return;const b=texto('button',i+'. '+p.nombre);b.type='button';b.className='btn-secondary';b.dataset.flujoPaso=i;b.setAttribute('aria-pressed','false');b.addEventListener('click',()=>elegirEtapa(i));$('flujoPasos').append(b);});
+    document.querySelectorAll('[data-flujo-destino]').forEach(b=>b.addEventListener('click',()=>abrir([...seleccion],Number(b.dataset.flujoDestino))));
     api.etapas.forEach((p,i)=>{opcion($('flujoFiltroEtapa'),i,p.nombre);if(i)opcion($('flujoEtapa'),i,i+'. '+p.nombre);});
     ['Compras','Administrativo','Almacén','Enviado'].forEach(l=>{opcion($('flujoFiltroLugar'),l,l);opcion($('flujoLugar'),l,l);});
     opcion($('flujoFiltroLugar'),'Sin registrar','Sin registrar');
@@ -149,6 +215,9 @@
       e.target.checked?seleccion.add(id):seleccion.delete(id);actualizarSeleccion();
     });
     $('tablaSeguimientoSiif').addEventListener('click',e=>{
+      const avanzar=e.target.closest('[data-flujo-avanzar]'),mover=e.target.closest('[data-flujo-mover]');
+      if(avanzar){const f=seguimientoSiif.find(r=>r.id===avanzar.dataset.flujoAvanzar);if(f)abrir([f.id],Math.min(10,estado(f).etapa+1));return;}
+      if(mover){abrir([mover.dataset.flujoMover]);return;}
       if(e.target.closest('button,input,a'))return;
       const id=e.target.closest('tr')?.dataset.tramite;if(id)verDetalleSiif(id);
     });
@@ -158,12 +227,12 @@
     });
     $('flujoLimpiar').addEventListener('click',limpiar);
     $('flujoMover').addEventListener('click',()=>abrir([...seleccion]));
-    $('flujoEtapa').addEventListener('change',()=>{$('flujoLugar').value=api.etapas[Number($('flujoEtapa').value)]?.area||'';esperaProveedor();});
+    $('flujoEtapa').addEventListener('change',()=>elegirEtapa(Number($('flujoEtapa').value)));
     $('flujoFormulario').addEventListener('submit',guardar);
     $('flujoCancelar').addEventListener('click',()=>{if(!ocupado)$('flujoDialogo').close();});
     $('flujoDialogo').addEventListener('cancel',e=>{if(ocupado)e.preventDefault();});
   }
-  global.ETFlujoVista={init,cargar,coincide,seleccionCelda,celdas,render,limpiar,detalle,
+  global.ETFlujoVista={init,cargar,coincide,seleccionCelda,celdas,acciones,render,limpiar,detalle,
     exportar(fila) {const f=estado(fila);return conectado?[api.etapas[f.etapa].nombre,f.ubicacion,f.responsable,api.dias(f.desde),f.acuse,f.nota,f.proveedor_espera]:['No consultado','','','','','',''];}
   };
 })(window);

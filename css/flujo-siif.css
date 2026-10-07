@@ -17,5 +17,12 @@
 .flujo-historial p { margin: 5px 0; white-space: pre-wrap; }
 .flujo-detalle { padding-bottom: 18px; border-bottom: 1px solid var(--border-color); }
 .flujo-espera { display: block; margin-top: 5px; color: var(--text-muted); }
+.flujo-acciones { display: flex; gap: 6px; flex-wrap: wrap; min-width: 160px; }
+.flujo-pasos { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 8px; }
+.flujo-pasos button { text-align: left; white-space: normal; }
+.flujo-pasos button[aria-pressed="true"] { outline: 2px solid #0d9488; background: #0d948822; }
+.flujo-dialogo .modal-actions { position: sticky; bottom: -24px; background: var(--bg-card,#fff); padding: 12px 0; z-index: 1; }
+.flujo-csv-preview { max-height: 280px; overflow: auto; }
+#flujoCsvEncabezado { width: auto; }
 #tablaSeguimientoSiif tr[data-tramite] { cursor: pointer; }
 @media(max-width:650px) { .flujo-lugares { grid-template-columns: repeat(2,minmax(0,1fr)); } }

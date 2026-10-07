@@ -27,8 +27,16 @@ en el sistema. No se deduce su identidad del usuario que registra el movimiento.
 
 Los trámites antiguos empiezan como **Sin seguimiento / Sin registrar**, sin inventar
 que se encuentran en Compras. Se pueden inicializar por lotes y corregir o retroceder
-de etapa, siempre dejando historial. La existencia de una OC/SP no confirma firmas,
-recepción física ni envío: una importación nunca avanza etapas manuales por sí sola.
+de etapa, siempre dejando historial. La existencia de una OC/SP no confirma por sí sola firmas o recepción física.
+Desde la migración 063, por regla solicitada, una SP relacionada con estatus informado
+distinto de `Emitida` asigna automáticamente etapa 10 / Enviado. Se ignoran mayúsculas
+y espacios exteriores; vacío y NULL no activan la regla. Si hay varias SP basta una
+que cumpla, incluso Cancelada (la condición solicitada no excluye otros estatus).
+Esto es una clasificación operativa: no acredita que se haya realizado un envío físico.
+Se conserva responsable y acuse existentes; sin responsable no se inventa una persona.
+Queda historial con actor de sistema. Reimportar no duplica movimientos ni reinicia fechas.
+Si la fuente vuelve a Emitida no se revierte el envío automáticamente; se permite corregir
+manualmente cuando ninguna SP relacionada siga cumpliendo la condición.
 
 ## Uso
 
@@ -50,6 +58,37 @@ manualmente: no hay integración con el portal externo. Un acuse vacío conserva
 acuse existente; en un lote con acuses distintos, dejarlo vacío conserva cada uno.
 Etapa, ubicación, responsable, proveedor y nota son comunes al lote seleccionado.
 
+### Selección mediante CSV
+
+Usar **Cargar requisiciones desde CSV**. Se acepta una columna de folios, con o sin
+encabezado (`Requisición`, `REQ`, `Folio`, `numero_req`), y separadores coma, punto y coma
+o tabulación. Si hay más columnas, elegir cuál contiene el número. Se conserva el
+texto del folio; sólo números completos toleran ceros iniciales, sin convertirlos a
+coma flotante ni interpretar fórmulas. Se admite UTF-8 y Windows-1252.
+
+La búsqueda considera todas las requisiciones cargadas, no sólo las filtradas en la
+tabla. El año opcional resuelve folios repetidos entre ejercicios; una coincidencia
+ambigua nunca se elige automáticamente. La revisión muestra encontradas, repetidas,
+no encontradas y filas sin número; sólo las coincidencias únicas pasan al diálogo de
+movimiento. Continuar indica expresamente cuántas se tomarán. Subir, revisar o cancelar
+no escribe en la base; el usuario elige etapa/ubicación/responsable y guarda después.
+
+Límites: 1 MB, 5,000 filas de datos, 100 columnas y 500 requisiciones coincidentes por
+movimiento. Si hay más de 500, dividir el archivo: no se realizan lotes parciales
+silenciosos. La vista previa muestra las primeras 200 filas de revisión y el resumen
+cuenta todas. Se conservan validación de permisos, revisión concurrente e historial del
+RPC existente; la regla de Enviado automático por SP también se respeta.
+
+Ejemplo:
+
+```csv
+Requisición
+1234
+5678
+```
+
+No requiere una migración adicional de base de datos.
+
 La exportación CSV conserva los filtros e incluye columnas elegibles de seguimiento,
 acuse, nota y proveedor esperado, además de todas las OC/SP relacionadas. El selector
 de columnas de tabla existente continúa disponible.
@@ -64,6 +103,15 @@ Ejecutar como administrador, en orden:
 1. `supabase/migrations/060_flujo_tramites_siif.sql`
 2. `supabase/migrations/061_relaciones_siif_por_ejercicio.sql`
 3. `supabase/migrations/062_sesion_login_flujo_siif.sql`
+4. `supabase/migrations/063_envio_automatico_sp.sql`
+
+La 063 asigna también los registros existentes y deja triggers para nuevas importaciones
+de SP/requisiciones, independientemente de su orden de carga. No permite retroceder
+manualmente un trámite mientras una SP relacionada siga exigiendo Enviado.
+En la pantalla, Iniciar/Avanzar preselecciona la próxima etapa y conserva el responsable.
+Los accesos A Compras, A Administrativo, A Almacén y Marcar enviado preseleccionan las
+etapas 1, 5, 8 y 10 respectivamente, con revisión antes de guardar; se puede elegir otra
+etapa mediante botones dentro del diálogo. Los mismos controles sirven para lotes.
 
 Publicar `modulos/seguimiento-siif.html`, `css/flujo-siif.css`,
 `js/services/flujo-siif.js`, `js/modules/flujo-siif.js` y `js/core/auth.js` con el resto del cliente.

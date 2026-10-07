@@ -78,6 +78,27 @@ async function main() {
   const expired=(await db.query('SELECT iniciar_sesion_aplicacion($1,$2) AS s',['compras','test-only'])).rows[0].s;
   await db.exec("UPDATE et_privado.sesiones_aplicacion SET expira_en=now()-interval '1 second'");
   await assert.rejects(db.query('SELECT * FROM consultar_flujo_siif($1,$2,$3)',[uid(100),expired.token,[uid(1)]]));
+  // Regla automática: retroactiva, al importar, idempotente y con actor de sistema.
+  await db.query("UPDATE sp_siif SET estatus='  PaGaDa  ' WHERE id=$1",[uid(20)]);
+  await db.exec(fs.readFileSync('supabase/migrations/063_envio_automatico_sp.sql','utf8'));
+  assert.equal((await get())[0].etapa,10);
+  const auto=(await db.query('SELECT * FROM flujo_tramites_siif WHERE requisicion_id=$1',[uid(1)])).rows[0];
+  assert.equal(auto.automatico_sp,true);assert.equal(auto.responsable,'Responsable de prueba');
+  await db.query("UPDATE sp_siif SET estatus='  PaGaDa  ' WHERE id=$1",[uid(20)]);
+  assert.equal((await db.query('SELECT revision FROM flujo_tramites_siif WHERE requisicion_id=$1',[uid(1)])).rows[0].revision,auto.revision);
+  const audit=(await db.query('SELECT * FROM flujo_tramites_siif_historial WHERE requisicion_id=$1 ORDER BY id DESC LIMIT 1',[uid(1)])).rows[0];
+  assert.equal(audit.usuario_id,null);assert.ok(audit.despues.motivo_automatico.includes('900'));
+  await db.query("INSERT INTO requis_siif(id,fecha,folio,oficio) VALUES($1,'2026-01-01','200','OF200')",[uid(30)]);
+  await db.query("INSERT INTO sp_siif(id,fecha,numero_solicitud,referencia,estatus) VALUES($1,'2026-02-01','920','OF200','  ')",[uid(31)]);
+  assert.equal((await db.query('SELECT * FROM flujo_tramites_siif WHERE requisicion_id=$1',[uid(30)])).rows.length,0);
+  await db.query("UPDATE sp_siif SET estatus=' eMiTiDa ' WHERE id=$1",[uid(31)]);
+  assert.equal((await db.query('SELECT * FROM flujo_tramites_siif WHERE requisicion_id=$1',[uid(30)])).rows.length,0);
+  await db.query("UPDATE sp_siif SET estatus='Cancelada' WHERE id=$1",[uid(31)]);
+  assert.equal((await db.query('SELECT etapa FROM flujo_tramites_siif WHERE requisicion_id=$1',[uid(30)])).rows[0].etapa,10);
+  await assert.rejects(db.query('UPDATE flujo_tramites_siif SET etapa=8 WHERE requisicion_id=$1',[uid(30)]));
+  await db.query("INSERT INTO sp_siif(id,fecha,numero_solicitud,referencia,estatus) VALUES($1,'2026-02-01','921','OF300','Autorizada')",[uid(32)]);
+  await db.query("INSERT INTO requis_siif(id,fecha,folio,oficio) VALUES($1,'2026-01-01','300','OF300')",[uid(33)]);
+  assert.equal((await db.query('SELECT etapa FROM flujo_tramites_siif WHERE requisicion_id=$1',[uid(33)])).rows[0].etapa,10);
   await db.close();
 
   let user={id:uid(100),flujo_token:'test-session',sesion_expira_en:Date.now()+3600000},calls=[];
