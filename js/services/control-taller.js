@@ -5,8 +5,9 @@ function enlazarTaller(){iniciarSalidaTaller();iniciarReporteTaller();document.g
 function usuarioTaller(){try{return JSON.parse(localStorage.getItem("usuarioActivo")||"null")}catch(_){return null}}
 function obtenerAreasControl(usuario){let valor=usuario?.areas_permitidas;if(typeof valor==="string"){try{valor=JSON.parse(valor)}catch(_){valor=valor.split(",")}}return Array.isArray(valor)?valor.map(v=>String(v||"").trim()).filter(Boolean):[]}
 function rolGlobalControl(usuario){return ["superadmin","super admin","super_admin","admin","administrador del sistema","jefe","director"].includes(normalizarTaller(usuario?.rol))}
+function accesoTodasAreasTaller(usuario){return rolGlobalControl(usuario)||(usuario?.id === "827cb6d4-5879-4a85-9fdf-b325f37250e6" && usuario.activo !== false)}
 function areaDeUnidad(u){const combustible=normalizarTaller(u.combustible),grupo=normalizarTaller(u.grupo),texto=normalizarTaller([u.grupo,u.descripcion,u.unidad_patrulla,u.modelo].join(" "));if(/colector/.test(texto))return"Colectores";if(/barredora/.test(texto))return"Barredoras";if(combustible==="electrico"||combustible==="hibrido")return"Electricas";if(/motocicleta|moto\b/.test(texto))return"Motocicletas";if(grupo.includes("maquinaria pesada"))return"Maquinaria Pesada";if(combustible==="gasolina")return"Gasolina";if(combustible==="diesel")return"Diesel";return"Sin área"}
-function configurarIdentidadArea(){const usuario=usuarioTaller();areasControl=obtenerAreasControl(usuario);accesoGlobalControl=rolGlobalControl(usuario);const etiqueta=accesoGlobalControl?"Áreas":areasControl.length===1?"Área "+areasControl[0]:"Áreas "+areasControl.join(" / ");document.getElementById("tituloControlArea").textContent="Control "+etiqueta;document.getElementById("etModuleName").textContent="Control "+etiqueta;document.getElementById("subtituloControlArea").textContent=accesoGlobalControl?"Vista general de entradas, salidas y seguimiento por área.":"Datos exclusivos de "+(areasControl.join(", ")||"las áreas asignadas")+".";document.getElementById("btnReporteDirector").style.display=accesoGlobalControl?"":"none"}
+function configurarIdentidadArea(){const usuario=usuarioTaller();areasControl=obtenerAreasControl(usuario);accesoGlobalControl=accesoTodasAreasTaller(usuario);const etiqueta=accesoGlobalControl?"Áreas":areasControl.length===1?"Área "+areasControl[0]:"Áreas "+areasControl.join(" / ");document.getElementById("tituloControlArea").textContent="Control "+etiqueta;document.getElementById("etModuleName").textContent="Control "+etiqueta;document.getElementById("subtituloControlArea").textContent=accesoGlobalControl?"Vista general de entradas, salidas y seguimiento por área.":"Datos exclusivos de "+(areasControl.join(", ")||"las áreas asignadas")+".";document.getElementById("btnReporteDirector").style.display=accesoGlobalControl?"":"none"}
 function normalizarTaller(v){return String(v||"").normalize("NFD").replace(/[\u0300-\u036f]/g,"").toLowerCase().trim()}
 function escTaller(v){return String(v??"").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;").replace(/'/g,"&#039;")}
 function fechaIsoLocal(){const d=new Date();return[d.getFullYear(),String(d.getMonth()+1).padStart(2,"0"),String(d.getDate()).padStart(2,"0")].join("-")}
@@ -204,12 +205,10 @@ function abrirPendienteTaller(i){if(!puedeEditarIngresoTaller(i))return;pendient
 function puedeEditarIngresoTaller(ingreso) {
   const usuario = usuarioTaller();
   if (!usuario?.id || usuario.activo === false || (typeof esSoloLectura === 'function' && esSoloLectura())) return false;
-  if (usuario.id === '827cb6d4-5879-4a85-9fdf-b325f37250e6') return ingreso?.creado_por === usuario.id;
   return true;
 }
 function consultaEdicionIngresoTaller(consulta) {
-  const usuario = usuarioTaller();
-  return usuario?.id === '827cb6d4-5879-4a85-9fdf-b325f37250e6' ? consulta.eq('creado_por',usuario.id) : consulta;
+  return consulta;
 }
 function puedeEliminarIngresoTaller(ingreso) {
   const usuario = usuarioTaller();
