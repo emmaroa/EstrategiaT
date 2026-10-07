@@ -1,0 +1,21 @@
+.flujo-panel { margin-bottom: 20px; }
+.flujo-lugares { display: grid; grid-template-columns: repeat(4,minmax(0,1fr)); gap: 12px; margin: 16px 0; }
+.flujo-lugares > div { padding: 14px; border: 1px solid var(--border-color); border-radius: 8px; }
+.flujo-lugares strong { display: block; font-size: 1.6rem; margin-top: 6px; }
+.flujo-herramientas { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; margin: 12px 0; }
+.flujo-herramientas input { max-width: 280px; }
+.flujo-panel [hidden], .flujo-detalle [hidden] { display: none !important; }
+.flujo-dialogo { width: min(720px,94vw); max-height: 90vh; overflow: auto; padding: 24px; border: 1px solid var(--border-color); border-radius: 12px; background: var(--bg-card,#fff); color: var(--text-primary,#172033); }
+.flujo-dialogo::backdrop { background: #0008; }
+.flujo-dialogo label { display: block; margin: 12px 0 4px; }
+.flujo-dialogo input,.flujo-dialogo select,.flujo-dialogo textarea { width: 100%; }
+.flujo-dialogo p { overflow-wrap: anywhere; }
+#flujoLoteLista { max-height: 100px; overflow: auto; }
+#flujoError { color: #dc2626; }
+.flujo-historial { padding-left: 22px; }
+.flujo-historial li { border-left: 2px solid var(--border-color); padding: 6px 12px; margin: 12px 0; }
+.flujo-historial p { margin: 5px 0; white-space: pre-wrap; }
+.flujo-detalle { padding-bottom: 18px; border-bottom: 1px solid var(--border-color); }
+.flujo-espera { display: block; margin-top: 5px; color: var(--text-muted); }
+#tablaSeguimientoSiif tr[data-tramite] { cursor: pointer; }
+@media(max-width:650px) { .flujo-lugares { grid-template-columns: repeat(2,minmax(0,1fr)); } }

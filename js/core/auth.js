@@ -220,14 +220,24 @@
       return;
     }
 
-    let data, error;
+    let data, error, sesionAplicacion;
     try {
-      ({ data, error } = await loginSupabaseClient
+      if (typeof loginSupabaseClient.rpc === 'function') {
+        const resultado = await loginSupabaseClient.rpc('iniciar_sesion_aplicacion', {
+          p_usuario: usuario, p_password: password
+        });
+        error = resultado.error;
+        if (!error) { sesionAplicacion = resultado.data; data = sesionAplicacion?.usuario; }
+      }
+      // Compatibilidad mientras el administrador instala la migración 062.
+      if (typeof loginSupabaseClient.rpc !== 'function' || ['PGRST202', '42883'].includes(error?.code)) {
+        ({ data, error } = await loginSupabaseClient
         .from("usuarios")
         .select("*")
         .eq("usuario", usuario)
         .eq("password", password)
         .single());
+      }
     } catch (err) {
       console.error("Login error:", err);
       mostrarError("Ocurrió un error al iniciar sesión. Intenta de nuevo.");
@@ -264,6 +274,10 @@
       sesion_iniciada_en: inicioSesion,
       sesion_expira_en: inicioSesion + DURACION_SESION_MS
     };
+    if (sesionAplicacion?.token) {
+      usuarioActivo.flujo_token = sesionAplicacion.token;
+      usuarioActivo.sesion_expira_en = new Date(sesionAplicacion.expira_en).getTime();
+    }
 
     localStorage.setItem("usuarioActivo", JSON.stringify(usuarioActivo));
     programarExpiracionSesion(usuarioActivo);
@@ -388,6 +402,13 @@
 
   window.cerrarSesion = async function () {
     const usuarioActivo = obtenerUsuarioActivo();
+    if (usuarioActivo?.flujo_token && loginSupabaseClient?.rpc) {
+      try {
+        await loginSupabaseClient.rpc('cerrar_sesion_aplicacion', {
+          p_token: usuarioActivo.flujo_token
+        }).abortSignal(AbortSignal.timeout(5000));
+      } catch (_) { /* La sesión local se elimina también sin conexión. */ }
+    }
     if (usuarioActivo && typeof registrarAuditoria === "function") {
       await registrarAuditoria("Login", "Cierre de sesión", usuarioActivo.usuario);
     }

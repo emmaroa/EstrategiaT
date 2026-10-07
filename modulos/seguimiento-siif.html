@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Administración de Talleres | Seguimiento SIIF</title>
   <link rel="stylesheet" href="../css/style.css">
+  <link rel="stylesheet" href="../css/flujo-siif.css?v=2.0.120">
   <link rel="stylesheet" href="../css/design-system.css?v=20260819-14">
   <style>
     .siif-progress{display:flex;align-items:center;gap:4px;min-width:150px}
@@ -24,7 +25,7 @@
   <script src="../js/core/table-columns.js?v=2.0.112"></script>
   <script src="../js/core/calendar-notifications.js?v=2.0.114"></script>
   <script src="../js/core/layout.js?v=2.0.114"></script>
-  <script src="../js/core/auth.js?v=20260819-3"></script>
+  <script src="../js/core/auth.js?v=2.0.120"></script>
   <link rel="stylesheet" href="../css/reference-theme.css?v=20260927-1" media="screen">
 <meta name="referrer" content="strict-origin-when-cross-origin"><link rel="stylesheet" href="../css/privacy-accessibility.css?v=20260927-1"><script src="../js/core/privacy.js?v=20260928-1" defer></script><script src="../js/core/accessibility.js?v=20260927-1" defer></script>
 </head>
@@ -45,11 +46,35 @@
     <header class="topbar">
       <div>
         <h1>Seguimiento SIIF</h1>
-        <p>Vista unificada de requisiciones, órdenes de compra y solicitudes de pago.</p>
+        <p>Ubicación, responsables y recorrido de requisiciones, órdenes de compra y solicitudes de pago.</p>
       </div>
       <span id="etTemaContainer"></span>
     </header>
 
+    <section class="panel flujo-panel" aria-labelledby="flujoTitulo">
+      <h2 id="flujoTitulo">¿Dónde está cada trámite?</h2>
+      <p>Registra la etapa, el lugar y la persona que tiene el trámite. Las importaciones SIIF conservan este seguimiento.</p>
+      <div class="flujo-lugares" aria-label="Ubicación de los trámites filtrados">
+        <div>Compras<strong id="flujoCantidad0">—</strong></div>
+        <div>Administrativo<strong id="flujoCantidad1">—</strong></div>
+        <div>Almacén<strong id="flujoCantidad2">—</strong></div>
+        <div>Enviado<strong id="flujoCantidad3">—</strong></div>
+      </div>
+      <p id="flujoSinRegistro"></p>
+      <div class="filters">
+        <select id="flujoFiltroLugar" aria-label="Ubicación del trámite"><option value="">Todas las ubicaciones</option></select>
+        <select id="flujoFiltroEtapa" aria-label="Etapa del seguimiento"><option value="">Todas las etapas del seguimiento</option></select>
+        <input id="flujoFiltroPersona" type="search" placeholder="Persona responsable" aria-label="Filtrar por persona responsable">
+      </div>
+      <div class="flujo-herramientas">
+        <button id="flujoTodos" type="button" class="btn-secondary" disabled>Seleccionar todos los filtrados</button>
+        <button id="flujoLimpiar" type="button" class="btn-secondary">Quitar selección</button>
+        <span id="flujoSeleccion">0 seleccionados</span>
+        <button id="flujoMover" type="button" class="btn-small" disabled>Mover seleccionados</button>
+        <button id="flujoActualizar" type="button" class="btn-secondary">Actualizar seguimiento</button>
+      </div>
+      <p id="flujoEstado" role="status" aria-live="polite"></p>
+    </section>
     <section class="kpi-grid">
       <div class="kpi-card">
         <span>Total de requisiciones</span>
@@ -108,8 +133,13 @@
         <table>
           <thead>
             <tr>
-              <th>Fecha</th>
+              <th>Seleccionar</th>
               <th>Requisición</th>
+              <th>Etapa del seguimiento</th>
+              <th>Ubicación</th>
+              <th>Responsable</th>
+              <th>Días en etapa / responsable</th>
+              <th>Fecha</th>
               <th>Unidad</th>
               <th>Dependencia</th>
               <th>Concepto</th>
@@ -154,6 +184,23 @@
     </div>
   </div>
 
+  <dialog id="flujoDialogo" class="flujo-dialogo" aria-labelledby="flujoLoteTitulo">
+    <form id="flujoFormulario">
+      <h2 id="flujoLoteTitulo">Registrar movimiento</h2>
+      <p id="flujoLoteLista"></p>
+      <p>La etapa, ubicación, responsable, proveedor y nota elegidos se aplicarán a todos los trámites seleccionados.</p>
+      <label for="flujoEtapa">Etapa</label><select id="flujoEtapa" required><option value="">Selecciona una etapa</option></select>
+      <label for="flujoLugar">Ubicación actual</label><select id="flujoLugar" required><option value="">Selecciona una ubicación</option></select>
+      <label for="flujoPersona">¿Quién tiene el trámite?</label><input id="flujoPersona" required maxlength="150" placeholder="Nombre de la persona responsable">
+      <label for="flujoProveedor">Proveedor del que se espera respuesta</label><input id="flujoProveedor" maxlength="150" placeholder="Obligatorio al esperar cotización o factura">
+      <label for="flujoAcuse">Folio de acuse / referencia de envío (opcional)</label><input id="flujoAcuse" maxlength="150" placeholder="Vacío conserva el acuse existente">
+      <label for="flujoNota">Nota del movimiento (opcional)</label><textarea id="flujoNota" rows="3" maxlength="2000"></textarea>
+      <p id="flujoError" role="alert"></p>
+      <div class="modal-actions"><button id="flujoCancelar" type="button" class="btn-secondary">Cancelar</button><button id="flujoGuardar" type="submit" class="btn-small">Guardar movimiento</button></div>
+    </form>
+  </dialog>
+  <script src="../js/services/flujo-siif.js?v=2.0.120"></script>
+  <script src="../js/modules/flujo-siif.js?v=2.0.120"></script>
   <script>
     validarPermiso("Seguimiento SIIF");
     ETLayout.inicializar("Seguimiento SIIF");
@@ -246,12 +293,13 @@
           .from("seguimiento_siif")
           .select("*", { count: desde === 0 ? "exact" : undefined })
           .order("fecha_req", { ascending: false })
+          .order("id", { ascending: false })
           .range(desde, desde + bloque - 1);
 
         if (resultado.error) {
           console.error(resultado.error);
           document.getElementById("tablaSeguimientoSiif").innerHTML =
-            '<tr><td colspan="12">No se pudo cargar seguimiento_siif: ' +
+            '<tr><td colspan="17">No se pudo cargar seguimiento_siif: ' +
             escaparSiif(resultado.error.message || "Error desconocido") + "</td></tr>";
           ETLayout.toast(
             "No se pudo consultar seguimiento_siif: " + (resultado.error.message || "Error desconocido"),
@@ -268,6 +316,7 @@
       }
 
       seguimientoSiif = registros;
+      try { await ETFlujoVista.cargar(); } catch (_) { /* El aviso de seguimiento conserva el error. */ }
       poblarFiltrosSiif();
       renderizarSeguimientoSiif();
     }
@@ -310,7 +359,7 @@
           fila.concepto, fila.numero_oc, fila.numero_sp, fila.estatus,
           JSON.stringify(fila.proveedores || [])
         ].join(" "));
-        return contenido.includes(texto) &&
+        return ETFlujoVista.coincide(fila) && contenido.includes(texto) &&
           (!etapa || fila.etapa_actual === etapa) &&
           (!dependencia || fila.dependencia === dependencia) &&
           (!proveedor || (fila.proveedores || [fila.proveedor]).includes(proveedor)) &&
@@ -328,9 +377,10 @@
       const tbody = document.getElementById("tablaSeguimientoSiif");
 
       tbody.innerHTML = pagina.length ? pagina.map(function (fila) {
-        return "<tr>" +
-          "<td>" + fechaSiif(fila.fecha_req) + "</td>" +
+        return '<tr data-tramite="' + escaparSiif(fila.id) + '">' + ETFlujoVista.seleccionCelda(fila) +
           "<td><strong>" + escaparSiif(fila.numero_req || "—") + "</strong><small style=\"display:block\">" + escaparSiif(fila.oficio_req || "") + "</small></td>" +
+          ETFlujoVista.celdas(fila) +
+          "<td>" + fechaSiif(fila.fecha_req) + "</td>" +
           "<td>" + escaparSiif(fila.unidad || "—") + "</td>" +
           "<td>" + escaparSiif(fila.dependencia || "—") + "</td>" +
           "<td>" + escaparSiif(fila.concepto || "—") + "</td>" +
@@ -342,7 +392,7 @@
           "<td>" + escaparSiif(fila.estatus || "—") + "</td>" +
           '<td>' + ETLayout.iconButton("ver", "Ver trámite completo", "verDetalleSiif('" + fila.id + "')") + "</td>" +
         "</tr>";
-      }).join("") : '<tr><td colspan="12">No hay trámites que coincidan con los filtros.</td></tr>';
+      }).join("") : '<tr><td colspan="17">No hay trámites que coincidan con los filtros.</td></tr>';
 
       document.getElementById("infoPaginacionSiif").textContent = filtrados.length
         ? "Mostrando " + (inicio + 1) + "-" + (inicio + pagina.length) + " de " + filtrados.length
@@ -351,6 +401,7 @@
       document.getElementById("btnSiifAnterior").disabled = paginaSiif <= 1;
       document.getElementById("btnSiifSiguiente").disabled = paginaSiif >= totalPaginas;
       actualizarKpisSiif();
+      ETFlujoVista.render();
     }
 
     function actualizarKpisSiif() {
@@ -414,6 +465,7 @@
         ]);
       document.getElementById("modalDetalleSiif").classList.add("show");
       document.getElementById("modalDetalleSiif").setAttribute("aria-hidden", "false");
+      ETFlujoVista.detalle(fila, document.getElementById("contenidoDetalleSiif"));
     }
 
     function cerrarDetalleSiif() {
@@ -422,14 +474,14 @@
     }
 
     async function exportarSeguimientoSiif() {
-      const encabezados = ["Fecha", "Requisición", "Oficio", "Unidad", "Dependencia", "Concepto", "Importe", "OC", "Proveedor", "SP", "Etapa", "Estatus"];
+      const encabezados = ["Fecha", "Requisición", "Oficio", "Unidad", "Dependencia", "Concepto", "Importe", "OC", "Proveedor", "SP", "Etapa", "Estatus", "Etapa del seguimiento", "Ubicación", "Responsable", "Días en etapa / responsable", "Acuse", "Nota del movimiento", "En espera de proveedor"];
       const filas = obtenerFiltradosSiif().map(function (fila) {
         return [fechaSiif(fila.fecha_req), fila.numero_req, fila.oficio_req, fila.unidad, fila.dependencia,
-          fila.concepto, fila.monto, fila.numero_oc, fila.proveedor, fila.numero_sp, fila.etapa_actual, fila.estatus];
+          fila.concepto, fila.monto, (fila.ordenes_compra || []).map(o => o.numero_oc).join(" / ") || fila.numero_oc, fila.proveedor, (fila.solicitudes_pago || []).map(s => s.numero_solicitud).join(" / ") || fila.numero_sp, fila.etapa_actual, fila.estatus, ...ETFlujoVista.exportar(fila)];
       });
       function celda(valor) {
         let texto = String(valor ?? "").replace(/\r?\n/g, " ");
-        if (/^[=+\-@]/.test(texto)) texto = "'" + texto;
+        if (/^[\s\u0000-\u001f]*[=+\-@]/.test(texto)) texto = "'" + texto;
         return '"' + texto.replace(/"/g, '""') + '"';
       }
       const seleccion = await ETTableColumns.selectExport(encabezados, "exportarSeguimientoSiif");
@@ -448,6 +500,7 @@
     [buscarSiif, filtroImporteSiif, filtroEtapaSiif, filtroDependenciaSiif, filtroProveedorSiif].forEach(function (control) {
       control.addEventListener(control.tagName === "INPUT" ? "input" : "change", function () {
         paginaSiif = 1;
+        ETFlujoVista.limpiar();
         renderizarSeguimientoSiif();
       });
     });
@@ -463,6 +516,7 @@
       if (event.target === this) cerrarDetalleSiif();
     });
 
+    ETFlujoVista.init();
     cargarSeguimientoSiif();
   </script>
 </body>
