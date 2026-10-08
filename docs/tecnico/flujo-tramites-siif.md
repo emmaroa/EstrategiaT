@@ -6,6 +6,13 @@ Disponible en **Seguimiento SIIF**, sin un nuevo permiso de menú. La tabla impo
 
 ## Flujo
 
+Al guardar un lote hacia una ubicación distinta de Enviado, la pantalla identifica
+las requisiciones y SP cuyos estados impiden el movimiento. No envía ni guarda
+parcialmente el lote. La opción «Continuar con N permitido(s)» excluye esos trámites
+del movimiento, conserva el destino y responsable capturados y exige revisar la
+lista y volver a pulsar Guardar. La base de datos sigue validando el lote completo;
+si los datos cambiaron después de cargarlos, es necesario recargar el listado.
+
 Desde la migración `064_sp_emitida_ubicacion_libre.sql`, las SP en **Emitido** o
 **Emitida** (sin distinguir mayúsculas ni espacios) permiten cualquier ubicación
 del catálogo y cualquier responsable capturado, independientemente de la etapa.

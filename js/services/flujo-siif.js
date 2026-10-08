@@ -34,6 +34,12 @@
     return data;
   }
   const api={etapas,
+    solicitudesQueExigenEnvio(fila) {
+      return (fila.solicitudes_pago||[]).filter(s=>{
+        const estado=String(s.estatus||'').trim().toLowerCase();
+        return estado && !['emitida','emitido'].includes(estado);
+      });
+    },
     ubicacionLibre(fila) {
       const estados=(fila.solicitudes_pago||[]).map(s=>String(s.estatus||'').trim().toLowerCase()).filter(Boolean);
       return estados.length>0&&estados.every(e=>['emitida','emitido'].includes(e));

@@ -117,6 +117,7 @@
     $('flujoLoteTitulo').textContent='Mover '+destino.length+' trámite'+(destino.length===1?'':'s');
     $('flujoLoteLista').textContent=destino.map(r=>'REQ '+r.numero_req).join(', ');
     $('flujoError').textContent='';
+    $('flujoSoloPermitidos')?.remove();
     if(destino.length===1) {
       const f=estado(destino[0]);
       $('flujoEtapa').value=f.etapa||1;
@@ -137,6 +138,30 @@
     event.preventDefault();
     if(ocupado||!puedeEditar()||!$('flujoFormulario').reportValidity())return;
     const etapa=Number($('flujoEtapa').value),lugar=$('flujoLugar').value;
+    $('flujoSoloPermitidos')?.remove();
+    if(etapa!==10||lugar!=='Enviado') {
+      const bloqueados=destino.filter(r=>api.solicitudesQueExigenEnvio(r).length);
+      if(bloqueados.length) {
+        const ids=new Set(bloqueados.map(r=>r.id));
+        const permitidos=destino.filter(r=>!ids.has(r.id));
+        const detalle=bloqueados.slice(0,8).map(r=>'REQ '+r.numero_req+': '+api.solicitudesQueExigenEnvio(r).map(s=>'SP '+(s.numero_solicitud||'sin número')+' ('+s.estatus+')').join(', ')).join('; ');
+        $('flujoError').textContent='No se guardó ningún cambio. '+bloqueados.length+' trámite(s) deben permanecer en Enviado: '+detalle+(bloqueados.length>8?'; y '+(bloqueados.length-8)+' más.':'.');
+        if(permitidos.length) {
+          const boton=document.createElement('button');boton.id='flujoSoloPermitidos';boton.type='button';boton.className='btn-secondary';
+          boton.textContent='Continuar con '+permitidos.length+' permitido(s)';
+          boton.addEventListener('click',()=>{
+            destino=permitidos;
+            lote=destino.map(r=>({id:r.id,revision:estado(r).revision}));
+            $('flujoLoteTitulo').textContent='Mover '+destino.length+' trámite(s)';
+            $('flujoLoteLista').textContent=destino.map(r=>'REQ '+r.numero_req).join(', ');
+            $('flujoError').textContent='Se excluyeron '+bloqueados.length+' trámite(s) de este movimiento. Revisa la lista y pulsa Guardar para continuar.';
+            boton.remove();
+          });
+          $('flujoError').after(boton);
+        }
+        return;
+      }
+    }
     if(!destino.every(api.ubicacionLibre)&&(etapa===10)!==(lugar==='Enviado')){$('flujoError').textContent='Usa Enviado con la etapa de acuse y envío a Oficialía Mayor.';return;}
     ocupado=true; $('flujoGuardar').disabled=true; $('flujoCancelar').disabled=true;
     let guardado=false;
@@ -150,7 +175,9 @@
       aviso(cantidad+' trámites actualizados. El movimiento quedó en su historial.');
     } catch(e) {
       if(guardado)aviso('El movimiento se guardó, pero no se pudo recargar: '+e.message);
-      else $('flujoError').textContent=e.message+' Si hubo una interrupción de red, cancela y actualiza antes de reintentar.';
+      else $('flujoError').textContent=e.message+(/corresponde a Enviado/.test(e.message)
+        ? ' No se guardó el lote. Recarga el listado para revisar los estados actuales de las solicitudes seleccionadas.'
+        : ' Si hubo una interrupción de red, cancela y actualiza antes de reintentar.');
     } finally {ocupado=false;$('flujoGuardar').disabled=false;$('flujoCancelar').disabled=false;actualizarSeleccion();}
   }
   async function detalle(fila,contenedor) {
