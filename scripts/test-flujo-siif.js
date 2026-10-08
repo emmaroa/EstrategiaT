@@ -99,12 +99,38 @@ async function main() {
   await db.query("INSERT INTO sp_siif(id,fecha,numero_solicitud,referencia,estatus) VALUES($1,'2026-02-01','921','OF300','Autorizada')",[uid(32)]);
   await db.query("INSERT INTO requis_siif(id,fecha,folio,oficio) VALUES($1,'2026-01-01','300','OF300')",[uid(33)]);
   assert.equal((await db.query('SELECT etapa FROM flujo_tramites_siif WHERE requisicion_id=$1',[uid(33)])).rows[0].etapa,10);
+  // Compatibilidad Emitido/Emitida y libertad de ubicacion por SP emitida.
+  await db.query("UPDATE sp_siif SET estatus='Emitido' WHERE id=$1",[uid(31)]);
+  await db.exec(fs.readFileSync('supabase/migrations/064_sp_emitida_ubicacion_libre.sql','utf8'));
+  const token=(await db.query('SELECT iniciar_sesion_aplicacion($1,$2) AS s',['compras','test-only'])).rows[0].s.token;
+  let row=(await db.query('SELECT * FROM flujo_tramites_siif WHERE requisicion_id=$1',[uid(30)])).rows[0];
+  assert.equal(row.automatico_sp,false);
+  for(const status of [' Emitido ',' eMiTiDa ']) {
+    await db.query('UPDATE sp_siif SET estatus=$1 WHERE id=$2',[status,uid(31)]);
+    for(const place of ['Compras','Administrativo','Almac\u00e9n','Enviado']) {
+      row=(await db.query('SELECT * FROM flujo_tramites_siif WHERE requisicion_id=$1',[uid(30)])).rows[0];
+      await move([{id:uid(30),revision:row.revision}],3,place,uid(100),token);
+      const saved=(await db.query('SELECT * FROM flujo_tramites_siif WHERE requisicion_id=$1',[uid(30)])).rows[0];
+      assert.equal(saved.ubicacion,place);assert.equal(saved.responsable,'Responsable de prueba');assert.equal(saved.automatico_sp,false);
+    }
+  }
+  row=(await db.query('SELECT * FROM flujo_tramites_siif WHERE requisicion_id=$1',[uid(30)])).rows[0];
+  await move([{id:uid(30),revision:row.revision}],10,'Compras',uid(100),token);
+  await db.query("UPDATE sp_siif SET estatus='Emitido' WHERE id=$1",[uid(31)]);
+  assert.equal((await db.query('SELECT ubicacion FROM flujo_tramites_siif WHERE requisicion_id=$1',[uid(30)])).rows[0].ubicacion,'Compras');
+  await db.query("UPDATE sp_siif SET estatus='Pagada' WHERE id=$1",[uid(31)]);
+  row=(await db.query('SELECT * FROM flujo_tramites_siif WHERE requisicion_id=$1',[uid(30)])).rows[0];
+  assert.equal(row.ubicacion,'Enviado');assert.equal(row.automatico_sp,true);
+  await assert.rejects(move([{id:uid(30),revision:row.revision}],8,'Compras',uid(100),token));
   await db.close();
 
   let user={id:uid(100),flujo_token:'test-session',sesion_expira_en:Date.now()+3600000},calls=[];
   const ctx={window:{addEventListener(){},supabaseClient:{rpc:async(name,args)=>{calls.push({name,args});return {data:[],error:null};}}},localStorage:{getItem:()=>JSON.stringify(user)}};
   vm.runInNewContext(fs.readFileSync('js/services/flujo-siif.js','utf8'),ctx);
   const api=ctx.window.ETFlujoSiif;
+  assert.equal(api.ubicacionLibre({solicitudes_pago:[{estatus:' Emitido '},{estatus:'EMITIDA'}]}),true);
+  assert.equal(api.ubicacionLibre({solicitudes_pago:[{estatus:'Emitido'},{estatus:'Pagada'}]}),false);
+  assert.equal(api.ubicacionLibre({solicitudes_pago:[]}),false);
   await api.cargar(Array.from({length:1001},(_,i)=>uid(i+1)));
   assert.deepEqual(calls.map(c=>c.args.p_ids.length),[500,500,1]);
   assert.equal(api.etapas.length,11);assert.equal(api.etapas[3].area,'Compras');assert.equal(api.etapas[6].area,'Compras');

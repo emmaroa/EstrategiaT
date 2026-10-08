@@ -34,6 +34,7 @@
   }
 
   const MODULOS_IMPLEMENTADOS = [
+    "Reporte MIR",
     "Dashboard",
     "Parque Vehicular",
     "Acuerdos",
@@ -73,12 +74,13 @@
     },
     {
       nombre: "Administración",
-      modulos: ["Requisiciones", "Seguimiento SIIF", "Requisiciones SIIF", "Órdenes de Compra SIIF", "Solicitudes de Pago SIIF", "Importar SIIF", "Tiempo Extra", "Tramites Administrativos", "Generar Textos"]
+      modulos: ["Reporte MIR", "Requisiciones", "Seguimiento SIIF", "Requisiciones SIIF", "Órdenes de Compra SIIF", "Solicitudes de Pago SIIF", "Importar SIIF", "Tiempo Extra", "Tramites Administrativos", "Generar Textos"]
     },
     { nombre: "Sistema", modulos: ["Usuarios", "Licencias", "Auditoría"] }
   ];
 
   const ICONOS_MODULOS = {
+    "Reporte MIR": '<path d="M4 3v17h17M8 16v-5M13 16V6M18 16v-8"/>',
     "Licencias": '<rect x="4" y="3" width="16" height="18" rx="2"/><path d="M8 7h8M8 11h4m-3 5 2 2 5-5"/>',
     "Dashboard": '<path d="M4 13h6V4H4v9Zm0 7h6v-4H4v4Zm10 0h6v-9h-6v9Zm0-16v4h6V4h-6Z"/>',
     "Parque Vehicular": '<path d="M5 17h14l-1-6-2-3H8l-2 3-1 6Z"/><path d="M7 11h10M7 17v2M17 17v2"/><circle cx="8" cy="15" r="1"/><circle cx="16" cy="15" r="1"/>',

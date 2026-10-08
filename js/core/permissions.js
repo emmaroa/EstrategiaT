@@ -4,6 +4,7 @@
  */
 (function (global) {
     const MODULOS = {
+      REPORTE_MIR: "Reporte MIR",
       DASHBOARD: "Dashboard",
       PARQUE: "Parque Vehicular",
       PETICIONES: "Peticiones",
@@ -40,6 +41,7 @@
     };
 
   const RUTAS = {
+    [MODULOS.REPORTE_MIR]: "modulos/reporte-mir.html",
     [MODULOS.DASHBOARD]: "dashboard.html",
     [MODULOS.PARQUE]: "modulos/parque-vehicular.html",
     [MODULOS.PETICIONES]: "modulos/peticiones.html",
@@ -76,6 +78,7 @@
   };
 
   const DESCRIPCIONES = {
+    [MODULOS.REPORTE_MIR]: "Indicadores de mantenimiento para MIR desde archivos CSV.",
     [MODULOS.DASHBOARD]: "Indicadores ejecutivos y KPIs operativos.",
     [MODULOS.PARQUE]: "Expediente digital de unidades y seguimiento de flota.",
     [MODULOS.PETICIONES]: "Solicitudes de refacciones al almacén.",
@@ -458,6 +461,7 @@
           !permisosModulos.some(item => item.modulo === MODULOS.CREAR_COTIZACION)) {
         personalizados.push(MODULOS.CREAR_COTIZACION);
       }
+      if (rol === "SuperAdmin" && !permisosModulos.some(item => item.modulo === MODULOS.REPORTE_MIR)) personalizados.push(MODULOS.REPORTE_MIR);
       return esAdministradorLicencias(usuario) ? agregarModuloSiFalta(personalizados, MODULOS.LICENCIAS) : personalizados;
     }
 
@@ -503,6 +507,7 @@
       return item.modulo === modulo;
     });
 
+    if (!encontrado && modulo === MODULOS.REPORTE_MIR && rol === "SuperAdmin") return "editar";
     if (!encontrado && modulo === MODULOS.CREAR_COTIZACION && ["SuperAdmin", "Compras"].includes(rol)) return "editar";
     if (permisosModulos.length) return encontrado ? encontrado.permiso : "none";
 

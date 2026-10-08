@@ -6,6 +6,17 @@ Disponible en **Seguimiento SIIF**, sin un nuevo permiso de menú. La tabla impo
 
 ## Flujo
 
+Desde la migración `064_sp_emitida_ubicacion_libre.sql`, las SP en **Emitido** o
+**Emitida** (sin distinguir mayúsculas ni espacios) permiten cualquier ubicación
+del catálogo y cualquier responsable capturado, independientemente de la etapa.
+La excepción aplica tanto al movimiento individual como al masivo y por CSV.
+Si otra SP relacionada tiene un estado informado distinto, prevalece el envío
+automático. Las SP sin estado no habilitan por sí solas esta excepción.
+La migración corrige la marca automática anterior y registra el cambio en el
+historial, conservando la ubicación hasta que alguien registre el lugar real.
+Requiere ejecutar la migración 064 después de la 063 en Supabase y publicar los
+archivos actualizados. La validación local no aplica SQL a la base compartida.
+
 | Etapa | Área que actúa | Ubicación sugerida |
 | --- | --- | --- |
 | Elaboración de requisición | Compras | Compras |

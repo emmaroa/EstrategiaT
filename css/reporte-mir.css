@@ -1,0 +1,32 @@
+.mir-module .hidden { display: none !important; }
+.mir-stack { display: grid; gap: 22px; }
+.mir-file { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 18px; color: var(--content-secondary); }
+.mir-upload { padding: 48px 24px; border: 1px dashed var(--surface-border); text-align: center; }
+.mir-upload p { margin: 12px 0; }
+.mir-upload small, .mir-charts p { color: var(--content-secondary); }
+.mir-upload.mir-dragging { border-color: var(--primary); background: var(--surface-hover); }
+.mir-filters { display: grid; grid-template-columns: 2fr 1fr 1fr auto; align-items: end; gap: 16px; }
+.mir-filters label { display: block; margin-bottom: 7px; font-weight: 600; }
+.mir-filters input, .mir-filters select { width: 100%; min-width: 0; min-height: var(--control-height,44px); padding: 10px 12px; border: 1px solid var(--surface-border); border-radius: 10px; background: var(--surface-raised); color: var(--content-primary); font: inherit; }
+.mir-filters input:focus-visible, .mir-filters select:focus-visible { outline: 2px solid var(--primary); outline-offset: 2px; }
+.mir-module .kpi-grid { grid-template-columns: repeat(3,minmax(0,1fr)); margin: 0; }
+.mir-kpi-footer { display: flex; justify-content: space-between; gap: 12px; margin-top: 18px; padding-top: 14px; border-top: 1px solid var(--surface-border); font-size: 13px; }
+.mir-charts { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 22px; }
+.mir-chart { position: relative; height: 290px; margin-top: 18px; }
+.mir-table-header, .mir-pagination { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px; }
+.mir-table-header { margin-bottom: 16px; }
+.mir-pagination { margin-top: 18px; color: var(--content-secondary); }
+.mir-pagination > div { display: flex; gap: 8px; }
+.mir-module .table-wrap { overflow-x: auto; }
+.mir-module table { width: 100%; }
+.mir-module th, .mir-module td { padding: 12px; }
+.mir-module td:last-child { text-align: right; white-space: nowrap; }
+.mir-badge { display: inline-block; padding: 4px 8px; border: 1px solid var(--surface-border); border-radius: 6px; white-space: nowrap; font-size: 12px; }
+.mir-electric { color: var(--teal, #087e85); }
+.mir-pending { color: var(--primary); }
+@media (max-width: 1000px) { .mir-filters { grid-template-columns: repeat(2,minmax(0,1fr)); } }
+@media (max-width: 650px) {
+  .mir-filters, .mir-charts, .mir-module .kpi-grid { grid-template-columns: 1fr; }
+  .mir-chart { height: 260px; }
+  .mir-upload { padding: 28px 16px; }
+}

@@ -13,7 +13,7 @@
   function aviso(message) { $('flujoEstado').textContent=message; }
   function estado(fila) {return api.estado(fila);}
   function esperaProveedor() {
-    const espera=[3,6].includes(Number($('flujoEtapa').value));
+    const espera=[3,6].includes(Number($('flujoEtapa').value))&&!destino.every(api.ubicacionLibre);
     $('flujoProveedor').required=espera;
     if(espera)$('flujoLugar').value='Compras';
   }
@@ -137,7 +137,7 @@
     event.preventDefault();
     if(ocupado||!puedeEditar()||!$('flujoFormulario').reportValidity())return;
     const etapa=Number($('flujoEtapa').value),lugar=$('flujoLugar').value;
-    if((etapa===10)!==(lugar==='Enviado')){$('flujoError').textContent='Usa Enviado con la etapa de acuse y envío a Oficialía Mayor.';return;}
+    if(!destino.every(api.ubicacionLibre)&&(etapa===10)!==(lugar==='Enviado')){$('flujoError').textContent='Usa Enviado con la etapa de acuse y envío a Oficialía Mayor.';return;}
     ocupado=true; $('flujoGuardar').disabled=true; $('flujoCancelar').disabled=true;
     let guardado=false;
     try {

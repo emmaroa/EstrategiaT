@@ -34,6 +34,10 @@
     return data;
   }
   const api={etapas,
+    ubicacionLibre(fila) {
+      const estados=(fila.solicitudes_pago||[]).map(s=>String(s.estatus||'').trim().toLowerCase()).filter(Boolean);
+      return estados.length>0&&estados.every(e=>['emitida','emitido'].includes(e));
+    },
     async cargar(ids) {
       usuario();
       const rows=[];
