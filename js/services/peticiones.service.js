@@ -86,12 +86,19 @@
       .trim()
       .toLowerCase()
       .replace(/[\s_-]+/g, "");
-    if (rol === "coordinadorinfraestructura") {
-      return listarEnBloques(function (consulta) {
-        return consulta.ilike("dependencia", "%Infraestructura%");
-      });
-    }
-    return listarEnBloques();
+    return listarEnBloques(function (consulta) {
+      let filtrada = consulta.or("origen_peticion.is.null,origen_peticion.eq.normal,estado_autorizacion.eq.autorizada");
+      if (rol === "coordinadorinfraestructura") {
+        filtrada = filtrada.ilike("dependencia", "%Infraestructura%");
+      }
+      return filtrada;
+    });
+  }
+
+  async function listarPeticionesCoordinadores() {
+    return listarEnBloques(function (consulta) {
+      return consulta.eq("origen_peticion", "coordinador");
+    });
   }
 
   async function listarPorAreas(areas) {
@@ -147,6 +154,24 @@
     }
 
     return client.from("peticiones").delete().eq("id", id);
+  }
+
+  async function actualizarAutorizacion(id, estado, usuario) {
+    const client = getClient();
+    if (!client) return { data: null, error: { message: "Sin conexión" } };
+    return client
+      .from("peticiones")
+      .update({
+        estado_autorizacion: estado,
+        autorizada_por_id: usuario?.id || null,
+        autorizada_por_nombre: usuario?.nombre || usuario?.usuario || null,
+        autorizada_at: new Date().toISOString(),
+        updated_at: new Date().toISOString()
+      })
+      .eq("id", id)
+      .eq("origen_peticion", "coordinador")
+      .select()
+      .single();
   }
 
   async function buscarUnidadParque(valorUnidad) {
@@ -209,10 +234,12 @@
     puedeEditarPropia,
     cargarPropias,
     listar,
+    listarPeticionesCoordinadores,
     listarPorAreas,
     crear,
     actualizar,
     eliminar,
+    actualizarAutorizacion,
     buscarUnidadParque,
     migrarDesdeLocalStorage
   };

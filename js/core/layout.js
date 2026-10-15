@@ -42,6 +42,7 @@
     "Control de Taller",
     "Inventario",
     "Peticiones",
+    "Peticiones de Coordinadores",
     "Gestión de Cotizaciones",
     "Crear cotización",
     "Portal Proveedor",
@@ -70,7 +71,7 @@
     { nombre: "General", modulos: ["Dashboard"] },
     {
       nombre: "Operación",
-      modulos: ["Parque Vehicular", "Peticiones", "Gestión de Cotizaciones", "Crear cotización", "Seguimiento Peticiones", "Acuerdos", "Calendario", "Control de Taller", "Inventario", "Vales"]
+      modulos: ["Parque Vehicular", "Peticiones", "Peticiones de Coordinadores", "Gestión de Cotizaciones", "Crear cotización", "Seguimiento Peticiones", "Acuerdos", "Calendario", "Control de Taller", "Inventario", "Vales"]
     },
     {
       nombre: "Administración",
@@ -85,6 +86,7 @@
     "Dashboard": '<path d="M4 13h6V4H4v9Zm0 7h6v-4H4v4Zm10 0h6v-9h-6v9Zm0-16v4h6V4h-6Z"/>',
     "Parque Vehicular": '<path d="M5 17h14l-1-6-2-3H8l-2 3-1 6Z"/><path d="M7 11h10M7 17v2M17 17v2"/><circle cx="8" cy="15" r="1"/><circle cx="16" cy="15" r="1"/>',
     "Peticiones": '<path d="M6 3h9l3 3v15H6Z"/><path d="M15 3v4h4M9 12h6M9 16h6"/>',
+    "Peticiones de Coordinadores": '<path d="M6 3h9l3 3v15H6Z"/><path d="M15 3v4h4M9 12h6M9 16h6"/><path d="m15 15 2 2 4-4"/>',
     "Gestión de Cotizaciones": '<path d="M4 5h16v14H4Z"/><path d="M7 9h10M7 13h6M16 16h2"/>',
     "Cotizaciones Proveedor": '<path d="M4 5h16v14H4Z"/><path d="M7 9h10M7 13h6M16 16h2"/>',
     "Peticiones de almacén": '<path d="M3 7h11v10H3zM14 10h4l3 3v4h-7z"/><circle cx="7" cy="18" r="2"/><circle cx="18" cy="18" r="2"/>',

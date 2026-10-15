@@ -1297,6 +1297,12 @@
           : estatusSelect.value,
         observaciones: observacionesInput.value.trim() || null
       };
+      if (!idEditando && (normalizarRolPeticion(usuarioActivo?.rol || usuarioActivo?.rol_original).includes("coordinador"))) {
+        nuevaPeticion.origen_peticion = "coordinador";
+        nuevaPeticion.estado_autorizacion = "pendiente";
+        nuevaPeticion.creada_por_id = usuarioActivo?.id || null;
+        nuevaPeticion.creada_por_nombre = usuarioActivo?.nombre || usuarioActivo?.usuario || null;
+      }
       nuevaPeticion.fecha_estimada_entrega = puedeCapturarFechaEstimadaEntrega()
         ? (nuevaPeticion.proveedor && fechaEstimadaEntregaInput?.value
           ? fechaEstimadaEntregaInput.value

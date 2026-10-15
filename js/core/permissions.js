@@ -8,6 +8,7 @@
       DASHBOARD: "Dashboard",
       PARQUE: "Parque Vehicular",
       PETICIONES: "Peticiones",
+      PETICIONES_COORDINADORES: "Peticiones de Coordinadores",
       CREAR_COTIZACION: "Crear cotización",
       GESTION_COTIZACIONES: "Gestión de Cotizaciones",
       COTIZACIONES_PROVEEDOR: "Cotizaciones Proveedor",
@@ -45,6 +46,7 @@
     [MODULOS.DASHBOARD]: "dashboard.html",
     [MODULOS.PARQUE]: "modulos/parque-vehicular.html",
     [MODULOS.PETICIONES]: "modulos/peticiones.html",
+    [MODULOS.PETICIONES_COORDINADORES]: "modulos/peticiones-coordinadores.html",
     [MODULOS.CREAR_COTIZACION]: "modulos/crear-cotizacion.html",
     [MODULOS.GESTION_COTIZACIONES]: "modulos/peticiones.html?vista=cotizaciones",
     [MODULOS.COTIZACIONES_PROVEEDOR]: "modulos/portal-proveedor.html?vista=cotizaciones",
@@ -82,6 +84,7 @@
     [MODULOS.DASHBOARD]: "Indicadores ejecutivos y KPIs operativos.",
     [MODULOS.PARQUE]: "Expediente digital de unidades y seguimiento de flota.",
     [MODULOS.PETICIONES]: "Solicitudes de refacciones al almacén.",
+    [MODULOS.PETICIONES_COORDINADORES]: "Solicitudes de coordinadores pendientes de autorización.",
     [MODULOS.CREAR_COTIZACION]: "Cotizaciones editables desde XML, con PDF de una página.",
     [MODULOS.GESTION_COTIZACIONES]: "Gestión interna de partidas, requisiciones y montos de cotizaciones.",
     [MODULOS.COTIZACIONES_PROVEEDOR]: "Gestión privada de cotizaciones del proveedor.",
@@ -121,6 +124,7 @@
     "Jefe de Almacen": [
       MODULOS.DASHBOARD,
       MODULOS.PETICIONES,
+      MODULOS.PETICIONES_COORDINADORES,
       MODULOS.VALES
     ],
     "Técnico vales": [
@@ -156,7 +160,7 @@
     "Coordinador": [
       MODULOS.DASHBOARD, 
       MODULOS.PARQUE, 
-      MODULOS.PETICIONES,
+      MODULOS.PETICIONES_COORDINADORES,
       MODULOS.SEGUIMIENTO_PETICIONES,
       MODULOS.REQUISICIONES, 
       MODULOS.SEGUIMIENTO_SIIF,
@@ -199,7 +203,7 @@
     ],
     "Coordinador Infraestructura": [
       MODULOS.DASHBOARD,
-      MODULOS.PETICIONES
+      MODULOS.PETICIONES_COORDINADORES
     ],
     "Capturista Administrativo": [
       MODULOS.DASHBOARD,
