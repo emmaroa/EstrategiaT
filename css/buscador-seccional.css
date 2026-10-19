@@ -1,0 +1,49 @@
+﻿/* Consulta cartográfica integrada con los temas de EstrategiaT. */
+.seccional-module .layout { display:grid; grid-template-columns:minmax(300px,390px) minmax(0,1fr); gap:22px; align-items:stretch; }
+.seccional-module .panel { padding:24px; margin:0; min-width:0; }
+.seccional-module .section-label,.seccional-module .result-kicker { color:var(--color-teal); font-size:11px; font-weight:750; text-transform:uppercase; letter-spacing:.09em; }
+.seccional-module h2 { font-size:19px; margin:8px 0; }
+.seccional-module .sub,.seccional-module .micro,.seccional-module .result-meta,.seccional-module .accuracy { color:var(--text-secondary); font-size:13px; line-height:1.6; }
+.seccional-module .micro { font-size:11px; margin-top:8px; }
+.seccional-module .field-label { display:block; margin:20px 0 8px; font-size:13px; font-weight:650; }
+.seccional-module .search-row { display:flex; flex-wrap:wrap; gap:10px; }
+.seccional-module .search-row input { min-width:0; width:100%; padding:12px; border:1px solid var(--border-subtle); border-radius:var(--radius-md); color:var(--text-primary); background:var(--input-bg); }
+.seccional-module .search,.seccional-module .upload-btn { padding:11px 15px; border:1px solid var(--border-subtle); border-radius:var(--radius-md); cursor:pointer; font-weight:650; font-size:13px; }
+.seccional-module .search { width:100%; color:white; background:var(--color-primary); }
+.seccional-module .search:hover { background:var(--color-primary-hover); }
+.seccional-module .search:disabled { opacity:.6; cursor:wait; }
+.seccional-module :is(input,button,a):focus-visible { outline:2px solid var(--color-teal); outline-offset:3px; }
+.seccional-module .divider { height:1px; background:var(--border-subtle); margin:24px 0; }
+.seccional-module .upload-zone { display:flex; flex-wrap:wrap; align-items:center; gap:12px; padding:16px; border:1px dashed var(--border-subtle); background:var(--bg-card-hover); border-radius:var(--radius-md); }
+.seccional-module .upload-icon { display:grid; place-items:center; color:var(--color-teal); }
+.seccional-module .upload-icon svg { width:24px; height:24px; }
+.seccional-module .upload-copy { flex:1; min-width:160px; }
+.seccional-module .upload-copy strong { display:block; font-size:13px; }
+.seccional-module .upload-copy span { color:var(--text-secondary); font-size:12px; }
+.seccional-module .upload-btn { background:var(--bg-surface); color:var(--text-primary); }
+.seccional-module #file { display:none; }
+.seccional-module .loaded { font-size:12px; color:var(--color-teal); margin-top:10px; min-height:18px; overflow-wrap:anywhere; }
+.seccional-module .loaded.error { color:var(--color-danger); }
+.seccional-module .result { display:none; margin-top:20px; padding:18px; border:1px solid var(--border-subtle); border-radius:var(--radius-md); background:var(--color-info-soft); }
+.seccional-module .result.show { display:block; }
+.seccional-module .number { font-size:clamp(24px,3vw,40px); line-height:1.2; font-weight:750; margin:8px 0; overflow-wrap:anywhere; }
+.seccional-module .accuracy { margin-top:8px; font-size:12px; }
+.seccional-module .note { margin-top:20px; padding:14px; border-radius:var(--radius-md); background:var(--color-warning-soft); color:var(--text-secondary); font-size:12px; line-height:1.6; }
+.seccional-module .note strong { display:block; color:var(--text-primary); margin-bottom:4px; }
+.seccional-module .map-card { position:relative; min-width:0; min-height:560px; overflow:hidden; isolation:isolate; border:1px solid var(--border-subtle); border-radius:var(--radius-lg); background:var(--bg-surface); }
+.seccional-module #map { width:100%; height:100%; min-height:560px; z-index:1; }
+.seccional-module .map-head { position:absolute; z-index:500; top:14px; left:54px; right:14px; display:flex; flex-wrap:wrap; gap:8px; pointer-events:none; }
+.seccional-module .map-chip { padding:8px 11px; border:1px solid var(--border-subtle); border-radius:9px; background:var(--bg-surface); color:var(--text-primary); font-size:11px; box-shadow:var(--shadow-sm); }
+.seccional-module .map-chip span { color:var(--color-teal); }
+.seccional-module .map-empty { position:absolute; inset:0; z-index:400; display:grid; place-items:center; padding:30px; text-align:center; background:var(--bg-surface); opacity:.94; pointer-events:none; }
+.seccional-module .empty-inner { max-width:290px; }
+.seccional-module .empty-icon svg { width:40px; height:40px; color:var(--color-teal); margin-bottom:16px; }
+.seccional-module .empty-inner strong { display:block; }
+.seccional-module .empty-inner p { color:var(--text-secondary); font-size:13px; margin-top:8px; }
+.seccional-module .map-card.active .map-empty { display:none; }
+.seccional-module .seccional-footer { display:flex; flex-wrap:wrap; justify-content:space-between; gap:12px; margin-top:18px; color:var(--text-secondary); font-size:12px; }
+.seccional-module .seccional-footer a { color:var(--color-teal); }
+.seccional-module .leaflet-popup-content { color:#202020; font-size:13px; line-height:1.5; }
+.seccional-module .section-map-label { background:#fff; color:#202020; border:1px solid #bbb; border-radius:6px; padding:3px 7px; font-size:12px; font-weight:700; box-shadow:0 1px 4px #0002; }
+@media(max-width:1100px) { .seccional-module .layout { grid-template-columns:1fr; } .seccional-module .map-card,.seccional-module #map { min-height:420px; } }
+@media(max-width:480px) { .seccional-module .panel { padding:16px; } .seccional-module .map-card,.seccional-module #map { min-height:360px; } }

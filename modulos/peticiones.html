@@ -759,6 +759,11 @@
 
     function puedeAccionPeticion(accion, peticion = null) {
       const usuarioActivo = obtenerUsuarioActivoPeticion();
+      const rol = normalizarRolPeticion(usuarioActivo?.rol || usuarioActivo?.rol_original);
+      if (
+        ["coordinador", "coordinadorinfraestructura"].includes(rol) &&
+        ["crear", "editar", "eliminar", "cambiar_estatus", "generar_requisicion"].includes(accion)
+      ) return false;
       if (['editar', 'eliminar'].includes(accion) && ETPeticiones.edicionSoloPropias(usuarioActivo)) {
         return ETPeticiones.puedeEditarPropia(peticion || (idEditando ? obtenerPeticionPorId(idEditando) : null));
       }
@@ -1008,6 +1013,8 @@
       const mostrarProveedor = puedeVerProveedoresPeticion();
       if (tablaPeticiones) tablaPeticiones.innerHTML = "";
       const botonExportar = document.getElementById("btnExportarPeticiones");
+      const botonNuevaPeticion = document.getElementById("btnNuevaPeticion");
+      if (botonNuevaPeticion) botonNuevaPeticion.hidden = !puedeAccionPeticion("crear");
       if (botonExportar) {
         botonExportar.hidden = !puedeAccionPeticion("exportar");
         botonExportar.disabled = !filtradasVisibles.length;

@@ -26,3 +26,14 @@ WHERE lower(replace(replace(trim(rol), ' ', ''), '_', '')) IN
     FROM jsonb_array_elements(COALESCE(modulos_permitidos, '[]'::jsonb)) AS permiso
     WHERE permiso->>'modulo' = 'Peticiones de Coordinadores'
   );
+
+UPDATE usuarios
+SET modulos_permitidos = COALESCE((
+  SELECT jsonb_agg(permiso)
+  FROM jsonb_array_elements(COALESCE(modulos_permitidos, '[]'::jsonb)) AS permiso
+  WHERE permiso->>'modulo' <> 'Peticiones'
+), '[]'::jsonb) ||
+  '[{"modulo":"Peticiones","permiso":"ver"}]'::jsonb
+WHERE lower(replace(replace(trim(rol), ' ', ''), '_', '')) IN
+  ('coordinador', 'coordinadorinfraestructura')
+  AND lower(trim(usuario)) IN ('gdavis', 'rmada');

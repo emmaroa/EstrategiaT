@@ -34,6 +34,7 @@
   }
 
   const MODULOS_IMPLEMENTADOS = [
+    "Buscador Seccional",
     "Reporte MIR",
     "Dashboard",
     "Parque Vehicular",
@@ -68,7 +69,7 @@
 
   const GRUPOS_NAVEGACION = [
     { nombre: "Portal proveedor", modulos: ["Portal Proveedor", "Peticiones de almacén", "Cotizaciones Proveedor", "Seguimiento de trámites SIIF"] },
-    { nombre: "General", modulos: ["Dashboard"] },
+    { nombre: "General", modulos: ["Dashboard", "Buscador Seccional"] },
     {
       nombre: "Operación",
       modulos: ["Parque Vehicular", "Peticiones", "Peticiones de Coordinadores", "Gestión de Cotizaciones", "Crear cotización", "Seguimiento Peticiones", "Acuerdos", "Calendario", "Control de Taller", "Inventario", "Vales"]
@@ -81,6 +82,7 @@
   ];
 
   const ICONOS_MODULOS = {
+    "Buscador Seccional": '<path d="M20 10c0 5-8 11-8 11S4 15 4 10a8 8 0 1 1 16 0Z"/><circle cx="12" cy="10" r="3"/>',
     "Reporte MIR": '<path d="M4 3v17h17M8 16v-5M13 16V6M18 16v-8"/>',
     "Licencias": '<rect x="4" y="3" width="16" height="18" rx="2"/><path d="M8 7h8M8 11h4m-3 5 2 2 5-5"/>',
     "Dashboard": '<path d="M4 13h6V4H4v9Zm0 7h6v-4H4v4Zm10 0h6v-9h-6v9Zm0-16v4h6V4h-6Z"/>',

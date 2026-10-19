@@ -1,0 +1,113 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#f6f7f2">
+  <meta name="description" content="Busca una dirección de Hermosillo y consulta la sección electoral en la cartografía del INE.">
+  <title>EstrategiaT | Buscador Seccional</title>
+  <link rel="preconnect" href="https://unpkg.com">
+  <link rel="preconnect" href="https://tile.openstreetmap.org">
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin="">
+  <link rel="stylesheet" href="../css/style.css">
+  <link rel="stylesheet" href="../css/design-system.css?v=20260820-3">
+  <link rel="stylesheet" href="../css/reference-theme.css?v=20260927-1" media="screen">
+  <link rel="stylesheet" href="../css/privacy-accessibility.css?v=20260927-1">
+  <link rel="stylesheet" href="../css/buscador-seccional.css">
+  <script src="../js/core/privacy.js?v=20260928-1" defer></script>
+  <script src="../js/core/accessibility.js?v=20260927-1" defer></script>
+</head>
+<body class="dashboard-body">
+  <aside class="sidebar"><div class="sidebar-logo"><div class="mini-logo">E</div><div><h3>EstrategiaT</h3><small id="etModuleName">Buscador Seccional</small></div></div><nav id="etNav"></nav><button class="logout" id="etLogout">Cerrar sesión</button></aside>
+  <main class="main-content seccional-module">
+    <header class="topbar"><div><h1>Buscador Seccional</h1><p>Localiza una dirección de Hermosillo y consulta su sección electoral en la cartografía del INE.</p></div><div class="et-header-actions"><span id="etTemaContainer"></span></div></header>
+    <section class="layout" aria-label="Buscador de sección electoral">
+      <div class="panel">
+        <div class="section-label">Buscador</div><h2>Encuentra una sección</h2><p class="sub">La dirección se usa para localizar el punto en el mapa.</p>
+        <label class="field-label" for="address">Dirección en Hermosillo</label>
+        <form id="searchForm" class="search-row"><input id="address" autocomplete="street-address" placeholder="Calle, número y colonia" required><button class="search" id="searchBtn" type="submit">Buscar dirección</button></form>
+        <p class="micro">Ejemplo: Blvd. Solidaridad 123, colonia Centro, Hermosillo</p>
+        <div id="result" class="result" aria-live="polite"><div class="result-kicker">Sección electoral</div><div class="number" id="sectionNumber">—</div><div class="result-meta" id="resultMeta"></div><div class="accuracy" id="resultAccuracy"></div></div>
+        <div class="divider"></div>
+        <div class="section-label">Cartografía</div><h2 style="font-size:16px;margin-top:6px">Cartografía de Sonora incluida</h2><p class="sub">Las secciones de Sonora se cargan automáticamente. Puedes elegir otra cartografía para esta consulta.</p>
+        <label class="field-label" for="file" style="margin-top:14px">Archivo de secciones</label>
+        <div class="upload-zone"><div class="upload-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 16V4m0 0L7.5 8.5M12 4l4.5 4.5M4 15v4a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-4"/></svg></div><div class="upload-copy"><strong>ZIP, GeoJSON o archivos SHP</strong><span>También puedes seleccionar varios archivos de capa</span></div><button class="upload-btn" type="button" id="chooseFile">Cambiar archivo</button><input id="file" type="file" accept=".zip,.geojson,.json,.shp,.dbf,.shx,.prj,.cpg,application/geo+json,application/json,application/zip" multiple></div>
+        <div class="loaded" id="fileStatus" aria-live="polite">Cargando cartografía de Sonora incluida…</div>
+        <div class="note"><strong>Sobre la vigencia de los datos</strong>La consulta depende de la cartografía que cargues. Verifica que corresponda al marco vigente del INE.</div>
+      </div>
+      <div class="map-card" id="mapCard"><div class="map-head"><div class="map-chip">Mapa de consulta <span>· Hermosillo</span></div><div class="map-chip" id="mapHint">Carga la cartografía para consultar</div></div><div id="map" aria-label="Mapa de Hermosillo. Haz clic para seleccionar una ubicación."></div><div class="map-empty"><div class="empty-inner"><div class="empty-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M3 6.5 8.5 4l7 2.5L21 4v13.5L15.5 20l-7-2.5L3 20V6.5Z"/><path d="M8.5 4v13.5M15.5 6.5V20"/></svg></div><strong>Tu mapa aparecerá aquí</strong><p>La cartografía incluida se está preparando para consultar direcciones.</p></div></div></div>
+    </section>
+    <footer class="seccional-footer"><span>La sección mostrada es una referencia geográfica y debe verificarse con fuentes oficiales.</span><a href="https://cartografia.ine.mx/sige8/" target="_blank" rel="noopener">Consultar cartografía del INE ↗</a></footer>
+  </main>
+  <script src="../js/vendor/-supabase-supabase-js.js"></script>
+  <script src="../js/core/supabase.js"></script>
+  <script src="../js/core/permissions.js"></script>
+  <script src="../js/core/theme.js"></script>
+  <script src="../js/core/calendar-notifications.js?v=2.0.114"></script>
+  <script src="../js/core/layout.js"></script>
+  <script src="../js/core/auth.js"></script>
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script>
+  <script src="https://unpkg.com/shpjs@6.2.0/dist/shp.js"></script>
+  <script>
+  (()=>{
+    if (!validarPermiso('Buscador Seccional')) return;
+    ETLayout.inicializar('Buscador Seccional');
+    document.getElementById('chooseFile').addEventListener('click',()=>document.getElementById('file').click());
+    if (!window.L) { document.getElementById('fileStatus').textContent='No se pudo cargar el mapa. Revisa tu conexión y recarga la página.'; return; }
+    const center=[29.07297,-110.95592], map=L.map('map',{zoomControl:true}).setView(center,12);
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:19,attribution:'© OpenStreetMap'}).addTo(map);
+    new ResizeObserver(()=>map.invalidateSize()).observe(document.getElementById('map'));
+    let features=[], polygons=null, marker=null, boundary=null, sectionField='';
+    const $=id=>document.getElementById(id), status=$('fileStatus');
+    function say(text,error=false){status.textContent=text;status.classList.toggle('error',error)}
+    function flattenFeatures(value){if(!value)return[];if(value.type==='FeatureCollection')return value.features||[];if(value.type==='Feature')return[value];if(Array.isArray(value))return value.flatMap(flattenFeatures);if(value.type&&value.coordinates)return[{type:'Feature',geometry:value,properties:{}}];return[]}
+    function inferField(list){
+      const norm=x=>x.normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().replace(/[^a-z0-9]/g,'');
+      const names=['seccion','seccionelectoral','secc','seccional','cvesec','cvesecc','cveseccion','numseccion','numeroseccion'];
+      const keys=[...new Set(list.flatMap(f=>Object.keys(f.properties||{})))];
+      return names.map(name=>keys.find(k=>norm(k)===name)).find(Boolean)||'';
+    }
+    function sectionValue(feature){
+      const props=feature.properties||{};
+      const key=inferField([feature]);
+      const value=props[key];
+      return value===null||value===undefined||String(value).trim()===''?'Sin clave':String(value).trim();
+    }
+    function sectionTooltip(feature,layer){
+      const section=sectionValue(feature);
+      if(section==='Sin clave')return;
+      const text=document.createElement('span');text.textContent='Secci\u00f3n '+section;
+      layer.bindTooltip(text,{permanent:true,direction:'center',className:'section-map-label'});
+    }
+    function activateMap(){ $('mapCard').classList.add('active'); map.invalidateSize() }
+    function containsRing(point,ring){let inside=false;const x=point[0],y=point[1];for(let i=0,j=ring.length-1;i<ring.length;j=i++){const xi=ring[i][0],yi=ring[i][1],xj=ring[j][0],yj=ring[j][1];const cross=((yi>y)!==(yj>y))&&(x<(xj-xi)*(y-yi)/(yj-yi+Number.EPSILON)+xi);if(cross)inside=!inside}return inside}
+    function containsGeom(lng,lat,g){if(!g)return false;const pt=[lng,lat];if(g.type==='Polygon'){return !!g.coordinates?.length&&containsRing(pt,g.coordinates[0])&&!g.coordinates.slice(1).some(r=>containsRing(pt,r))}if(g.type==='MultiPolygon')return g.coordinates.some(poly=>containsGeom(lng,lat,{type:'Polygon',coordinates:poly}));if(g.type==='GeometryCollection')return g.geometries.some(x=>containsGeom(lng,lat,x));return false}
+    function findSection(lat,lng){return features.find(f=>containsGeom(lng,lat,f.geometry))}
+    function showPoint(lat,lng,label='Ubicación seleccionada',zoom=16){activateMap();if(marker)map.removeLayer(marker);marker=L.marker([lat,lng]).addTo(map);map.setView([lat,lng],zoom);const found=findSection(lat,lng);const result=$('result');result.classList.add('show');if(found){const props=found.properties||{}, section=sectionValue(found);$('sectionNumber').textContent=section;$('resultMeta').textContent=[props.NOM_MUN||props.nom_mun||(props.MUNICIPIO||props.municipio?'Municipio '+(props.MUNICIPIO||props.municipio):null),(props.DISTRITO_F||props.distrito_f||props.DISTRITO)?'Distrito federal '+(props.DISTRITO_F||props.distrito_f||props.DISTRITO):null].filter(Boolean).join(' · ');$('resultAccuracy').textContent=label+' · Se localizó dentro del polígono cargado.';if(boundary)map.removeLayer(boundary);boundary=L.geoJSON(found,{style:{color:'#176b57',weight:3,fillColor:'#52a586',fillOpacity:.18}}).addTo(map);marker.bindPopup(document.createTextNode('Sección '+String(section)+' · '+label)).openPopup();$('mapHint').textContent='Sección '+String(section)}else{$('sectionNumber').textContent='Sin coincidencia';$('resultMeta').textContent='El punto no cae dentro de los polígonos cargados.';$('resultAccuracy').textContent=label+' · Revisa la cartografía, el municipio o la ubicación seleccionada.';if(boundary){map.removeLayer(boundary);boundary=null}marker.bindPopup('No se encontró una sección en la base cargada.').openPopup();$('mapHint').textContent='Punto fuera de la cartografía'}}
+    function applyCartography(raw){features=flattenFeatures(raw).filter(x=>x.geometry&&['Polygon','MultiPolygon'].includes(x.geometry.type)&&inferField([x]));if(!features.length)throw new Error('El archivo no contiene polígonos con un campo de sección. Selecciona la capa SECCION con sus archivos SHP, DBF y PRJ.');sectionField=inferField(features);if(!sectionField)throw new Error('La capa no trae un campo reconocible de sección. Sube el GeoJSON o comparte el archivo para revisar sus columnas.');say(`${features.length.toLocaleString('es-MX')} secciones listas · campo “${sectionField}”.`);$('mapHint').textContent='Cartografía lista';activateMap();if(polygons)map.removeLayer(polygons);polygons=L.geoJSON({type:'FeatureCollection',features},{onEachFeature:sectionTooltip,style:{color:'#75a491',weight:1,fillColor:'#b8d9c9',fillOpacity:.16}}).addTo(map);const b=polygons.getBounds();if(b.isValid())map.fitBounds(b,{padding:[28,28],maxZoom:13});if(marker){const p=marker.getLatLng();showPoint(p.lat,p.lng,'Ubicación previamente seleccionada')}}
+    $('file').addEventListener('change',async e=>{const files=Array.from(e.target.files||[]);if(!files.length)return;say('Leyendo cartografía…');try{let raw;if(files.some(f=>/\.(shp|zip)$/i.test(f.name))&&!window.shp)throw new Error('No se pudo cargar el lector SHP/ZIP. Revisa tu conexi\u00f3n o carga un GeoJSON.');const shapefile=files.find(x=>/^seccion\.shp$/i.test(x.name))||files.find(x=>/\.shp$/i.test(x.name));if(shapefile){const base=shapefile.name.replace(/\.shp$/i,'');const companion=ext=>files.find(x=>x.name.replace(/\.[^.]+$/,'').toLowerCase()===base.toLowerCase()&&x.name.toLowerCase().endsWith('.'+ext));const dbf=companion('dbf');if(!dbf)throw new Error('Selecciona juntos el archivo .shp y su archivo .dbf. También agrega .prj si viene en la descarga.');const bundle={shp:await shapefile.arrayBuffer(),dbf:await dbf.arrayBuffer()};for(const ext of ['prj','cpg']){const side=companion(ext);if(side)bundle[ext]=await side.arrayBuffer()}raw=await shp(bundle)}else{const f=files[0];if(f.name.toLowerCase().endsWith('.zip')){try{raw=await shp(await f.arrayBuffer())}catch(parseError){if(/no layers founds?/i.test(parseError.message||''))throw new Error('Este ZIP no contiene un Shapefile reconocible. Descarga el producto “Marco Geográfico Seccional” en formato Shapefile; si el ZIP contiene otro ZIP, extrae el interior y selecciona juntos los archivos .shp y .dbf (y .prj si viene). También puedes cargar un GeoJSON.');throw parseError}}else if(/\.(geojson|json)$/i.test(f.name))raw=JSON.parse(await f.text());else throw new Error('Selecciona un ZIP con archivos de Shapefile, un GeoJSON o varios archivos .shp/.dbf/.prj.')}applyCartography(raw)}catch(err){features=[];if(polygons){map.removeLayer(polygons);polygons=null}if(boundary){map.removeLayer(boundary);boundary=null}$('result').classList.remove('show');$('mapHint').textContent='Carga una cartograf\u00eda v\u00e1lida';say(err.message||'No se pudo leer el archivo.',true)} });
+    $('searchForm').addEventListener('submit',async e=>{e.preventDefault();const input=$('address').value.trim();if(!input)return;if(!features.length){say('Primero carga la cartografía electoral del INE para calcular la sección.',true);$('chooseFile').focus();return}const btn=$('searchBtn');btn.disabled=true;btn.textContent='Buscando…';try{const q=input+', Hermosillo, Sonora, México';const url='https://nominatim.openstreetmap.org/search?format=jsonv2&limit=5&countrycodes=mx&addressdetails=1&q='+encodeURIComponent(q);const response=await fetch(url,{headers:{'Accept':'application/json'}});if(!response.ok)throw new Error('El servicio de direcciones no respondió. Intenta de nuevo.');const hits=await response.json();const hit=hits.find(x=>{const a=x.address||{};return /hermosillo/i.test([a.city,a.town,a.municipality,a.county,a.state_district].join(' '))})||hits[0];if(!hit)throw new Error('No encontramos esa dirección. Prueba agregando colonia o código postal.');showPoint(Number(hit.lat),Number(hit.lon),'Dirección localizada: '+hit.display_name,16);say('Dirección localizada en el mapa.')}catch(err){say(err.message||'No fue posible buscar la dirección.',true)}finally{btn.disabled=false;btn.textContent='Buscar dirección'}});
+    map.on('click',e=>{if(!features.length){say('Carga primero la cartografía del INE para consultar el punto.',true);return}showPoint(e.latlng.lat,e.latlng.lng,'Punto seleccionado en el mapa',16)});
+
+    async function loadIncludedCartography(){
+      $('chooseFile').disabled=true;
+      $('searchBtn').disabled=true;
+      say('Cargando cartograf\u00eda de Sonora incluida\u2026');
+      try {
+        const response=await fetch('data/secciones-sonora.geojson?v=1');
+        if(!response.ok)throw new Error('No se pudo cargar la cartograf\u00eda incluida. Recarga la p\u00e1gina o selecciona un archivo.');
+        applyCartography(await response.json());
+        map.setView(center,12);
+      } catch(error) {
+        say(error.message||'No se pudo cargar la cartograf\u00eda incluida.',true);
+        $('mapHint').textContent='Cartograf\u00eda no disponible';
+      } finally {
+        $('chooseFile').disabled=false;
+        $('searchBtn').disabled=false;
+      }
+    }
+    loadIncludedCartography();
+  })();
+  </script>
+</body>
+</html>

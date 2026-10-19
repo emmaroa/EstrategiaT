@@ -4,6 +4,7 @@
  */
 (function (global) {
     const MODULOS = {
+      BUSCADOR_SECCIONAL: "Buscador Seccional",
       REPORTE_MIR: "Reporte MIR",
       DASHBOARD: "Dashboard",
       PARQUE: "Parque Vehicular",
@@ -42,6 +43,7 @@
     };
 
   const RUTAS = {
+    [MODULOS.BUSCADOR_SECCIONAL]: "modulos/buscador_seccional.html",
     [MODULOS.REPORTE_MIR]: "modulos/reporte-mir.html",
     [MODULOS.DASHBOARD]: "dashboard.html",
     [MODULOS.PARQUE]: "modulos/parque-vehicular.html",
@@ -80,6 +82,7 @@
   };
 
   const DESCRIPCIONES = {
+    [MODULOS.BUSCADOR_SECCIONAL]: "Consulta de secciones electorales por dirección o ubicación en el mapa.",
     [MODULOS.REPORTE_MIR]: "Indicadores de mantenimiento para MIR desde archivos CSV.",
     [MODULOS.DASHBOARD]: "Indicadores ejecutivos y KPIs operativos.",
     [MODULOS.PARQUE]: "Expediente digital de unidades y seguimiento de flota.",
@@ -461,6 +464,9 @@
         }).filter(function (modulo, indice, lista) {
           return modulo !== MODULOS.REQUISICIONES && lista.indexOf(modulo) === indice;
         });
+      if (esCoordinadorConsultaPeticiones(usuario) && !personalizados.includes(MODULOS.PETICIONES)) {
+        personalizados.push(MODULOS.PETICIONES);
+      }
       if (["SuperAdmin", "Compras"].includes(rol) &&
           !permisosModulos.some(item => item.modulo === MODULOS.CREAR_COTIZACION)) {
         personalizados.push(MODULOS.CREAR_COTIZACION);
@@ -479,7 +485,8 @@
     const modulosRol = PERMISOS[rol] || [];
     let modulosFinalesRol = usuarioConSesion(usuario)
       ? agregarModuloSiFalta(modulosRol, MODULOS.PETICIONES)
-      : modulosRol;
+      : modulosRol.slice();
+    if (esCoordinadorConsultaPeticiones(usuario)) modulosFinalesRol = agregarModuloSiFalta(modulosFinalesRol, MODULOS.PETICIONES);
     if (rolVeCalendario(rol)) modulosFinalesRol = agregarModuloSiFalta(modulosFinalesRol, MODULOS.CALENDARIO);
     if (rolVeControlTaller(rol)) modulosFinalesRol = agregarModuloSiFalta(modulosFinalesRol, MODULOS.CONTROL_TALLER);
     return modulosFinalesRol.map(function (modulo) {
@@ -499,8 +506,15 @@
     return ['superadmin', 'director', 'admin'].includes(rol);
   }
 
+  function esCoordinadorConsultaPeticiones(usuario) {
+    const rol = normalizarRol((usuario || {}).rol || (usuario || {}).cargo || (usuario || {}).tipo || "");
+    const nombreUsuario = String((usuario || {}).usuario || "").trim().toLowerCase();
+    return ["Coordinador", "Coordinador Infraestructura"].includes(rol) && ["gdavis", "rmada"].includes(nombreUsuario);
+  }
+
   function obtenerPermisoModuloUsuario(usuario, modulo) {
     const rol = normalizarRol((usuario || {}).rol || (usuario || {}).cargo || (usuario || {}).tipo || "");
+    if (modulo === MODULOS.PETICIONES && esCoordinadorConsultaPeticiones(usuario)) return "ver";
     if (modulo === MODULOS.LICENCIAS) return esAdministradorLicencias(usuario) ? "editar" : "none";
     if (rol === "Proveedor") {
       return [MODULOS.PORTAL_PROVEEDOR, MODULOS.PETICIONES_PROVEEDOR, MODULOS.COTIZACIONES_PROVEEDOR, MODULOS.SEGUIMIENTO_SIIF_PROVEEDOR].includes(modulo) ? "editar" : "none";
@@ -567,6 +581,12 @@
   function puedeAccion(usuario, modulo, accion) {
     const accionNormalizada = String(accion || "").trim().toLowerCase();
     if (!accionNormalizada) return false;
+    const rol = normalizarRol((usuario || {}).rol || (usuario || {}).cargo || (usuario || {}).tipo || "");
+    if (
+      modulo === MODULOS.PETICIONES &&
+      esCoordinadorConsultaPeticiones(usuario) &&
+      !ACCIONES_LECTURA.includes(accionNormalizada)
+    ) return false;
     if (
       modulo === MODULOS.PETICIONES &&
       accionNormalizada === "crear" &&
@@ -581,7 +601,6 @@
     const permisoModulo = obtenerPermisoModuloUsuario(usuario, modulo);
     if (permisoModulo !== "editar" && permisoModulo !== "moderar") return false;
 
-    const rol = normalizarRol((usuario || {}).rol || (usuario || {}).cargo || (usuario || {}).tipo || "");
     if (
       accionNormalizada === "eliminar" &&
       [MODULOS.PARQUE, MODULOS.REQUISICIONES, MODULOS.PETICIONES].includes(modulo)
