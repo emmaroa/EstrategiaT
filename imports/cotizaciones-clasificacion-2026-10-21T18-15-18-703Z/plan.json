@@ -1,0 +1,482 @@
+[
+  {
+    "id": "06b7f300-e7bd-486c-a852-452ecee619e6",
+    "folio": "COT-2026-0296",
+    "unidad": "1861",
+    "cambios": {
+      "partida": "29601"
+    },
+    "motivo": "Dependencia del parque vehicular según la unidad. Refacciones para unidades de gasolina y motos."
+  },
+  {
+    "id": "103c60ba-4e2c-4670-ae23-79936352b703",
+    "folio": "COT-2026-0591",
+    "unidad": "210201802238",
+    "cambios": {
+      "dependencia": "08-Tesorería Municipal",
+      "partida": "29601"
+    },
+    "motivo": "Dependencia del parque vehicular según la unidad. Refacciones para unidades de gasolina y motos."
+  },
+  {
+    "id": "2c55fa6b-b0b6-41a3-91ab-2d273f49573e",
+    "folio": "COT-2026-0587",
+    "unidad": "C-210201803603",
+    "cambios": {
+      "dependencia": "12-Oficialía Mayor",
+      "partida": "29601"
+    },
+    "motivo": "Dependencia del parque vehicular según la unidad. Refacciones para unidades de gasolina y motos."
+  },
+  {
+    "id": "37019c43-f027-4719-ad57-346627655dd4",
+    "folio": "COT-2026-0348",
+    "unidad": "2064",
+    "cambios": {
+      "partida": "29601"
+    },
+    "motivo": "Dependencia del parque vehicular según la unidad. Refacciones para unidades de gasolina y motos."
+  },
+  {
+    "id": "39c406cd-0f17-41c2-a2b3-d57d9a735eff",
+    "folio": "COT-2026-0428",
+    "unidad": "210200301864",
+    "cambios": {
+      "partida": "29601"
+    },
+    "motivo": "Verifica la dependencia de la unidad en el parque vehicular. Refacciones para unidades de gasolina y motos."
+  },
+  {
+    "id": "3b078195-6d83-4e91-8cbb-fcabffb984e8",
+    "folio": "COT-2026-0507",
+    "unidad": "VH0100004189",
+    "cambios": {
+      "dependencia": "45-Dirección de Inspección y Vigilancia",
+      "partida": "29601"
+    },
+    "motivo": "Dependencia del parque vehicular según la unidad. Refacciones para unidades de gasolina y motos."
+  },
+  {
+    "id": "3e25ac27-a3f0-4261-bfbd-0a6c45059f96",
+    "folio": "COT-2026-0565",
+    "unidad": "210200303615",
+    "cambios": {
+      "dependencia": "10-Dirección General de Desarrollo de Infraestructura",
+      "partida": "29601"
+    },
+    "motivo": "Dependencia del parque vehicular según la unidad. Refacciones para unidades de gasolina y motos."
+  },
+  {
+    "id": "44296e38-f0e4-4990-b2ab-2269fc5891bf",
+    "folio": "COT-2026-0515",
+    "unidad": "210200303199",
+    "cambios": {
+      "dependencia": "11-Dirección General de Servicios Públicos Municipales",
+      "partida": "29601"
+    },
+    "motivo": "Dependencia del parque vehicular según la unidad. Refacciones para unidades de gasolina y motos."
+  },
+  {
+    "id": "47707c87-438a-447e-837a-739fddf03ff7",
+    "folio": "COT-2026-0523",
+    "unidad": "210200303477",
+    "cambios": {
+      "partida": "29601"
+    },
+    "motivo": "Verifica la dependencia de la unidad en el parque vehicular. Refacciones para unidades de gasolina y motos."
+  },
+  {
+    "id": "49c3606f-3265-436c-9ce4-7ec70c38813a",
+    "folio": "COT-2026-0589",
+    "unidad": "210200301786",
+    "cambios": {
+      "dependencia": "10-Dirección General de Desarrollo de Infraestructura",
+      "partida": "29601"
+    },
+    "motivo": "Dependencia del parque vehicular según la unidad. Refacciones para unidades de gasolina y motos."
+  },
+  {
+    "id": "4b4cfb0a-409c-4ea4-8f68-2a4a585ba5f5",
+    "folio": "COT-2026-0516",
+    "unidad": "VH0100004702",
+    "cambios": {
+      "dependencia": "50-Instituto Municipal de Protección y Bienestar Animal",
+      "partida": "29601"
+    },
+    "motivo": "Dependencia del parque vehicular según la unidad. Refacciones para unidades de gasolina y motos."
+  },
+  {
+    "id": "51df93a4-522f-44f8-a512-e54a4f2fbf4b",
+    "folio": "COT-2026-0560",
+    "unidad": "211410703609",
+    "cambios": {
+      "dependencia": "10-Dirección General de Desarrollo de Infraestructura",
+      "partida": "29801"
+    },
+    "motivo": "Dependencia del parque vehicular según la unidad. Refacciones para unidades diésel, colectores y maquinaria pesada."
+  },
+  {
+    "id": "5384ec2e-6498-404f-8370-7d09b23d36ca",
+    "folio": "COT-2026-0522",
+    "unidad": "210200302755",
+    "cambios": {
+      "dependencia": "11-Dirección General de Servicios Públicos Municipales",
+      "partida": "29601"
+    },
+    "motivo": "Dependencia del parque vehicular según la unidad. Refacciones para unidades de gasolina y motos."
+  },
+  {
+    "id": "5cc2a8bd-0b2c-4cdf-a7f1-d431f666e4c5",
+    "folio": "COT-2026-0593",
+    "unidad": "210200303614",
+    "cambios": {
+      "dependencia": "10-Dirección General de Desarrollo de Infraestructura",
+      "partida": "29601"
+    },
+    "motivo": "Dependencia del parque vehicular según la unidad. Refacciones para unidades de gasolina y motos."
+  },
+  {
+    "id": "5e066b2a-685b-4bba-9bc4-4169ecde952c",
+    "folio": "COT-2026-0534",
+    "unidad": "211410001205",
+    "cambios": {
+      "dependencia": "10-Dirección General de Desarrollo de Infraestructura",
+      "partida": "29801"
+    },
+    "motivo": "Dependencia del parque vehicular según la unidad. Refacciones para unidades diésel, colectores y maquinaria pesada."
+  },
+  {
+    "id": "62d239b9-90cb-4df9-bfb9-ef6fd31ccd2d",
+    "folio": "COT-2026-0549",
+    "unidad": "211410000993",
+    "cambios": {
+      "dependencia": "10-Dirección General de Desarrollo de Infraestructura",
+      "partida": "29801"
+    },
+    "motivo": "Dependencia del parque vehicular según la unidad. Refacciones para unidades diésel, colectores y maquinaria pesada."
+  },
+  {
+    "id": "64234272-e96b-4462-980a-b5d74630c2df",
+    "folio": "COT-2026-0521",
+    "unidad": "210200303388",
+    "cambios": {
+      "dependencia": "12-Oficialía Mayor",
+      "partida": "29601"
+    },
+    "motivo": "Dependencia del parque vehicular según la unidad. Refacciones para unidades de gasolina y motos."
+  },
+  {
+    "id": "6bce067f-afb5-4155-8c7f-8e2309004984",
+    "folio": "COT-2026-0242",
+    "unidad": "3202",
+    "cambios": {
+      "partida": "29601"
+    },
+    "motivo": "Dependencia del parque vehicular según la unidad. Refacciones para unidades de gasolina y motos."
+  },
+  {
+    "id": "79dbbedf-5335-4fac-acb0-dfe128d4ffba",
+    "folio": "COT-2026-0493",
+    "unidad": "211410503694",
+    "cambios": {
+      "dependencia": "10-Dirección General de Desarrollo de Infraestructura",
+      "partida": "29801"
+    },
+    "motivo": "Dependencia del parque vehicular según la unidad. Refacciones para unidades diésel, colectores y maquinaria pesada."
+  },
+  {
+    "id": "80f64d82-69a4-473c-8c0c-bc2932b9b4cb",
+    "folio": "COT-2026-0532",
+    "unidad": "VH0100004221",
+    "cambios": {
+      "dependencia": "47-Coordinación Municipal de Protección Civil",
+      "partida": "29601"
+    },
+    "motivo": "Dependencia del parque vehicular según la unidad. Refacciones para unidades de gasolina y motos."
+  },
+  {
+    "id": "84e30713-a8e5-499c-8ed4-2ccf6b6dfcfc",
+    "folio": "COT-2026-0509",
+    "unidad": "210200202937",
+    "cambios": {
+      "partida": "29601"
+    },
+    "motivo": "Verifica la dependencia de la unidad en el parque vehicular. Refacciones para unidades de gasolina y motos."
+  },
+  {
+    "id": "8994a7a7-4627-480f-93b9-e67b973366a1",
+    "folio": "COT-2026-0503",
+    "unidad": "VH0100004189",
+    "cambios": {
+      "dependencia": "45-Dirección de Inspección y Vigilancia",
+      "partida": "29601"
+    },
+    "motivo": "Dependencia del parque vehicular según la unidad. Refacciones para unidades de gasolina y motos."
+  },
+  {
+    "id": "8abd7157-0dcf-4273-9b70-1183d71d497b",
+    "folio": "COT-2026-0170",
+    "unidad": "4226",
+    "cambios": {
+      "partida": "29601"
+    },
+    "motivo": "Verifica la dependencia de la unidad en el parque vehicular. Refacciones para unidades de gasolina y motos."
+  },
+  {
+    "id": "8e5b783d-73dc-45fa-987e-4ac7831e9f0b",
+    "folio": "COT-2026-0533",
+    "unidad": "211410001932",
+    "cambios": {
+      "dependencia": "10-Dirección General de Desarrollo de Infraestructura",
+      "partida": "29801"
+    },
+    "motivo": "Dependencia del parque vehicular según la unidad. Refacciones para unidades diésel, colectores y maquinaria pesada."
+  },
+  {
+    "id": "8e612287-dd46-4018-ae5c-381b77111c7b",
+    "folio": "COT-2026-0572",
+    "unidad": "210200303614",
+    "cambios": {
+      "dependencia": "10-Dirección General de Desarrollo de Infraestructura"
+    },
+    "motivo": "Dependencia del parque vehicular según la unidad. La cotización mezcla lubricantes y refacciones. Revisa la partida antes de guardar."
+  },
+  {
+    "id": "a0be2ed6-fc5b-4b97-94f5-8036b9c74ce0",
+    "folio": "COT-2026-0350",
+    "unidad": "4136",
+    "cambios": {
+      "partida": "29601"
+    },
+    "motivo": "Dependencia del parque vehicular según la unidad. Refacciones para unidades de gasolina y motos."
+  },
+  {
+    "id": "a7c8b1ca-48a7-48b1-8d3c-7e9b88a35499",
+    "folio": "COT-2026-0462",
+    "unidad": "2026",
+    "cambios": {
+      "partida": "29601"
+    },
+    "motivo": "Dependencia del parque vehicular según la unidad. Refacciones para unidades de gasolina y motos."
+  },
+  {
+    "id": "ad51afc5-e9d2-4541-9315-2b9904ccc108",
+    "folio": "COT-2026-0597",
+    "unidad": "VH0100004177",
+    "cambios": {
+      "dependencia": "48-Departamento de Bomberas y Bomberos",
+      "partida": "29601"
+    },
+    "motivo": "Dependencia del parque vehicular según la unidad. Refacciones para unidades de gasolina y motos."
+  },
+  {
+    "id": "ae9452e8-6a46-5dc1-be48-2d91e5f71359",
+    "folio": "01482-2026-CT",
+    "unidad": "3618",
+    "cambios": {
+      "partida": "29601"
+    },
+    "motivo": "Dependencia del parque vehicular según la unidad. Refacciones para unidades de gasolina y motos."
+  },
+  {
+    "id": "b5e284b0-840c-4706-b207-2877501e2620",
+    "folio": "COT-2026-0182",
+    "unidad": "3203",
+    "cambios": {
+      "partida": "29601"
+    },
+    "motivo": "Dependencia del parque vehicular según la unidad. Refacciones para unidades de gasolina y motos."
+  },
+  {
+    "id": "b66badb6-d049-4720-9761-8186351e8182",
+    "folio": "COT-2026-0604",
+    "unidad": "210200303096",
+    "cambios": {
+      "partida": "29601"
+    },
+    "motivo": "Verifica la dependencia de la unidad en el parque vehicular. Refacciones para unidades de gasolina y motos."
+  },
+  {
+    "id": "bbb0dc61-9940-4609-a5a3-5e208f1a29e3",
+    "folio": "COT-2026-0526",
+    "unidad": "MP2100004561",
+    "cambios": {
+      "dependencia": "10-Dirección General de Desarrollo de Infraestructura",
+      "partida": "29801"
+    },
+    "motivo": "Dependencia del parque vehicular según la unidad. Refacciones para unidades diésel, colectores y maquinaria pesada."
+  },
+  {
+    "id": "bc995d5d-657f-4dc7-982b-bf5919b645b7",
+    "folio": "COT-2026-0581",
+    "unidad": "210200302755",
+    "cambios": {
+      "dependencia": "11-Dirección General de Servicios Públicos Municipales",
+      "partida": "29601"
+    },
+    "motivo": "Dependencia del parque vehicular según la unidad. Refacciones para unidades de gasolina y motos."
+  },
+  {
+    "id": "bcc4c994-98bc-5e2c-8277-86aaaa103ea1",
+    "folio": "01566-2026-CT",
+    "unidad": "4013",
+    "cambios": {
+      "partida": "29601"
+    },
+    "motivo": "Verifica la dependencia de la unidad en el parque vehicular. Refacciones para unidades de gasolina y motos."
+  },
+  {
+    "id": "bfadf574-bc80-4e9c-afc8-b97d39f35645",
+    "folio": "COT-2026-0298",
+    "unidad": "3526",
+    "cambios": {
+      "partida": "29601"
+    },
+    "motivo": "Dependencia del parque vehicular según la unidad. Refacciones para unidades de gasolina y motos."
+  },
+  {
+    "id": "c81f2ce5-fe1e-4cac-8e3c-adf10c621d66",
+    "folio": "COT-2026-0601",
+    "unidad": "210200303137",
+    "cambios": {
+      "dependencia": "10-Dirección General de Desarrollo de Infraestructura"
+    },
+    "motivo": "Dependencia del parque vehicular según la unidad. La cotización mezcla lubricantes y refacciones. Revisa la partida antes de guardar."
+  },
+  {
+    "id": "ce94e1f1-55db-4a70-9f63-cba2b99e5ecb",
+    "folio": "COT-2026-0579",
+    "unidad": "VH0100004793",
+    "cambios": {
+      "dependencia": "10-Dirección General de Desarrollo de Infraestructura",
+      "partida": "29801"
+    },
+    "motivo": "Dependencia del parque vehicular según la unidad. Refacciones para unidades diésel, colectores y maquinaria pesada."
+  },
+  {
+    "id": "d376ba2c-949f-4928-8aaf-1634799c83ae",
+    "folio": "COT-2026-0548",
+    "unidad": "211410001932",
+    "cambios": {
+      "dependencia": "10-Dirección General de Desarrollo de Infraestructura",
+      "partida": "29801"
+    },
+    "motivo": "Dependencia del parque vehicular según la unidad. Refacciones para unidades diésel, colectores y maquinaria pesada."
+  },
+  {
+    "id": "d74f6823-c0c6-4d4f-afe6-aee796c3d2a0",
+    "folio": "COT-2026-0164",
+    "unidad": "2207",
+    "cambios": {
+      "partida": "29601"
+    },
+    "motivo": "Verifica la dependencia de la unidad en el parque vehicular. Refacciones para unidades de gasolina y motos."
+  },
+  {
+    "id": "d941aca4-0dda-4975-91d1-aadec4197395",
+    "folio": "COT-2026-0602",
+    "unidad": "210200203361",
+    "cambios": {
+      "dependencia": "12-Oficialía Mayor"
+    },
+    "motivo": "Dependencia del parque vehicular según la unidad. La cotización mezcla lubricantes y refacciones. Revisa la partida antes de guardar."
+  },
+  {
+    "id": "dcdfee03-2ae1-4d16-9530-cb71307bd503",
+    "folio": "COT-2026-0510",
+    "unidad": "211410003489",
+    "cambios": {
+      "dependencia": "11-Dirección General de Servicios Públicos Municipales",
+      "partida": "29801"
+    },
+    "motivo": "Dependencia del parque vehicular según la unidad. Refacciones para unidades diésel, colectores y maquinaria pesada."
+  },
+  {
+    "id": "de6a8502-2029-49b1-8247-50376849e4a0",
+    "folio": "COT-2026-0498",
+    "unidad": "VH0100004189",
+    "cambios": {
+      "dependencia": "45-Dirección de Inspección y Vigilancia",
+      "partida": "29601"
+    },
+    "motivo": "Dependencia del parque vehicular según la unidad. Refacciones para unidades de gasolina y motos."
+  },
+  {
+    "id": "e0a570be-d877-4504-a2db-6d26e7525e12",
+    "folio": "COT-2026-0566",
+    "unidad": "211410001803",
+    "cambios": {
+      "dependencia": "11-Dirección General de Servicios Públicos Municipales",
+      "partida": "29801"
+    },
+    "motivo": "Dependencia del parque vehicular según la unidad. Refacciones para unidades diésel, colectores y maquinaria pesada."
+  },
+  {
+    "id": "e0e141f3-9392-4a3f-bdc1-988c74b57273",
+    "folio": "COT-2026-0265",
+    "unidad": "3532",
+    "cambios": {
+      "partida": "29601"
+    },
+    "motivo": "Dependencia del parque vehicular según la unidad. Refacciones para unidades de gasolina y motos."
+  },
+  {
+    "id": "e71cd1f3-416b-4acf-ac6f-fad77f21e134",
+    "folio": "COT-2026-0495",
+    "unidad": "VH0100004479",
+    "cambios": {
+      "dependencia": "48-Departamento de Bomberas y Bomberos",
+      "partida": "29601"
+    },
+    "motivo": "Dependencia del parque vehicular según la unidad. Refacciones para unidades de gasolina y motos."
+  },
+  {
+    "id": "eb819350-5a56-49cf-94e0-fbbd2d344682",
+    "folio": "COT-2026-0486",
+    "unidad": "210200202026",
+    "cambios": {
+      "dependencia": "10-Dirección General de Desarrollo de Infraestructura",
+      "partida": "29601"
+    },
+    "motivo": "Dependencia del parque vehicular según la unidad. Refacciones para unidades de gasolina y motos."
+  },
+  {
+    "id": "ed9157f9-a0ba-43a5-94a6-143e4c8dbf5e",
+    "folio": "COT-2026-0559",
+    "unidad": "211410203362",
+    "cambios": {
+      "dependencia": "11-Dirección General de Servicios Públicos Municipales",
+      "partida": "29801"
+    },
+    "motivo": "Dependencia del parque vehicular según la unidad. Refacciones para unidades diésel, colectores y maquinaria pesada."
+  },
+  {
+    "id": "f40dbf8c-2cf9-4b44-b42c-3784758ef74f",
+    "folio": "COT-2026-0564",
+    "unidad": "211413003534",
+    "cambios": {
+      "dependencia": "10-Dirección General de Desarrollo de Infraestructura",
+      "partida": "29801"
+    },
+    "motivo": "Dependencia del parque vehicular según la unidad. Refacciones para unidades diésel, colectores y maquinaria pesada."
+  },
+  {
+    "id": "f55af3b9-06f2-4337-8cf3-478d7c2d8a32",
+    "folio": "COT-2026-0547",
+    "unidad": "210200203357",
+    "cambios": {
+      "dependencia": "08-Tesorería Municipal"
+    },
+    "motivo": "Dependencia del parque vehicular según la unidad. La cotización mezcla lubricantes y refacciones. Revisa la partida antes de guardar."
+  },
+  {
+    "id": "fae8876f-4f9a-4ddd-b934-25c514583c50",
+    "folio": "COT-2026-0586",
+    "unidad": "210200203297",
+    "cambios": {
+      "dependencia": "45-Dirección de Inspección y Vigilancia",
+      "partida": "29601"
+    },
+    "motivo": "Dependencia del parque vehicular según la unidad. Refacciones para unidades de gasolina y motos."
+  }
+]

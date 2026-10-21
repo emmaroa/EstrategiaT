@@ -95,7 +95,8 @@
   <script src="../js/core/theme.js"></script>
   <script src="../js/core/table-columns.js?v=2.0.112"></script>
   <script src="../js/core/calendar-notifications.js?v=2.0.114"></script>
-  <script src="../js/core/layout.js?v=2.0.125"></script>
+  <script src="../js/core/notifications-feed.js"></script>
+<script src="../js/core/layout.js?v=2.0.125"></script>
   <script src="../js/services/peticiones.service.js?v=2.0.116"></script>
   <script src="../js/services/cotizaciones-almacen.service.js?v=20260810-1"></script>
   <script src="../js/services/dependencias-cotizaciones.js"></script>
@@ -379,9 +380,9 @@
           <label for="partidaCotizacionInterna">Partida</label>
           <select id="partidaCotizacionInterna">
             <option value="">Pendiente</option>
-            <option value="29601">29601 - Gasolina y vehículos pequeños</option>
-            <option value="29801">29801 - Camiones, maquinaria y material eléctrico</option>
-            <option value="26102">26102 - Aceites y aditivos (incluye urea)</option>
+            <option value="29601">29601 - Refacciones para unidades gasolina y motos</option>
+            <option value="29801">29801 - Refacciones para diésel, colectores y maquinaria pesada</option>
+            <option value="26102">26102 - Lubricantes y aceites</option>
           </select>
           <small id="ayudaPartidaCotizacion">Se calcula con los materiales y el tipo de unidad.</small>
           <label><input type="checkbox" id="correccionManualCotizacion"> Corregir dependencia y partida manualmente</label>
@@ -576,7 +577,8 @@
       "Maquinaria Pesada",
       "Barredoras",
       "Colectores",
-      "Motocicletas"
+      "Motocicletas",
+      "Infraestructura"
     ];
     const DEPENDENCIA_STOCK = "Stock de almacen";
     const URL_SHEETS = "https://script.google.com/macros/s/AKfycbw8EfQqixNLLkRinVKJeOjqPla3CYwj-kY1OaARSuXk5c_x_k2N4j6i9raYhaPZS-1Xrw/exec";
@@ -2544,11 +2546,11 @@
       const unidadParque = correccionManual ? null : await completarUnidadCotizacionInterna();
       if (cotizacionInternaId !== idGuardando) return;
       const reglaServicios = aplicarReglaServiciosPublicosCotizacion();
-      if (!unidadParque && !correccionManual) { alert("Revisa el número económico o activa la corrección manual para atender este registro. Los criterios 11/09 solo se aplican a 0 o STOCK."); return; }
-      if (!document.getElementById("partidaCotizacionInterna").value && ["26102", "29601", "29801"].includes(partidaManual)) document.getElementById("partidaCotizacionInterna").value = partidaManual;
+      if (!unidadParque && !correccionManual) { alert("Revisa el número económico o activa la corrección manual para atender este registro. La dependencia de STOCK queda pendiente."); return; }
+      if (!unidadParque?.stock && !document.getElementById("partidaCotizacionInterna").value && ["26102", "29601", "29801"].includes(partidaManual)) document.getElementById("partidaCotizacionInterna").value = partidaManual;
       const unidad = document.getElementById("unidadCotizacionInterna").value.trim();
       const dependencia = document.getElementById("dependenciaCotizacionInterna").value;
-      if (!ETDependenciasCotizaciones.listado.includes(dependencia)) {
+      if (!/^(stock|0)$/i.test(unidad) && !ETDependenciasCotizaciones.listado.includes(dependencia)) {
         alert("Selecciona una dependencia del listado oficial, con su código de dos dígitos.");
         return;
       }
@@ -2563,7 +2565,7 @@
         return;
       }
       const partida = document.getElementById("partidaCotizacionInterna").value;
-      if (!["26102", "29601", "29801"].includes(partida)) { alert("Revisa la clasificación y selecciona una de las tres partidas."); return; }
+      if (!( /^(stock|0)$/i.test(unidad) && !partida) && !["26102", "29601", "29801"].includes(partida)) { alert("Revisa la clasificación y selecciona una de las tres partidas."); return; }
       const requisicion = document.getElementById("requisicionCotizacionInterna").value.trim();
       const datosActualizadosCotizacion = {
         folio: folio,
@@ -2572,7 +2574,7 @@
         fecha_entrega: fechaEntrega,
         unidad: unidad,
         numero_serie: document.getElementById("serieCotizacionInterna").value.trim() || null,
-        dependencia: dependencia,
+        dependencia: dependencia || null,
         origen: document.getElementById("origenCotizacionInterna").value,
         estatus: document.getElementById("estatusCotizacionInterna").value,
         partida: partida || null,

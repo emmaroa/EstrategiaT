@@ -20,7 +20,15 @@
               /^[0-9a-f-]{36}$/i.test(usuario.id || '')) headers.set('x-et-usuario-id', usuario.id);
           } catch (_) {}
           config.headers = headers;
-          return global.fetch(url, config);
+          return global.fetch(url, config).then(function (response) {
+            const method = String(config.method || 'GET').toUpperCase();
+            if (response.ok && !['GET', 'HEAD', 'OPTIONS'].includes(method) &&
+                !/\/rest\/v1\/(notificaciones|auditoria)(?:\?|$)/.test(String(url)) &&
+                typeof global.dispatchEvent === 'function') {
+              global.dispatchEvent(new Event('et-data-changed'));
+            }
+            return response;
+          });
         }
       }
     });
@@ -30,7 +38,7 @@
     SUPABASE_URL,
     SUPABASE_KEY,
     APP_NAME: "Administración de Talleres",
-    APP_VERSION: "2.0.137",
+    APP_VERSION: "2.0.139",
     PALETTE: {
       primary: "#FC712B",
       secondary: "#FD9319",

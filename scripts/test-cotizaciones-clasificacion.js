@@ -8,38 +8,27 @@ assert.equal(catalogo.resolver('Servicios Públicos'), catalogo.resolver('11'));
 assert.equal(catalogo.resolver('11 - Servicios Públicos'), catalogo.resolver('11'));
 assert.equal(catalogo.resolver('01'), '01-H. Ayuntamiento');
 assert.equal(catalogo.resolver('Municipal'), '');
-for (const item of ['INTERNATIONAL', 'Retén Stemco', 'Tambor trasero', 'Tambor delantero', 'Para camión', 'Diésel', 'Cepillos', 'Zapata', 'Fibra de acero', 'RETENES STEMCO', 'Tambores delanteros']) {
-  const regla = catalogo.reglaServiciosPublicos({materiales:[{item}]});
-  assert.equal(regla?.dependencia, catalogo.resolver('11'), item);
-  assert.equal(regla?.partida, '29801', item);
-}
-assert.equal(catalogo.reglaServiciosPublicos({materiales:[{item:'Batería'}]}), null);
-assert.equal(catalogo.reglaServiciosPublicos({observaciones:'Para camion'}).partida, '29801');
-assert.equal(catalogo.clasificarPartida(null,[{item:'Aceite para diesel'}]).partida,'29801');
-for (const [item, partida] of [['Urea','26102'],['Aceite para diesel','26102'],['Foco electrico para Tsuru','29801'],['Filtro de aceite Tsuru','29601'],['Filtro de camion','29801'],['Termostato Tsuru','29601']]) {
-  const resultado = catalogo.clasificarCompleta({unidad:'STOCK',materiales:[{item}]});
-  assert.equal(resultado.partida,partida,item);
-  assert.ok(catalogo.listado.includes(resultado.dependencia));
-}
-const generico = catalogo.clasificarCompleta({unidad:'STOCK',materiales:[{item:'Abrazadera'}]});
-const unidadInfra = {dependencia:catalogo.resolver('10'),combustible:'Gasolina'};
-assert.equal(catalogo.clasificarCompleta({unidad:'1234',materiales:[{item:'Faro international'}]},unidadInfra).dependencia,catalogo.resolver('10'));
-assert.equal(catalogo.clasificarCompleta({unidad:'1234',materiales:[{item:'Bujias'}]},unidadInfra).dependencia,catalogo.resolver('10'));
-assert.equal(catalogo.clasificarCompleta({unidad:'1234',materiales:[{item:'International'}]}).dependencia,'');
-assert.equal(catalogo.clasificarCompleta({unidad:'0',materiales:[{item:'International'}]},unidadInfra).dependencia,catalogo.resolver('11'));
-assert.equal(catalogo.clasificarCompleta({unidad:'STOCK',materiales:[{item:'Bujias'}]},unidadInfra).dependencia,catalogo.resolver('09'));
-assert.equal(generico.dependencia,catalogo.resolver('11'));
-assert.equal(generico.inferenciaGeneral,true);
-assert.equal(catalogo.clasificarCompleta({unidad:'STOCK',materiales:[{item:'Aceite',cantidad:1,precio_unitario:1000},{item:'Foco',cantidad:1,precio_unitario:10}]}).partida,'26102');
 const clasificar = (unidad, ...items) => catalogo.clasificarPartida(unidad, items.map(item => ({item}))).partida;
-assert.equal(clasificar({combustible: 'Gasolina'}, 'Balatas'), '29601');
-assert.equal(clasificar({combustible: 'Diesel', descripcion: 'Pickup'}, 'Batería'), '29601');
-assert.equal(clasificar({combustible: 'Gasolina', grupo: 'Maquinaria Pesada'}, 'Batería'), '29801');
-assert.equal(clasificar({descripcion: 'Camión recolector'}, 'Llantas'), '29801');
-assert.equal(clasificar({grupo: 'Maquinaria Pesada'}, 'Aceite 15W40', 'Grasa lubricante'), '26102');
-assert.equal(clasificar({combustible: 'Gasolina'}, 'Filtro de aceite'), '29601');
-assert.equal(clasificar({combustible: 'Gasolina'}, 'Aceite 15W40', 'Filtro de aceite'), '');
-assert.equal(clasificar({combustible: 'Diesel'}, 'Batería'), '');
+assert.equal(clasificar({combustible:'Gasolina'}, 'Bateria'), '29601');
+assert.equal(clasificar({combustible:'Diesel',descripcion:'Pickup'}, 'Bateria'), '29801');
+assert.equal(clasificar({grupo:'Motocicletas'}, 'Faro'), '29601');
+assert.equal(clasificar({grupo:'Colectores'}, 'Filtro'), '29801');
+assert.equal(clasificar({grupo:'Maquinaria Pesada'}, 'Filtro'), '29801');
+assert.equal(clasificar({combustible:'Diesel'}, 'Aceite para diesel'), '26102');
+assert.equal(clasificar({combustible:'Gasolina'}, 'Filtro de aceite'), '29601');
+assert.equal(clasificar({combustible:'Gasolina'}, 'Aceite', 'Filtro'), '');
+assert.equal(clasificar({descripcion:'Pickup'}, 'Filtro'), '');
+for (const dependencia of ['09','10','11']) {
+ const resultado = catalogo.clasificarCompleta({unidad:'123',materiales:[{item:'Faro international'}]}, {combustible:'Gasolina',dependencia});
+ assert.equal(resultado.dependencia,catalogo.resolver(dependencia));
+ assert.equal(resultado.partida,'29601');
+}
+for (const unidad of ['0','STOCK','stock']) {
+ const resultado = catalogo.clasificarCompleta({unidad,materiales:[{item:'Bujias'}]}, {dependencia:'09',combustible:'Gasolina'});
+ assert.equal(resultado.dependencia,'');
+ assert.equal(resultado.partida,'');
+}
+assert.equal(catalogo.clasificarCompleta({unidad:'123',materiales:[{item:'International'}]}).dependencia,'');
 const html = fs.readFileSync(path.join(__dirname, '../modulos/peticiones.html'), 'utf8');
 for (const script of html.matchAll(/<script\b[^>]*>([\s\S]*?)<\/script>/gi)) new vm.Script(script[1]);
 let rol = 'SuperAdmin', permiso = true;

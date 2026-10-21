@@ -976,6 +976,7 @@
     document.body.appendChild(panel);
     let notificaciones = [];
     const calendario = global.ETCalendarNotifications?.create(client, usuario);
+    const bandeja = global.ETNotificationsFeed.create(client, usuario);
     let cargandoAvisos = false, finalizado = false;
 
     function grupoFecha(fechaValor) {
@@ -1047,22 +1048,35 @@
         try { avisosCalendario = await calendario.load(); }
         catch (error) { errorCalendario=true;avisosCalendario.items=notificaciones.filter(item=>item.calendar);console.warn('No se pudieron consultar los avisos del calendario:', error); }
       }
-      const resultado = await client.from("notificaciones")
-        .select("id,tipo,titulo,mensaje,leida,enlace,created_at")
-        .eq("usuario_id", usuario.id).order("created_at", { ascending: false }).limit(20);
-      if (resultado.error) {
-        console.error("No se pudieron cargar las notificaciones:", resultado.error);
+      let resultado = {data:[], error:null}, nuevosAvisos = [];
+      try {
+        const respuesta = await bandeja.load();
+        resultado.data = respuesta.items;
+        nuevosAvisos = respuesta.fresh;
+      } catch (error) {
+        resultado.error = error;
+        resultado.data = notificaciones.filter(item => !item.calendar);
+        console.warn('No se pudieron cargar las notificaciones:', error);
       }
       try { actual = JSON.parse(localStorage.getItem('usuarioActivo') || 'null'); } catch (_) { actual=null; }
       if(finalizado || actual?.id !== usuario.id)return;
+      // Once a durable calendar notice exists, keep only the local reminder.
+      const eventosPersistidos = new Set((resultado.data || [])
+        .filter(item => item.tipo === 'cambio_eventos_calendario' && item.enlace)
+        .map(item => new URL(item.enlace, global.location.href).searchParams.get('evento')));
+      const sinInvitacionDuplicada = item => !String(item.id).startsWith('calendar:assignment:') ||
+        !eventosPersistidos.has(new URL(item.enlace, global.location.href).searchParams.get('evento'));
+      avisosCalendario.items = avisosCalendario.items.filter(sinInvitacionDuplicada);
+      avisosCalendario.fresh = avisosCalendario.fresh.filter(sinInvitacionDuplicada);
       notificaciones = (resultado.data || []).concat(avisosCalendario.items).sort((a,b)=>Number(a.leida)-Number(b.leida)||new Date(b.created_at)-new Date(a.created_at));
       renderizar();
       if (errorCalendario) lista.insertAdjacentHTML('beforeend','<p class="et-notifications-empty">No se pudo actualizar el calendario. Se volverá a intentar automáticamente.</p>');
       if (resultado.error) lista.insertAdjacentHTML('beforeend','<p class="et-notifications-empty">No fue posible actualizar los demás avisos. Se volverá a intentar automáticamente.</p>');
-      if(avisosCalendario.fresh.length) {
-        const reminder=avisosCalendario.fresh.find(item=>item.tipo==='calendario_recordatorio');
-        const first=reminder||avisosCalendario.fresh[0];
-        mostrarToast(first.titulo + ': ' + first.mensaje + (avisosCalendario.fresh.length>1 ? ' · Revisa los demás avisos en la campana.' : ''), 'info');
+      const frescos = avisosCalendario.fresh.concat(nuevosAvisos);
+      if(frescos.length) {
+        const reminder=frescos.find(item=>item.tipo==='calendario_recordatorio');
+        const first=reminder||frescos[0];
+        mostrarToast(first.titulo + ': ' + first.mensaje + (frescos.length>1 ? ' · Revisa los demás avisos en la campana.' : ''), 'info');
       }
       } catch(error) { console.warn('No se pudieron actualizar los avisos:',error); }
       finally { cargandoAvisos = false; }
@@ -1116,8 +1130,10 @@
     global.addEventListener('focus', refrescar);
     global.addEventListener('pageshow', refrescar);
     global.addEventListener('et-calendar-changed', refrescar);
+    global.addEventListener('et-data-changed', refrescar);
+    global.addEventListener('online', refrescar);
     document.addEventListener('visibilitychange', refrescar);
-    global.addEventListener('pagehide', event => { if(event.persisted)return;finalizado=true;global.clearInterval(intervalo);global.removeEventListener('focus',refrescar);global.removeEventListener('pageshow',refrescar);global.removeEventListener('et-calendar-changed',refrescar);document.removeEventListener('visibilitychange',refrescar); });
+    global.addEventListener('pagehide', event => { if(event.persisted)return;finalizado=true;global.clearInterval(intervalo);global.removeEventListener('focus',refrescar);global.removeEventListener('pageshow',refrescar);global.removeEventListener('et-calendar-changed',refrescar);global.removeEventListener('et-data-changed',refrescar);global.removeEventListener('online',refrescar);document.removeEventListener('visibilitychange',refrescar); });
     await cargar();
   }
 

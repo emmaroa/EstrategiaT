@@ -14,6 +14,15 @@ const api=context.window.ETPeticiones;
   await api.cargarPropias();assert.equal(api.puedeEditarPropia({id:'own-0'}),false,'Failure clears stale ownership');fail=false;await api.cargarPropias();
   context.ETPeticiones=api;context.obtenerUsuarioActivoPeticion=()=>user;context.idEditando=null;context.obtenerPeticionPorId=id=>({id});context.ETPermissions=context.window.ETPermissions={puedeAccion:()=>false};
   const html=fs.readFileSync('modulos/peticiones.html','utf8'),start=html.indexOf('    function puedeAccionPeticion('),end=html.indexOf('    function normalizarEstatusPeticion(',start);vm.runInContext(html.slice(start,end),context);
+  vm.runInContext(html.slice(html.indexOf('    function normalizarRolPeticion('),html.indexOf('    function esRolTecnicoPeticion(')),context);
+  for (const rol of ['Coordinador','Coordinador Infraestructura']) {
+    user.rol=rol;
+    for (const accion of ['crear','editar','eliminar','cambiar_estatus','generar_requisicion']) {
+      assert.equal(context.puedeAccionPeticion(accion,{id:'own-0'}),false,'Coordinator restriction takes precedence over ownership');
+    }
+  }
+  // The ownership exception still applies when this account has an editable role.
+  user.rol='Técnico';
   assert.equal(context.puedeAccionPeticion('editar',{id:'own-0'}),true);assert.equal(context.puedeAccionPeticion('editar',{id:'other'}),false);
   assert.equal(context.puedeAccionPeticion('eliminar',{id:'own-0'}),true);assert.equal(context.puedeAccionPeticion('editar'),false);
   context.idEditando='own-0';assert.equal(context.puedeAccionPeticion('editar'),true);

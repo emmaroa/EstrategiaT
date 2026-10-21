@@ -28,6 +28,7 @@ async function main() {
   const plan = [], revision = [];
   const deducir = process.argv.includes('--deducir') ? require('./deducir-dependencias-cotizaciones.js').prepararDeduccion(cotizaciones, unidades) : null;
   for (const cotizacion of cotizaciones) {
+    if (/^(0|stock)$/i.test(String(cotizacion.unidad || "").trim())) continue;
     if (process.argv.includes('--dependencia-economico')) {
       const clave = normal(cotizacion.unidad);
       const stock = /^(0|stock)$/i.test(String(cotizacion.unidad ?? '').trim());
@@ -48,7 +49,7 @@ async function main() {
       const cambios = {};
       if (resultado.dependencia && cotizacion.dependencia !== resultado.dependencia) cambios.dependencia = resultado.dependencia;
       if (!resultado.dependencia) revision.push({id:cotizacion.id,folio:cotizacion.folio,unidad:cotizacion.unidad,motivos:['Verificar número económico y dependencia del parque vehicular']});
-      if (cotizacion.partida !== resultado.partida) cambios.partida = resultado.partida;
+      if (resultado.partida && cotizacion.partida !== resultado.partida) cambios.partida = resultado.partida;
       if (Object.keys(cambios).length) plan.push({id:cotizacion.id,folio:cotizacion.folio,unidad:cotizacion.unidad,cambios,motivo:resultado.motivo,inferenciaGeneral:resultado.inferenciaGeneral});
       continue;
     }
@@ -56,14 +57,6 @@ async function main() {
       const resultado = deducir(cotizacion);
       if (resultado.dependencia) plan.push({id:cotizacion.id,folio:cotizacion.folio,unidad:cotizacion.unidad,cambios:{dependencia:resultado.dependencia},motivo:resultado.motivo});
       else if (!resultado.omitir) revision.push({id:cotizacion.id,folio:cotizacion.folio,unidad:cotizacion.unidad,dependencia:cotizacion.dependencia,partida:cotizacion.partida,motivos:[resultado.motivo]});
-      continue;
-    }
-    const regla = catalogo.reglaServiciosPublicos(cotizacion);
-    if (regla) {
-      const cambios = {};
-      if (cotizacion.dependencia !== regla.dependencia) cambios.dependencia = regla.dependencia;
-      if (cotizacion.partida !== regla.partida) cambios.partida = regla.partida;
-      if (Object.keys(cambios).length) plan.push({id:cotizacion.id,folio:cotizacion.folio,unidad:cotizacion.unidad,cambios,motivo:regla.motivo});
       continue;
     }
     if (process.argv.includes('--solo-regla11')) continue;
