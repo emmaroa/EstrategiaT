@@ -23,12 +23,23 @@
   async function listarPorProveedor(proveedor) {
     const client = getClient();
     if (!client) return { data: [], error: { message: "Sin conexión" } };
-
-    return client
-      .from("cotizaciones_almacen")
-      .select("*")
-      .eq("proveedor", String(proveedor || "").trim())
-      .order("created_at", { ascending: false });
+    const nombre = String(proveedor || "").trim();
+    if (!nombre) return { data: [], error: null };
+    const normalizar = valor => String(valor || "").trim().replace(/\s+/g, " ")
+      .normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
+    const esperado = normalizar(nombre);
+    // Admitir espacios repetidos sin confundir proveedores con nombres similares.
+    const patron = nombre.replace(/[\\%_]/g, "\\$&").replace(/\s+/g, "%");
+    const registros = [];
+    for (let desde = 0; ; desde += 1000) {
+      const resultado = await client.from("cotizaciones_almacen").select("*")
+        .ilike("proveedor", patron).order("created_at", { ascending: false })
+        .order("id", { ascending: false }).range(desde, desde + 999);
+      if (resultado.error) return { data: [], error: resultado.error };
+      registros.push(...(resultado.data || []).filter(item => normalizar(item.proveedor) === esperado));
+      if ((resultado.data || []).length < 1000) break;
+    }
+    return { data: registros, error: null };
   }
 
   async function listarPorPeticiones(ids) {
