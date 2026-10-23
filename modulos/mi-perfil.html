@@ -36,6 +36,20 @@
       </header>
 
       <div class="profile-grid">
+        <section class="panel profile-card profile-card-wide" id="notificaciones">
+          <h2>Notificaciones</h2>
+          <p>Elige los avisos que quieres ver en la campana. Solo recibirás información que corresponda a tus permisos y asignaciones. Estas preferencias se guardan para tu cuenta en este dispositivo.</p>
+          <form id="preferenciasNotificaciones">
+            <label class="profile-kpi-option"><input type="checkbox" id="recibirNotificaciones"><span><strong>Recibir notificaciones</strong><small>Desactiva esta opción para silenciar todos los avisos.</small></span></label>
+            <label class="profile-kpi-option"><input type="checkbox" id="avisosEmergentes"><span><strong>Mostrar avisos emergentes</strong><small>Puedes desactivarlos y seguir consultando la campana.</small></span></label>
+            <fieldset id="categoriasNotificaciones"><legend>Qué notificaciones recibir</legend><div id="listaNotificaciones" class="profile-kpis"></div></fieldset>
+            <div class="profile-actions">
+              <button type="button" class="btn-secondary" id="restablecerNotificaciones">Activar todas</button>
+              <button type="submit" class="btn-small">Guardar notificaciones</button>
+            </div>
+            <p id="estadoNotificaciones" role="status" aria-live="polite"></p>
+          </form>
+        </section>
         <section class="panel profile-card">
           <h2>Seguridad</h2>
           <p>Cambia tu contraseña sin intervención del administrador.</p>

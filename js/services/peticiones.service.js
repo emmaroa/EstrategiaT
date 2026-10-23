@@ -174,6 +174,37 @@
       .single();
   }
 
+  function puedeGestionarCoordinador(peticion, usuario = usuarioActual()) {
+    if (!usuario?.id || usuario.activo === false || peticion?.origen_peticion !== 'coordinador') return false;
+    const rol = String(usuario.rol || usuario.rol_original || '').normalize('NFD')
+      .replace(/[\u0300-\u036f]/g, '').toLowerCase().replace(/[\s_-]+/g, '');
+    if (!['superadmin','jefedealmacen','coordinador','coordinadorinfraestructura'].includes(rol)) return false;
+    if (!global.ETPermissions?.puedeEditarModulo(usuario, 'Peticiones de Coordinadores')) return false;
+    return ['superadmin','jefedealmacen'].includes(rol) || String(peticion.creada_por_id || '') === String(usuario.id);
+  }
+
+  async function gestionarCoordinador(id, payload, borrar = false) {
+    const client = getClient(), usuario = usuarioActual();
+    if (!client) return {error:{message:'Sin conexión'}};
+    const actual = await client.from('peticiones').select('*').eq('id',id).eq('origen_peticion','coordinador').single();
+    if (actual.error) return actual;
+    if (!puedeGestionarCoordinador(actual.data, usuario)) return {error:{message:'No tienes permiso para modificar esta captura.'}};
+    const cambios = {};
+    if (!borrar) {
+      // Autoría, área y autorización se conservan; no aceptar campos ajenos al formulario.
+      for (const campo of ['unidad','peticion','dependencia','observaciones']) cambios[campo] = String(payload?.[campo] || '').trim() || null;
+      if (!cambios.unidad || !cambios.peticion) return {error:{message:'Completa la unidad y la petición.'}};
+      cambios.updated_at = new Date().toISOString();
+    }
+    let consulta = client.from('peticiones');
+    consulta = (borrar ? consulta.delete() : consulta.update(cambios)).eq('id',id).eq('origen_peticion','coordinador');
+    // Volver a exigir la autoría al escribir, incluso si cambió desde que se abrió el formulario.
+    const rol = String(usuario.rol || usuario.rol_original || '').toLowerCase();
+    if (rol.includes('coordinador')) consulta = consulta.eq('creada_por_id',usuario.id);
+    if (actual.data.updated_at) consulta = consulta.eq('updated_at',actual.data.updated_at);
+    return consulta.select().single();
+  }
+
   async function buscarUnidadParque(valorUnidad) {
     const client = getClient();
     if (!client || !valorUnidad) return null;
@@ -230,6 +261,9 @@
   }
 
   global.ETPeticiones = {
+    puedeGestionarCoordinador,
+    actualizarCoordinador: (id, payload) => gestionarCoordinador(id, payload),
+    eliminarCoordinador: id => gestionarCoordinador(id, null, true),
     edicionSoloPropias,
     puedeEditarPropia,
     cargarPropias,

@@ -54,6 +54,38 @@
 
   usuario = leerUsuario();
   if (!usuario) { location.replace("../index.html"); return; }
+  const avisos = window.ETNotificationsFeed;
+  function mostrarPreferenciasNotificaciones(settings) {
+    document.getElementById('recibirNotificaciones').checked = settings.enabled;
+    document.getElementById('avisosEmergentes').checked = settings.popups;
+    document.getElementById('listaNotificaciones').innerHTML = avisos.categories.map(([key,label]) =>
+      '<label class="profile-kpi-option"><input type="checkbox" value="'+key+'" '+(settings.categories[key]?'checked':'')+'><span>'+label+'</span></label>').join('');
+    habilitarCategorias();
+  }
+  function habilitarCategorias() {
+    const desactivadas = !document.getElementById('recibirNotificaciones').checked;
+    document.getElementById('categoriasNotificaciones').disabled = desactivadas;
+    document.getElementById('avisosEmergentes').disabled = desactivadas;
+  }
+  mostrarPreferenciasNotificaciones(avisos.preferences(usuario));
+  document.getElementById('recibirNotificaciones').addEventListener('change',habilitarCategorias);
+  document.getElementById('restablecerNotificaciones').addEventListener('click',()=> {
+    mostrarPreferenciasNotificaciones({enabled:true,popups:true,categories:Object.fromEntries(avisos.categories.map(([key])=>[key,true]))});
+    document.getElementById('estadoNotificaciones').textContent='Pulsa Guardar notificaciones para aplicar los cambios.';
+  });
+  document.getElementById('preferenciasNotificaciones').addEventListener('submit',event=> {
+    event.preventDefault();
+    const actual = leerUsuario();
+    if (!actual || actual.id !== usuario.id) return;
+    try {
+      avisos.savePreferences(usuario,{
+        enabled:document.getElementById('recibirNotificaciones').checked,
+        popups:document.getElementById('avisosEmergentes').checked,
+        categories:Object.fromEntries(Array.from(document.querySelectorAll('#listaNotificaciones input')).map(input=>[input.value,input.checked]))
+      });
+      document.getElementById('estadoNotificaciones').textContent='Notificaciones guardadas para tu cuenta en este dispositivo.';
+    } catch (_) { document.getElementById('estadoNotificaciones').textContent='No se pudieron guardar las preferencias. Comprueba que el almacenamiento esté disponible e intenta nuevamente.'; }
+  });
   ETLayout.inicializar("Dashboard");
   renderKpis();
   document.getElementById("seleccionarTodosKpis").addEventListener("click", function () {

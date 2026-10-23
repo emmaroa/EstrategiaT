@@ -2,6 +2,10 @@
 
 La interfaz consulta la bandeja cada 30 segundos mientras la aplicación está visible, al recuperar conexión/foco y tras guardar datos. Muestra avisos emergentes sin repetirlos al navegar, incluye todos los avisos pendientes y conserva la bandeja cuando falla la conexión. Son avisos dentro de la aplicación; no son notificaciones push con la aplicación cerrada.
 
+Desde 2.0.142, **Mi perfil → Notificaciones** permite elegir categorías, silenciar todos los avisos y desactivar únicamente los emergentes. La campana incluye un enlace a esa configuración. Las preferencias se guardan por identificador de usuario en este dispositivo; no se sincronizan entre dispositivos. No requieren una migración nueva.
+
+El filtro se aplica al contador, la lista y los emergentes de ambos orígenes (base de datos y calendario). Los avisos desactivados no se eliminan y «Leer todas» solo marca los avisos visibles. Al reactivar una categoría, los avisos conservados vuelven a la lista sin repetir emergentes antiguos. Las preferencias no amplían permisos ni cambian los destinatarios calculados en el servidor.
+
 ## Activación
 
 Aplicar `supabase/migrations/064_notificaciones_cambios_usuario.sql` en el proyecto de Supabase antes o junto con la publicación de esta versión. La migración es transaccional e idempotente, sustituye los dos disparadores antiguos de tickets/cotizaciones y no modifica registros de negocio ni genera avisos retroactivos.

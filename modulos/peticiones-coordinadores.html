@@ -87,11 +87,13 @@
     const btnCerrarNuevaPeticion = document.getElementById("btnCerrarNuevaPeticion");
     const btnCancelarNuevaPeticion = document.getElementById("btnCancelarNuevaPeticion");
     let peticiones = [];
+    let idEditando = null;
+    let guardando = false;
 
     function obtenerUsuario() {
       try { return JSON.parse(localStorage.getItem("usuarioActivo") || "null"); } catch (_) { return null; }
     }
-    function normalizarRol(valor) { return String(valor || "").trim().toLowerCase().replace(/[\s_-]+/g, ""); }
+    function normalizarRol(valor) { return String(valor || "").normalize("NFD").replace(/[\u0300-\u036f]/g, "").trim().toLowerCase().replace(/[\s_-]+/g, ""); }
     function escapar(valor) { return String(valor ?? "").replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;"); }
     function fecha(valor) { return valor ? new Date(valor + "T00:00:00").toLocaleDateString("es-MX") : "Sin fecha"; }
     function estadoTexto(valor) { return String(valor || "pendiente").toLowerCase(); }
@@ -133,12 +135,19 @@
 
     function abrirNuevaPeticion() {
       if (!esCoordinador) return;
+      idEditando = null;
+      ["unidad", "dependencia", "peticion", "observaciones"].forEach(id => { document.getElementById(id).value = ""; });
+      prepararVista();
+      document.getElementById("tituloNuevaPeticion").textContent = "Nueva solicitud";
+      document.getElementById("btnGuardar").textContent = "Enviar a autorizacion";
       modalNuevaPeticion.classList.add("show");
       modalNuevaPeticion.setAttribute("aria-hidden", "false");
       document.getElementById("unidad").focus();
     }
 
     function cerrarNuevaPeticion() {
+      if (guardando) return;
+      idEditando = null;
       modalNuevaPeticion.classList.remove("show");
       modalNuevaPeticion.setAttribute("aria-hidden", "true");
     }
@@ -153,7 +162,7 @@
     function renderizar() {
       const texto = String(buscar.value || "").trim().toLowerCase();
       const visibles = peticiones.filter(function (p) {
-        if (esCoordinador && String(p.creada_por_id || "") !== String(usuario?.id || "") && String(p.creada_por_nombre || "").toLowerCase() !== String(usuario?.nombre || "").toLowerCase()) return false;
+        if (esCoordinador && String(p.creada_por_id || "") !== String(usuario?.id || "")) return false;
         return [p.unidad, p.peticion, p.solicitante, p.area].some(function (valor) { return String(valor || "").toLowerCase().includes(texto); });
       });
       document.getElementById("kpiTotal").textContent = peticiones.length;
@@ -163,14 +172,39 @@
       if (!visibles.length) { tabla.innerHTML = '<tr><td colspan="7">No hay solicitudes para mostrar.</td></tr>'; return; }
       tabla.innerHTML = visibles.map(function (p) {
         const estado = estadoTexto(p.estado_autorizacion);
-        const acciones = puedeAutorizar && estado === "pendiente"
+        let acciones = puedeAutorizar && estado === "pendiente"
           ? '<button type="button" class="btn-small" onclick="cambiarEstado(\'' + p.id + '\',\'autorizada\')">Autorizar</button><button type="button" class="btn-secondary" onclick="cambiarEstado(\'' + p.id + '\',\'rechazada\')">Rechazar</button>'
           : "";
+        if (ETPeticiones.puedeGestionarCoordinador(p, usuario)) {
+          acciones += '<button type="button" class="btn-secondary" data-editar="' + escapar(p.id) + '">Editar</button>' +
+            '<button type="button" class="btn-danger" data-borrar="' + escapar(p.id) + '">Borrar</button>';
+        }
         return "<tr><td>" + escapar(fecha(p.fecha)) + "</td><td><strong>" + escapar(p.unidad) + "</strong></td><td>" + escapar(p.peticion) + "</td><td>" + escapar(p.solicitante) + "</td><td>" + escapar(p.area) + "</td><td><span class=\"estado-autorizacion " + estado + "\">" + escapar(estado) + "</span></td><td><div class=\"coordinadores-actions\">" + acciones + "</div></td></tr>";
       }).join("");
     }
 
     async function guardar() {
+      if (guardando) return;
+      if (idEditando) {
+        const p = peticiones.find(item => item.id === idEditando);
+        if (!ETPeticiones.puedeGestionarCoordinador(p, usuario)) return;
+        guardando = true;
+        document.getElementById("btnGuardar").disabled = true;
+        try {
+          const resultado = await ETPeticiones.actualizarCoordinador(idEditando, {
+            unidad: document.getElementById("unidad").value,
+            peticion: document.getElementById("peticion").value,
+            dependencia: document.getElementById("dependencia").value,
+            observaciones: document.getElementById("observaciones").value
+          });
+          if (resultado.error) { alert("No se pudo guardar: " + resultado.error.message); return; }
+          guardando = false;
+          cerrarNuevaPeticion();
+          await cargar();
+        } catch (error) { alert("No se pudo guardar: " + error.message); }
+        finally { guardando = false; document.getElementById("btnGuardar").disabled = false; }
+        return;
+      }
       if (!esCoordinador) return;
       const payload = { fecha: new Date().toISOString().slice(0, 10), unidad: document.getElementById("unidad").value.trim(), peticion: document.getElementById("peticion").value.trim(), solicitante: document.getElementById("solicitante").value.trim(), area: document.getElementById("area").value.trim(), dependencia: document.getElementById("dependencia").value.trim() || null, proveedor: null, estatus: "Pendiente", observaciones: document.getElementById("observaciones").value.trim() || null, origen_peticion: "coordinador", estado_autorizacion: "pendiente", creada_por_id: usuario?.id || null, creada_por_nombre: usuario?.nombre || usuario?.usuario || null };
       if (!payload.unidad || !payload.peticion || !payload.solicitante || !payload.area) { alert("Completa unidad, peticion, solicitante y area."); return; }
@@ -182,6 +216,39 @@
       await cargar();
       alert("Peticion enviada a autorizacion.");
     }
+
+    function editarPeticion(id) {
+      const p = peticiones.find(item => item.id === id);
+      if (!ETPeticiones.puedeGestionarCoordinador(p, usuario)) return;
+      idEditando = id;
+      for (const campo of ["unidad", "dependencia", "peticion", "observaciones", "solicitante"]) document.getElementById(campo).value = p[campo] || "";
+      document.getElementById("area").replaceChildren(new Option(p.area || "Sin area", p.area || ""));
+      document.getElementById("tituloNuevaPeticion").textContent = "Editar solicitud";
+      document.getElementById("btnGuardar").textContent = "Guardar cambios";
+      modalNuevaPeticion.classList.add("show");
+      modalNuevaPeticion.setAttribute("aria-hidden", "false");
+      document.getElementById("unidad").focus();
+    }
+
+    async function borrarPeticion(id, boton) {
+      const p = peticiones.find(item => item.id === id);
+      if (!ETPeticiones.puedeGestionarCoordinador(p, usuario)) return;
+      if (!confirm("Borrar la solicitud de la unidad " + p.unidad + "? Esta accion no se puede deshacer.")) return;
+      boton.disabled = true;
+      try {
+        const resultado = await ETPeticiones.eliminarCoordinador(id);
+        if (resultado.error) { alert("No se pudo borrar: " + resultado.error.message); return; }
+        await cargar();
+      } catch (error) { alert("No se pudo borrar: " + error.message); }
+      finally { boton.disabled = false; }
+    }
+
+    tabla.addEventListener("click", event => {
+      const editar = event.target.closest("[data-editar]");
+      const borrar = event.target.closest("[data-borrar]");
+      if (editar) editarPeticion(editar.dataset.editar);
+      if (borrar && !borrar.disabled) borrarPeticion(borrar.dataset.borrar, borrar);
+    });
 
     async function cambiarEstado(id, estado) {
       if (!puedeAutorizar) return;

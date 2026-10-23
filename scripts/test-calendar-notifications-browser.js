@@ -9,7 +9,7 @@ const server=http.createServer((req,res)=>{
   if(!p.startsWith(root+path.sep)||!fs.existsSync(p)||!fs.statSync(p).isFile()){res.writeHead(404).end();return;}
   let body=fs.readFileSync(p);
   if(p.endsWith(path.join('core','licencia.js')))body=Buffer.from('// Isolated browser test');
-  if(p.endsWith('generar-textos.html')){
+  if(p.endsWith('generar-textos.html') || p.endsWith('mi-perfil.html')){
     body=body.toString().replace(/<script[^>]+src="[^\"]*(?:-supabase-supabase-js|core\/(?:supabase|auth|privacy|accessibility))\.js(?:\?[^\"]*)?"[^>]*><\/script>/g,'');
     body=body.replace('</head>',`<script>localStorage.setItem('usuarioActivo',JSON.stringify({id:'11111111-1111-4111-8111-111111111111',rol:'SuperAdmin',sesion_expira_en:Date.now()+3600000}));window.validarPermiso=()=>true;window.copies=[];Object.defineProperty(navigator,'clipboard',{configurable:true,value:{writeText:async text=>copies.push(text)}});window.supabaseClient={from:()=>{let chain=new Proxy({},{get:(_,k)=>k==='then'?(ok=>Promise.resolve({data:[],error:null}).then(ok)):(()=>chain)});return chain;},rpc:async()=>({data:null,error:null})};</script></head>`);
   }
@@ -57,5 +57,24 @@ let browser,socket;
   await until('document.querySelector(".et-notifications-list").textContent.includes("Se volver")');
   assert.equal(await evaluate('document.querySelectorAll(".et-notification-item").length'),1,'Keep existing notices on request failure');
   await evaluate(`generalError=null;window.dispatchEvent(new Event('focus'));`);
+  await until('!document.querySelector(".et-notifications-list").textContent.includes("Se volver")');
+  await evaluate(`ETNotificationsFeed.savePreferences(JSON.parse(localStorage.getItem('usuarioActivo')), {categories:{peticiones:false}})`);
+  assert.equal(await evaluate('document.querySelectorAll(".et-notification-item").length'),0);
+  assert.equal(await evaluate('document.querySelector(".et-notifications-badge").hidden'),true);
+  await evaluate(`ETNotificationsFeed.savePreferences(JSON.parse(localStorage.getItem('usuarioActivo')), {})`);
+  assert.equal(await evaluate('document.querySelectorAll(".et-notification-item").length'),1);
+  await send('Page.navigate',{url:origin+'/modulos/mi-perfil.html#notificaciones'});
+  await until('document.querySelectorAll("#listaNotificaciones input").length===11');
+  await evaluate(`document.querySelector('#listaNotificaciones input[value="cotizaciones"]').click();document.getElementById('avisosEmergentes').click();document.querySelector('#preferenciasNotificaciones button[type="submit"]').click();`);
+  await until('document.getElementById("estadoNotificaciones").textContent.includes("guardadas")');
+  assert.equal(await evaluate(`ETNotificationsFeed.preferences(JSON.parse(localStorage.getItem('usuarioActivo'))).categories.cotizaciones`),false);
+  assert.equal(await evaluate(`ETNotificationsFeed.preferences(JSON.parse(localStorage.getItem('usuarioActivo'))).popups`),false);
+  await send('Page.reload');
+  await until('document.querySelectorAll("#listaNotificaciones input").length===11');
+  assert.equal(await evaluate(`document.querySelector('#listaNotificaciones input[value="cotizaciones"]').checked`),false);
+  await evaluate(`document.getElementById('recibirNotificaciones').click();document.querySelector('#preferenciasNotificaciones button[type="submit"]').click();`);
+  assert.equal(await evaluate('document.getElementById("categoriasNotificaciones").disabled'),true);
+  await until('document.getElementById("estadoNotificaciones").textContent.includes("guardadas")');
+  console.log('Preferencias en navegador: filtro inmediato, contador, formulario, recarga y silencio general aprobados.');
   console.log('Calendario en navegador: campana, contador, actualizacion, lectura local y retirada de eventos aprobados.');
 })().catch(e=>{console.error(e);process.exitCode=1;}).finally(()=>{socket?.close();browser?.kill();server.close();});

@@ -964,7 +964,8 @@
       '</button>' +
       '<section class="et-notifications-panel" hidden>' +
         '<div class="et-notifications-header"><div><strong>Notificaciones</strong><small data-notification-summary>Centro de avisos</small></div><div class="et-notifications-header-actions"><button type="button" data-read-all>Leer todas</button><button type="button" data-close-notifications aria-label="Cerrar notificaciones">×</button></div></div>' +
-        '<div class="et-notifications-list"><p class="et-notifications-empty">Cargando…</p></div>' +
+        '<a data-notification-settings href="' + (esRutaDeModulo(global.location.pathname) ? 'mi-perfil.html' : 'modulos/mi-perfil.html') + '#notificaciones">Personalizar notificaciones</a>' +
+      '<div class="et-notifications-list"><p class="et-notifications-empty">Cargando…</p></div>' +
       '</section>';
     acciones.insertBefore(contenedor, document.getElementById("etTemaContainer") || null);
 
@@ -975,6 +976,7 @@
     panel.classList.add("et-notifications-panel-floating");
     document.body.appendChild(panel);
     let notificaciones = [];
+    let todasLasNotificaciones = [];
     const calendario = global.ETCalendarNotifications?.create(client, usuario);
     const bandeja = global.ETNotificationsFeed.create(client, usuario);
     let cargandoAvisos = false, finalizado = false;
@@ -1012,6 +1014,8 @@
     }
 
     function renderizar() {
+      const preferencias = global.ETNotificationsFeed.preferences(usuario);
+      notificaciones = todasLasNotificaciones.filter(item => global.ETNotificationsFeed.allows(item, preferencias));
       const nuevas = notificaciones.filter(function (item) { return !item.leida; }).length;
       badge.hidden = nuevas === 0;
       badge.textContent = nuevas > 99 ? "99+" : String(nuevas);
@@ -1034,6 +1038,12 @@
             (item.enlace ? '<button type="button" class="is-primary" data-open-notification>Ver elemento</button>' : '') + '</div></div></article>';
         }).join("") + "</section>";
       }).join("") : '<div class="et-notifications-empty"><span aria-hidden="true">✓</span><strong>Todo está al día</strong><p>No hay notificaciones recientes.</p></div>';
+      if (!preferencias.enabled || !Object.values(preferencias.categories).some(Boolean)) {
+        panel.querySelector('[data-notification-summary]').textContent = 'Notificaciones desactivadas';
+        lista.innerHTML = '<div class="et-notifications-empty"><strong>Has silenciado los avisos</strong><p>Puedes activarlos en Personalizar notificaciones.</p></div>';
+      } else if (!notificaciones.length && todasLasNotificaciones.length) {
+        lista.innerHTML = '<div class="et-notifications-empty"><strong>Sin avisos de las categorías seleccionadas</strong><p>Puedes cambiar tu selección en Personalizar notificaciones.</p></div>';
+      }
     }
 
     async function cargar() {
@@ -1046,7 +1056,7 @@
       let errorCalendario = false;
       if (calendario) {
         try { avisosCalendario = await calendario.load(); }
-        catch (error) { errorCalendario=true;avisosCalendario.items=notificaciones.filter(item=>item.calendar);console.warn('No se pudieron consultar los avisos del calendario:', error); }
+        catch (error) { errorCalendario=true;avisosCalendario.items=todasLasNotificaciones.filter(item=>item.calendar);console.warn('No se pudieron consultar los avisos del calendario:', error); }
       }
       let resultado = {data:[], error:null}, nuevosAvisos = [];
       try {
@@ -1055,7 +1065,7 @@
         nuevosAvisos = respuesta.fresh;
       } catch (error) {
         resultado.error = error;
-        resultado.data = notificaciones.filter(item => !item.calendar);
+        resultado.data = todasLasNotificaciones.filter(item => !item.calendar);
         console.warn('No se pudieron cargar las notificaciones:', error);
       }
       try { actual = JSON.parse(localStorage.getItem('usuarioActivo') || 'null'); } catch (_) { actual=null; }
@@ -1068,11 +1078,12 @@
         !eventosPersistidos.has(new URL(item.enlace, global.location.href).searchParams.get('evento'));
       avisosCalendario.items = avisosCalendario.items.filter(sinInvitacionDuplicada);
       avisosCalendario.fresh = avisosCalendario.fresh.filter(sinInvitacionDuplicada);
-      notificaciones = (resultado.data || []).concat(avisosCalendario.items).sort((a,b)=>Number(a.leida)-Number(b.leida)||new Date(b.created_at)-new Date(a.created_at));
+      todasLasNotificaciones = (resultado.data || []).concat(avisosCalendario.items).sort((a,b)=>Number(a.leida)-Number(b.leida)||new Date(b.created_at)-new Date(a.created_at));
       renderizar();
       if (errorCalendario) lista.insertAdjacentHTML('beforeend','<p class="et-notifications-empty">No se pudo actualizar el calendario. Se volverá a intentar automáticamente.</p>');
       if (resultado.error) lista.insertAdjacentHTML('beforeend','<p class="et-notifications-empty">No fue posible actualizar los demás avisos. Se volverá a intentar automáticamente.</p>');
-      const frescos = avisosCalendario.fresh.concat(nuevosAvisos);
+      const preferencias = global.ETNotificationsFeed.preferences(usuario);
+      const frescos = preferencias.popups ? avisosCalendario.fresh.concat(nuevosAvisos).filter(item => global.ETNotificationsFeed.allows(item, preferencias)) : [];
       if(frescos.length) {
         const reminder=frescos.find(item=>item.tipo==='calendario_recordatorio');
         const first=reminder||frescos[0];
@@ -1113,8 +1124,12 @@
     panel.querySelector("[data-read-all]").addEventListener("click", async function () {
       calendario?.mark(notificaciones.filter(item=>item.calendar));
       notificaciones.filter(item=>item.calendar).forEach(item=>{item.leida=true;});
-      const resultado = await client.from("notificaciones").update({ leida: true }).eq("usuario_id", usuario.id).eq("leida", false);
-      if (!resultado.error) { notificaciones.forEach(function (item) { item.leida = true; }); }
+      const visibles = notificaciones.filter(item => !item.calendar && !item.leida);
+      for (let desde = 0; desde < visibles.length; desde += 200) {
+        const bloque = visibles.slice(desde, desde + 200);
+        const resultado = await client.from("notificaciones").update({ leida: true }).eq("usuario_id", usuario.id).in("id", bloque.map(item=>item.id));
+        if (!resultado.error) bloque.forEach(item=>{item.leida=true;});
+      }
       renderizar();
     });
     panel.querySelector("[data-close-notifications]").addEventListener("click", function () {
@@ -1125,6 +1140,9 @@
     document.addEventListener("keydown", function (event) {
       if (event.key === "Escape" && !panel.hidden) panel.querySelector("[data-close-notifications]").click();
     });
+    const actualizarPreferencias = () => renderizar();
+    global.addEventListener('et-notification-preferences-changed', actualizarPreferencias);
+    global.addEventListener('storage', actualizarPreferencias);
     const refrescar = () => { if (!document.hidden) cargar(); };
     const intervalo = global.setInterval(refrescar, 30000);
     global.addEventListener('focus', refrescar);
@@ -1133,7 +1151,7 @@
     global.addEventListener('et-data-changed', refrescar);
     global.addEventListener('online', refrescar);
     document.addEventListener('visibilitychange', refrescar);
-    global.addEventListener('pagehide', event => { if(event.persisted)return;finalizado=true;global.clearInterval(intervalo);global.removeEventListener('focus',refrescar);global.removeEventListener('pageshow',refrescar);global.removeEventListener('et-calendar-changed',refrescar);global.removeEventListener('et-data-changed',refrescar);global.removeEventListener('online',refrescar);document.removeEventListener('visibilitychange',refrescar); });
+    global.addEventListener('pagehide', event => { if(event.persisted)return;finalizado=true;global.removeEventListener('et-notification-preferences-changed',actualizarPreferencias);global.removeEventListener('storage',actualizarPreferencias);global.clearInterval(intervalo);global.removeEventListener('focus',refrescar);global.removeEventListener('pageshow',refrescar);global.removeEventListener('et-calendar-changed',refrescar);global.removeEventListener('et-data-changed',refrescar);global.removeEventListener('online',refrescar);document.removeEventListener('visibilitychange',refrescar); });
     await cargar();
   }
 
