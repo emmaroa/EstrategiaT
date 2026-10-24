@@ -4,6 +4,7 @@ const uid=n=>'00000000-0000-4000-8000-'+String(n).padStart(12,'0');
 async function main() {
   const db=new PGlite();
   await db.exec(`CREATE ROLE anon; CREATE ROLE authenticated; GRANT USAGE ON SCHEMA public TO anon,authenticated;
+    CREATE TABLE auditoria(entidad_tipo text,entidad_id uuid,usuario_id uuid,metadata jsonb);
     CREATE TABLE usuarios(id uuid PRIMARY KEY,nombre text,usuario text,password text,activo boolean,rol text,modulos_permitidos jsonb);
     CREATE TABLE requis_siif(id uuid PRIMARY KEY,fecha date,folio text,oficio text,estatus text,justificacion text,dependencia text,importe numeric,clasificacion text,tipo_procedimiento text,precomprometido text,comprometido text,origen text,created_at timestamptz DEFAULT now());
     CREATE TABLE oc_siif(id uuid PRIMARY KEY,fecha date,folio text,numero_requisicion text,oficio_requisicion text,proveedor text,estatus text,importe numeric,fecha_adjudicacion date,tipo_procedimiento text,proceso text,precomprometido text,comprometido text,created_at timestamptz DEFAULT now());
@@ -102,6 +103,8 @@ async function main() {
   // Compatibilidad Emitido/Emitida y libertad de ubicacion por SP emitida.
   await db.query("UPDATE sp_siif SET estatus='Emitido' WHERE id=$1",[uid(31)]);
   await db.exec(fs.readFileSync('supabase/migrations/064_sp_emitida_ubicacion_libre.sql','utf8'));
+  await db.exec(fs.readFileSync('supabase/migrations/066_optimizar_importaciones_siif.sql','utf8'));
+  await db.exec(fs.readFileSync('supabase/migrations/066_optimizar_importaciones_siif.sql','utf8'));
   const token=(await db.query('SELECT iniciar_sesion_aplicacion($1,$2) AS s',['compras','test-only'])).rows[0].s.token;
   let row=(await db.query('SELECT * FROM flujo_tramites_siif WHERE requisicion_id=$1',[uid(30)])).rows[0];
   assert.equal(row.automatico_sp,false);
@@ -120,8 +123,34 @@ async function main() {
   assert.equal((await db.query('SELECT ubicacion FROM flujo_tramites_siif WHERE requisicion_id=$1',[uid(30)])).rows[0].ubicacion,'Compras');
   await db.query("UPDATE sp_siif SET estatus='Pagada' WHERE id=$1",[uid(31)]);
   row=(await db.query('SELECT * FROM flujo_tramites_siif WHERE requisicion_id=$1',[uid(30)])).rows[0];
-  assert.equal(row.ubicacion,'Enviado');assert.equal(row.automatico_sp,true);
+  assert.equal(row.ubicacion,'Enviado');assert.equal(row.automatico_sp,true);assert.equal(row.nota,'Nota','Automatic sync preserves manual notes');
   await assert.rejects(move([{id:uid(30),revision:row.revision}],8,'Compras',uid(100),token));
+  // La ruta optimizada conserva exactamente las relaciones conservadoras de la vista.
+  for (const req of (await db.query('SELECT id FROM requis_siif')).rows) {
+    const expected=(await db.query("SELECT coalesce(solicitudes_pago,'[]'::jsonb) AS sp FROM seguimiento_siif WHERE id=$1",[req.id])).rows[0].sp.map(s=>s.id).sort();
+    const actual=(await db.query('SELECT id FROM et_privado.sp_de_requisicion($1)',[req.id])).rows.map(s=>s.id).sort();
+    assert.deepEqual(actual,expected);
+  }
+  await db.query("INSERT INTO requis_siif(id,fecha,folio,oficio) VALUES($1,'2026-01-01','777','OWNER'),($2,'2026-01-01','888','FALLBACK')",[uid(700),uid(701)]);
+  await db.query("INSERT INTO sp_siif(id,fecha,numero_solicitud,referencia,descripcion,estatus) VALUES($1,'2026-01-01','999','OWNER','REQ 888','Pagada')",[uid(702)]);
+  assert.equal((await db.query('SELECT automatico_sp FROM flujo_tramites_siif WHERE requisicion_id=$1',[uid(700)])).rows[0].automatico_sp,true);
+  await db.query("UPDATE requis_siif SET oficio='RENAMED' WHERE id=$1",[uid(700)]);
+  assert.equal((await db.query('SELECT automatico_sp FROM flujo_tramites_siif WHERE requisicion_id=$1',[uid(701)])).rows[0].automatico_sp,true,'Changing an office re-evaluates description fallback');
+  await db.query("UPDATE sp_siif SET estatus='Emitido' WHERE id=$1",[uid(702)]);
+  assert.equal((await db.query('SELECT automatico_sp FROM flujo_tramites_siif WHERE requisicion_id=$1',[uid(701)])).rows[0].automatico_sp,false);
+  // Probar que cambios de importes no ejecutan sincronizaci?n alguna (no solo que sean idempotentes).
+  await db.exec(`BEGIN;
+    CREATE OR REPLACE FUNCTION et_privado.sincronizar_envios_sp(p_ids uuid[]) RETURNS void
+    LANGUAGE plpgsql SECURITY DEFINER SET search_path=pg_catalog AS $$ BEGIN RAISE EXCEPTION 'No debe sincronizar importes'; END $$;
+    UPDATE requis_siif SET importe=coalesce(importe,0)+1;
+    UPDATE sp_siif SET importe=coalesce(importe,0)+1;
+    ROLLBACK;`);
+  const inicio=Date.now();
+  await db.exec(`INSERT INTO requis_siif(id,fecha,folio,oficio)
+    SELECT gen_random_uuid(),'2026-01-01'::date,(10000+i)::text,'CARGA-'||i FROM generate_series(1,1937) i;
+    UPDATE requis_siif SET importe=1500 WHERE oficio LIKE 'CARGA-%';`);
+  assert.equal((await db.query("SELECT count(*)::int AS n FROM requis_siif WHERE oficio LIKE 'CARGA-%' AND importe=1500")).rows[0].n,1937);
+  console.log('Prueba local: 1,937 altas y actualizaciones sin sincronizaciones globales en '+(Date.now()-inicio)+' ms.');
   await db.close();
 
   let user={id:uid(100),flujo_token:'test-session',sesion_expira_en:Date.now()+3600000},calls=[];

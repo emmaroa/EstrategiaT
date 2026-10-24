@@ -13,7 +13,13 @@
       global: {
         fetch: function (url, opciones) {
           const config = Object.assign({}, opciones);
-          const headers = new Headers(config.headers);
+          const headers = new Headers(typeof url === 'object' ? url.headers : undefined);
+          new Headers(config.headers).forEach((valor, nombre) => headers.set(nombre, valor));
+          const destino = typeof url === 'object' && url.url ? url.url : String(url);
+          // Mantener las cabeceras de Request y asegurar la clave pública solo para este proyecto.
+          if (new URL(destino, SUPABASE_URL).origin === SUPABASE_URL && !headers.get('apikey')) {
+            headers.set('apikey', SUPABASE_KEY);
+          }
           try {
             const usuario = JSON.parse(localStorage.getItem('usuarioActivo') || 'null');
             if (usuario && Number(usuario.sesion_expira_en) > Date.now() &&
@@ -21,9 +27,9 @@
           } catch (_) {}
           config.headers = headers;
           return global.fetch(url, config).then(function (response) {
-            const method = String(config.method || 'GET').toUpperCase();
+            const method = String(config.method || url?.method || 'GET').toUpperCase();
             if (response.ok && !['GET', 'HEAD', 'OPTIONS'].includes(method) &&
-                !/\/rest\/v1\/(notificaciones|auditoria)(?:\?|$)/.test(String(url)) &&
+                !/\/rest\/v1\/(notificaciones|auditoria)(?:\?|$)/.test(destino) &&
                 typeof global.dispatchEvent === 'function') {
               global.dispatchEvent(new Event('et-data-changed'));
             }
@@ -38,7 +44,7 @@
     SUPABASE_URL,
     SUPABASE_KEY,
     APP_NAME: "Administración de Talleres",
-    APP_VERSION: "2.0.142",
+    APP_VERSION: "2.0.143",
     PALETTE: {
       primary: "#FC712B",
       secondary: "#FD9319",

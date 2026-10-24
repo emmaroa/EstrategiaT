@@ -469,35 +469,55 @@
       actualizarAyudaImportacion();
     }
 
-    async function insertarEnBloques(tabla, registros) {
+    function detalleErrorImportacion(resultado) {
+      const error = resultado.error || resultado;
+      return [resultado.status ? "HTTP " + resultado.status : "", error.code, error.message, error.details, error.hint].filter(Boolean).join(" ? ");
+    }
+
+    function comprobarFalloServidor(resultado) {
+      if (resultado.error && (resultado.status >= 500 || [0,401,403,404].includes(resultado.status) ||
+          /^(08|40|42|53|54|57|58|XX)/.test(String(resultado.error.code || "")))) {
+        throw new Error("Importacion detenida por un fallo del servidor. " + detalleErrorImportacion(resultado));
+      }
+    }
+
+    async function insertarEnBloques(tabla, registros, progreso) {
       const errores = [];
       for (let i = 0; i < registros.length; i += 200) {
-        const resultado = await supabaseClient.from(tabla).insert(registros.slice(i, i + 200));
-        if (resultado.error) errores.push(resultado.error.message);
+        const bloque = registros.slice(i, i + 200);
+        const resultado = await supabaseClient.from(tabla).insert(bloque);
+        comprobarFalloServidor(resultado);
+        if (resultado.error) { errores.push(detalleErrorImportacion(resultado)); progreso.fallidos += bloque.length; }
+        else progreso.nuevos += bloque.length;
       }
       return errores;
     }
 
-    async function actualizarEnBloques(tabla, filas) {
+    async function actualizarEnBloques(tabla, filas, progreso) {
       const errores = [];
-      for (let i = 0; i < filas.length; i += 20) {
-        const bloque = filas.slice(i, i + 20);
-        const resultados = await Promise.all(bloque.map(function (fila) {
-          return supabaseClient.from(tabla).update(fila.registro).eq("id", fila.existente.id);
-        }));
-        resultados.forEach(function (resultado, indice) {
-          if (resultado.error) {
-            const fila = bloque[indice];
-            errores.push("Línea " + fila.linea + ": " +
-              [resultado.error.message, resultado.error.details, resultado.error.hint]
-                .filter(Boolean).join(" · "));
-          }
-        });
+      // La sincronizacion SIIF escribe registros compartidos: evitar 20 transacciones competidoras.
+      for (const fila of filas) {
+        const resultado = await supabaseClient.from(tabla).update(fila.registro).eq("id", fila.existente.id);
+        comprobarFalloServidor(resultado);
+        if (resultado.error) { errores.push("Linea " + fila.linea + ": " + detalleErrorImportacion(resultado)); progreso.fallidos++; }
+        else progreso.actualizados++;
       }
       return errores;
     }
 
+    let importacionEnCurso = false;
     async function ejecutarImportacion() {
+      if (importacionEnCurso) return;
+      importacionEnCurso = true;
+      try { await ejecutarImportacionInterna(); }
+      catch (error) { alert("No se pudo completar la importacion: " + (error.message || String(error))); }
+      finally {
+        importacionEnCurso = false;
+        btnEjecutarImportacion.disabled = !archivoActual || !filasAnalizadas.some(fila => fila.estado !== "Error");
+      }
+    }
+
+    async function ejecutarImportacionInterna() {
       const validas = filasAnalizadas.filter(function (fila) { return fila.estado !== "Error"; });
       if (!validas.length || !archivoActual) return;
       const confirmar = await ETFeedback.confirmar({
@@ -515,8 +535,8 @@
         tipo: tipoImportacionSiif.value,
         nombre_archivo: archivoActual.name,
         total_registros: filasAnalizadas.length,
-        registros_nuevos: validas.filter(function (fila) { return fila.estado === "Nuevo"; }).length,
-        registros_actualizados: validas.filter(function (fila) { return fila.estado === "Actualizar"; }).length,
+        registros_nuevos: 0,
+        registros_actualizados: 0,
         registros_con_error: erroresPrevios.length,
         usuario_nombre: usuario?.nombre || usuario?.usuario || null,
         estado: "Procesando",
@@ -538,19 +558,34 @@
       });
       const nuevas = validas.filter(function (fila) { return fila.estado === "Nuevo"; }).map(function (fila) { return fila.registro; });
       const actualizar = validas.filter(function (fila) { return fila.estado === "Actualizar"; });
-      const erroresCarga = (await insertarEnBloques(config.tabla, nuevas))
-        .concat(await actualizarEnBloques(config.tabla, actualizar));
-      const totalErrores = erroresPrevios.length + erroresCarga.length;
-
-      await supabaseClient.from("importaciones_siif").update({
+      const progreso = {nuevos:0, actualizados:0, fallidos:0};
+      const erroresCarga = [];
+      let detenida = false;
+      try {
+        erroresCarga.push(...await insertarEnBloques(config.tabla, nuevas, progreso));
+        erroresCarga.push(...await actualizarEnBloques(config.tabla, actualizar, progreso));
+      } catch (error) {
+        detenida = true;
+        erroresCarga.push(error.message || String(error));
+      }
+      const pendientes = validas.length - progreso.nuevos - progreso.actualizados - progreso.fallidos;
+      const totalErrores = erroresPrevios.length + progreso.fallidos + (detenida ? pendientes : 0);
+      const historial = await supabaseClient.from("importaciones_siif").update({
+        registros_nuevos: progreso.nuevos,
+        registros_actualizados: progreso.actualizados,
         registros_con_error: totalErrores,
         estado: erroresCarga.length ? "Procesada con errores" : "Procesada",
         detalle_errores: erroresPrevios.map(function (fila) {
           return { linea: fila.linea, error: fila.error };
-        }).concat(erroresCarga.map(function (error) { return { error: error }; }))
+        }).concat(erroresCarga.map(function (error) { return { error: error }; }),
+          detenida ? [{error: pendientes + " registros sin confirmar o sin procesar. Revisa el fallo antes de volver a importar."}] : [])
       }).eq("id", carga.data.id);
+      if (historial.error) alert("No se pudo actualizar el historial: " + detalleErrorImportacion(historial));
+      if (erroresCarga.length) alert(erroresCarga.slice(0,3).join("\n\n") +
+        "\n\nGuardados: " + progreso.nuevos + " nuevos y " + progreso.actualizados + " actualizaciones." +
+        (detenida ? "\nImportacion detenida. Registros sin confirmar o pendientes: " + pendientes : ""));
 
-      const mensajeFinal = erroresCarga.length
+      const mensajeFinal = detenida ? "Importación detenida. Consulta el detalle del error antes de reintentar." : erroresCarga.length
         ? "La carga terminó con " + erroresCarga.length + " errores de Supabase."
         : "Importación terminada. Seguimiento SIIF ya refleja los cambios.";
       const tipoMensaje = erroresCarga.length ? "warning" : "success";
