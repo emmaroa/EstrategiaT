@@ -549,6 +549,16 @@
     const header = main.querySelector(":scope > .topbar, :scope > .page-header");
     if (header) {
       header.classList.add("et-module-header");
+      const contextoPatron = (moduloActivo + ' ' + global.location.pathname).normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase();
+      const motivos = [
+        ['carga', /importar/], ['reportes', /report[e]|mir/],
+        ['personas', /empleados|usuarios|perfil/], ['calendario', /calendario|tramites/],
+        ['reloj', /tiempo.extra/], ['vehiculos', /parque/],
+        ['llaves', /taller|ordenes.trabajo|acuerdos/], ['cajas', /inventario/],
+        ['entrega', /vales|proveedores/], ['cotizaciones', /cotizaci|portal.proveedor|sp-siif/],
+        ['ubicacion', /buscador/], ['escudo', /auditoria|licencias/]
+      ];
+      header.dataset.modulePattern = (motivos.find(([, expresion]) => expresion.test(contextoPatron)) || ['documentos'])[0];
       const copia = header.querySelector(":scope > div:first-child");
       const titulo = copia && copia.querySelector("h1");
       if (copia && titulo && !copia.querySelector(".et-module-eyebrow")) {
@@ -2334,6 +2344,7 @@
       ? tipo
       : inferirTipoMensaje(mensaje);
     toast.className = "et-toast " + tipoFinal;
+    if (tipoFinal === "success" && !config.title) toast.classList.add("et-toast-compact");
     const iconos = { success: "✓", error: "!", warning: "!", info: "i" };
     toast.innerHTML =
       '<span class="et-toast-icon" aria-hidden="true">' + iconos[tipoFinal] + "</span>" +

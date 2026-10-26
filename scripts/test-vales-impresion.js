@@ -25,5 +25,5 @@ context.imprimirVale(vale.id);
 assert.equal(ventanas, 1, 'Conserva la impresión manual');
 assert.equal(impresiones, 1);
 assert.ok(html.indexOf('valeParaImprimir = Object.assign') > html.indexOf('if (!valeGuardado?.folio)'));
-assert.ok(html.includes('if (!valeParaImprimir) alert("Vale guardado correctamente.")'));
+assert.ok(html.includes('ETFeedback.toast("Vale guardado", "success")'));
 console.log('Vales: impresión automática única con folio confirmado, sin popup, y opción manual conservada.');

@@ -914,7 +914,7 @@ unidadVale?.addEventListener("blur", async function () {
       }
       await cargarValesDesdeSupabase();
 
-      if (!valeParaImprimir) alert("Vale guardado correctamente.");
+      ETFeedback.toast("Vale guardado", "success");
     }
 
     function editarVale(id) {

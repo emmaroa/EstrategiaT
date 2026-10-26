@@ -1368,7 +1368,7 @@
       idEditando = null;
       await recargarPeticiones();
       cerrarModal();
-      alert("Petición guardada correctamente.");
+      ETFeedback.toast("Petición guardada", "success");
     }
 
 
@@ -2607,7 +2607,7 @@
       }
       cerrarDatosInternosCotizacion();
       await recargarPeticiones();
-      alert("Datos internos guardados correctamente.");
+      ETFeedback.toast("Cotización actualizada", "success");
     }
 
     function obtenerMaterialesCotizacionInterna() {
