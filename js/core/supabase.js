@@ -22,6 +22,10 @@
           }
           try {
             const usuario = JSON.parse(localStorage.getItem('usuarioActivo') || 'null');
+            if (new URL(destino, SUPABASE_URL).origin === SUPABASE_URL &&
+                usuario?.flujo_token && Number(usuario.sesion_expira_en) > Date.now()) {
+              headers.set('x-et-session-token', usuario.flujo_token);
+            }
             if (usuario && Number(usuario.sesion_expira_en) > Date.now() &&
               /^[0-9a-f-]{36}$/i.test(usuario.id || '')) headers.set('x-et-usuario-id', usuario.id);
           } catch (_) {}
@@ -44,7 +48,7 @@
     SUPABASE_URL,
     SUPABASE_KEY,
     APP_NAME: "Administración de Talleres",
-    APP_VERSION: "2.0.143",
+    APP_VERSION: "2.0.144",
     PALETTE: {
       primary: "#FC712B",
       secondary: "#FD9319",

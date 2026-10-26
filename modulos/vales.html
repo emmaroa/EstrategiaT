@@ -147,7 +147,8 @@
 
         <div class="input-group">
           <label>Fecha</label>
-          <input type="date" id="fechaVale">
+          <input type="date" id="fechaVale" readonly aria-describedby="fechaValeAyuda">
+          <small id="fechaValeAyuda">Se asigna al guardar con la fecha del día en Hermosillo. No se puede modificar.</small>
         </div>
 
         <div class="input-group">
@@ -264,6 +265,45 @@
       } catch (_) {
         return null;
       }
+    }
+
+    function fechaHoyVale() {
+      const partes = new Intl.DateTimeFormat('en-US', { timeZone: 'America/Hermosillo', year: 'numeric', month: '2-digit', day: '2-digit' }).formatToParts(new Date());
+      const valor = tipo => partes.find(p => p.type === tipo).value;
+      return valor('year') + '-' + valor('month') + '-' + valor('day');
+    }
+
+    function puedeVerHistorialVale() {
+      const rol = String(obtenerUsuarioVale()?.rol || '').normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase().replace(/[ _-]/g, '');
+      return ['superadmin', 'admin', 'administrador', 'administradordelsistema', 'jefedealmacen'].includes(rol);
+    }
+
+    async function verHistorialVale(id, offset = 0) {
+      if (!puedeVerHistorialVale()) return;
+      const vale = obtenerValePorId(id);
+      if (!vale) return;
+      const { data, error } = await supabaseClient.rpc('historial_vale', {
+        p_token: obtenerUsuarioVale()?.flujo_token || '', p_vale: id, p_offset: offset
+      });
+      if (error) { alert('No se pudo cargar el historial: ' + error.message); return; }
+      if (!puedeVerHistorialVale()) return;
+      const campos = { fecha: 'Fecha', folio: 'Folio', unidad: 'Unidad', dependencia: 'Dependencia', proveedor: 'Proveedor / Origen', refaccion: 'Material', entrega: 'Entrega', recibe: 'Recibe', estatus: 'Estatus', observaciones: 'Observaciones', requisicion: 'Requisición', solicitante: 'Solicitante' };
+      const sections = (data || []).map(evento => {
+        const antes = evento.metadata?.antes || {}, despues = evento.metadata?.despues || {};
+        const fields = [{ label: 'Realizado por', value: (evento.usuario_nombre || 'Sistema / sin identificar') + ' · ' + (evento.usuario_rol || '') }];
+        Object.entries(campos).forEach(([campo, label]) => {
+          if (JSON.stringify(antes[campo] ?? null) !== JSON.stringify(despues[campo] ?? null)) {
+            fields.push({ label, value: String(antes[campo] ?? 'Sin dato') + ' → ' + String(despues[campo] ?? 'Sin dato'), wide: true });
+          }
+        });
+        if (fields.length === 1) fields.push({ label: 'Detalle', value: evento.detalle || 'Sin detalle', wide: true });
+        return { title: new Date(evento.created_at).toLocaleString('es-MX', { timeZone: 'America/Hermosillo' }) + ' · ' + evento.accion, fields };
+      });
+      const actions = [{ label: 'Volver al vale', onClick: () => verVale(id) }];
+      if (offset > 0) actions.push({ label: 'Más recientes', onClick: () => verHistorialVale(id, Math.max(0, offset - 100)) });
+      if (data?.length === 100) actions.push({ label: 'Más antiguos', onClick: () => verHistorialVale(id, offset + 100) });
+      ETLayout.abrirFichaDetalle({ title: 'Historial · ' + vale.folio, subtitle: 'Movimientos registrados · Hora de Hermosillo',
+        sections: sections.length ? sections : [{ title: 'Sin movimientos registrados', fields: [{ label: 'Historial', value: 'No hay movimientos disponibles en esta página.' }] }], actions });
     }
 
     function puedeSolventarVale() {
@@ -466,6 +506,7 @@ unidadVale?.addEventListener("blur", async function () {
               (puedeEditar ? ETLayout.iconButton("editar", "Editar vale", "editarVale('" + v.id + "')", "edit") : "") +
               (puedeCambiarEstatus ? ETLayout.iconButton("estatus", "Cambiar estatus", "cambiarEstatusVale('" + v.id + "')", "orange") : "") +
               (puedeEliminar ? ETLayout.iconButton("eliminar", "Eliminar vale", "eliminarVale('" + v.id + "')", "red-btn") : "") +
+              (puedeVerHistorialVale() ? ETLayout.iconButton("historial", "Historial del vale", "verHistorialVale('" + v.id + "')") : "") +
               ETLayout.iconButton("imprimir", "Imprimir vale", "imprimirVale('" + v.id + "')") +
             "</div></td>";
           tablaVales.appendChild(fila);
@@ -538,7 +579,7 @@ unidadVale?.addEventListener("blur", async function () {
       modalVale?.classList.add("show");
       modalVale?.setAttribute("aria-hidden", "false");
 
-      const hoy = new Date().toISOString().split("T")[0];
+      const hoy = fechaHoyVale();
       fechaVale.value = hoy;
       folioVale.value = "Se asigna al guardar";
       entregaVale.value = obtenerUsuarioVale()?.nombre || "";
@@ -575,7 +616,7 @@ unidadVale?.addEventListener("blur", async function () {
 
 
       const nuevo = {
-        fecha: String(fechaVale.value || ""),
+        fecha: idEditandoVale ? obtenerValePorId(idEditandoVale)?.fecha : fechaHoyVale(),
         ...(idEditandoVale ? { folio: String(folioVale.value || "") } : {}),
         unidad: numeroUnidad,
         dependencia: String(unidadParque.dependencia || "").trim(),
@@ -615,7 +656,7 @@ unidadVale?.addEventListener("blur", async function () {
         const { data: valeGuardado, error } = await supabaseClient
           .from("vales")
           .insert([nuevo])
-          .select("id,folio")
+          .select("id,folio,fecha")
           .single();
 
         if (error) {
@@ -632,7 +673,7 @@ unidadVale?.addEventListener("blur", async function () {
 
         folioVale.value = valeGuardado.folio;
         valeParaImprimir = Object.assign({}, nuevo, valeGuardado);
-        registrarAuditoria("Vales", "Creó nuevo vale", valeGuardado.folio + " - Unidad " + nuevo.unidad);
+        registrarAuditoria("Vales", "Creó nuevo vale", valeGuardado.folio + " - Unidad " + nuevo.unidad, { entidad_tipo: 'vales', entidad_id: valeGuardado.id });
       } else {
         const valeAnterior = obtenerValePorId(idEditandoVale);
         const { data: valeActualizado, error } = await supabaseClient
@@ -734,7 +775,8 @@ unidadVale?.addEventListener("blur", async function () {
       registrarAuditoria(
         "Vales",
         "Cambió estatus",
-        v.folio + ": " + actual + " → " + nuevoEstatus
+        v.folio + ": " + actual + " → " + nuevoEstatus,
+        { entidad_tipo: 'vales', entidad_id: id }
       );
 
       await cargarValesDesdeSupabase();
@@ -770,7 +812,7 @@ unidadVale?.addEventListener("blur", async function () {
         return;
       }
 
-      registrarAuditoria("Vales", "Eliminó vale", v.folio + " - Unidad " + v.unidad);
+      registrarAuditoria("Vales", "Eliminó vale", v.folio + " - Unidad " + v.unidad, { entidad_tipo: 'vales', entidad_id: id });
 
       await cargarValesDesdeSupabase();
     }
@@ -794,6 +836,7 @@ unidadVale?.addEventListener("blur", async function () {
       if (!v) return;
 
       const acciones = [];
+      if (puedeVerHistorialVale()) acciones.push({ label: 'Historial del vale', onClick: () => verHistorialVale(id) });
       if (puedeAccionVale("editar")) acciones.push({
         label: "Editar vale",
         variant: "primary",
@@ -852,7 +895,7 @@ unidadVale?.addEventListener("blur", async function () {
         obtenerUsuarioVale()?.nombre || obtenerUsuarioVale()?.usuario || "Usuario no identificado"
       );
 
-      registrarAuditoria("Vales", "Imprimió vale", v.folio + " - Unidad " + v.unidad);
+      registrarAuditoria("Vales", "Imprimió vale", v.folio + " - Unidad " + v.unidad, { entidad_tipo: 'vales', entidad_id: id });
 
       let marco = null;
       let ventana;
