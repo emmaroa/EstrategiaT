@@ -43,6 +43,41 @@
   z-index: 1;
 }
 
+/* Ilustración decorativa: no intercepta las acciones del encabezado. */
+body .topbar.dashboard-hero {
+  isolation: isolate;
+  transition: border-color .25s ease, box-shadow .25s ease;
+}
+body .topbar.dashboard-hero::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+  background: url('../assets/icons/patron-llaves.svg') center / 180px 150px repeat;
+  opacity: .16;
+  transform: scale(1);
+  transform-origin: right center;
+  transition: opacity .3s ease, transform .4s ease;
+}
+body .topbar.dashboard-hero:focus-within {
+  border-color: var(--color-teal);
+  box-shadow: 0 6px 24px color-mix(in srgb, var(--color-teal) 16%, transparent);
+}
+body .topbar.dashboard-hero:focus-within::before { opacity: .28; }
+@media (hover: hover) {
+  body .topbar.dashboard-hero:hover {
+    border-color: var(--color-teal);
+    box-shadow: 0 6px 24px color-mix(in srgb, var(--color-teal) 16%, transparent);
+  }
+  body .topbar.dashboard-hero:hover::before { opacity: .28; transform: scale(1.025); }
+}
+@media (prefers-reduced-motion: reduce) {
+  body .topbar.dashboard-hero, body .topbar.dashboard-hero::before { transition: none; }
+  body .topbar.dashboard-hero:hover::before { transform: none; }
+}
+@media print { body .topbar.dashboard-hero::before { display: none; } }
+
 .dashboard-hero-copy {
   max-width: 680px;
 }

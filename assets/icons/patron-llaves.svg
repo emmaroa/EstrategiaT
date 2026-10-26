@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 180 150" fill="none">
+  <defs>
+    <g id="llave" stroke="currentColor" stroke-width="3" stroke-linejoin="round">
+      <path d="M-8-28a16 16 0 0 0-3 27L-8 3v32a8 8 0 0 0 16 0V3l3-4a16 16 0 0 0-3-27v14l-8 5-8-5z"/>
+      <circle cy="34" r="3"/>
+    </g>
+  </defs>
+  <use href="#llave" transform="translate(44 38) rotate(40) scale(.7)" color="#8b5cf6"/>
+  <use href="#llave" transform="translate(133 108) rotate(-35) scale(.7)" color="#0891b2"/>
+  <g fill="#94a3b8"><circle cx="130" cy="28" r="2"/><circle cx="43" cy="112" r="2"/></g>
+</svg>

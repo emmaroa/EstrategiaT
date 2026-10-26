@@ -32,10 +32,12 @@
     #tablaGestionCotizaciones tr.cotizacion-sin-requisicion { background:color-mix(in srgb, var(--color-warning) 9%, transparent); box-shadow:inset 4px 0 0 var(--color-warning); }
     #tablaGestionCotizaciones tr.cotizacion-sin-requisicion:hover { background:color-mix(in srgb, var(--color-warning) 15%, var(--bg-card)); }
     .cotizacion-pendiente-badge { display:inline-flex; align-items:center; padding:5px 9px; border:1px solid color-mix(in srgb, var(--color-warning) 45%, transparent); border-radius:999px; background:color-mix(in srgb, var(--color-warning) 14%, transparent); color:var(--text-primary); font-size:11px; font-weight:850; white-space:nowrap; }
-    .cotizacion-preview-card { width:min(1040px, calc(100vw - 28px)); height:min(90vh, 860px); padding:0; overflow:hidden; }
-    .cotizacion-preview-header { padding:18px 22px 14px; border-bottom:1px solid var(--border); }
-    .cotizacion-preview-frame { display:block; width:100%; height:calc(90vh - 158px); min-height:440px; border:0; background:#fff; }
-    .cotizacion-preview-actions { padding:14px 22px; border-top:1px solid var(--border); background:var(--bg-card); }
+    .cotizacion-preview-card { display:flex; flex-direction:column; width:min(1040px, calc(100vw - 28px)); height:min(90vh, 860px); padding:0; overflow:hidden; }
+    .cotizacion-preview-header { position:static; top:auto; flex-shrink:0; margin:0; padding:18px 22px 14px; border-bottom:1px solid var(--border); }
+    .cotizacion-preview-header > div { min-width:0; overflow-wrap:anywhere; }
+    .cotizacion-preview-frame { display:block; flex:1 1 0; width:100%; min-height:0; border:0; background:#fff; }
+    .cotizacion-preview-actions { position:static; bottom:auto; display:grid; grid-template-columns:repeat(auto-fit,minmax(min(100%,150px),1fr)); flex-shrink:0; gap:10px; margin:0; padding:14px 22px; border-top:1px solid var(--border); background:var(--bg-card); }
+    .cotizacion-preview-actions .btn-small, .cotizacion-preview-actions .btn-secondary { width:100%; min-width:0; min-height:44px; white-space:normal; overflow-wrap:anywhere; }
     #tablaPeticiones tr.peticion-fila { cursor:pointer; }
     #tablaPeticiones tr.peticion-fila:focus-visible { outline:2px solid var(--color-teal); outline-offset:-2px; }
     .peticion-view-note { position:relative; width:36px; height:36px; }
@@ -2295,18 +2297,20 @@
           '<td class="numero">' + escaparCotizacionInterna(monedaCotizacionInterna(material.cantidad * material.precio)) + "</td></tr>";
       }).join("") || '<tr><td colspan="4">Sin materiales registrados</td></tr>';
       const contenidoImprimible = (
-        '<!DOCTYPE html><html lang="es"><head><meta charset="UTF-8">' +
+        '<!DOCTYPE html><html lang="es"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1">' +
         "<title>" + escaparCotizacionInterna(nombreDocumentoCotizacion(cotizacion)) + "</title>" +
         "<style>" +
-          "@page{size:auto;margin:16mm}body{font-family:Arial,sans-serif;color:#172033;margin:0;font-size:13px}" +
-          "header{display:flex;justify-content:space-between;align-items:flex-start;border-bottom:3px solid #0a8f98;padding-bottom:14px;margin-bottom:20px}" +
+          "@page{size:auto;margin:16mm}*{box-sizing:border-box}body{font-family:Arial,sans-serif;color:#172033;margin:0 auto;padding:clamp(16px,4vw,48px);max-width:1040px;font-size:13px;overflow-wrap:anywhere}" +
+          "header{display:flex;justify-content:space-between;align-items:flex-start;gap:20px;border-bottom:3px solid #0a8f98;padding-bottom:14px;margin-bottom:20px}header>div{min-width:0}" +
           "h1{font-size:24px;margin:0 0 5px}h2{font-size:16px;margin:22px 0 8px}.proveedor{font-size:15px}" +
-          ".folio{font-size:18px;font-weight:700;color:#0a8f98;text-align:right}.grid{display:grid;grid-template-columns:1fr 1fr;gap:10px 28px}" +
+          ".folio{font-size:18px;font-weight:700;color:#0a8f98;text-align:right}.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px 28px}" +
           ".campo{border-bottom:1px solid #d8dee8;padding:7px 0}.campo span{display:block;color:#667085;font-size:11px;text-transform:uppercase;margin-bottom:3px}" +
-          "table{width:100%;border-collapse:collapse;margin-top:8px}th,td{border:1px solid #ccd5df;padding:8px;text-align:left;vertical-align:top}" +
-          "th{background:#eef7f8}.numero{text-align:right;white-space:nowrap}.totales{width:330px;margin:16px 0 0 auto}" +
-          ".totales div{display:flex;justify-content:space-between;padding:6px 10px}.total{font-size:16px;font-weight:700;border-top:2px solid #172033}" +
+          "table{width:100%;table-layout:fixed;border-collapse:collapse;margin-top:8px}th,td{border:1px solid #ccd5df;padding:8px;text-align:left;vertical-align:top;overflow-wrap:anywhere}th:nth-child(1){width:14%}th:nth-child(2){width:42%}th:nth-child(3),th:nth-child(4){width:22%}" +
+          "th{background:#eef7f8}.numero{text-align:right;white-space:normal}.totales{width:330px;max-width:100%;margin:16px 0 0 auto}" +
+          ".totales div{display:flex;justify-content:space-between;gap:12px;padding:6px 10px}.totales div>*{min-width:0}.total{font-size:16px;font-weight:700;border-top:2px solid #172033}" +
           "footer{margin-top:45px;padding-top:12px;border-top:1px solid #ccd5df;color:#667085;font-size:11px}" +
+          "@media screen and (max-width:520px){header{flex-wrap:wrap}.folio{text-align:left}.grid{grid-template-columns:minmax(0,1fr)}th,td{padding:6px 4px}}" +
+          "@media print{body{padding:0;max-width:none}thead{display:table-header-group}tr,.totales{break-inside:avoid}}" +
         "</style></head><body>" +
         "<header><div><h1>Cotización</h1><div class=\"proveedor\">" + escaparCotizacionInterna(cotizacion.proveedor || "Sin proveedor") +
         '</div></div><div class="folio">' + escaparCotizacionInterna(cotizacion.folio || "—") + "</div></header>" +

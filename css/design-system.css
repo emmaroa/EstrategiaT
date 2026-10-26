@@ -1002,9 +1002,29 @@ body.et-detail-open {
   font-style: italic;
 }
 
+/* Decoración de cumpleaños compartida por los indicadores de personal. */
+body .kpi-card.kpi-cumpleanos {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  background: linear-gradient(120deg, var(--bg-card) 20%, color-mix(in srgb, #f9a8d4 13%, var(--bg-card)) 65%, color-mix(in srgb, #c4b5fd 22%, var(--bg-card)));
+}
+body .kpi-cumpleanos::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background: url('../assets/icons/cumpleanos.svg') right 6px bottom 2px / auto min(95%, 180px) no-repeat;
+  opacity: .24;
+}
+:root[data-theme="dark"] .kpi-cumpleanos::after { opacity: .18; }
+
 .et-detail-actions {
-  display: flex;
-  justify-content: flex-end;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 160px), 1fr));
+  flex-shrink: 0;
+  min-width: 0;
   gap: 10px;
   padding: 14px var(--detail-padding);
   border-top: 1px solid var(--surface-border);
@@ -1017,7 +1037,16 @@ body.et-detail-open {
 
 .et-detail-actions .btn-small,
 .et-detail-actions .btn-secondary {
-  min-width: 120px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  min-width: 0;
+  min-height: 44px;
+  margin: 0;
+  white-space: normal;
+  overflow-wrap: anywhere;
+  text-align: center;
 }
 
 /* Tablas */
@@ -2207,7 +2236,7 @@ tbody tr:hover {
 
   .et-detail-actions {
     display: grid;
-    grid-template-columns: 1fr 1fr;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
   .et-detail-actions .btn-small,
