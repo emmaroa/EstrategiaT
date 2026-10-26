@@ -11,6 +11,33 @@
     .vale-view-note .action-btn { margin:0; }
     .vale-note-indicator { position:absolute; top:-5px; right:-5px; display:flex; align-items:center; justify-content:center; width:17px; height:17px; border:2px solid var(--bg-card); border-radius:50%; background:var(--color-warning); color:#111827; pointer-events:none; z-index:1; }
     .vale-note-indicator svg { width:9px; height:9px; fill:none; stroke:currentColor; stroke-width:2; }
+    .historial-modal-card { width:min(620px, calc(100vw - 28px)); max-height:min(78vh, 720px); padding:0; overflow:hidden; }
+    .historial-modal-header { padding:22px 24px 16px; border-bottom:1px solid var(--border); background:linear-gradient(135deg, color-mix(in srgb, var(--color-teal) 12%, var(--bg-card)), var(--bg-card)); }
+    .historial-modal-header p { margin:5px 0 0; color:var(--text-secondary); }
+    .historial-content { max-height:calc(78vh - 100px); padding:20px 24px 24px; overflow-y:auto; }
+    .historial-loading, .historial-empty { padding:28px 18px; border:1px dashed var(--border); border-radius:12px; color:var(--text-secondary); text-align:center; }
+    .historial-timeline { display:grid; gap:0; margin:0; padding:0; list-style:none; }
+    .historial-item { position:relative; display:grid; grid-template-columns:18px minmax(0, 1fr); gap:13px; padding-bottom:18px; }
+    .historial-item:not(:last-child)::before { content:""; position:absolute; top:17px; bottom:0; left:7px; width:2px; background:color-mix(in srgb, var(--color-teal) 25%, var(--border)); }
+    .historial-dot { position:relative; width:16px; height:16px; margin-top:4px; border:4px solid color-mix(in srgb, var(--color-teal) 22%, var(--bg-card)); border-radius:50%; background:var(--color-teal); z-index:1; }
+    .historial-entry { padding:14px 16px; border:1px solid var(--border); border-radius:12px; background:var(--bg-card); box-shadow:0 4px 14px rgba(15, 23, 42, .06); }
+    .historial-entry-head { display:flex; justify-content:space-between; align-items:flex-start; gap:12px; margin-bottom:8px; }
+    .historial-entry-head strong { color:var(--text-primary); }
+    .historial-entry-head time { flex:0 0 auto; color:var(--text-secondary); font-size:12px; font-weight:700; }
+    .historial-user { display:block; margin-bottom:7px; color:var(--color-teal); font-size:12px; font-weight:800; }
+    .historial-detail { margin:0; color:var(--text-secondary); line-height:1.5; white-space:pre-wrap; overflow-wrap:anywhere; }
+    .historial-kind { display:inline-flex; align-items:center; margin-bottom:9px; padding:4px 9px; border-radius:999px; font-size:11px; font-weight:900; letter-spacing:.03em; text-transform:uppercase; }
+    .historial-kind.added { background:rgba(34, 197, 94, .13); color:#15803d; }
+    .historial-kind.changed { background:rgba(245, 158, 11, .15); color:#b45309; }
+    .historial-changes { display:grid; gap:8px; margin-top:12px; }
+    .historial-change { display:grid; gap:4px; padding:10px 12px; border-radius:9px; background:color-mix(in srgb, var(--color-teal) 6%, var(--bg-card)); }
+    .historial-change-label { color:var(--text-primary); font-size:12px; font-weight:900; }
+    .historial-change-values { display:flex; flex-wrap:wrap; align-items:center; gap:6px; color:var(--text-secondary); font-size:12px; }
+    .historial-old { text-decoration:line-through; opacity:.75; }
+    .historial-new { color:var(--text-primary); font-weight:800; }
+    .historial-arrow { color:var(--color-teal); font-weight:900; }
+    .historial-entry-head { flex-wrap:wrap; }
+    .historial-change-values { overflow-wrap:anywhere; white-space:pre-wrap; }
   </style>
   <script src="../js/vendor/-supabase-supabase-js.js"></script>
   <script src="../js/vendor/chart.js.js"></script>
@@ -214,6 +241,19 @@
     </div>
   </div>
 
+  <div class="modal" id="modalHistorialVale" role="dialog" aria-modal="true" aria-labelledby="tituloHistorialVale" aria-hidden="true">
+    <div class="modal-card historial-modal-card">
+      <div class="modal-header historial-modal-header">
+        <div>
+          <h2 id="tituloHistorialVale">Historial del vale</h2>
+          <p id="subtituloHistorialVale">Movimientos registrados</p>
+        </div>
+        <button type="button" class="close-btn" aria-label="Cerrar historial" onclick="cerrarHistorialVale()">&times;</button>
+      </div>
+      <div class="historial-content" id="contenidoHistorialVale" aria-live="polite"></div>
+    </div>
+  </div>
+
     <script>
     validarPermiso("Vales");
     ETLayout.inicializar("Vales");
@@ -278,33 +318,194 @@
       return ['superadmin', 'admin', 'administrador', 'administradordelsistema', 'jefedealmacen'].includes(rol);
     }
 
+    let consultaHistorialVale = 0;
+    let focoHistorialVale = null;
     async function verHistorialVale(id, offset = 0) {
       if (!puedeVerHistorialVale()) return;
       const vale = obtenerValePorId(id);
       if (!vale) return;
-      const { data, error } = await supabaseClient.rpc('historial_vale', {
-        p_token: obtenerUsuarioVale()?.flujo_token || '', p_vale: id, p_offset: offset
-      });
-      if (error) { alert('No se pudo cargar el historial: ' + error.message); return; }
-      if (!puedeVerHistorialVale()) return;
-      const campos = { fecha: 'Fecha', folio: 'Folio', unidad: 'Unidad', dependencia: 'Dependencia', proveedor: 'Proveedor / Origen', refaccion: 'Material', entrega: 'Entrega', recibe: 'Recibe', estatus: 'Estatus', observaciones: 'Observaciones', requisicion: 'Requisición', solicitante: 'Solicitante' };
-      const sections = (data || []).map(evento => {
-        const antes = evento.metadata?.antes || {}, despues = evento.metadata?.despues || {};
-        const fields = [{ label: 'Realizado por', value: (evento.usuario_nombre || 'Sistema / sin identificar') + ' · ' + (evento.usuario_rol || '') }];
-        Object.entries(campos).forEach(([campo, label]) => {
-          if (JSON.stringify(antes[campo] ?? null) !== JSON.stringify(despues[campo] ?? null)) {
-            fields.push({ label, value: String(antes[campo] ?? 'Sin dato') + ' → ' + String(despues[campo] ?? 'Sin dato'), wide: true });
-          }
+      const modal = document.getElementById('modalHistorialVale');
+      const contenido = document.getElementById('contenidoHistorialVale');
+      const consulta = ++consultaHistorialVale;
+      if (!modal.classList.contains('show')) focoHistorialVale = document.activeElement;
+      document.getElementById('tituloHistorialVale').textContent = 'Historial del vale';
+      document.getElementById('subtituloHistorialVale').textContent = [vale.folio, vale.unidad ? 'Unidad ' + vale.unidad : '', 'Hora de Hermosillo'].filter(Boolean).join(' · ');
+      contenido.innerHTML = '<div class="historial-loading">Cargando movimientos…</div>';
+      modal.classList.add('show');
+      modal.setAttribute('aria-hidden', 'false');
+      modal.querySelector('.close-btn').focus();
+      let movimientos;
+      try {
+        const { data, error } = await supabaseClient.rpc('historial_vale', {
+          p_token: obtenerUsuarioVale()?.flujo_token || '', p_vale: id, p_offset: offset
         });
-        if (fields.length === 1) fields.push({ label: 'Detalle', value: evento.detalle || 'Sin detalle', wide: true });
-        return { title: new Date(evento.created_at).toLocaleString('es-MX', { timeZone: 'America/Hermosillo' }) + ' · ' + evento.accion, fields };
+        if (error) throw error;
+        movimientos = data || [];
+      } catch (error) {
+        if (consulta !== consultaHistorialVale) return;
+        contenido.replaceChildren();
+        const mensaje = document.createElement('div');
+        mensaje.className = 'historial-empty';
+        mensaje.textContent = 'No se pudo cargar el historial: ' + error.message;
+        const reintentar = document.createElement('button');
+        reintentar.type = 'button'; reintentar.className = 'btn-secondary'; reintentar.textContent = 'Reintentar';
+        reintentar.onclick = () => verHistorialVale(id, offset);
+        contenido.append(mensaje, reintentar);
+        return;
+      }
+      if (consulta !== consultaHistorialVale) return;
+      if (!puedeVerHistorialVale()) { cerrarHistorialVale(); return; }
+      if (!movimientos.length && offset === 0) {
+        contenido.innerHTML = '<div class="historial-empty"><strong>Sin movimientos registrados</strong><br><span>Este vale todavía no tiene actividad en el historial.</span></div>';
+        return;
+      }
+      const lista = document.createElement("ol");
+      lista.className = "historial-timeline";
+      movimientos.forEach(function (m) {
+        const item = document.createElement("li");
+        item.className = "historial-item";
+        const punto = document.createElement("span");
+        punto.className = "historial-dot";
+        punto.setAttribute("aria-hidden", "true");
+        const entrada = document.createElement("article");
+        entrada.className = "historial-entry";
+        const cabecera = document.createElement("div");
+        cabecera.className = "historial-entry-head";
+        const accion = document.createElement("strong");
+        accion.textContent = m.accion || "Movimiento registrado";
+        const fecha = document.createElement("time");
+        fecha.textContent = m.created_at ? new Date(m.created_at).toLocaleString('es-MX', { timeZone: 'America/Hermosillo' }) : 'Fecha no disponible';
+        const usuario = document.createElement("span");
+        usuario.className = "historial-user";
+        usuario.textContent = m.usuario || m.usuario_nombre || "Usuario";
+        const tipoMovimiento = obtenerTipoMovimientoHistorial(m);
+        const tipo = document.createElement("span");
+        tipo.className = "historial-kind " + tipoMovimiento.clase;
+        tipo.textContent = tipoMovimiento.etiqueta;
+        const detalle = document.createElement("p");
+        detalle.className = "historial-detail";
+        detalle.textContent = m.detalle || "Sin detalle adicional.";
+        cabecera.append(accion, fecha);
+        entrada.append(cabecera, usuario, tipo, detalle);
+        const cambios = obtenerCambiosHistorialVale(m);
+        if (cambios.length) entrada.appendChild(crearListaCambiosHistorial(cambios, tipoMovimiento.clase));
+        item.append(punto, entrada);
+        lista.appendChild(item);
       });
-      const actions = [{ label: 'Volver al vale', onClick: () => verVale(id) }];
-      if (offset > 0) actions.push({ label: 'Más recientes', onClick: () => verHistorialVale(id, Math.max(0, offset - 100)) });
-      if (data?.length === 100) actions.push({ label: 'Más antiguos', onClick: () => verHistorialVale(id, offset + 100) });
-      ETLayout.abrirFichaDetalle({ title: 'Historial · ' + vale.folio, subtitle: 'Movimientos registrados · Hora de Hermosillo',
-        sections: sections.length ? sections : [{ title: 'Sin movimientos registrados', fields: [{ label: 'Historial', value: 'No hay movimientos disponibles en esta página.' }] }], actions });
+      contenido.replaceChildren(lista);
+      const controles = document.createElement('div');
+      controles.className = 'modal-actions';
+      function pagina(label, siguiente) {
+        const boton = document.createElement('button');
+        boton.type = 'button'; boton.className = 'btn-secondary'; boton.textContent = label;
+        boton.onclick = () => verHistorialVale(id, siguiente);
+        controles.appendChild(boton);
+      }
+      if (offset > 0) pagina('Más recientes', Math.max(0, offset - 100));
+      if (movimientos.length === 100) pagina('Más antiguos', offset + 100);
+      contenido.appendChild(controles);
     }
+
+    function obtenerMetadataHistorial(registro) {
+      if (registro?.metadata && typeof registro.metadata === "object") return registro.metadata;
+      if (typeof registro?.metadata === "string") {
+        try { return JSON.parse(registro.metadata) || {}; } catch (_) { return {}; }
+      }
+      return {};
+    }
+
+    function obtenerTipoMovimientoHistorial(registro) {
+      const metadata = obtenerMetadataHistorial(registro);
+      const accion = String(registro?.accion || '').normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase();
+      const esAlta = !metadata.antes && Boolean(metadata.despues) || accion.includes("creo") || accion.includes("agrego");
+      return esAlta
+        ? { clase: "added", etiqueta: "Se agregó" }
+        : { clase: "changed", etiqueta: "Se cambió" };
+    }
+
+    function obtenerCambiosHistorialVale(registro) {
+      const metadata = obtenerMetadataHistorial(registro);
+      const antes = metadata.antes || metadata.before || null;
+      const despues = metadata.despues || metadata.after || null;
+      if (!despues || typeof despues !== "object") return [];
+      const ignorados = new Set(["id", "created_at", "updated_at"]);
+      const campos = antes && typeof antes === "object"
+        ? Array.from(new Set(Object.keys(antes).concat(Object.keys(despues))))
+        : Object.keys(despues);
+      return campos.filter(function (campo) {
+        if (ignorados.has(campo)) return false;
+        return !antes || JSON.stringify(antes[campo] ?? null) !== JSON.stringify(despues[campo] ?? null);
+      }).map(function (campo) {
+        return { campo: campo, antes: antes ? antes[campo] : undefined, despues: despues[campo] };
+      });
+    }
+
+    function etiquetaCampoHistorial(campo) {
+      const etiquetas = {
+        folio: "Folio", refaccion: "Material entregado", entrega: "Entrega", recibe: "Recibe", requisicion: "Requisición", fecha: "Fecha de registro", unidad: "Unidad", peticion: "Petición",
+        solicitante: "Solicitante", area: "Área", dependencia: "Dependencia",
+        proveedor: "Proveedor", estatus: "Estatus", observaciones: "Observaciones",
+        fecha_estimada_entrega: "Fecha estimada de entrega",
+        estatus_proveedor: "Estatus del proveedor", fecha_entrega_proveedor: "Fecha de entrega"
+      };
+      return etiquetas[campo] || String(campo || "").replace(/_/g, " ").replace(/\b\w/g, function (letra) { return letra.toUpperCase(); });
+    }
+
+    function valorHistorial(valor) {
+      if (valor === null || valor === undefined || valor === "") return "Sin valor";
+      if (typeof valor === "boolean") return valor ? "Sí" : "No";
+      if (typeof valor === "object") return JSON.stringify(valor);
+      return String(valor);
+    }
+
+    function crearListaCambiosHistorial(cambios, claseMovimiento) {
+      const lista = document.createElement("div");
+      lista.className = "historial-changes";
+      cambios.forEach(function (cambio) {
+        const fila = document.createElement("div");
+        fila.className = "historial-change";
+        const etiqueta = document.createElement("span");
+        etiqueta.className = "historial-change-label";
+        etiqueta.textContent = etiquetaCampoHistorial(cambio.campo);
+        const valores = document.createElement("div");
+        valores.className = "historial-change-values";
+        if (claseMovimiento === "changed") {
+          const anterior = document.createElement("span");
+          anterior.className = "historial-old";
+          anterior.textContent = valorHistorial(cambio.antes);
+          const flecha = document.createElement("span");
+          flecha.className = "historial-arrow";
+          flecha.textContent = "→";
+          valores.append(anterior, flecha);
+        }
+        const nuevo = document.createElement("span");
+        nuevo.className = "historial-new";
+        nuevo.textContent = valorHistorial(cambio.despues);
+        valores.appendChild(nuevo);
+        fila.append(etiqueta, valores);
+        lista.appendChild(fila);
+      });
+      return lista;
+    }
+
+    function cerrarHistorialVale() {
+      const modal = document.getElementById("modalHistorialVale");
+      consultaHistorialVale++;
+      modal?.classList.remove("show");
+      modal?.setAttribute("aria-hidden", "true");
+      focoHistorialVale?.focus();
+    }
+
+    document.getElementById("modalHistorialVale")?.addEventListener("click", function (event) {
+      if (event.target === this) cerrarHistorialVale();
+    });
+
+    document.addEventListener("keydown", function (event) {
+      if (event.key === "Escape" && document.getElementById("modalHistorialVale")?.classList.contains("show")) {
+        cerrarHistorialVale();
+      }
+    });
+
 
     function puedeSolventarVale() {
       const rol = String(obtenerUsuarioVale()?.rol || "").trim().toLowerCase();
