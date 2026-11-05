@@ -1,0 +1,1602 @@
+[
+  {
+    "id": "01bfba9b-37be-44ce-ae78-24efa4aea955",
+    "folio": "COT-2026-0668",
+    "unidad": "STOCK",
+    "cambios": {
+      "dependencia": "11-Dirección General de Servicios Públicos Municipales",
+      "partida": "29801"
+    },
+    "motivo": "Completar campos vacíos: clasificación identificada; en ausencia de evidencia, regla general 11 / 29801.",
+    "reglaGeneral": true
+  },
+  {
+    "id": "0242b91f-2ec4-4e75-b86f-555d319527cc",
+    "folio": "COT-2026-0652",
+    "unidad": "STOCK",
+    "cambios": {
+      "dependencia": "11-Dirección General de Servicios Públicos Municipales"
+    },
+    "motivo": "Completar campos vacíos: clasificación identificada; en ausencia de evidencia, regla general 11 / 29801.",
+    "reglaGeneral": true
+  },
+  {
+    "id": "03d75549-151f-438a-b6fd-ae1de3c52a35",
+    "folio": "COT-2026-0650",
+    "unidad": "STOCK",
+    "cambios": {
+      "dependencia": "11-Dirección General de Servicios Públicos Municipales",
+      "partida": "29801"
+    },
+    "motivo": "Completar campos vacíos: clasificación identificada; en ausencia de evidencia, regla general 11 / 29801.",
+    "reglaGeneral": true
+  },
+  {
+    "id": "04c38f7e-54ec-4d0c-9f5c-2c718235379f",
+    "folio": "COT-2026-0517",
+    "unidad": "0",
+    "cambios": {
+      "partida": "29801"
+    },
+    "motivo": "Completar campos vacíos: clasificación identificada; en ausencia de evidencia, regla general 11 / 29801.",
+    "reglaGeneral": true
+  },
+  {
+    "id": "09c86bf4-924d-4efa-b36e-d716abe490ef",
+    "folio": "COT-2026-0590",
+    "unidad": "0",
+    "cambios": {
+      "partida": "29601"
+    },
+    "motivo": "Completar campos vacíos: clasificación identificada; en ausencia de evidencia, regla general 11 / 29801.",
+    "reglaGeneral": true
+  },
+  {
+    "id": "0ad43f9e-1c55-4fec-864f-4074fd2639da",
+    "folio": "COT-2026-0607",
+    "unidad": "STOCK",
+    "cambios": {
+      "dependencia": "11-Dirección General de Servicios Públicos Municipales"
+    },
+    "motivo": "Completar campos vacíos: clasificación identificada; en ausencia de evidencia, regla general 11 / 29801.",
+    "reglaGeneral": true
+  },
+  {
+    "id": "0c192182-312b-40da-8f08-8d34317e9f43",
+    "folio": "COT-2026-0621",
+    "unidad": "0",
+    "cambios": {
+      "dependencia": "11-Dirección General de Servicios Públicos Municipales",
+      "partida": "29801"
+    },
+    "motivo": "Completar campos vacíos: clasificación identificada; en ausencia de evidencia, regla general 11 / 29801.",
+    "reglaGeneral": true
+  },
+  {
+    "id": "0c73c37e-2d55-403d-9897-0c53bc7e5528",
+    "folio": "COT-2026-0386",
+    "unidad": "STOCK",
+    "cambios": {
+      "partida": "29801"
+    },
+    "motivo": "Completar campos vacíos: clasificación identificada; en ausencia de evidencia, regla general 11 / 29801.",
+    "reglaGeneral": true
+  },
+  {
+    "id": "0ee4d955-5fea-4ef2-aa48-08c3d93636a1",
+    "folio": "COT-2026-0438",
+    "unidad": "STOCK",
+    "cambios": {
+      "partida": "29801"
+    },
+    "motivo": "Completar campos vacíos: clasificación identificada; en ausencia de evidencia, regla general 11 / 29801.",
+    "reglaGeneral": true
+  },
+  {
+    "id": "101c210b-37ab-4937-ae7a-41cdfd903c6a",
+    "folio": "COT-2026-0670",
+    "unidad": "STOCK",
+    "cambios": {
+      "dependencia": "11-Dirección General de Servicios Públicos Municipales",
+      "partida": "29801"
+    },
+    "motivo": "Completar campos vacíos: clasificación identificada; en ausencia de evidencia, regla general 11 / 29801.",
+    "reglaGeneral": true
+  },
+  {
+    "id": "10f1b9e3-c6c7-425c-86ce-6789327db8e4",
+    "folio": "COT-2026-0544",
+    "unidad": "STOCK",
+    "cambios": {
+      "dependencia": "11-Dirección General de Servicios Públicos Municipales"
+    },
+    "motivo": "Completar campos vacíos: clasificación identificada; en ausencia de evidencia, regla general 11 / 29801.",
+    "reglaGeneral": true
+  },
+  {
+    "id": "11f74730-3262-4085-8ffd-481bc53d04b1",
+    "folio": "COT-2026-0543",
+    "unidad": "STOCK",
+    "cambios": {
+      "dependencia": "11-Dirección General de Servicios Públicos Municipales"
+    },
+    "motivo": "Completar campos vacíos: clasificación identificada; en ausencia de evidencia, regla general 11 / 29801.",
+    "reglaGeneral": true
+  },
+  {
+    "id": "12266057-3054-40f7-a7a8-c5327d4fe0e1",
+    "folio": "COT-2026-0653",
+    "unidad": "0",
+    "cambios": {
+      "dependencia": "11-Dirección General de Servicios Públicos Municipales",
+      "partida": "29801"
+    },
+    "motivo": "Completar campos vacíos: clasificación identificada; en ausencia de evidencia, regla general 11 / 29801.",
+    "reglaGeneral": true
+  },
+  {
+    "id": "1e1059b4-6806-45fd-8221-a97b996083f6",
+    "folio": "COT-2026-0476",
+    "unidad": "0",
+    "cambios": {
+      "dependencia": "11-Dirección General de Servicios Públicos Municipales",
+      "partida": "29801"
+    },
+    "motivo": "Completar campos vacíos: clasificación identificada; en ausencia de evidencia, regla general 11 / 29801.",
+    "reglaGeneral": true
+  },
+  {
+    "id": "1ffb0916-fb33-4d70-be6c-41014649af63",
+    "folio": "COT-2026-0424",
+    "unidad": "STOCK",
+    "cambios": {
+      "partida": "29801"
+    },
+    "motivo": "Completar campos vacíos: clasificación identificada; en ausencia de evidencia, regla general 11 / 29801.",
+    "reglaGeneral": true
+  },
+  {
+    "id": "23ca327e-2056-472f-b71d-aa71d828ae08",
+    "folio": "COT-2026-0633",
+    "unidad": "STOCK",
+    "cambios": {
+      "dependencia": "11-Dirección General de Servicios Públicos Municipales",
+      "partida": "29801"
+    },
+    "motivo": "Completar campos vacíos: clasificación identificada; en ausencia de evidencia, regla general 11 / 29801.",
+    "reglaGeneral": true
+  },
+  {
+    "id": "2577bb1e-0437-4a3d-ba2c-5f2ca0c2a2a2",
+    "folio": "COT-2026-0511",
+    "unidad": "STOCK",
+    "cambios": {
+      "partida": "29601"
+    },
+    "motivo": "Completar campos vacíos: clasificación identificada; en ausencia de evidencia, regla general 11 / 29801.",
+    "reglaGeneral": true
+  },
+  {
+    "id": "26f2a9be-aed4-4dba-a6c0-5967efecc2e1",
+    "folio": "COT-2026-0425",
+    "unidad": "STOCK",
+    "cambios": {
+      "partida": "29801"
+    },
+    "motivo": "Completar campos vacíos: clasificación identificada; en ausencia de evidencia, regla general 11 / 29801.",
+    "reglaGeneral": true
+  },
+  {
+    "id": "2d77e26e-8f6b-4ff8-b485-045fd605972a",
+    "folio": "COT-2026-0388",
+    "unidad": "STOCK",
+    "cambios": {
+      "partida": "29801"
+    },
+    "motivo": "Completar campos vacíos: clasificación identificada; en ausencia de evidencia, regla general 11 / 29801.",
+    "reglaGeneral": true
+  },
+  {
+    "id": "2f2172e0-2dba-46ce-a624-47e89f888698",
+    "folio": "COT-2026-0481",
+    "unidad": "0",
+    "cambios": {
+      "partida": "29801"
+    },
+    "motivo": "Completar campos vacíos: clasificación identificada; en ausencia de evidencia, regla general 11 / 29801.",
+    "reglaGeneral": true
+  },
+  {
+    "id": "304a0e80-6236-4be3-b84c-4cc3ce41041f",
+    "folio": "COT-2026-0632",
+    "unidad": "STOCK",
+    "cambios": {
+      "dependencia": "11-Dirección General de Servicios Públicos Municipales",
+      "partida": "29801"
+    },
+    "motivo": "Completar campos vacíos: clasificación identificada; en ausencia de evidencia, regla general 11 / 29801.",
+    "reglaGeneral": true
+  },
+  {
+    "id": "3365c264-05a0-46dd-8216-402f4b357101",
+    "folio": "COT-2026-0663",
+    "unidad": "STOCK",
+    "cambios": {
+      "dependencia": "11-Dirección General de Servicios Públicos Municipales",
+      "partida": "29801"
+    },
+    "motivo": "Completar campos vacíos: clasificación identificada; en ausencia de evidencia, regla general 11 / 29801.",
+    "reglaGeneral": true
+  },
+  {
+    "id": "360a42e1-2eff-4da7-9c80-7aebf53b10a3",
+    "folio": "COT-2026-0423",
+    "unidad": "STOCK",
+    "cambios": {
+      "partida": "29801"
+    },
+    "motivo": "Completar campos vacíos: clasificación identificada; en ausencia de evidencia, regla general 11 / 29801.",
+    "reglaGeneral": true
+  },
+  {
+    "id": "379c5aaa-aa01-4314-a9e0-d590c2ebe5ea",
+    "folio": "COT-2026-0638",
+    "unidad": "0",
+    "cambios": {
+      "dependencia": "11-Dirección General de Servicios Públicos Municipales",
+      "partida": "29801"
+    },
+    "motivo": "Completar campos vacíos: clasificación identificada; en ausencia de evidencia, regla general 11 / 29801.",
+    "reglaGeneral": true
+  },
+  {
+    "id": "3ae8de4b-e31a-42c1-80fc-2b44a99f6db8",
+    "folio": "COT-2026-0667",
+    "unidad": "STOCK",
+    "cambios": {
+      "dependencia": "11-Dirección General de Servicios Públicos Municipales",
+      "partida": "29801"
+    },
+    "motivo": "Completar campos vacíos: clasificación identificada; en ausencia de evidencia, regla general 11 / 29801.",
+    "reglaGeneral": true
+  },
+  {
+    "id": "3b6e0f53-d708-4387-b761-aad020370b8a",
+    "folio": "COT-2026-0685",
+    "unidad": "0",
+    "cambios": {
+      "dependencia": "11-Dirección General de Servicios Públicos Municipales",
+      "partida": "29801"
+    },
+    "motivo": "Completar campos vacíos: clasificación identificada; en ausencia de evidencia, regla general 11 / 29801.",
+    "reglaGeneral": true
+  },
+  {
+    "id": "3c2be06a-38b8-4259-91f8-79b2e5591c84",
+    "folio": "COT-2026-0561",
+    "unidad": "STOCK",
+    "cambios": {
+      "dependencia": "11-Dirección General de Servicios Públicos Municipales",
+      "partida": "29801"
+    },
+    "motivo": "Completar campos vacíos: clasificación identificada; en ausencia de evidencia, regla general 11 / 29801.",
+    "reglaGeneral": true
+  },
+  {
+    "id": "3c755fb6-f73f-4bc9-87fe-dfc106b2bd11",
+    "folio": "COT-2026-0696",
+    "unidad": "0",
+    "cambios": {
+      "dependencia": "11-Dirección General de Servicios Públicos Municipales",
+      "partida": "29801"
+    },
+    "motivo": "Completar campos vacíos: clasificación identificada; en ausencia de evidencia, regla general 11 / 29801.",
+    "reglaGeneral": true
+  },
+  {
+    "id": "3cffaa41-b069-4c74-8b30-92334a681e85",
+    "folio": "COT-2026-0519",
+    "unidad": "0",
+    "cambios": {
+      "partida": "29801"
+    },
+    "motivo": "Completar campos vacíos: clasificación identificada; en ausencia de evidencia, regla general 11 / 29801.",
+    "reglaGeneral": true
+  },
+  {
+    "id": "3e473344-b678-47d1-b4e9-d6b4652c13a9",
+    "folio": "COT-2026-0692",
+    "unidad": "STOCK",
+    "cambios": {
+      "dependencia": "11-Dirección General de Servicios Públicos Municipales",
+      "partida": "29801"
+    },
+    "motivo": "Completar campos vacíos: clasificación identificada; en ausencia de evidencia, regla general 11 / 29801.",
+    "reglaGeneral": true
+  },
+  {
+    "id": "406ab4ce-d991-4252-bec0-fdfd694140ae",
+    "folio": "COT-2026-0697",
+    "unidad": "STOCK",
+    "cambios": {
+      "dependencia": "11-Dirección General de Servicios Públicos Municipales"
+    },
+    "motivo": "Completar campos vacíos: clasificación identificada; en ausencia de evidencia, regla general 11 / 29801.",
+    "reglaGeneral": true
+  },
+  {
+    "id": "4312ca05-b6f6-4a90-bcd9-90ea0dc204d8",
+    "folio": "COT-2026-0644",
+    "unidad": "0",
+    "cambios": {
+      "dependencia": "11-Dirección General de Servicios Públicos Municipales",
+      "partida": "29801"
+    },
+    "motivo": "Completar campos vacíos: clasificación identificada; en ausencia de evidencia, regla general 11 / 29801.",
+    "reglaGeneral": true
+  },
+  {
+    "id": "434563c4-6692-4910-895b-7b3ef8a22490",
+    "folio": "COT-2026-0448",
+    "unidad": "STOCK",
+    "cambios": {
+      "partida": "29601"
+    },
+    "motivo": "Completar campos vacíos: clasificación identificada; en ausencia de evidencia, regla general 11 / 29801.",
+    "reglaGeneral": true
+  },
+  {
+    "id": "434de5b3-09fe-411d-a1f3-2a30af176edf",
+    "folio": "COT-2026-0623",
+    "unidad": "STOCK",
+    "cambios": {
+      "dependencia": "11-Dirección General de Servicios Públicos Municipales",
+      "partida": "29801"
+    },
+    "motivo": "Completar campos vacíos: clasificación identificada; en ausencia de evidencia, regla general 11 / 29801.",
+    "reglaGeneral": true
+  },
+  {
+    "id": "4652dbba-ec79-476d-96c7-3cf0ad19a544",
+    "folio": "COT-2026-0437",
+    "unidad": "STOCK",
+    "cambios": {
+      "partida": "29801"
+    },
+    "motivo": "Completar campos vacíos: clasificación identificada; en ausencia de evidencia, regla general 11 / 29801.",
+    "reglaGeneral": true
+  },
+  {
+    "id": "479c90f9-91f0-4362-be4d-c3ae43cc404c",
+    "folio": "COT-2026-0557",
+    "unidad": "STOCK",
+    "cambios": {
+      "dependencia": "11-Dirección General de Servicios Públicos Municipales",
+      "partida": "29801"
+    },
+    "motivo": "Completar campos vacíos: clasificación identificada; en ausencia de evidencia, regla general 11 / 29801.",
+    "reglaGeneral": true
+  },
+  {
+    "id": "486cf837-8b9d-48cf-9ee0-e7387a23eb2a",
+    "folio": "COT-2026-0524",
+    "unidad": "0",
+    "cambios": {
+      "partida": "29601"
+    },
+    "motivo": "Completar campos vacíos: clasificación identificada; en ausencia de evidencia, regla general 11 / 29801.",
+    "reglaGeneral": true
+  },
+  {
+    "id": "48aa2262-ee25-4ef5-9107-27a0c7d77e5e",
+    "folio": "COT-2026-0675",
+    "unidad": "0",
+    "cambios": {
+      "dependencia": "11-Dirección General de Servicios Públicos Municipales",
+      "partida": "29801"
+    },
+    "motivo": "Completar campos vacíos: clasificación identificada; en ausencia de evidencia, regla general 11 / 29801.",
+    "reglaGeneral": true
+  },
+  {
+    "id": "497c30c0-2f79-411b-b9a8-a89ce1db6c2e",
+    "folio": "COT-2026-0422",
+    "unidad": "STOCK",
+    "cambios": {
+      "partida": "29801"
+    },
+    "motivo": "Completar campos vacíos: clasificación identificada; en ausencia de evidencia, regla general 11 / 29801.",
+    "reglaGeneral": true
+  },
+  {
+    "id": "4cfa8a4d-8e5d-4a2f-8896-86427c739505",
+    "folio": "COT-2026-0666",
+    "unidad": "STOCK",
+    "cambios": {
+      "dependencia": "11-Dirección General de Servicios Públicos Municipales",
+      "partida": "29801"
+    },
+    "motivo": "Completar campos vacíos: clasificación identificada; en ausencia de evidencia, regla general 11 / 29801.",
+    "reglaGeneral": true
+  },
+  {
+    "id": "4f061969-ebc2-4fb0-86bf-338712740fdb",
+    "folio": "COT-2026-0502",
+    "unidad": "STOCK",
+    "cambios": {
+      "partida": "29601"
+    },
+    "motivo": "Completar campos vacíos: clasificación identificada; en ausencia de evidencia, regla general 11 / 29801.",
+    "reglaGeneral": true
+  },
+  {
+    "id": "5041b839-2c8f-4b4d-a5a7-8ab561f1abb9",
+    "folio": "COT-2026-0605",
+    "unidad": "STOCK",
+    "cambios": {
+      "dependencia": "11-Dirección General de Servicios Públicos Municipales",
+      "partida": "29801"
+    },
+    "motivo": "Completar campos vacíos: clasificación identificada; en ausencia de evidencia, regla general 11 / 29801.",
+    "reglaGeneral": true
+  },
+  {
+    "id": "5105c008-d545-4001-83a2-b6b4cae9fd8f",
+    "folio": "COT-2026-0699",
+    "unidad": "STOCK",
+    "cambios": {
+      "dependencia": "11-Dirección General de Servicios Públicos Municipales",
+      "partida": "29801"
+    },
+    "motivo": "Completar campos vacíos: clasificación identificada; en ausencia de evidencia, regla general 11 / 29801.",
+    "reglaGeneral": true
+  },
+  {
+    "id": "51d2ce0b-09c1-48f4-be50-72440426eea5",
+    "folio": "COT-2026-0512",
+    "unidad": "0",
+    "cambios": {
+      "dependencia": "11-Dirección General de Servicios Públicos Municipales",
+      "partida": "29801"
+    },
+    "motivo": "Completar campos vacíos: clasificación identificada; en ausencia de evidencia, regla general 11 / 29801.",
+    "reglaGeneral": true
+  },
+  {
+    "id": "5226f084-0ae1-40b4-bf7f-dc8dd1ded056",
+    "folio": "COT-2026-0609",
+    "unidad": "STOCK",
+    "cambios": {
+      "dependencia": "11-Dirección General de Servicios Públicos Municipales"
+    },
+    "motivo": "Completar campos vacíos: clasificación identificada; en ausencia de evidencia, regla general 11 / 29801.",
+    "reglaGeneral": true
+  },
+  {
+    "id": "526a4dda-9f40-411d-b950-68d8048eb03b",
+    "folio": "COT-2026-0701",
+    "unidad": "0",
+    "cambios": {
+      "dependencia": "11-Dirección General de Servicios Públicos Municipales",
+      "partida": "29801"
+    },
+    "motivo": "Completar campos vacíos: clasificación identificada; en ausencia de evidencia, regla general 11 / 29801.",
+    "reglaGeneral": true
+  },
+  {
+    "id": "52c3f5f3-f669-40de-82eb-43e0f0e77452",
+    "folio": "COT-2026-0435",
+    "unidad": "STOCK",
+    "cambios": {
+      "partida": "29801"
+    },
+    "motivo": "Completar campos vacíos: clasificación identificada; en ausencia de evidencia, regla general 11 / 29801.",
+    "reglaGeneral": true
+  },
+  {
+    "id": "55c75658-b891-41c0-964e-a03b7c66ff1e",
+    "folio": "COT-2026-0654",
+    "unidad": "STOCK",
+    "cambios": {
+      "dependencia": "11-Dirección General de Servicios Públicos Municipales",
+      "partida": "29801"
+    },
+    "motivo": "Completar campos vacíos: clasificación identificada; en ausencia de evidencia, regla general 11 / 29801.",
+    "reglaGeneral": true
+  },
+  {
+    "id": "55f72c47-5fa4-401f-b344-8cd0b4d222c9",
+    "folio": "COT-2026-0536",
+    "unidad": "0",
+    "cambios": {
+      "partida": "29801"
+    },
+    "motivo": "Completar campos vacíos: clasificación identificada; en ausencia de evidencia, regla general 11 / 29801.",
+    "reglaGeneral": true
+  },
+  {
+    "id": "56b4cbdb-0a40-4e5c-9692-58f384381b1e",
+    "folio": "COT-2026-0612",
+    "unidad": "STOCK",
+    "cambios": {
+      "dependencia": "11-Dirección General de Servicios Públicos Municipales",
+      "partida": "29801"
+    },
+    "motivo": "Completar campos vacíos: clasificación identificada; en ausencia de evidencia, regla general 11 / 29801.",
+    "reglaGeneral": true
+  },
+  {
+    "id": "5830ba2b-ebc6-476a-a9a3-c3ad2445d54e",
+    "folio": "COT-2026-0433",
+    "unidad": "STOCK",
+    "cambios": {
+      "partida": "29801"
+    },
+    "motivo": "Completar campos vacíos: clasificación identificada; en ausencia de evidencia, regla general 11 / 29801.",
+    "reglaGeneral": true
+  },
+  {
+    "id": "58484906-9212-4748-b1be-c6eab79ba312",
+    "folio": "COT-2026-0487",
+    "unidad": "STOCK",
+    "cambios": {
+      "partida": "29801"
+    },
+    "motivo": "Completar campos vacíos: clasificación identificada; en ausencia de evidencia, regla general 11 / 29801.",
+    "reglaGeneral": true
+  },
+  {
+    "id": "5c7a1dba-b9c3-42db-8b25-0079fc7e3119",
+    "folio": "COT-2026-0671",
+    "unidad": "STOCK",
+    "cambios": {
+      "dependencia": "11-Dirección General de Servicios Públicos Municipales",
+      "partida": "29801"
+    },
+    "motivo": "Completar campos vacíos: clasificación identificada; en ausencia de evidencia, regla general 11 / 29801.",
+    "reglaGeneral": true
+  },
+  {
+    "id": "5d54157e-7888-4858-ad66-5d27e131a517",
+    "folio": "COT-2026-0478",
+    "unidad": "0",
+    "cambios": {
+      "partida": "29801"
+    },
+    "motivo": "Completar campos vacíos: clasificación identificada; en ausencia de evidencia, regla general 11 / 29801.",
+    "reglaGeneral": true
+  },
+  {
+    "id": "5e69d942-56c3-4902-b148-19a87a41a0bf",
+    "folio": "COT-2026-0518",
+    "unidad": "STOCK",
+    "cambios": {
+      "partida": "29801"
+    },
+    "motivo": "Completar campos vacíos: clasificación identificada; en ausencia de evidencia, regla general 11 / 29801.",
+    "reglaGeneral": true
+  },
+  {
+    "id": "60593298-4f78-4e85-bfae-6e464efd1c3e",
+    "folio": "COT-2026-0588",
+    "unidad": "0",
+    "cambios": {
+      "partida": "29801"
+    },
+    "motivo": "Completar campos vacíos: clasificación identificada; en ausencia de evidencia, regla general 11 / 29801.",
+    "reglaGeneral": true
+  },
+  {
+    "id": "64fd0e53-30f7-41e9-bc05-5b3f4627fb4f",
+    "folio": "COT-2026-0482",
+    "unidad": "0",
+    "cambios": {
+      "dependencia": "11-Dirección General de Servicios Públicos Municipales",
+      "partida": "29801"
+    },
+    "motivo": "Completar campos vacíos: clasificación identificada; en ausencia de evidencia, regla general 11 / 29801.",
+    "reglaGeneral": true
+  },
+  {
+    "id": "65f7477e-c179-425a-96da-cd0d4e6a5476",
+    "folio": "COT-2026-0582",
+    "unidad": "0",
+    "cambios": {
+      "partida": "29801"
+    },
+    "motivo": "Completar campos vacíos: clasificación identificada; en ausencia de evidencia, regla general 11 / 29801.",
+    "reglaGeneral": true
+  },
+  {
+    "id": "66159cb9-f8e7-496d-aa68-57fdf3d0f566",
+    "folio": "COT-2026-0698",
+    "unidad": "STOCK",
+    "cambios": {
+      "dependencia": "11-Dirección General de Servicios Públicos Municipales",
+      "partida": "29801"
+    },
+    "motivo": "Completar campos vacíos: clasificación identificada; en ausencia de evidencia, regla general 11 / 29801.",
+    "reglaGeneral": true
+  },
+  {
+    "id": "69532ec0-eba8-4ca1-a297-2693b7c418bf",
+    "folio": "COT-2026-0537",
+    "unidad": "0",
+    "cambios": {
+      "dependencia": "11-Dirección General de Servicios Públicos Municipales",
+      "partida": "29801"
+    },
+    "motivo": "Completar campos vacíos: clasificación identificada; en ausencia de evidencia, regla general 11 / 29801.",
+    "reglaGeneral": true
+  },
+  {
+    "id": "6adf3524-b2cc-4220-aca5-4c406ad38c82",
+    "folio": "COT-2026-0603",
+    "unidad": "STOCK",
+    "cambios": {
+      "dependencia": "11-Dirección General de Servicios Públicos Municipales",
+      "partida": "29801"
+    },
+    "motivo": "Completar campos vacíos: clasificación identificada; en ausencia de evidencia, regla general 11 / 29801.",
+    "reglaGeneral": true
+  },
+  {
+    "id": "6c6f77a8-b11c-4f91-970c-52fe19cb01aa",
+    "folio": "COT-2026-0585",
+    "unidad": "0",
+    "cambios": {
+      "partida": "29801"
+    },
+    "motivo": "Completar campos vacíos: clasificación identificada; en ausencia de evidencia, regla general 11 / 29801.",
+    "reglaGeneral": true
+  },
+  {
+    "id": "6c9a45a1-8310-439b-b471-72e84455a16b",
+    "folio": "COT-2026-0637",
+    "unidad": "0",
+    "cambios": {
+      "dependencia": "11-Dirección General de Servicios Públicos Municipales",
+      "partida": "29801"
+    },
+    "motivo": "Completar campos vacíos: clasificación identificada; en ausencia de evidencia, regla general 11 / 29801.",
+    "reglaGeneral": true
+  },
+  {
+    "id": "6cf6b03a-26db-4efb-9147-c6a760eb3553",
+    "folio": "COT-2026-0657",
+    "unidad": "0",
+    "cambios": {
+      "dependencia": "11-Dirección General de Servicios Públicos Municipales",
+      "partida": "29801"
+    },
+    "motivo": "Completar campos vacíos: clasificación identificada; en ausencia de evidencia, regla general 11 / 29801.",
+    "reglaGeneral": true
+  },
+  {
+    "id": "72a5db95-fadb-4bb5-a1d2-71ef0b8afd0a",
+    "folio": "COT-2026-0555",
+    "unidad": "STOCK",
+    "cambios": {
+      "dependencia": "11-Dirección General de Servicios Públicos Municipales",
+      "partida": "29801"
+    },
+    "motivo": "Completar campos vacíos: clasificación identificada; en ausencia de evidencia, regla general 11 / 29801.",
+    "reglaGeneral": true
+  },
+  {
+    "id": "765f06d3-7c93-427c-a874-f9724d9a03b7",
+    "folio": "COT-2026-0501",
+    "unidad": "STOCK",
+    "cambios": {
+      "partida": "29801"
+    },
+    "motivo": "Completar campos vacíos: clasificación identificada; en ausencia de evidencia, regla general 11 / 29801.",
+    "reglaGeneral": true
+  },
+  {
+    "id": "76e2349a-a914-4ac7-8a39-7d15adb1f970",
+    "folio": "COT-2026-0480",
+    "unidad": "0",
+    "cambios": {
+      "partida": "29801"
+    },
+    "motivo": "Completar campos vacíos: clasificación identificada; en ausencia de evidencia, regla general 11 / 29801.",
+    "reglaGeneral": true
+  },
+  {
+    "id": "772e092f-4d6a-4d3a-bf98-04b7fb965159",
+    "folio": "COT-2026-0384",
+    "unidad": "STOCK",
+    "cambios": {
+      "dependencia": "11-Dirección General de Servicios Públicos Municipales",
+      "partida": "29801"
+    },
+    "motivo": "Completar campos vacíos: clasificación identificada; en ausencia de evidencia, regla general 11 / 29801.",
+    "reglaGeneral": true
+  },
+  {
+    "id": "79ea452b-120e-4e2f-a66f-1c2c7caf66ef",
+    "folio": "COT-2026-0556",
+    "unidad": "STOCK",
+    "cambios": {
+      "dependencia": "11-Dirección General de Servicios Públicos Municipales",
+      "partida": "29801"
+    },
+    "motivo": "Completar campos vacíos: clasificación identificada; en ausencia de evidencia, regla general 11 / 29801.",
+    "reglaGeneral": true
+  },
+  {
+    "id": "7b6042aa-6751-42a3-8775-1b1129c36559",
+    "folio": "COT-2026-0639",
+    "unidad": "0",
+    "cambios": {
+      "dependencia": "11-Dirección General de Servicios Públicos Municipales",
+      "partida": "29801"
+    },
+    "motivo": "Completar campos vacíos: clasificación identificada; en ausencia de evidencia, regla general 11 / 29801.",
+    "reglaGeneral": true
+  },
+  {
+    "id": "7bff001b-5bb3-431e-8077-f625c3f3a15a",
+    "folio": "COT-2026-0636",
+    "unidad": "0",
+    "cambios": {
+      "dependencia": "11-Dirección General de Servicios Públicos Municipales",
+      "partida": "29801"
+    },
+    "motivo": "Completar campos vacíos: clasificación identificada; en ausencia de evidencia, regla general 11 / 29801.",
+    "reglaGeneral": true
+  },
+  {
+    "id": "7c656f4f-5952-46a5-92f7-3f3bfda17464",
+    "folio": "COT-2026-0540",
+    "unidad": "STOCK",
+    "cambios": {
+      "dependencia": "11-Dirección General de Servicios Públicos Municipales",
+      "partida": "29801"
+    },
+    "motivo": "Completar campos vacíos: clasificación identificada; en ausencia de evidencia, regla general 11 / 29801.",
+    "reglaGeneral": true
+  },
+  {
+    "id": "7cfd36d2-2f27-4e52-9bf1-4ff1aaafaea2",
+    "folio": "COT-2026-0432",
+    "unidad": "STOCK",
+    "cambios": {
+      "partida": "29801"
+    },
+    "motivo": "Completar campos vacíos: clasificación identificada; en ausencia de evidencia, regla general 11 / 29801.",
+    "reglaGeneral": true
+  },
+  {
+    "id": "7d250c4b-b829-4ff5-9fb7-7923d158bb15",
+    "folio": "COT-2026-0479",
+    "unidad": "0",
+    "cambios": {
+      "partida": "29801"
+    },
+    "motivo": "Completar campos vacíos: clasificación identificada; en ausencia de evidencia, regla general 11 / 29801.",
+    "reglaGeneral": true
+  },
+  {
+    "id": "7ede78ed-eb10-49f7-9147-5196cfa245df",
+    "folio": "COT-2026-0390",
+    "unidad": "STOCK",
+    "cambios": {
+      "partida": "29801"
+    },
+    "motivo": "Completar campos vacíos: clasificación identificada; en ausencia de evidencia, regla general 11 / 29801.",
+    "reglaGeneral": true
+  },
+  {
+    "id": "8060488b-d42d-4082-a558-9a6dc0835faa",
+    "folio": "COT-2026-0401",
+    "unidad": "STOCK",
+    "cambios": {
+      "dependencia": "11-Dirección General de Servicios Públicos Municipales"
+    },
+    "motivo": "Completar campos vacíos: clasificación identificada; en ausencia de evidencia, regla general 11 / 29801.",
+    "reglaGeneral": true
+  },
+  {
+    "id": "80f8cd92-e413-4a8f-b29b-fec8d25ad305",
+    "folio": "COT-2026-0573",
+    "unidad": "210200303477",
+    "cambios": {
+      "partida": "29801"
+    },
+    "motivo": "Completar campos vacíos: clasificación identificada; en ausencia de evidencia, regla general 11 / 29801.",
+    "reglaGeneral": true
+  },
+  {
+    "id": "85f9b704-daae-4d51-a0bd-14b2c2684962",
+    "folio": "COT-2026-0649",
+    "unidad": "0",
+    "cambios": {
+      "dependencia": "11-Dirección General de Servicios Públicos Municipales",
+      "partida": "29801"
+    },
+    "motivo": "Completar campos vacíos: clasificación identificada; en ausencia de evidencia, regla general 11 / 29801.",
+    "reglaGeneral": true
+  },
+  {
+    "id": "86a52118-a5d6-437f-af9f-d077eb770b18",
+    "folio": "COT-2026-0656",
+    "unidad": "STOCK",
+    "cambios": {
+      "dependencia": "11-Dirección General de Servicios Públicos Municipales",
+      "partida": "29801"
+    },
+    "motivo": "Completar campos vacíos: clasificación identificada; en ausencia de evidencia, regla general 11 / 29801.",
+    "reglaGeneral": true
+  },
+  {
+    "id": "870bfe84-be00-4f80-9ce0-84120b22cc1d",
+    "folio": "COT-2026-0434",
+    "unidad": "STOCK",
+    "cambios": {
+      "partida": "29801"
+    },
+    "motivo": "Completar campos vacíos: clasificación identificada; en ausencia de evidencia, regla general 11 / 29801.",
+    "reglaGeneral": true
+  },
+  {
+    "id": "87824b47-f922-4fd9-8b00-cc2403c86c76",
+    "folio": "COT-2026-0520",
+    "unidad": "0",
+    "cambios": {
+      "partida": "29801"
+    },
+    "motivo": "Completar campos vacíos: clasificación identificada; en ausencia de evidencia, regla general 11 / 29801.",
+    "reglaGeneral": true
+  },
+  {
+    "id": "88a8899c-5a0b-4492-8534-d84bf5101820",
+    "folio": "COT-2026-0389",
+    "unidad": "STOCK",
+    "cambios": {
+      "partida": "29801"
+    },
+    "motivo": "Completar campos vacíos: clasificación identificada; en ausencia de evidencia, regla general 11 / 29801.",
+    "reglaGeneral": true
+  },
+  {
+    "id": "8a3f07bd-d079-432d-a491-3b680c1bd1ba",
+    "folio": "COT-2026-0651",
+    "unidad": "0",
+    "cambios": {
+      "dependencia": "11-Dirección General de Servicios Públicos Municipales",
+      "partida": "29801"
+    },
+    "motivo": "Completar campos vacíos: clasificación identificada; en ausencia de evidencia, regla general 11 / 29801.",
+    "reglaGeneral": true
+  },
+  {
+    "id": "8c325b5c-be6b-4888-83f3-22e49044c432",
+    "folio": "COT-2026-0505",
+    "unidad": "0",
+    "cambios": {
+      "partida": "29801"
+    },
+    "motivo": "Completar campos vacíos: clasificación identificada; en ausencia de evidencia, regla general 11 / 29801.",
+    "reglaGeneral": true
+  },
+  {
+    "id": "8e60f891-ea0b-4962-a39b-f43fcbc9aa60",
+    "folio": "COT-2026-0592",
+    "unidad": "0",
+    "cambios": {
+      "partida": "29801"
+    },
+    "motivo": "Completar campos vacíos: clasificación identificada; en ausencia de evidencia, regla general 11 / 29801.",
+    "reglaGeneral": true
+  },
+  {
+    "id": "8e612287-dd46-4018-ae5c-381b77111c7b",
+    "folio": "COT-2026-0572",
+    "unidad": "210200303614",
+    "cambios": {
+      "partida": "29801"
+    },
+    "motivo": "Completar campos vacíos: clasificación identificada; en ausencia de evidencia, regla general 11 / 29801.",
+    "reglaGeneral": true
+  },
+  {
+    "id": "91e0e2b3-4d72-4acc-a395-c5cab86d5096",
+    "folio": "COT-2026-0646",
+    "unidad": "210200303113",
+    "cambios": {
+      "partida": "29801"
+    },
+    "motivo": "Completar campos vacíos: clasificación identificada; en ausencia de evidencia, regla general 11 / 29801.",
+    "reglaGeneral": true
+  },
+  {
+    "id": "96eb3d8d-3430-4b86-b704-5c6fd83d77a6",
+    "folio": "COT-2026-0664",
+    "unidad": "0",
+    "cambios": {
+      "dependencia": "11-Dirección General de Servicios Públicos Municipales",
+      "partida": "29801"
+    },
+    "motivo": "Completar campos vacíos: clasificación identificada; en ausencia de evidencia, regla general 11 / 29801.",
+    "reglaGeneral": true
+  },
+  {
+    "id": "97b99284-e1a7-409b-97bc-e8946ac5f3e1",
+    "folio": "COT-2026-0658",
+    "unidad": "STOCK",
+    "cambios": {
+      "dependencia": "11-Dirección General de Servicios Públicos Municipales",
+      "partida": "29801"
+    },
+    "motivo": "Completar campos vacíos: clasificación identificada; en ausencia de evidencia, regla general 11 / 29801.",
+    "reglaGeneral": true
+  },
+  {
+    "id": "9a5b06f8-926f-4cf7-9882-c0cc9dc781a4",
+    "folio": "COT-2026-0527",
+    "unidad": "0",
+    "cambios": {
+      "partida": "29801"
+    },
+    "motivo": "Completar campos vacíos: clasificación identificada; en ausencia de evidencia, regla general 11 / 29801.",
+    "reglaGeneral": true
+  },
+  {
+    "id": "9d13d101-d263-49f4-8aaa-95466d2a28b3",
+    "folio": "COT-2026-0539",
+    "unidad": "STOCK",
+    "cambios": {
+      "dependencia": "11-Dirección General de Servicios Públicos Municipales",
+      "partida": "29801"
+    },
+    "motivo": "Completar campos vacíos: clasificación identificada; en ausencia de evidencia, regla general 11 / 29801.",
+    "reglaGeneral": true
+  },
+  {
+    "id": "9ddf1adf-a452-43de-a2ca-1592391bb83e",
+    "folio": "COT-2026-0446",
+    "unidad": "STOCK",
+    "cambios": {
+      "partida": "29801"
+    },
+    "motivo": "Completar campos vacíos: clasificación identificada; en ausencia de evidencia, regla general 11 / 29801.",
+    "reglaGeneral": true
+  },
+  {
+    "id": "9ea9939f-83df-41ff-a5d3-ed5eea1c3c20",
+    "folio": "COT-2026-0608",
+    "unidad": "STOCK",
+    "cambios": {
+      "dependencia": "11-Dirección General de Servicios Públicos Municipales",
+      "partida": "29801"
+    },
+    "motivo": "Completar campos vacíos: clasificación identificada; en ausencia de evidencia, regla general 11 / 29801.",
+    "reglaGeneral": true
+  },
+  {
+    "id": "a83d58f3-6d4d-4d6c-9576-c5348b476955",
+    "folio": "COT-2026-0598",
+    "unidad": "VH0100004013",
+    "cambios": {
+      "partida": "29801"
+    },
+    "motivo": "Completar campos vacíos: clasificación identificada; en ausencia de evidencia, regla general 11 / 29801.",
+    "reglaGeneral": true
+  },
+  {
+    "id": "a84df0ae-f040-4f09-8c97-51c5a909a562",
+    "folio": "COT-2026-0506",
+    "unidad": "STOCK",
+    "cambios": {
+      "partida": "29801"
+    },
+    "motivo": "Completar campos vacíos: clasificación identificada; en ausencia de evidencia, regla general 11 / 29801.",
+    "reglaGeneral": true
+  },
+  {
+    "id": "a877ec07-b28b-4e5b-ac35-af7ce10a1191",
+    "folio": "COT-2026-0475",
+    "unidad": "0",
+    "cambios": {
+      "partida": "29601"
+    },
+    "motivo": "Completar campos vacíos: clasificación identificada; en ausencia de evidencia, regla general 11 / 29801.",
+    "reglaGeneral": true
+  },
+  {
+    "id": "a9ddf210-c911-4adf-a956-714a0a9650ae",
+    "folio": "COT-2026-0496",
+    "unidad": "STOCK",
+    "cambios": {
+      "partida": "29801"
+    },
+    "motivo": "Completar campos vacíos: clasificación identificada; en ausencia de evidencia, regla general 11 / 29801.",
+    "reglaGeneral": true
+  },
+  {
+    "id": "ac9cbb29-79d8-4aa2-97ec-831397b9f04f",
+    "folio": "COT-2026-0577",
+    "unidad": "STOCK",
+    "cambios": {
+      "dependencia": "11-Dirección General de Servicios Públicos Municipales",
+      "partida": "29801"
+    },
+    "motivo": "Completar campos vacíos: clasificación identificada; en ausencia de evidencia, regla general 11 / 29801.",
+    "reglaGeneral": true
+  },
+  {
+    "id": "ad167fae-afea-4723-9495-ccf73d4d37bf",
+    "folio": "COT-2026-0494",
+    "unidad": "STOCK",
+    "cambios": {
+      "dependencia": "11-Dirección General de Servicios Públicos Municipales",
+      "partida": "29801"
+    },
+    "motivo": "Completar campos vacíos: clasificación identificada; en ausencia de evidencia, regla general 11 / 29801.",
+    "reglaGeneral": true
+  },
+  {
+    "id": "adcb21a1-6b6d-4c8d-8b7d-970675f67918",
+    "folio": "COT-2026-0488",
+    "unidad": "0",
+    "cambios": {
+      "dependencia": "11-Dirección General de Servicios Públicos Municipales",
+      "partida": "29801"
+    },
+    "motivo": "Completar campos vacíos: clasificación identificada; en ausencia de evidencia, regla general 11 / 29801.",
+    "reglaGeneral": true
+  },
+  {
+    "id": "b6c8f589-59e5-4971-996c-624f36819d7a",
+    "folio": "COT-2026-0600",
+    "unidad": "0",
+    "cambios": {
+      "partida": "29801"
+    },
+    "motivo": "Completar campos vacíos: clasificación identificada; en ausencia de evidencia, regla general 11 / 29801.",
+    "reglaGeneral": true
+  },
+  {
+    "id": "ba59ea44-9660-4185-a81e-20074668962e",
+    "folio": "COT-2026-0514",
+    "unidad": "STOCK",
+    "cambios": {
+      "partida": "29801"
+    },
+    "motivo": "Completar campos vacíos: clasificación identificada; en ausencia de evidencia, regla general 11 / 29801.",
+    "reglaGeneral": true
+  },
+  {
+    "id": "bdb66624-5bd6-4bcb-bfec-2afbe119b7fc",
+    "folio": "COT-2026-0672",
+    "unidad": "STOCK",
+    "cambios": {
+      "dependencia": "11-Dirección General de Servicios Públicos Municipales",
+      "partida": "29801"
+    },
+    "motivo": "Completar campos vacíos: clasificación identificada; en ausencia de evidencia, regla general 11 / 29801.",
+    "reglaGeneral": true
+  },
+  {
+    "id": "c20e5af0-316e-43dd-aace-408b2e009597",
+    "folio": "COT-2026-0690",
+    "unidad": "0",
+    "cambios": {
+      "dependencia": "11-Dirección General de Servicios Públicos Municipales",
+      "partida": "29801"
+    },
+    "motivo": "Completar campos vacíos: clasificación identificada; en ausencia de evidencia, regla general 11 / 29801.",
+    "reglaGeneral": true
+  },
+  {
+    "id": "c241d825-e446-41a0-a1e5-0a4afb92cad3",
+    "folio": "COT-2026-0617",
+    "unidad": "STOCK",
+    "cambios": {
+      "dependencia": "11-Dirección General de Servicios Públicos Municipales",
+      "partida": "29801"
+    },
+    "motivo": "Completar campos vacíos: clasificación identificada; en ausencia de evidencia, regla general 11 / 29801.",
+    "reglaGeneral": true
+  },
+  {
+    "id": "c34d75ce-e16b-4d64-b735-a571fa7025b0",
+    "folio": "COT-2026-0655",
+    "unidad": "0",
+    "cambios": {
+      "dependencia": "11-Dirección General de Servicios Públicos Municipales",
+      "partida": "29801"
+    },
+    "motivo": "Completar campos vacíos: clasificación identificada; en ausencia de evidencia, regla general 11 / 29801.",
+    "reglaGeneral": true
+  },
+  {
+    "id": "c4dcaf66-7472-4b7d-8dbc-3ab510b5ded7",
+    "folio": "COT-2026-0525",
+    "unidad": "0",
+    "cambios": {
+      "partida": "29801"
+    },
+    "motivo": "Completar campos vacíos: clasificación identificada; en ausencia de evidencia, regla general 11 / 29801.",
+    "reglaGeneral": true
+  },
+  {
+    "id": "c4e508d3-af8a-4ef1-9916-17ddb3b2659a",
+    "folio": "COT-2026-0385",
+    "unidad": "STOCK",
+    "cambios": {
+      "partida": "29801"
+    },
+    "motivo": "Completar campos vacíos: clasificación identificada; en ausencia de evidencia, regla general 11 / 29801.",
+    "reglaGeneral": true
+  },
+  {
+    "id": "c5806062-9f16-4820-8bdc-5c705333617c",
+    "folio": "COT-2026-0499",
+    "unidad": "STOCK",
+    "cambios": {
+      "partida": "29801"
+    },
+    "motivo": "Completar campos vacíos: clasificación identificada; en ausencia de evidencia, regla general 11 / 29801.",
+    "reglaGeneral": true
+  },
+  {
+    "id": "c58f82b2-7c73-47ed-be94-bce0cdc6d141",
+    "folio": "COT-2026-0387",
+    "unidad": "0",
+    "cambios": {
+      "partida": "29801"
+    },
+    "motivo": "Completar campos vacíos: clasificación identificada; en ausencia de evidencia, regla general 11 / 29801.",
+    "reglaGeneral": true
+  },
+  {
+    "id": "c654e3c6-a884-4116-a72d-7b6f48385a08",
+    "folio": "COT-2026-0635",
+    "unidad": "0",
+    "cambios": {
+      "dependencia": "11-Dirección General de Servicios Públicos Municipales",
+      "partida": "29801"
+    },
+    "motivo": "Completar campos vacíos: clasificación identificada; en ausencia de evidencia, regla general 11 / 29801.",
+    "reglaGeneral": true
+  },
+  {
+    "id": "c81f2ce5-fe1e-4cac-8e3c-adf10c621d66",
+    "folio": "COT-2026-0601",
+    "unidad": "210200303137",
+    "cambios": {
+      "partida": "29801"
+    },
+    "motivo": "Completar campos vacíos: clasificación identificada; en ausencia de evidencia, regla general 11 / 29801.",
+    "reglaGeneral": true
+  },
+  {
+    "id": "c9c12fbb-86ed-4b6c-8b57-c6f8d87f07f7",
+    "folio": "COT-2026-0662",
+    "unidad": "STOCK",
+    "cambios": {
+      "dependencia": "11-Dirección General de Servicios Públicos Municipales"
+    },
+    "motivo": "Completar campos vacíos: clasificación identificada; en ausencia de evidencia, regla general 11 / 29801.",
+    "reglaGeneral": true
+  },
+  {
+    "id": "ca3e63fe-96ad-48ee-b6d6-75a5393e26f3",
+    "folio": "COT-2026-0379",
+    "unidad": "STOCK",
+    "cambios": {
+      "partida": "29801"
+    },
+    "motivo": "Completar campos vacíos: clasificación identificada; en ausencia de evidencia, regla general 11 / 29801.",
+    "reglaGeneral": true
+  },
+  {
+    "id": "d121ab47-614f-4794-bd97-7d4346b50d0e",
+    "folio": "COT-2026-0620",
+    "unidad": "STOCK",
+    "cambios": {
+      "dependencia": "11-Dirección General de Servicios Públicos Municipales"
+    },
+    "motivo": "Completar campos vacíos: clasificación identificada; en ausencia de evidencia, regla general 11 / 29801.",
+    "reglaGeneral": true
+  },
+  {
+    "id": "d2830119-5234-4042-ae48-069a17afee9b",
+    "folio": "COT-2026-0538",
+    "unidad": "0",
+    "cambios": {
+      "partida": "29801"
+    },
+    "motivo": "Completar campos vacíos: clasificación identificada; en ausencia de evidencia, regla general 11 / 29801.",
+    "reglaGeneral": true
+  },
+  {
+    "id": "d3263dac-44f7-400d-8899-c579ba1712b6",
+    "folio": "COT-2026-0659",
+    "unidad": "VH0100004421",
+    "cambios": {
+      "partida": "29801"
+    },
+    "motivo": "Completar campos vacíos: clasificación identificada; en ausencia de evidencia, regla general 11 / 29801.",
+    "reglaGeneral": true
+  },
+  {
+    "id": "d391254d-cfd0-41ff-896d-8ae7f9b94d37",
+    "folio": "COT-2026-0574",
+    "unidad": "0",
+    "cambios": {
+      "dependencia": "11-Dirección General de Servicios Públicos Municipales",
+      "partida": "29801"
+    },
+    "motivo": "Completar campos vacíos: clasificación identificada; en ausencia de evidencia, regla general 11 / 29801.",
+    "reglaGeneral": true
+  },
+  {
+    "id": "d750e558-4528-41aa-8257-85f1fbba51be",
+    "folio": "COT-2026-0619",
+    "unidad": "STOCK",
+    "cambios": {
+      "dependencia": "11-Dirección General de Servicios Públicos Municipales"
+    },
+    "motivo": "Completar campos vacíos: clasificación identificada; en ausencia de evidencia, regla general 11 / 29801.",
+    "reglaGeneral": true
+  },
+  {
+    "id": "d7d36613-40ae-4712-8641-0cd3c765f797",
+    "folio": "COT-2026-0571",
+    "unidad": "0",
+    "cambios": {
+      "dependencia": "11-Dirección General de Servicios Públicos Municipales",
+      "partida": "29801"
+    },
+    "motivo": "Completar campos vacíos: clasificación identificada; en ausencia de evidencia, regla general 11 / 29801.",
+    "reglaGeneral": true
+  },
+  {
+    "id": "d941aca4-0dda-4975-91d1-aadec4197395",
+    "folio": "COT-2026-0602",
+    "unidad": "210200203361",
+    "cambios": {
+      "partida": "29801"
+    },
+    "motivo": "Completar campos vacíos: clasificación identificada; en ausencia de evidencia, regla general 11 / 29801.",
+    "reglaGeneral": true
+  },
+  {
+    "id": "da1113b5-a86c-4f18-b92b-49a91f6f3627",
+    "folio": "COT-2026-0595",
+    "unidad": "0",
+    "cambios": {
+      "partida": "29801"
+    },
+    "motivo": "Completar campos vacíos: clasificación identificada; en ausencia de evidencia, regla general 11 / 29801.",
+    "reglaGeneral": true
+  },
+  {
+    "id": "daed5836-1d6c-4102-a2b2-966f8b5fc4d8",
+    "folio": "COT-2026-0567",
+    "unidad": "STOCK",
+    "cambios": {
+      "dependencia": "11-Dirección General de Servicios Públicos Municipales",
+      "partida": "29801"
+    },
+    "motivo": "Completar campos vacíos: clasificación identificada; en ausencia de evidencia, regla general 11 / 29801.",
+    "reglaGeneral": true
+  },
+  {
+    "id": "db98c972-eca0-4db9-ace6-dde4aa3feeba",
+    "folio": "COT-2026-0665",
+    "unidad": "STOCK",
+    "cambios": {
+      "dependencia": "11-Dirección General de Servicios Públicos Municipales",
+      "partida": "29801"
+    },
+    "motivo": "Completar campos vacíos: clasificación identificada; en ausencia de evidencia, regla general 11 / 29801.",
+    "reglaGeneral": true
+  },
+  {
+    "id": "dbf73cce-3066-4b32-9e5a-543828d13d5b",
+    "folio": "COT-2026-0431",
+    "unidad": "STOCK",
+    "cambios": {
+      "partida": "29801"
+    },
+    "motivo": "Completar campos vacíos: clasificación identificada; en ausencia de evidencia, regla general 11 / 29801.",
+    "reglaGeneral": true
+  },
+  {
+    "id": "dca1660a-d8c1-4bdd-b163-287fa323ea58",
+    "folio": "COT-2026-0642",
+    "unidad": "STOCK",
+    "cambios": {
+      "dependencia": "11-Dirección General de Servicios Públicos Municipales"
+    },
+    "motivo": "Completar campos vacíos: clasificación identificada; en ausencia de evidencia, regla general 11 / 29801.",
+    "reglaGeneral": true
+  },
+  {
+    "id": "dd188093-c643-45f6-9b14-0dd357092d87",
+    "folio": "COT-2026-0596",
+    "unidad": "0",
+    "cambios": {
+      "partida": "29801"
+    },
+    "motivo": "Completar campos vacíos: clasificación identificada; en ausencia de evidencia, regla general 11 / 29801.",
+    "reglaGeneral": true
+  },
+  {
+    "id": "dd404a25-3b2b-40cc-90e7-fb5c624ca8f0",
+    "folio": "COT-2026-0513",
+    "unidad": "STOCK",
+    "cambios": {
+      "partida": "29801"
+    },
+    "motivo": "Completar campos vacíos: clasificación identificada; en ausencia de evidencia, regla general 11 / 29801.",
+    "reglaGeneral": true
+  },
+  {
+    "id": "de6273b7-662a-4d64-8e45-aa11119e4db3",
+    "folio": "COT-2026-0497",
+    "unidad": "STOCK",
+    "cambios": {
+      "dependencia": "11-Dirección General de Servicios Públicos Municipales",
+      "partida": "29801"
+    },
+    "motivo": "Completar campos vacíos: clasificación identificada; en ausencia de evidencia, regla general 11 / 29801.",
+    "reglaGeneral": true
+  },
+  {
+    "id": "df36ad6f-eec2-4dfd-80a8-b439f35b0a55",
+    "folio": "COT-2026-0669",
+    "unidad": "STOCK",
+    "cambios": {
+      "dependencia": "11-Dirección General de Servicios Públicos Municipales",
+      "partida": "29801"
+    },
+    "motivo": "Completar campos vacíos: clasificación identificada; en ausencia de evidencia, regla general 11 / 29801.",
+    "reglaGeneral": true
+  },
+  {
+    "id": "e183fdc2-eb80-488f-bf61-953d073a5b37",
+    "folio": "COT-2026-0680",
+    "unidad": "STOCK",
+    "cambios": {
+      "dependencia": "11-Dirección General de Servicios Públicos Municipales",
+      "partida": "29801"
+    },
+    "motivo": "Completar campos vacíos: clasificación identificada; en ausencia de evidencia, regla general 11 / 29801.",
+    "reglaGeneral": true
+  },
+  {
+    "id": "e2218d36-109c-4fe4-bc11-bbbe2058fd65",
+    "folio": "COT-2026-0508",
+    "unidad": "STOCK",
+    "cambios": {
+      "partida": "29801"
+    },
+    "motivo": "Completar campos vacíos: clasificación identificada; en ausencia de evidencia, regla general 11 / 29801.",
+    "reglaGeneral": true
+  },
+  {
+    "id": "e35fb518-b873-485d-be60-2e3d3eaae2b3",
+    "folio": "COT-2026-0426",
+    "unidad": "STOCK",
+    "cambios": {
+      "partida": "29801"
+    },
+    "motivo": "Completar campos vacíos: clasificación identificada; en ausencia de evidencia, regla general 11 / 29801.",
+    "reglaGeneral": true
+  },
+  {
+    "id": "e3d17f06-2d08-439b-938f-32ca23072e7a",
+    "folio": "COT-2026-0643",
+    "unidad": "STOCK",
+    "cambios": {
+      "dependencia": "11-Dirección General de Servicios Públicos Municipales"
+    },
+    "motivo": "Completar campos vacíos: clasificación identificada; en ausencia de evidencia, regla general 11 / 29801.",
+    "reglaGeneral": true
+  },
+  {
+    "id": "e44a8fa0-8122-4c64-a449-e7f0cdb949c5",
+    "folio": "COT-2026-0583",
+    "unidad": "0",
+    "cambios": {
+      "partida": "29801"
+    },
+    "motivo": "Completar campos vacíos: clasificación identificada; en ausencia de evidencia, regla general 11 / 29801.",
+    "reglaGeneral": true
+  },
+  {
+    "id": "e4b12fe3-5b09-484e-8feb-a40030ec7b3b",
+    "folio": "COT-2026-0554",
+    "unidad": "STOCK",
+    "cambios": {
+      "dependencia": "11-Dirección General de Servicios Públicos Municipales",
+      "partida": "29801"
+    },
+    "motivo": "Completar campos vacíos: clasificación identificada; en ausencia de evidencia, regla general 11 / 29801.",
+    "reglaGeneral": true
+  },
+  {
+    "id": "e4e04bf6-d7dd-4988-8bd5-919f95e11c07",
+    "folio": "COT-2026-0661",
+    "unidad": "STOCK",
+    "cambios": {
+      "dependencia": "11-Dirección General de Servicios Públicos Municipales"
+    },
+    "motivo": "Completar campos vacíos: clasificación identificada; en ausencia de evidencia, regla general 11 / 29801.",
+    "reglaGeneral": true
+  },
+  {
+    "id": "e854c595-bb5b-450c-aabd-33dfbea173f2",
+    "folio": "COT-2026-0584",
+    "unidad": "0",
+    "cambios": {
+      "partida": "29801"
+    },
+    "motivo": "Completar campos vacíos: clasificación identificada; en ausencia de evidencia, regla general 11 / 29801.",
+    "reglaGeneral": true
+  },
+  {
+    "id": "e8d86c3d-1a09-4054-9083-73e5592654d1",
+    "folio": "COT-2026-0694",
+    "unidad": "0",
+    "cambios": {
+      "dependencia": "11-Dirección General de Servicios Públicos Municipales",
+      "partida": "29801"
+    },
+    "motivo": "Completar campos vacíos: clasificación identificada; en ausencia de evidencia, regla general 11 / 29801.",
+    "reglaGeneral": true
+  },
+  {
+    "id": "e8f5d502-9c72-4a5a-a0b4-b88102b95fcf",
+    "folio": "COT-2026-0542",
+    "unidad": "0",
+    "cambios": {
+      "dependencia": "11-Dirección General de Servicios Públicos Municipales",
+      "partida": "29801"
+    },
+    "motivo": "Completar campos vacíos: clasificación identificada; en ausencia de evidencia, regla general 11 / 29801.",
+    "reglaGeneral": true
+  },
+  {
+    "id": "e930c898-c777-4230-a452-6ff1b4434066",
+    "folio": "COT-2026-0610",
+    "unidad": "STOCK",
+    "cambios": {
+      "dependencia": "11-Dirección General de Servicios Públicos Municipales",
+      "partida": "29801"
+    },
+    "motivo": "Completar campos vacíos: clasificación identificada; en ausencia de evidencia, regla general 11 / 29801.",
+    "reglaGeneral": true
+  },
+  {
+    "id": "ead55bcf-4540-413c-bc6f-1f41cdcf5995",
+    "folio": "COT-2026-0558",
+    "unidad": "STOCK",
+    "cambios": {
+      "dependencia": "11-Dirección General de Servicios Públicos Municipales",
+      "partida": "29801"
+    },
+    "motivo": "Completar campos vacíos: clasificación identificada; en ausencia de evidencia, regla general 11 / 29801.",
+    "reglaGeneral": true
+  },
+  {
+    "id": "eb0f23d9-7d78-4140-9c5f-ea9e3fa71c83",
+    "folio": "COT-2026-0594",
+    "unidad": "0",
+    "cambios": {
+      "dependencia": "11-Dirección General de Servicios Públicos Municipales",
+      "partida": "29801"
+    },
+    "motivo": "Completar campos vacíos: clasificación identificada; en ausencia de evidencia, regla general 11 / 29801.",
+    "reglaGeneral": true
+  },
+  {
+    "id": "ebe50e04-d0f9-455c-ae68-f536942949cd",
+    "folio": "COT-2026-0691",
+    "unidad": "0",
+    "cambios": {
+      "dependencia": "11-Dirección General de Servicios Públicos Municipales",
+      "partida": "29801"
+    },
+    "motivo": "Completar campos vacíos: clasificación identificada; en ausencia de evidencia, regla general 11 / 29801.",
+    "reglaGeneral": true
+  },
+  {
+    "id": "f126a1ec-6f34-4c7f-a314-5d685cc6ea3e",
+    "folio": "COT-2026-0576",
+    "unidad": "STOCK",
+    "cambios": {
+      "dependencia": "11-Dirección General de Servicios Públicos Municipales"
+    },
+    "motivo": "Completar campos vacíos: clasificación identificada; en ausencia de evidencia, regla general 11 / 29801.",
+    "reglaGeneral": true
+  },
+  {
+    "id": "f1f5307e-a355-4ebc-8ed5-bd8ca562afe8",
+    "folio": "COT-2026-0679",
+    "unidad": "STOCK",
+    "cambios": {
+      "dependencia": "11-Dirección General de Servicios Públicos Municipales",
+      "partida": "29801"
+    },
+    "motivo": "Completar campos vacíos: clasificación identificada; en ausencia de evidencia, regla general 11 / 29801.",
+    "reglaGeneral": true
+  },
+  {
+    "id": "f200e72d-9534-4a4e-a989-92ef604f7ad1",
+    "folio": "COT-2026-0647",
+    "unidad": "C-210200302613",
+    "cambios": {
+      "partida": "29801"
+    },
+    "motivo": "Completar campos vacíos: clasificación identificada; en ausencia de evidencia, regla general 11 / 29801.",
+    "reglaGeneral": true
+  },
+  {
+    "id": "f4ebc941-756d-4241-b8ec-6d27ae7a75fc",
+    "folio": "COT-2026-0645",
+    "unidad": "0",
+    "cambios": {
+      "dependencia": "11-Dirección General de Servicios Públicos Municipales",
+      "partida": "29801"
+    },
+    "motivo": "Completar campos vacíos: clasificación identificada; en ausencia de evidencia, regla general 11 / 29801.",
+    "reglaGeneral": true
+  },
+  {
+    "id": "f502bcac-38cb-4335-ad47-88bb2a324d44",
+    "folio": "COT-2026-0427",
+    "unidad": "STOCK",
+    "cambios": {
+      "dependencia": "11-Dirección General de Servicios Públicos Municipales"
+    },
+    "motivo": "Completar campos vacíos: clasificación identificada; en ausencia de evidencia, regla general 11 / 29801.",
+    "reglaGeneral": true
+  },
+  {
+    "id": "f55af3b9-06f2-4337-8cf3-478d7c2d8a32",
+    "folio": "COT-2026-0547",
+    "unidad": "210200203357",
+    "cambios": {
+      "partida": "29801"
+    },
+    "motivo": "Completar campos vacíos: clasificación identificada; en ausencia de evidencia, regla general 11 / 29801.",
+    "reglaGeneral": true
+  },
+  {
+    "id": "f70a8da7-bf8d-406a-aab3-c046292ecb1d",
+    "folio": "COT-2026-0660",
+    "unidad": "STOCK",
+    "cambios": {
+      "dependencia": "11-Dirección General de Servicios Públicos Municipales"
+    },
+    "motivo": "Completar campos vacíos: clasificación identificada; en ausencia de evidencia, regla general 11 / 29801.",
+    "reglaGeneral": true
+  },
+  {
+    "id": "f847462a-e80d-4d32-a4b6-2de18d881f34",
+    "folio": "COT-2026-0504",
+    "unidad": "0",
+    "cambios": {
+      "partida": "29801"
+    },
+    "motivo": "Completar campos vacíos: clasificación identificada; en ausencia de evidencia, regla general 11 / 29801.",
+    "reglaGeneral": true
+  },
+  {
+    "id": "fbd20452-a25d-4ee9-9555-4226bbf45faa",
+    "folio": "COT-2026-0436",
+    "unidad": "STOCK",
+    "cambios": {
+      "partida": "29801"
+    },
+    "motivo": "Completar campos vacíos: clasificación identificada; en ausencia de evidencia, regla general 11 / 29801.",
+    "reglaGeneral": true
+  }
+]

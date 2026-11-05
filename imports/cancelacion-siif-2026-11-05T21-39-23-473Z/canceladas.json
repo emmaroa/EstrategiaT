@@ -1,0 +1,116 @@
+[
+  {
+    "id": "8bf6a8e2-4936-4f03-8f00-96dcc5853873",
+    "tipo": "requisicion",
+    "nombre_archivo": "req 23102026.csv",
+    "total_registros": 1937,
+    "registros_nuevos": 54,
+    "registros_actualizados": 1883,
+    "registros_con_error": 0,
+    "usuario_nombre": "Emma Lizbeth Figueroa Cruz",
+    "estado": "Fallida",
+    "detalle_errores": [
+      {
+        "error": "Cancelada por solicitud del usuario. Se conservan los datos ya guardados; los contadores históricos pueden no reflejar escrituras anteriores al cierre.",
+        "fecha": "2026-11-05T21:39:23.497Z",
+        "cancelada": true
+      }
+    ],
+    "created_at": "2026-10-23T17:13:48.230809-07:00"
+  },
+  {
+    "id": "b3e962e4-c18d-4d9b-ae44-07a0bd4e4ddd",
+    "tipo": "requisicion",
+    "nombre_archivo": "req 23102026.csv",
+    "total_registros": 1937,
+    "registros_nuevos": 54,
+    "registros_actualizados": 1883,
+    "registros_con_error": 0,
+    "usuario_nombre": "Emma Lizbeth Figueroa Cruz",
+    "estado": "Fallida",
+    "detalle_errores": [
+      {
+        "error": "Cancelada por solicitud del usuario. Se conservan los datos ya guardados; los contadores históricos pueden no reflejar escrituras anteriores al cierre.",
+        "fecha": "2026-11-05T21:39:23.966Z",
+        "cancelada": true
+      }
+    ],
+    "created_at": "2026-10-23T17:16:08.375511-07:00"
+  },
+  {
+    "id": "4c304365-17e8-4dc8-83a6-06abe9bb7bef",
+    "tipo": "requisicion",
+    "nombre_archivo": "req 23102026.csv",
+    "total_registros": 1937,
+    "registros_nuevos": 0,
+    "registros_actualizados": 0,
+    "registros_con_error": 0,
+    "usuario_nombre": "Emma Lizbeth Figueroa Cruz",
+    "estado": "Fallida",
+    "detalle_errores": [
+      {
+        "error": "Cancelada por solicitud del usuario. Se conservan los datos ya guardados; los contadores históricos pueden no reflejar escrituras anteriores al cierre.",
+        "fecha": "2026-11-05T21:39:24.272Z",
+        "cancelada": true
+      }
+    ],
+    "created_at": "2026-10-23T17:43:59.79629-07:00"
+  },
+  {
+    "id": "512653a9-8698-47b8-a6f2-1372f2428862",
+    "tipo": "requisicion",
+    "nombre_archivo": "req 23102026.csv",
+    "total_registros": 1937,
+    "registros_nuevos": 0,
+    "registros_actualizados": 0,
+    "registros_con_error": 0,
+    "usuario_nombre": "Emma Lizbeth Figueroa Cruz",
+    "estado": "Fallida",
+    "detalle_errores": [
+      {
+        "error": "Cancelada por solicitud del usuario. Se conservan los datos ya guardados; los contadores históricos pueden no reflejar escrituras anteriores al cierre.",
+        "fecha": "2026-11-05T21:39:24.580Z",
+        "cancelada": true
+      }
+    ],
+    "created_at": "2026-10-23T17:45:17.317164-07:00"
+  },
+  {
+    "id": "d609c91a-53e8-4bcf-aa9d-ad95e827eb3b",
+    "tipo": "oc",
+    "nombre_archivo": "oc 23102026.csv",
+    "total_registros": 1777,
+    "registros_nuevos": 0,
+    "registros_actualizados": 0,
+    "registros_con_error": 0,
+    "usuario_nombre": "Emma Lizbeth Figueroa Cruz",
+    "estado": "Fallida",
+    "detalle_errores": [
+      {
+        "error": "Cancelada por solicitud del usuario. Se conservan los datos ya guardados; los contadores históricos pueden no reflejar escrituras anteriores al cierre.",
+        "fecha": "2026-11-05T21:39:24.784Z",
+        "cancelada": true
+      }
+    ],
+    "created_at": "2026-10-23T17:48:02.203631-07:00"
+  },
+  {
+    "id": "b3b1595e-21bc-47be-830b-efd372527f1f",
+    "tipo": "requisicion",
+    "nombre_archivo": "req 051120266.csv",
+    "total_registros": 1956,
+    "registros_nuevos": 0,
+    "registros_actualizados": 0,
+    "registros_con_error": 0,
+    "usuario_nombre": "Emma Lizbeth Figueroa Cruz",
+    "estado": "Fallida",
+    "detalle_errores": [
+      {
+        "error": "Cancelada por solicitud del usuario. Se conservan los datos ya guardados; los contadores históricos pueden no reflejar escrituras anteriores al cierre.",
+        "fecha": "2026-11-05T21:39:24.987Z",
+        "cancelada": true
+      }
+    ],
+    "created_at": "2026-11-05T14:33:23.733684-07:00"
+  }
+]

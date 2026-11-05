@@ -1,0 +1,685 @@
+[
+  {
+    "id": "001dcc53-f6a3-4022-9b4c-e64c5dc852f7",
+    "folio": "COT-2026-0626",
+    "unidad": "210200303200",
+    "cambios": {
+      "partida": "29601"
+    },
+    "motivo": "Refacciones para unidades de gasolina, carros chicos y motos."
+  },
+  {
+    "id": "0242b91f-2ec4-4e75-b86f-555d319527cc",
+    "folio": "COT-2026-0652",
+    "unidad": "STOCK",
+    "cambios": {
+      "partida": "26102"
+    },
+    "motivo": "Aceites, aditivos y lubricantes."
+  },
+  {
+    "id": "0ad43f9e-1c55-4fec-864f-4074fd2639da",
+    "folio": "COT-2026-0607",
+    "unidad": "STOCK",
+    "cambios": {
+      "partida": "26102"
+    },
+    "motivo": "Aceites, aditivos y lubricantes."
+  },
+  {
+    "id": "0c0edb27-3e2f-5f75-a64c-b1ff6ede6aa2",
+    "folio": "01024-2026-CT",
+    "unidad": "S/N",
+    "cambios": {
+      "partida": "29601"
+    },
+    "motivo": "Refacciones para unidades de gasolina, carros chicos y motos."
+  },
+  {
+    "id": "0cb2842b-7bc3-4327-8dba-3cb6bda184de",
+    "folio": "COT-2026-0684",
+    "unidad": "210200303435",
+    "cambios": {
+      "partida": "29601"
+    },
+    "motivo": "Refacciones para unidades de gasolina, carros chicos y motos."
+  },
+  {
+    "id": "0f2ceea0-bc77-4593-a7ea-87af825b2266",
+    "folio": "COT-2026-0681",
+    "unidad": "210200302989",
+    "cambios": {
+      "partida": "29601"
+    },
+    "motivo": "Refacciones para unidades de gasolina, carros chicos y motos."
+  },
+  {
+    "id": "10f1b9e3-c6c7-425c-86ce-6789327db8e4",
+    "folio": "COT-2026-0544",
+    "unidad": "STOCK",
+    "cambios": {
+      "partida": "26102"
+    },
+    "motivo": "Aceites, aditivos y lubricantes."
+  },
+  {
+    "id": "11f74730-3262-4085-8ffd-481bc53d04b1",
+    "folio": "COT-2026-0543",
+    "unidad": "STOCK",
+    "cambios": {
+      "partida": "26102"
+    },
+    "motivo": "Aceites, aditivos y lubricantes."
+  },
+  {
+    "id": "20a14a2b-e931-4e1f-a88d-bb94e7528c5d",
+    "folio": "COT-2026-0629",
+    "unidad": "210200303338",
+    "cambios": {
+      "partida": "29601"
+    },
+    "motivo": "Refacciones para unidades de gasolina, carros chicos y motos."
+  },
+  {
+    "id": "2988a519-28be-4b14-b0eb-baecf2e077af",
+    "folio": "COT-2026-0569",
+    "unidad": "STOCK",
+    "cambios": {
+      "partida": "29801",
+      "dependencia": "11-Dirección General de Servicios Públicos Municipales"
+    },
+    "motivo": "Refacciones para unidades diésel, colectores y maquinaria pesada."
+  },
+  {
+    "id": "3410ed0a-4173-4949-b974-492d35566133",
+    "folio": "COT-2026-0485",
+    "unidad": "0",
+    "cambios": {
+      "partida": "29801"
+    },
+    "motivo": "Refacciones para unidades diésel, colectores y maquinaria pesada."
+  },
+  {
+    "id": "343162fb-384c-4805-b366-4a9b54b27953",
+    "folio": "COT-2026-0631",
+    "unidad": "210200203205",
+    "cambios": {
+      "partida": "29601"
+    },
+    "motivo": "Refacciones para unidades de gasolina, carros chicos y motos."
+  },
+  {
+    "id": "359fac16-461b-404f-8dd6-0a7a909e6dc3",
+    "folio": "COT-2026-0700",
+    "unidad": "210200203205",
+    "cambios": {
+      "partida": "29601"
+    },
+    "motivo": "Refacciones para unidades de gasolina, carros chicos y motos."
+  },
+  {
+    "id": "37fd0062-c50c-5b7f-8237-077e77e51036",
+    "folio": "00449-2026-CT",
+    "unidad": "STOCK",
+    "cambios": {
+      "partida": "29601"
+    },
+    "motivo": "Refacciones para unidades de gasolina, carros chicos y motos."
+  },
+  {
+    "id": "3cb49999-7d61-4be4-8e85-5d432a87629f",
+    "folio": "COT-2026-0625",
+    "unidad": "VH0100004819",
+    "cambios": {
+      "partida": "29601"
+    },
+    "motivo": "Refacciones para unidades de gasolina, carros chicos y motos."
+  },
+  {
+    "id": "406ab4ce-d991-4252-bec0-fdfd694140ae",
+    "folio": "COT-2026-0697",
+    "unidad": "STOCK",
+    "cambios": {
+      "partida": "26102"
+    },
+    "motivo": "Aceites, aditivos y lubricantes."
+  },
+  {
+    "id": "42258daa-87af-5cbe-bfa6-0e9315f5575e",
+    "folio": "01051-2026-CT",
+    "unidad": "S/N",
+    "cambios": {
+      "partida": "29601"
+    },
+    "motivo": "Refacciones para unidades de gasolina, carros chicos y motos."
+  },
+  {
+    "id": "4254eb89-91b1-428d-9dcc-ffcc0b7133d8",
+    "folio": "COT-2026-0611",
+    "unidad": "211410503694",
+    "cambios": {
+      "partida": "29801"
+    },
+    "motivo": "Refacciones para unidades diésel, colectores y maquinaria pesada."
+  },
+  {
+    "id": "4319da8c-b4f9-40f1-82b1-29a6d376c31f",
+    "folio": "COT-2026-0687",
+    "unidad": "MP2100004561",
+    "cambios": {
+      "partida": "29801"
+    },
+    "motivo": "Refacciones para unidades diésel, colectores y maquinaria pesada."
+  },
+  {
+    "id": "4923e8ba-6fb0-53ca-b57f-6c124bd2a3fe",
+    "folio": "01612-2026-CT",
+    "unidad": "STOCK",
+    "cambios": {
+      "partida": "29801"
+    },
+    "motivo": "Refacciones para unidades diésel, colectores y maquinaria pesada."
+  },
+  {
+    "id": "49f6642f-db28-53d1-8ab6-261cff01d23d",
+    "folio": "01091-2026-CT",
+    "unidad": "S/N",
+    "cambios": {
+      "partida": "29601"
+    },
+    "motivo": "Refacciones para unidades de gasolina, carros chicos y motos."
+  },
+  {
+    "id": "4c0b1f8a-a1c4-4abb-84ad-810da5fd0b8a",
+    "folio": "COT-2026-0677",
+    "unidad": "MP2100004561",
+    "cambios": {
+      "partida": "29801"
+    },
+    "motivo": "Refacciones para unidades diésel, colectores y maquinaria pesada."
+  },
+  {
+    "id": "4e67cea0-30de-46e0-916f-32e0cd123b76",
+    "folio": "COT-2026-0528",
+    "unidad": "0",
+    "cambios": {
+      "partida": "29801",
+      "dependencia": "11-Dirección General de Servicios Públicos Municipales"
+    },
+    "motivo": "Refacciones para unidades diésel, colectores y maquinaria pesada."
+  },
+  {
+    "id": "4f30a6a7-dd15-5bc8-a6a2-ade7e2a55c7c",
+    "folio": "01042-2026-CT",
+    "unidad": "STOCK",
+    "cambios": {
+      "partida": "29601"
+    },
+    "motivo": "Refacciones para unidades de gasolina, carros chicos y motos."
+  },
+  {
+    "id": "5226f084-0ae1-40b4-bf7f-dc8dd1ded056",
+    "folio": "COT-2026-0609",
+    "unidad": "STOCK",
+    "cambios": {
+      "partida": "26102"
+    },
+    "motivo": "Aceites, aditivos y lubricantes."
+  },
+  {
+    "id": "5c87d0dd-7e2e-540b-8ee3-118ae2c97c0e",
+    "folio": "01438-2026-CT",
+    "unidad": "STOCK",
+    "cambios": {
+      "partida": "29601"
+    },
+    "motivo": "Refacciones para unidades de gasolina, carros chicos y motos."
+  },
+  {
+    "id": "61598918-afe6-4002-94e8-24e4c67ca8b5",
+    "folio": "COT-2026-0628",
+    "unidad": "210200302185",
+    "cambios": {
+      "partida": "29601"
+    },
+    "motivo": "Refacciones para unidades de gasolina, carros chicos y motos."
+  },
+  {
+    "id": "6888a5c1-8a37-4e16-a4f2-dcbc2ec5fad4",
+    "folio": "COT-2026-0575",
+    "unidad": "STOCK",
+    "cambios": {
+      "partida": "26102",
+      "dependencia": "11-Dirección General de Servicios Públicos Municipales"
+    },
+    "motivo": "Aceites, aditivos y lubricantes."
+  },
+  {
+    "id": "6bf9014d-3621-51f9-813e-5dd7f029c611",
+    "folio": "01016-2026-CT",
+    "unidad": "S/N",
+    "cambios": {
+      "partida": "29601"
+    },
+    "motivo": "Refacciones para unidades de gasolina, carros chicos y motos."
+  },
+  {
+    "id": "6f810d80-2a5b-4c71-9a20-2dc73402e4a4",
+    "folio": "COT-2026-0613",
+    "unidad": "MP1000004143",
+    "cambios": {
+      "partida": "29801"
+    },
+    "motivo": "Refacciones para unidades diésel, colectores y maquinaria pesada."
+  },
+  {
+    "id": "72fb43bc-08d2-4b21-8c28-49cedce263a0",
+    "folio": "COT-2026-0640",
+    "unidad": "211410203310",
+    "cambios": {
+      "partida": "29801"
+    },
+    "motivo": "Refacciones para unidades diésel, colectores y maquinaria pesada."
+  },
+  {
+    "id": "87b09b6f-e1cf-40cc-9ad5-85377e740ff1",
+    "folio": "COT-2026-0618",
+    "unidad": "211410001969",
+    "cambios": {
+      "partida": "29801"
+    },
+    "motivo": "Refacciones para unidades diésel, colectores y maquinaria pesada."
+  },
+  {
+    "id": "8c2d51b4-b387-41f5-9f4e-3469a0e37392",
+    "folio": "COT-2026-0693",
+    "unidad": "210200303037",
+    "cambios": {
+      "partida": "29601"
+    },
+    "motivo": "Refacciones para unidades de gasolina, carros chicos y motos."
+  },
+  {
+    "id": "8d5c8796-48c8-408c-b49b-3c4914fbdaf5",
+    "folio": "COT-2026-0599",
+    "unidad": "0",
+    "cambios": {
+      "partida": "29801"
+    },
+    "motivo": "Refacciones para unidades diésel, colectores y maquinaria pesada."
+  },
+  {
+    "id": "90395f31-9633-4115-a5a9-8bad2b8ba43a",
+    "folio": "COT-2026-0676",
+    "unidad": "MP0700004569",
+    "cambios": {
+      "partida": "29801"
+    },
+    "motivo": "Refacciones para unidades diésel, colectores y maquinaria pesada."
+  },
+  {
+    "id": "906a33ef-9cfc-4e88-8754-816c50739bcb",
+    "folio": "COT-2026-0489",
+    "unidad": "0",
+    "cambios": {
+      "partida": "29801",
+      "dependencia": "11-Dirección General de Servicios Públicos Municipales"
+    },
+    "motivo": "Refacciones para unidades diésel, colectores y maquinaria pesada."
+  },
+  {
+    "id": "9200adf2-8ca2-43b3-863e-75863fd69196",
+    "folio": "COT-2026-0673",
+    "unidad": "MP2100004558",
+    "cambios": {
+      "partida": "29801"
+    },
+    "motivo": "Refacciones para unidades diésel, colectores y maquinaria pesada."
+  },
+  {
+    "id": "9c9eb8b2-67cd-4e04-adfb-9ea785fcbdd6",
+    "folio": "COT-2026-0630",
+    "unidad": "210200302755",
+    "cambios": {
+      "partida": "29601"
+    },
+    "motivo": "Refacciones para unidades de gasolina, carros chicos y motos."
+  },
+  {
+    "id": "a24f87ea-7c87-45ea-b363-db2a27df62c5",
+    "folio": "COT-2026-0695",
+    "unidad": "0",
+    "cambios": {
+      "partida": "29801",
+      "dependencia": "11-Dirección General de Servicios Públicos Municipales"
+    },
+    "motivo": "Refacciones para unidades diésel, colectores y maquinaria pesada."
+  },
+  {
+    "id": "a2a5fe10-e536-49db-bfe3-007cc40cc5d7",
+    "folio": "COT-2026-0688",
+    "unidad": "211410503521",
+    "cambios": {
+      "partida": "29801"
+    },
+    "motivo": "Refacciones para unidades diésel, colectores y maquinaria pesada."
+  },
+  {
+    "id": "a2aaecc8-ab46-4bd0-b84e-5b8e611b4ff3",
+    "folio": "COT-2026-0492",
+    "unidad": "STOCK",
+    "cambios": {
+      "dependencia": "11-Dirección General de Servicios Públicos Municipales"
+    },
+    "motivo": "Aceites, aditivos y lubricantes."
+  },
+  {
+    "id": "a5702fcf-c4ea-4dc5-bb10-c8dfdf527609",
+    "folio": "COT-2026-0627",
+    "unidad": "VH0100004026",
+    "cambios": {
+      "partida": "29601"
+    },
+    "motivo": "Refacciones para unidades de gasolina, carros chicos y motos."
+  },
+  {
+    "id": "a6646823-af45-553e-855e-a73605cbe5c1",
+    "folio": "00983-2026-CT",
+    "unidad": "STOCK",
+    "cambios": {
+      "partida": "29601"
+    },
+    "motivo": "Refacciones para unidades de gasolina, carros chicos y motos."
+  },
+  {
+    "id": "a7365ec6-4b14-4a49-b982-5710d15dbf5a",
+    "folio": "COT-2026-0615",
+    "unidad": "211410503694",
+    "cambios": {
+      "partida": "29801"
+    },
+    "motivo": "Refacciones para unidades diésel, colectores y maquinaria pesada."
+  },
+  {
+    "id": "ab1f1f60-6fb4-4419-8eed-46ccc3476f46",
+    "folio": "COT-2026-0674",
+    "unidad": "VH0100004463",
+    "cambios": {
+      "partida": "29601"
+    },
+    "motivo": "Refacciones para unidades de gasolina, carros chicos y motos."
+  },
+  {
+    "id": "abb5d05f-cd31-4d9e-921c-5d81dfa8999d",
+    "folio": "COT-2026-0624",
+    "unidad": "C-210201803655",
+    "cambios": {
+      "partida": "29601"
+    },
+    "motivo": "Refacciones para unidades de gasolina, carros chicos y motos."
+  },
+  {
+    "id": "b2debe30-adb6-4a45-ac7b-8220ffa86f30",
+    "folio": "COT-2026-0616",
+    "unidad": "211410200696",
+    "cambios": {
+      "partida": "29801"
+    },
+    "motivo": "Refacciones para unidades diésel, colectores y maquinaria pesada."
+  },
+  {
+    "id": "b3caebbc-13a2-4877-897b-9de6b1eecf73",
+    "folio": "COT-2026-0484",
+    "unidad": "0",
+    "cambios": {
+      "partida": "29601",
+      "dependencia": "09-Jefatura de Policía Preventiva y Tránsito Municipal"
+    },
+    "motivo": "Refacciones para unidades de gasolina, carros chicos y motos."
+  },
+  {
+    "id": "bb7296ba-7f72-4a5e-ae1a-5bc3871d7274",
+    "folio": "COT-2026-0622",
+    "unidad": "211410503521",
+    "cambios": {
+      "partida": "29801"
+    },
+    "motivo": "Refacciones para unidades diésel, colectores y maquinaria pesada."
+  },
+  {
+    "id": "c133d3b6-3a5a-4bed-bb0f-1112dde1f3bf",
+    "folio": "COT-2026-0606",
+    "unidad": "STOCK",
+    "cambios": {
+      "partida": "26102",
+      "dependencia": "11-Dirección General de Servicios Públicos Municipales"
+    },
+    "motivo": "Aceites, aditivos y lubricantes."
+  },
+  {
+    "id": "c5f09094-5cdf-5eb9-bd0f-23487212532a",
+    "folio": "01426-2026-CT",
+    "unidad": "STOCK",
+    "cambios": {
+      "partida": "29601"
+    },
+    "motivo": "Refacciones para unidades de gasolina, carros chicos y motos."
+  },
+  {
+    "id": "c9c12fbb-86ed-4b6c-8b57-c6f8d87f07f7",
+    "folio": "COT-2026-0662",
+    "unidad": "STOCK",
+    "cambios": {
+      "partida": "26102"
+    },
+    "motivo": "Aceites, aditivos y lubricantes."
+  },
+  {
+    "id": "cb24c25b-e809-4583-baaa-9bf4a17f4143",
+    "folio": "COT-2026-0483",
+    "unidad": "0",
+    "cambios": {
+      "partida": "29801"
+    },
+    "motivo": "Refacciones para unidades diésel, colectores y maquinaria pesada."
+  },
+  {
+    "id": "cf312c4e-48b2-4622-9888-a25a498cba22",
+    "folio": "COT-2026-0682",
+    "unidad": "VH0100004790",
+    "cambios": {
+      "partida": "29601"
+    },
+    "motivo": "Refacciones para unidades de gasolina, carros chicos y motos."
+  },
+  {
+    "id": "d01c9bde-59e8-4cc1-b34a-5a5ac314acf0",
+    "folio": "COT-2026-0689",
+    "unidad": "0",
+    "cambios": {
+      "partida": "29801",
+      "dependencia": "11-Dirección General de Servicios Públicos Municipales"
+    },
+    "motivo": "Refacciones para unidades diésel, colectores y maquinaria pesada."
+  },
+  {
+    "id": "d121ab47-614f-4794-bd97-7d4346b50d0e",
+    "folio": "COT-2026-0620",
+    "unidad": "STOCK",
+    "cambios": {
+      "partida": "26102"
+    },
+    "motivo": "Aceites, aditivos y lubricantes."
+  },
+  {
+    "id": "d509d89c-70ab-589f-8138-0100715da625",
+    "folio": "01025-2026-CT",
+    "unidad": "S/N",
+    "cambios": {
+      "partida": "29601"
+    },
+    "motivo": "Refacciones para unidades de gasolina, carros chicos y motos."
+  },
+  {
+    "id": "d750e558-4528-41aa-8257-85f1fbba51be",
+    "folio": "COT-2026-0619",
+    "unidad": "STOCK",
+    "cambios": {
+      "partida": "26102"
+    },
+    "motivo": "Aceites, aditivos y lubricantes."
+  },
+  {
+    "id": "db61dd42-0660-52e3-921f-d22432d9f8b5",
+    "folio": "01432-2026-CT",
+    "unidad": "STOCK",
+    "cambios": {
+      "partida": "29601"
+    },
+    "motivo": "Refacciones para unidades de gasolina, carros chicos y motos."
+  },
+  {
+    "id": "dca1660a-d8c1-4bdd-b163-287fa323ea58",
+    "folio": "COT-2026-0642",
+    "unidad": "STOCK",
+    "cambios": {
+      "partida": "26102"
+    },
+    "motivo": "Aceites, aditivos y lubricantes."
+  },
+  {
+    "id": "e31addd3-3a26-4d4b-a2d1-78aa5405f2f6",
+    "folio": "COT-2026-0686",
+    "unidad": "MP2100004557",
+    "cambios": {
+      "partida": "29801"
+    },
+    "motivo": "Refacciones para unidades diésel, colectores y maquinaria pesada."
+  },
+  {
+    "id": "e3d17f06-2d08-439b-938f-32ca23072e7a",
+    "folio": "COT-2026-0643",
+    "unidad": "STOCK",
+    "cambios": {
+      "partida": "26102"
+    },
+    "motivo": "Aceites, aditivos y lubricantes."
+  },
+  {
+    "id": "e4e04bf6-d7dd-4988-8bd5-919f95e11c07",
+    "folio": "COT-2026-0661",
+    "unidad": "STOCK",
+    "cambios": {
+      "partida": "26102"
+    },
+    "motivo": "Aceites, aditivos y lubricantes."
+  },
+  {
+    "id": "e787bdca-7e52-40d4-ad45-ad4c32615a38",
+    "folio": "COT-2026-0678",
+    "unidad": "211410702314",
+    "cambios": {
+      "partida": "29801"
+    },
+    "motivo": "Refacciones para unidades diésel, colectores y maquinaria pesada."
+  },
+  {
+    "id": "e84abf22-a896-49b8-9af9-3bd144a179e4",
+    "folio": "COT-2026-0641",
+    "unidad": "211410203319",
+    "cambios": {
+      "partida": "29801"
+    },
+    "motivo": "Refacciones para unidades diésel, colectores y maquinaria pesada."
+  },
+  {
+    "id": "ec8271f8-6496-4c7e-b3f5-fe10c5360e1e",
+    "folio": "COT-2026-0634",
+    "unidad": "211410200696",
+    "cambios": {
+      "partida": "29801"
+    },
+    "motivo": "Refacciones para unidades diésel, colectores y maquinaria pesada."
+  },
+  {
+    "id": "f126a1ec-6f34-4c7f-a314-5d685cc6ea3e",
+    "folio": "COT-2026-0576",
+    "unidad": "STOCK",
+    "cambios": {
+      "partida": "26102"
+    },
+    "motivo": "Aceites, aditivos y lubricantes."
+  },
+  {
+    "id": "f2912128-0edd-4d44-8b88-d730cccd78c9",
+    "folio": "COT-2026-0614",
+    "unidad": "211410200696",
+    "cambios": {
+      "partida": "29801"
+    },
+    "motivo": "Refacciones para unidades diésel, colectores y maquinaria pesada."
+  },
+  {
+    "id": "f3e6a260-1912-4a71-8ddb-0bc5dbc41b46",
+    "folio": "COT-2026-0346",
+    "unidad": "0",
+    "cambios": {
+      "partida": "29601"
+    },
+    "motivo": "Refacciones para unidades de gasolina, carros chicos y motos."
+  },
+  {
+    "id": "f70a8da7-bf8d-406a-aab3-c046292ecb1d",
+    "folio": "COT-2026-0660",
+    "unidad": "STOCK",
+    "cambios": {
+      "partida": "26102"
+    },
+    "motivo": "Aceites, aditivos y lubricantes."
+  },
+  {
+    "id": "f720577f-201c-46dd-98a7-601d91e6b1b1",
+    "folio": "COT-2026-0648",
+    "unidad": "210200301786",
+    "cambios": {
+      "partida": "29601"
+    },
+    "motivo": "Refacciones para unidades de gasolina, carros chicos y motos."
+  },
+  {
+    "id": "f918d472-f971-5dc3-a9e7-6afb4d72955d",
+    "folio": "00971-2026-CT",
+    "unidad": "STOCK",
+    "cambios": {
+      "partida": "29601"
+    },
+    "motivo": "Refacciones para unidades de gasolina, carros chicos y motos."
+  },
+  {
+    "id": "f976c90d-6e05-4059-8e6a-bcd9ec4f1a02",
+    "folio": "COT-2026-0683",
+    "unidad": "211410203322",
+    "cambios": {
+      "partida": "29801"
+    },
+    "motivo": "Refacciones para unidades diésel, colectores y maquinaria pesada."
+  },
+  {
+    "id": "fd4e0393-84b5-5e8a-8a80-7b4062482c66",
+    "folio": "01071-2026-CT",
+    "unidad": "S/N",
+    "cambios": {
+      "partida": "29601"
+    },
+    "motivo": "Refacciones para unidades de gasolina, carros chicos y motos."
+  },
+  {
+    "id": "fec1be3f-862f-4673-a24a-38b63e3f0a4f",
+    "folio": "COT-2026-0535",
+    "unidad": "0",
+    "cambios": {
+      "partida": "29801"
+    },
+    "motivo": "Refacciones para unidades diésel, colectores y maquinaria pesada."
+  }
+]

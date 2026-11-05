@@ -91,6 +91,7 @@
 
       <div class="modal-actions">
         <button type="button" class="btn-secondary" id="btnLimpiarImportacion">Limpiar</button>
+        <button type="button" class="btn-secondary" id="btnCancelarImportacion" disabled>Cancelar importación</button>
         <button data-privacy-submit type="button" class="btn-small" id="btnEjecutarImportacion" disabled>Importar registros válidos</button>
       </div>
     </section>
@@ -361,7 +362,7 @@
       const registros = [];
       let desde = 0;
       while (true) {
-        const resultado = await supabaseClient.from(config.tabla).select("*").range(desde, desde + 999);
+        const resultado = await supabaseClient.from(config.tabla).select("*").order("id").range(desde, desde + 999);
         if (resultado.error) throw resultado.error;
         const bloque = resultado.data || [];
         registros.push.apply(registros, bloque);
@@ -371,6 +372,7 @@
       const mapa = new Map();
       registros.forEach(function (fila) {
         const clave = config.clave(fila);
+        if (clave && mapa.has(clave)) throw new Error("La base contiene más de un registro para la clave " + clave + ". Revisa el duplicado antes de importar.");
         if (clave) mapa.set(clave, fila);
       });
       return mapa;
@@ -476,14 +478,44 @@
 
     function comprobarFalloServidor(resultado) {
       if (resultado.error && (resultado.status >= 500 || [0,401,403,404].includes(resultado.status) ||
-          /^(08|40|42|53|54|57|58|XX)/.test(String(resultado.error.code || "")))) {
+          /^(08|40|42|53|54|55|57|58|XX)/.test(String(resultado.error.code || "")))) {
         throw new Error("Importacion detenida por un fallo del servidor. " + detalleErrorImportacion(resultado));
       }
+    }
+
+    let cargaActiva = null;
+    let cancelacionSolicitada = false;
+    async function comprobarCargaActiva() {
+      if (cancelacionSolicitada) throw new Error("Importación cancelada. Se conservan los registros guardados.");
+      if (!cargaActiva) return;
+      const r = await supabaseClient.from("importaciones_siif").select("estado").eq("id", cargaActiva).single();
+      if (r.error) throw new Error("No se pudo verificar la importación: " + detalleErrorImportacion(r));
+      if (r.data?.estado !== "Procesando") throw new Error("La importación fue cerrada o cancelada. No se enviarán más registros.");
+    }
+
+    async function cancelarImportacion() {
+      cancelacionSolicitada = true;
+      document.getElementById("btnCancelarImportacion").disabled = true;
+      if (!cargaActiva) return;
+      const r = await supabaseClient.from("importaciones_siif").update({estado:"Fallida",
+        detalle_errores:[{error:"Cancelada por el usuario. Se conservan los registros ya guardados.",cancelada:true}]
+      }).eq("id", cargaActiva).eq("estado", "Procesando");
+      if (r.error) alert("La ejecución local se detuvo, pero no se pudo cerrar el historial: " + detalleErrorImportacion(r));
+    }
+
+    function cambiosRegistroImportacion(fila) {
+      const cambios = {};
+      for (const [campo, valor] of Object.entries(fila.registro)) {
+        if (["importacion_id", "updated_at"].includes(campo)) continue;
+        if (String(valor ?? "") !== String(fila.existente[campo] ?? "")) cambios[campo] = valor;
+      }
+      return cambios;
     }
 
     async function insertarEnBloques(tabla, registros, progreso) {
       const errores = [];
       for (let i = 0; i < registros.length; i += 200) {
+        await comprobarCargaActiva();
         const bloque = registros.slice(i, i + 200);
         const resultado = await supabaseClient.from(tabla).insert(bloque);
         comprobarFalloServidor(resultado);
@@ -497,9 +529,13 @@
       const errores = [];
       // La sincronizacion SIIF escribe registros compartidos: evitar 20 transacciones competidoras.
       for (const fila of filas) {
-        const resultado = await supabaseClient.from(tabla).update(fila.registro).eq("id", fila.existente.id);
+        await comprobarCargaActiva();
+        const cambios = cambiosRegistroImportacion(fila);
+        if (!Object.keys(cambios).length) { progreso.sinCambios = (progreso.sinCambios || 0) + 1; continue; }
+        const resultado = await supabaseClient.from(tabla).update({...cambios, importacion_id:fila.registro.importacion_id, updated_at:fila.registro.updated_at}).eq("id", fila.existente.id).select("id");
         comprobarFalloServidor(resultado);
         if (resultado.error) { errores.push("Linea " + fila.linea + ": " + detalleErrorImportacion(resultado)); progreso.fallidos++; }
+        else if (resultado.data?.length !== 1) throw new Error("No se confirmó la actualización de la línea " + fila.linea + ". Vuelve a analizar el archivo.");
         else progreso.actualizados++;
       }
       return errores;
@@ -509,10 +545,17 @@
     async function ejecutarImportacion() {
       if (importacionEnCurso) return;
       importacionEnCurso = true;
+      cancelacionSolicitada = false;
+      [tipoImportacionSiif, archivoImportacionSiif, document.getElementById("btnLimpiarImportacion")].forEach(el => el.disabled = true);
       try { await ejecutarImportacionInterna(); }
       catch (error) { alert("No se pudo completar la importacion: " + (error.message || String(error))); }
       finally {
         importacionEnCurso = false;
+        cargaActiva = null;
+        document.getElementById("btnCancelarImportacion").disabled = true;
+        [tipoImportacionSiif, archivoImportacionSiif, document.getElementById("btnLimpiarImportacion")].forEach(el => el.disabled = false);
+        // La vista previa deja de ser válida tras escrituras parciales o un fallo.
+        limpiarImportacion();
         btnEjecutarImportacion.disabled = !archivoActual || !filasAnalizadas.some(fila => fila.estado !== "Error");
       }
     }
@@ -552,6 +595,8 @@
       }
 
       const ahora = new Date().toISOString();
+      cargaActiva = carga.data.id;
+      document.getElementById("btnCancelarImportacion").disabled = false;
       validas.forEach(function (fila) {
         fila.registro.importacion_id = carga.data.id;
         fila.registro.updated_at = ahora;
@@ -568,27 +613,28 @@
         detenida = true;
         erroresCarga.push(error.message || String(error));
       }
-      const pendientes = validas.length - progreso.nuevos - progreso.actualizados - progreso.fallidos;
+      const pendientes = validas.length - progreso.nuevos - progreso.actualizados - progreso.fallidos - (progreso.sinCambios || 0);
       const totalErrores = erroresPrevios.length + progreso.fallidos + (detenida ? pendientes : 0);
       const historial = await supabaseClient.from("importaciones_siif").update({
         registros_nuevos: progreso.nuevos,
         registros_actualizados: progreso.actualizados,
         registros_con_error: totalErrores,
-        estado: erroresCarga.length ? "Procesada con errores" : "Procesada",
+        estado: detenida ? "Fallida" : totalErrores ? "Procesada con errores" : "Procesada",
         detalle_errores: erroresPrevios.map(function (fila) {
           return { linea: fila.linea, error: fila.error };
         }).concat(erroresCarga.map(function (error) { return { error: error }; }),
+          [{sin_cambios:progreso.sinCambios || 0}],
           detenida ? [{error: pendientes + " registros sin confirmar o sin procesar. Revisa el fallo antes de volver a importar."}] : [])
-      }).eq("id", carga.data.id);
+      }).eq("id", carga.data.id).eq("estado", "Procesando");
       if (historial.error) alert("No se pudo actualizar el historial: " + detalleErrorImportacion(historial));
       if (erroresCarga.length) alert(erroresCarga.slice(0,3).join("\n\n") +
         "\n\nGuardados: " + progreso.nuevos + " nuevos y " + progreso.actualizados + " actualizaciones." +
         (detenida ? "\nImportacion detenida. Registros sin confirmar o pendientes: " + pendientes : ""));
 
-      const mensajeFinal = detenida ? "Importación detenida. Consulta el detalle del error antes de reintentar." : erroresCarga.length
-        ? "La carga terminó con " + erroresCarga.length + " errores de Supabase."
-        : "Importación terminada. Seguimiento SIIF ya refleja los cambios.";
-      const tipoMensaje = erroresCarga.length ? "warning" : "success";
+      const mensajeFinal = detenida ? "Importación detenida. Consulta el detalle del error antes de reintentar." : totalErrores
+        ? "La carga terminó con " + totalErrores + " registros con error."
+        : "Importación terminada: " + progreso.nuevos + " nuevos, " + progreso.actualizados + " actualizados y " + (progreso.sinCambios || 0) + " sin cambios.";
+      const tipoMensaje = totalErrores || detenida ? "warning" : "success";
       if (window.ETLayout && typeof ETLayout.toast === "function") {
         ETLayout.toast(mensajeFinal, tipoMensaje);
       } else if (window.ETFeedback && typeof ETFeedback.toast === "function") {
@@ -627,14 +673,20 @@
     }
 
     archivoImportacionSiif.addEventListener("change", async function () {
+      if (importacionEnCurso) return;
       archivoActual = this.files?.[0] || null;
       if (!archivoActual) return;
+      filasAnalizadas = [];
+      btnEjecutarImportacion.disabled = true;
+      [tipoImportacionSiif, archivoImportacionSiif, document.getElementById("btnLimpiarImportacion")].forEach(el => el.disabled = true);
       try {
         await analizarArchivoImportacion(archivoActual);
       } catch (error) {
         console.error(error);
         alert("No se pudo analizar el archivo: " + error.message);
         limpiarImportacion();
+      } finally {
+        [tipoImportacionSiif, archivoImportacionSiif, document.getElementById("btnLimpiarImportacion")].forEach(el => el.disabled = false);
       }
     });
     tipoImportacionSiif.addEventListener("change", function () {
@@ -642,6 +694,7 @@
     });
     document.getElementById("btnLimpiarImportacion").addEventListener("click", limpiarImportacion);
     btnEjecutarImportacion.addEventListener("click", ejecutarImportacion);
+    document.getElementById("btnCancelarImportacion").addEventListener("click", cancelarImportacion);
 
     actualizarAyudaImportacion();
     cargarHistorialImportaciones();

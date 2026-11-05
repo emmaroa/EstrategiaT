@@ -28,6 +28,30 @@ async function main() {
   const plan = [], revision = [];
   const deducir = process.argv.includes('--deducir') ? require('./deducir-dependencias-cotizaciones.js').prepararDeduccion(cotizaciones, unidades) : null;
   for (const cotizacion of cotizaciones) {
+    if (process.argv.includes('--completar-faltantes')) {
+      const clave = normal(cotizacion.unidad);
+      const matches = !['','stock','0','sn'].includes(clave) ? unidades.filter(u => [u.numero_economico,u.numero_inventario,u.unidad_patrulla].some(v => normal(v) === clave)) : [];
+      const resultado = catalogo.completarFaltantes(cotizacion, matches.length === 1 ? matches[0] : null);
+      const cambios = {};
+      for (const campo of ['dependencia','partida']) if (!String(cotizacion[campo] || '').trim()) cambios[campo] = resultado[campo];
+      if (Object.keys(cambios).length) plan.push({id:cotizacion.id,folio:cotizacion.folio,unidad:cotizacion.unidad,cambios,motivo:resultado.motivo,reglaGeneral:resultado.reglaGeneral});
+      continue;
+    }
+    if (process.argv.includes('--asignar-presupuesto')) {
+      const clave = normal(cotizacion.unidad);
+      const matches = !['','stock','0','sn'].includes(clave) ? unidades.filter(u => [u.numero_economico,u.numero_inventario,u.unidad_patrulla].some(v => normal(v) === clave)) : [];
+      if (matches.length > 1) {
+        revision.push({id:cotizacion.id,folio:cotizacion.folio,motivos:['Unidad ambigua']});
+        continue;
+      }
+      const resultado = catalogo.clasificarAsignacion(cotizacion, matches[0]);
+      const cambios = {};
+      if (resultado.partida && resultado.partida !== cotizacion.partida) cambios.partida = resultado.partida;
+      if (resultado.dependencia) cambios.dependencia = resultado.dependencia;
+      if (Object.keys(cambios).length) plan.push({id:cotizacion.id,folio:cotizacion.folio,unidad:cotizacion.unidad,cambios,motivo:resultado.motivo});
+      if (!resultado.partida || resultado.conflicto || (!cotizacion.dependencia && !resultado.dependencia)) revision.push({id:cotizacion.id,folio:cotizacion.folio,motivos:[resultado.conflicto ? 'Indicios de gasolina y diésel contradictorios' : resultado.motivo]});
+      continue;
+    }
     if (/^(0|stock)$/i.test(String(cotizacion.unidad || "").trim())) continue;
     if (process.argv.includes('--dependencia-economico')) {
       const clave = normal(cotizacion.unidad);
@@ -106,6 +130,12 @@ async function main() {
     save('aplicados',aplicados); save('conflictos',conflictos);
   }
   const despues = await all('cotizaciones_almacen'); save('despues-cotizaciones',despues);
+  if (process.argv.includes('--completar-faltantes')) {
+    const faltantes = despues.filter(c => !String(c.partida || '').trim() || !String(c.dependencia || '').trim());
+    save('faltantes', faltantes);
+    console.log(JSON.stringify({registros:despues.length,sinPartida:despues.filter(c => !String(c.partida || '').trim()).length,sinDependencia:despues.filter(c => !String(c.dependencia || '').trim()).length}));
+    if (faltantes.length) throw new Error('Quedan ' + faltantes.length + ' cotizaciones incompletas.');
+  }
   for (const cambio of aplicados) {
     const actual = despues.find(c=>c.id === cambio.id);
     for (const [campo,valor] of Object.entries(cambio.cambios)) if (actual?.[campo] !== valor) throw new Error('No se verificó ' + cambio.id + ': ' + campo);
