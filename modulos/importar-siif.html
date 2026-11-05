@@ -52,9 +52,9 @@
         <p>Se agregarán</p>
       </div>
       <div class="kpi-card">
-        <span>Actualizaciones</span>
+        <span>Actualizaciones recientes</span>
         <h2 id="kpiImportarActualizados">0</h2>
-        <p>Ya existen en Supabase</p>
+        <p>Cambios entre los 100 más recientes</p>
       </div>
       <div class="kpi-card">
         <span>Con error</span>
@@ -67,7 +67,7 @@
       <div class="panel-header">
         <div>
           <h2>Nueva importación</h2>
-          <p>Selecciona el origen del archivo antes de cargarlo.</p>
+          <p>Importa todos los nuevos y revisa los 100 existentes más recientes del archivo por fecha. Solo guarda los campos que cambiaron.</p>
         </div>
       </div>
 
@@ -92,7 +92,7 @@
       <div class="modal-actions">
         <button type="button" class="btn-secondary" id="btnLimpiarImportacion">Limpiar</button>
         <button type="button" class="btn-secondary" id="btnCancelarImportacion" disabled>Cancelar importación</button>
-        <button data-privacy-submit type="button" class="btn-small" id="btnEjecutarImportacion" disabled>Importar registros válidos</button>
+        <button data-privacy-submit type="button" class="btn-small" id="btnEjecutarImportacion" disabled>Importar nuevos y cambios recientes</button>
       </div>
     </section>
 
@@ -421,38 +421,56 @@
           clave: clave,
           registro: registro,
           existente: existente || null,
-          estado: error ? "Error" : (existente ? "Actualizar" : "Nuevo"),
+          estado: error ? "Error" : (existente ? "Omitido" : "Nuevo"),
           error: error
         };
       });
+      seleccionarRecientesImportacion(filasAnalizadas, existentes);
       renderizarAnalisisImportacion();
+    }
+
+    function seleccionarRecientesImportacion(filas, existentes) {
+      const candidatas = [];
+      for (const fila of filas) {
+        if (fila.estado === "Error") continue;
+        fila.existente = existentes.get(fila.clave) || null;
+        fila.estado = fila.existente ? "Omitido" : "Nuevo";
+        if (fila.existente) candidatas.push(fila);
+      }
+      // Fecha del documento; los empates se resuelven por clave, independientemente del orden del CSV.
+      candidatas.sort((a,b) => String(b.registro.fecha || b.existente.fecha || "").localeCompare(String(a.registro.fecha || a.existente.fecha || "")) ||
+        String(b.clave).localeCompare(String(a.clave), "es", {numeric:true}));
+      for (const fila of candidatas.slice(0,100)) {
+        fila.estado = Object.keys(cambiosRegistroImportacion(fila)).length ? "Actualizar" : "Sin cambios";
+      }
     }
 
     function renderizarAnalisisImportacion() {
       const config = CONFIG_IMPORTACION[tipoImportacionSiif.value];
       const nuevos = filasAnalizadas.filter(function (fila) { return fila.estado === "Nuevo"; }).length;
       const actualizados = filasAnalizadas.filter(function (fila) { return fila.estado === "Actualizar"; }).length;
+      const omitidos = filasAnalizadas.filter(fila => ["Omitido","Sin cambios"].includes(fila.estado)).length;
       const errores = filasAnalizadas.filter(function (fila) { return fila.estado === "Error"; }).length;
       document.getElementById("kpiImportarTotal").textContent = filasAnalizadas.length;
       document.getElementById("kpiImportarNuevos").textContent = nuevos;
       document.getElementById("kpiImportarActualizados").textContent = actualizados;
       document.getElementById("kpiImportarErrores").textContent = errores;
       document.getElementById("resumenVistaPreviaSiif").textContent =
-        nuevos + " nuevos · " + actualizados + " actualizaciones · " + errores + " con error";
+        nuevos + " nuevos · " + actualizados + " cambios recientes · " + omitidos + " omitidos · " + errores + " con error";
       btnEjecutarImportacion.disabled = nuevos + actualizados === 0;
 
       const columnas = ["Estado", "Línea"].concat(config.columnasPreview).concat(["Detalle"]);
       document.getElementById("encabezadoVistaPreviaSiif").innerHTML =
         "<tr>" + columnas.map(function (columna) { return "<th>" + escaparImportacion(columna) + "</th>"; }).join("") + "</tr>";
       document.getElementById("tablaVistaPreviaSiif").innerHTML = filasAnalizadas.slice(0, 100).map(function (fila) {
-        const tono = fila.estado === "Nuevo" ? "green" : (fila.estado === "Actualizar" ? "blue" : "red");
+        const tono = fila.estado === "Nuevo" ? "green" : (fila.estado === "Error" ? "red" : "blue");
         return "<tr>" +
           '<td><span class="badge status-badge ' + tono + '">' + fila.estado + "</span></td>" +
           "<td>" + fila.linea + "</td>" +
           config.columnasPreview.map(function (campo) {
             return "<td>" + escaparImportacion(fila.registro[campo] ?? "—") + "</td>";
           }).join("") +
-          "<td>" + escaparImportacion(fila.error || (fila.estado === "Actualizar" ? "Reemplazará los datos existentes" : "")) + "</td>" +
+          "<td>" + escaparImportacion(fila.error || (fila.estado === "Omitido" ? "Fuera de los 100 más recientes; no se modificará" : fila.estado === "Actualizar" ? "Se guardarán solo los campos modificados" : fila.estado === "Sin cambios" ? "Ya está actualizado" : "")) + "</td>" +
         "</tr>";
       }).join("");
     }
@@ -514,9 +532,9 @@
 
     async function insertarEnBloques(tabla, registros, progreso) {
       const errores = [];
-      for (let i = 0; i < registros.length; i += 200) {
+      for (let i = 0; i < registros.length; i += 20) {
         await comprobarCargaActiva();
-        const bloque = registros.slice(i, i + 200);
+        const bloque = registros.slice(i, i + 20);
         const resultado = await supabaseClient.from(tabla).insert(bloque);
         comprobarFalloServidor(resultado);
         if (resultado.error) { errores.push(detalleErrorImportacion(resultado)); progreso.fallidos += bloque.length; }
@@ -556,16 +574,22 @@
         [tipoImportacionSiif, archivoImportacionSiif, document.getElementById("btnLimpiarImportacion")].forEach(el => el.disabled = false);
         // La vista previa deja de ser válida tras escrituras parciales o un fallo.
         limpiarImportacion();
-        btnEjecutarImportacion.disabled = !archivoActual || !filasAnalizadas.some(fila => fila.estado !== "Error");
+        btnEjecutarImportacion.disabled = !archivoActual || !filasAnalizadas.some(fila => ["Nuevo","Actualizar"].includes(fila.estado));
       }
     }
 
     async function ejecutarImportacionInterna() {
-      const validas = filasAnalizadas.filter(function (fila) { return fila.estado !== "Error"; });
-      if (!validas.length || !archivoActual) return;
+      if (!archivoActual) return;
+      const existentesAhora = await obtenerExistentesImportacion(CONFIG_IMPORTACION[tipoImportacionSiif.value]);
+      seleccionarRecientesImportacion(filasAnalizadas, existentesAhora);
+      renderizarAnalisisImportacion();
+      const validas = filasAnalizadas.filter(function (fila) { return ["Nuevo","Actualizar"].includes(fila.estado); });
+      const omitidas = filasAnalizadas.filter(fila => ["Omitido","Sin cambios"].includes(fila.estado)).length;
+      const actualizar = validas.filter(fila => fila.estado === "Actualizar");
+      if (!validas.length) { alert("No hay registros nuevos ni cambios en los 100 existentes más recientes."); return; }
       const confirmar = await ETFeedback.confirmar({
         title: "Confirmar importación",
-        message: "Se procesarán " + validas.length + " registros en Supabase.",
+        message: "Se agregarán " + (validas.length - actualizar.length) + " nuevos y se actualizarán " + actualizar.length + " registros recientes. Se omitirán " + omitidas + " existentes.",
         confirmLabel: "Importar"
       });
       if (!confirmar) return;
@@ -602,7 +626,6 @@
         fila.registro.updated_at = ahora;
       });
       const nuevas = validas.filter(function (fila) { return fila.estado === "Nuevo"; }).map(function (fila) { return fila.registro; });
-      const actualizar = validas.filter(function (fila) { return fila.estado === "Actualizar"; });
       const progreso = {nuevos:0, actualizados:0, fallidos:0};
       const erroresCarga = [];
       let detenida = false;
@@ -623,7 +646,7 @@
         detalle_errores: erroresPrevios.map(function (fila) {
           return { linea: fila.linea, error: fila.error };
         }).concat(erroresCarga.map(function (error) { return { error: error }; }),
-          [{sin_cambios:progreso.sinCambios || 0}],
+          [{existentes_omitidos:omitidas}],
           detenida ? [{error: pendientes + " registros sin confirmar o sin procesar. Revisa el fallo antes de volver a importar."}] : [])
       }).eq("id", carga.data.id).eq("estado", "Procesando");
       if (historial.error) alert("No se pudo actualizar el historial: " + detalleErrorImportacion(historial));
@@ -633,7 +656,7 @@
 
       const mensajeFinal = detenida ? "Importación detenida. Consulta el detalle del error antes de reintentar." : totalErrores
         ? "La carga terminó con " + totalErrores + " registros con error."
-        : "Importación terminada: " + progreso.nuevos + " nuevos, " + progreso.actualizados + " actualizados y " + (progreso.sinCambios || 0) + " sin cambios.";
+        : "Importación terminada: " + progreso.nuevos + " nuevos, " + progreso.actualizados + " actualizados y " + omitidas + " existentes omitidos.";
       const tipoMensaje = totalErrores || detenida ? "warning" : "success";
       if (window.ETLayout && typeof ETLayout.toast === "function") {
         ETLayout.toast(mensajeFinal, tipoMensaje);
