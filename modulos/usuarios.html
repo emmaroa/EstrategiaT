@@ -1,6 +1,7 @@
 ﻿<!DOCTYPE html>
 <html lang="es">
 <head>
+  <meta name="robots" content="noindex, nofollow">
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Administración de Talleres | Usuarios</title>
@@ -9,11 +10,12 @@
   <script src="../js/vendor/-supabase-supabase-js.js"></script>
   <script src="../js/core/supabase.js"></script>
   <script src="../js/core/permissions.js?v=2.0.125"></script>
+  <script src="../js/core/rbac.js"></script>
   <script src="../js/core/theme.js"></script>
   <script src="../js/core/table-columns.js?v=2.0.112"></script>
   <script src="../js/core/calendar-notifications.js?v=2.0.114"></script>
   <script src="../js/core/notifications-feed.js"></script>
-<script src="../js/core/layout.js?v=2.0.125"></script>
+<script src="../js/core/layout.js?v=2.0.163"></script>
   <script src="../js/services/proveedores.service.js?v=20260728-1"></script>
   <script src="../js/core/auth.js?v=2.0.120"></script>
   <link rel="stylesheet" href="../css/reference-theme.css?v=20260927-1" media="screen">
@@ -293,7 +295,7 @@
     function validarAccesoSuperAdmin() {
       const usuarioActivo = JSON.parse(localStorage.getItem("usuarioActivo"));
 
-      const rolesAdmin = ["SuperAdmin", "Administrador del Sistema"];
+      const rolesAdmin = ["SuperAdmin"];
       if (!usuarioActivo || rolesAdmin.indexOf(usuarioActivo.rol) < 0) {
         alert("No tienes permiso para acceder a este módulo.");
         window.location.href = "../dashboard.html";
@@ -432,6 +434,23 @@
     }
 
     function renderPermisosModulos(usuario) {
+      if (Number(JSON.parse(localStorage.getItem('usuarioActivo') || '{}').permisos_version) === 2) {
+        permisosModulosContainer.replaceChildren();
+        const aviso=document.createElement('p');aviso.textContent='Cada acción hereda del rol. Las excepciones permiten o deniegan una acción. La autoría, eliminación y administración mantienen las restricciones acordadas.';
+        permisosModulosContainer.appendChild(aviso);
+        for(const modulo of ETRbac.modulos){
+          const bloque=document.createElement('fieldset');const titulo=document.createElement('legend');titulo.textContent=modulo;bloque.appendChild(titulo);
+          for(const accion of ETRbac.acciones){
+            const etiqueta=document.createElement('label');etiqueta.style.margin='8px';etiqueta.textContent=accion.replaceAll('_',' ')+' ';
+            const selector=document.createElement('select');selector.dataset.rbacModulo=modulo;selector.dataset.rbacAccion=accion;
+            for(const [valor,texto] of [['','Heredar del rol'],['true','Permitir'],['false','Denegar']]){const opcion=document.createElement('option');opcion.value=valor;opcion.textContent=texto;selector.appendChild(opcion);}
+            const valor=usuario?.permisos_excepciones?.[modulo]?.[accion];selector.value=typeof valor==='boolean'?String(valor):'';
+            etiqueta.appendChild(selector);bloque.appendChild(etiqueta);
+          }
+          permisosModulosContainer.appendChild(bloque);
+        }
+        return;
+      }
       if (!permisosModulosContainer) return;
 
       permisosModulosContainer.innerHTML = "";
@@ -511,6 +530,7 @@
     }
 
     async function guardarUsuario() {
+      if (ETRbac.normal(JSON.parse(localStorage.getItem('usuarioActivo') || '{}').rol)!=='superadmin') {alert('Solo SuperAdmin puede administrar usuarios y permisos.');return;}
       const proveedoresSeleccionados = Array.from(document.getElementById("proveedorUsuario").selectedOptions)
         .map(function (opcion) { return opcion.value.trim(); })
         .filter(Boolean);
@@ -526,6 +546,15 @@
         areas_permitidas: obtenerAreasPermitidasDesdeFormulario(),
         modulos_permitidos: obtenerPermisosModulosDesdeFormulario()
       };
+      const usaRbac=Number(JSON.parse(localStorage.getItem('usuarioActivo') || '{}').permisos_version)===2;
+      if(usaRbac){
+        nuevo.permisos_version=2;nuevo.permisos_excepciones={};
+        for(const selector of permisosModulosContainer.querySelectorAll('select[data-rbac-modulo]')){
+          if(selector.value==='')continue;
+          (nuevo.permisos_excepciones[selector.dataset.rbacModulo] ||= {})[selector.dataset.rbacAccion]=selector.value==='true';
+        }
+        delete nuevo.modulos_permitidos;
+      }
 
       if (!nuevo.nombre || !nuevo.usuario || !nuevo.rol || (nuevo.rol === "Proveedor" && !nuevo.proveedor)) {
         alert(nuevo.rol === "Proveedor"
@@ -572,6 +601,7 @@
         };
 
         if (nuevo.password) datosActualizados.password = nuevo.password;
+        if(usaRbac){delete datosActualizados.modulos_permitidos;datosActualizados.permisos_version=2;datosActualizados.permisos_excepciones=nuevo.permisos_excepciones;}
 
         const { error } = await supabaseClient
           .from("usuarios")

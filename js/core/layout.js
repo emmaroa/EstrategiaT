@@ -34,6 +34,7 @@
   }
 
   const MODULOS_IMPLEMENTADOS = [
+    "Cancelaciones",
     "Buscador Seccional",
     "Reporte MIR",
     "Dashboard",
@@ -41,7 +42,6 @@
     "Acuerdos",
     "Calendario",
     "Control de Taller",
-    "Inventario",
     "Peticiones",
     "Peticiones de Coordinadores",
     "Gestión de Cotizaciones",
@@ -72,13 +72,13 @@
     { nombre: "General", modulos: ["Dashboard", "Buscador Seccional"] },
     {
       nombre: "Operación",
-      modulos: ["Parque Vehicular", "Peticiones", "Peticiones de Coordinadores", "Gestión de Cotizaciones", "Crear cotización", "Seguimiento Peticiones", "Acuerdos", "Calendario", "Control de Taller", "Inventario", "Vales"]
+      modulos: ["Parque Vehicular", "Peticiones", "Peticiones de Coordinadores", "Gestión de Cotizaciones", "Crear cotización", "Seguimiento Peticiones", "Acuerdos", "Calendario", "Control de Taller", "Vales"]
     },
     {
       nombre: "Administración",
       modulos: ["Reporte MIR", "Requisiciones", "Seguimiento SIIF", "Requisiciones SIIF", "Órdenes de Compra SIIF", "Solicitudes de Pago SIIF", "Importar SIIF", "Tiempo Extra", "Tramites Administrativos", "Generar Textos"]
     },
-    { nombre: "Sistema", modulos: ["Usuarios", "Licencias", "Auditoría"] }
+    { nombre: "Sistema", modulos: ["Usuarios", "Cancelaciones", "Licencias", "Auditoría"] }
   ];
 
   const ICONOS_MODULOS = {
@@ -2523,7 +2523,7 @@ permitidos = permitidos.filter(function (m) {
     prepararEstructuraModulo(moduloActivo);
     prepararEstadoConexion();
     prepararBusquedaGlobal(usuario);
-    prepararNotificacionesProveedor(usuario);
+    // Centro de notificaciones desactivado: sin consultas ni temporizadores de avisos.
     prepararFiltros();
     prepararTablas();
     prepararFormularios();

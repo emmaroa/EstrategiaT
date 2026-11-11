@@ -1,8 +1,15 @@
 const fs=require('node:fs'),vm=require('node:vm'),assert=require('node:assert/strict');
 const html=fs.readFileSync('modulos/importar-siif.html','utf8');
 for(const script of html.matchAll(/<script\b[^>]*>([\s\S]*?)<\/script>/gi))new vm.Script(script[1]);
+const encabezados=vm.createContext({});
+vm.runInContext(html.slice(html.indexOf('    const ALIAS_COLUMNAS'),html.indexOf('    let archivoActual'))+
+  html.slice(html.indexOf('    function normalizarEncabezadoImportacion('),html.indexOf('    function normalizarClaveImportacion(')),encabezados);
+for(const [nombre,campo] of [['Tipo de Solicitud','tipo_solicitud'],['Poliza del Comprometido','poliza_comprometido'],['Número de Reporte','numero_reporte'],['No. Cheque / Transferencia','cheque_transferencia']]) {
+  assert.equal(encabezados.normalizarEncabezadoImportacion(nombre),campo);
+}
 let calls=0,active=0,maxActive=0,result={error:null,status:201};
-const client={from(){const run=async()=>{calls++;active++;maxActive=Math.max(maxActive,active);await new Promise(r=>setTimeout(r,1));active--;return result;};return {insert:run,update:()=>({eq:()=>({select:run})})};}};
+const parches=[];
+const client={from(){const run=async(ids)=>{calls++;active++;maxActive=Math.max(maxActive,active);await new Promise(r=>setTimeout(r,1));active--;return result.error || result.data ? result : {...result,data:ids?.map(id=>({id}))};};return {insert:()=>run(),update:parche=>({in:(campo,ids)=>({select:()=>{parches.push({parche,ids});return run(ids);}})})};}};
 const ctx=vm.createContext({supabaseClient:client,console});
 vm.runInContext(html.slice(html.indexOf('    function detalleErrorImportacion('),html.indexOf('    let importacionEnCurso')),ctx);
 const progreso=()=>({nuevos:0,actualizados:0,fallidos:0});
@@ -12,8 +19,17 @@ const progreso=()=>({nuevos:0,actualizados:0,fallidos:0});
   assert.equal(calls,1,'Do not continue after a server failure');calls=0;
   const filas=Array.from({length:45},(_,i)=>({linea:i,existente:{id:i,importe:1},registro:{importe:2}}));
   await assert.rejects(ctx.actualizarEnBloques('requis_siif',filas,progreso()));assert.equal(calls,1);
-  calls=0;result={status:200,error:null,data:[{id:1}]};const p=progreso();await ctx.actualizarEnBloques('requis_siif',filas,p);
-  assert.equal(calls,45);assert.equal(maxActive,1);assert.equal(p.actualizados,45);
+  calls=0;result={status:200,error:null};const p=progreso();await ctx.actualizarEnBloques('requis_siif',filas,p);
+  assert.equal(calls,3);assert.equal(maxActive,1);assert.equal(p.actualizados,45);
+  assert.ok(parches.every(x=>x.ids.length<=20));
+  calls=0;parches.length=0;
+  await ctx.actualizarEnBloques('requis_siif',[
+    {existente:{id:1,estatus:'Pendiente',importe:10},registro:{estatus:'Pagado',importe:10}},
+    {existente:{id:2,estatus:'Pendiente',importe:20},registro:{importe:20,estatus:'Pagado'}},
+    {existente:{id:3,estatus:'Pendiente'},registro:{estatus:'Cancelado'}}
+  ],progreso());
+  assert.equal(calls,2);assert.deepEqual(Array.from(parches[0].ids),[1,2]);
+  assert.equal(parches[0].parche.estatus,'Pagado');assert.equal('importe' in parches[0].parche,false);
   calls=0;const sinCambios=progreso();await ctx.actualizarEnBloques('requis_siif',[{existente:{id:1,importe:'2'},registro:{importe:2,updated_at:'nuevo'}}],sinCambios);
   assert.equal(calls,0);assert.equal(sinCambios.sinCambios,1);
   result={status:200,error:null,data:[]};await assert.rejects(ctx.actualizarEnBloques('requis_siif',filas,progreso()),/No se confirmó/);

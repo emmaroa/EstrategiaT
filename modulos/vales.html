@@ -1,6 +1,7 @@
 ﻿<!DOCTYPE html>
 <html lang="es">
 <head>
+  <meta name="robots" content="noindex, nofollow">
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Administración de Talleres | Vales</title>
@@ -44,11 +45,12 @@
   <script src="../js/core/supabase.js"></script>
   <script src="../js/services/vales.service.js"></script>
   <script src="../js/core/permissions.js?v=2.0.125"></script>
+  <script src="../js/core/rbac.js"></script>
   <script src="../js/core/theme.js"></script>
   <script src="../js/core/table-columns.js?v=2.0.112"></script>
   <script src="../js/core/calendar-notifications.js?v=2.0.114"></script>
   <script src="../js/core/notifications-feed.js"></script>
-<script src="../js/core/layout.js?v=2.0.125"></script>
+<script src="../js/core/layout.js?v=2.0.163"></script>
   <script src="../js/services/proveedores.service.js?v=20260728-1"></script>
   <script src="../js/core/auth.js?v=2.0.120"></script>
   <link rel="stylesheet" href="../css/reference-theme.css?v=20260927-1" media="screen">
@@ -513,9 +515,9 @@
         ["técnico vales", "tecnico vales", "superadmin", "jefe de almacen", "jefe de almacén"].includes(rol);
     }
 
-    function puedeAccionVale(accion) {
+    function puedeAccionVale(accion, registro) {
       const usuario = obtenerUsuarioVale();
-      return Boolean(window.ETPermissions?.puedeAccion(usuario, "Vales", accion));
+      return Boolean(window.ETPermissions?.puedeAccion(usuario, "Vales", accion, registro));
     }
 
     function configurarEstatusVale() {
@@ -687,11 +689,10 @@ unidadVale?.addEventListener("blur", async function () {
       if (!filtrados.length) {
         if (tablaVales) tablaVales.innerHTML = '<tr><td colspan="9">No hay vales registrados.</td></tr>';
       } else {
-        const puedeEditar = puedeAccionVale("editar");
-        const puedeCambiarEstatus = puedeAccionVale("cambiar_estatus");
-        const puedeEliminar = puedeAccionVale("eliminar");
-
         filtrados.forEach(function (v) {
+          const puedeEditar = puedeAccionVale("editar",v);
+          const puedeCambiarEstatus = puedeAccionVale("cambiar_estatus",v);
+          const puedeEliminar = puedeAccionVale("eliminar",v);
           const fila = document.createElement("tr");
           fila.innerHTML =
             "<td>" + formatearFechaVale(v.fecha) + "</td>" +
@@ -943,8 +944,10 @@ unidadVale?.addEventListener("blur", async function () {
       const v = obtenerValePorId(id);
       if (!v) return;
       const actual = v.estatus;
+      if(!puedeAccionVale('cambiar_estatus',v))return;
 
       const validos = ["Pendiente", "Entregado", "Cancelado"];
+      if(Number(JSON.parse(localStorage.getItem('usuarioActivo')||'{}').permisos_version)===2)validos.splice(validos.indexOf('Cancelado'),1);
       if (puedeSolventarVale()) validos.push("Solventado");
 
       const nuevoEstatus = await ETFeedback.seleccionar({
@@ -986,6 +989,7 @@ unidadVale?.addEventListener("blur", async function () {
     async function eliminarVale(id) {
       const v = obtenerValePorId(id);
       if (!v) return;
+      if(!puedeAccionVale('eliminar',v))return;
 
       const confirmar = await ETFeedback.confirmar({
         title: "Eliminar vale",

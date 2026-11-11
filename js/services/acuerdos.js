@@ -163,7 +163,7 @@ async function cargarUsuarios() {
   if (!db || typeof db.from !== "function") return;
 
   const { data, error } = await db
-    .from("usuarios")
+    .from(window.ETRbac ? ETRbac.tablaUsuarios() : "usuarios")
     .select("id,nombre,usuario,rol,activo")
     .eq("activo", true)
     .order("nombre", { ascending: true });
@@ -228,10 +228,12 @@ function esModeradorAcuerdos(usuarioActivo) {
 }
 
 function puedeVerTodosLosAcuerdos(usuarioActivo) {
+  if(Number(usuarioActivo?.permisos_version)===2)return ETRbac.puede(usuarioActivo,'Acuerdos','ver');
   return esUsuarioAdministrador(usuarioActivo) || esModeradorAcuerdos(usuarioActivo);
 }
 
 function puedeEditarAcuerdo(acuerdo, usuarioActivo) {
+  if(Number(usuarioActivo?.permisos_version)===2)return ETRbac.puede(usuarioActivo,'Acuerdos','editar',acuerdo);
   if (!acuerdo || !usuarioActivo) return false;
   return esUsuarioAdministrador(usuarioActivo) || esModeradorAcuerdos(usuarioActivo) ||
     acuerdo.asignado_a === usuarioActivo.id || acuerdo.creado_por === usuarioActivo.id;

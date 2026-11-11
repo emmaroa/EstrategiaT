@@ -88,7 +88,7 @@
       .replace(/[\s_-]+/g, "");
     return listarEnBloques(function (consulta) {
       let filtrada = consulta.or("origen_peticion.is.null,origen_peticion.eq.normal,estado_autorizacion.eq.autorizada");
-      if (rol === "coordinadorinfraestructura") {
+      if (rol === "coordinadorinfraestructura" && Number(usuario?.permisos_version)!==2) {
         filtrada = filtrada.ilike("dependencia", "%Infraestructura%");
       }
       return filtrada;
@@ -175,6 +175,7 @@
   }
 
   function puedeGestionarCoordinador(peticion, usuario = usuarioActual()) {
+    if(Number(usuario?.permisos_version)===2)return global.ETRbac.puede(usuario,'Peticiones de Coordinadores','editar',peticion);
     if (!usuario?.id || usuario.activo === false || peticion?.origen_peticion !== 'coordinador') return false;
     const rol = String(usuario.rol || usuario.rol_original || '').normalize('NFD')
       .replace(/[\u0300-\u036f]/g, '').toLowerCase().replace(/[\s_-]+/g, '');
@@ -188,6 +189,7 @@
     if (!client) return {error:{message:'Sin conexión'}};
     const actual = await client.from('peticiones').select('*').eq('id',id).eq('origen_peticion','coordinador').single();
     if (actual.error) return actual;
+    if(Number(usuario?.permisos_version)===2 && borrar && !global.ETRbac.puede(usuario,'Peticiones de Coordinadores','eliminar',actual.data))return {error:{message:'Solicita una cancelación. Solo SuperAdmin y Administrador del Sistema pueden eliminar.'}};
     if (!puedeGestionarCoordinador(actual.data, usuario)) return {error:{message:'No tienes permiso para modificar esta captura.'}};
     const cambios = {};
     if (!borrar) {

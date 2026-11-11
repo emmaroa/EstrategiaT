@@ -59,7 +59,7 @@ async function cargarCalendario() {
   const [eventos, tickets, usuarios] = await Promise.all([
     calendarioDb.from("eventos_calendario").select("*").order("fecha_inicio", { ascending: true }),
     calendarioDb.from("acuerdos").select("id,folio,titulo,descripcion,prioridad,estado,fecha_compromiso,asignado_a,creado_por").not("fecha_compromiso", "is", null),
-    calendarioDb.from("usuarios").select("id,nombre,usuario,rol,activo").eq("activo",true).neq("rol","Proveedor").order("nombre",{ascending:true})
+    calendarioDb.from(window.ETRbac ? ETRbac.tablaUsuarios() : "usuarios").select("id,nombre,usuario,rol,activo").eq("activo",true).neq("rol","Proveedor").order("nombre",{ascending:true})
   ]);
   if (eventos.error || tickets.error || usuarios.error) {
     console.error("No se pudo cargar el calendario:", eventos.error || tickets.error || usuarios.error);
@@ -187,6 +187,7 @@ function abrirActividad(item) {
 
 function puedeEditarEvento(evento) {
   const usuario = usuarioCalendario();
+  if(Number(usuario?.permisos_version)===2)return ETRbac.puede(usuario,'Calendario','editar',evento);
   return Boolean(usuario?.id && evento?.creado_por === usuario.id && !(typeof esSoloLectura === "function" && esSoloLectura()));
 }
 
@@ -257,6 +258,7 @@ async function guardarEvento() {
 }
 
 async function eliminarEvento() {
+  if(Number(usuarioCalendario()?.permisos_version)===2 && !ETRbac.puede(usuarioCalendario(),'Calendario','eliminar',eventosCalendario.find(e=>e.id===eventoEditandoId))){alert('Solicita la cancelación desde Cancelaciones.');return;}
   if (!puedeEditarEvento(eventosCalendario.find(e => e.id === eventoEditandoId))) return;
   if (!eventoEditandoId || !confirm("¿Eliminar este evento del calendario?")) return;
   const resultado = await calendarioDb.from("eventos_calendario").delete().eq("id",eventoEditandoId).eq("creado_por",usuarioCalendario().id);

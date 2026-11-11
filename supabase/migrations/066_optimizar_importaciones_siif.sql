@@ -72,7 +72,7 @@ BEGIN
     WHERE id IS NOT NULL ORDER BY id LOOP
     SELECT coalesce(bool_or(nullif(btrim(estatus),'') IS NOT NULL AND lower(btrim(estatus)) NOT IN ('emitida','emitido')),false),
       coalesce(bool_or(lower(btrim(estatus)) IN ('emitida','emitido')),false),
-      string_agg(coalesce(numero_solicitud,id::text,'Sin número'),', ' ORDER BY numero_solicitud)
+      string_agg(coalesce(numero_solicitud::text,id::text,'Sin número'),', ' ORDER BY numero_solicitud)
         FILTER (WHERE nullif(btrim(estatus),'') IS NOT NULL AND lower(btrim(estatus)) NOT IN ('emitida','emitido'))
     INTO enviada,emitida,solicitudes FROM et_privado.sp_de_requisicion(r.id);
     SELECT * INTO anterior FROM public.flujo_tramites_siif WHERE requisicion_id=r.id;

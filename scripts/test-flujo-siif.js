@@ -8,7 +8,7 @@ async function main() {
     CREATE TABLE usuarios(id uuid PRIMARY KEY,nombre text,usuario text,password text,activo boolean,rol text,modulos_permitidos jsonb);
     CREATE TABLE requis_siif(id uuid PRIMARY KEY,fecha date,folio text,oficio text,estatus text,justificacion text,dependencia text,importe numeric,clasificacion text,tipo_procedimiento text,precomprometido text,comprometido text,origen text,created_at timestamptz DEFAULT now());
     CREATE TABLE oc_siif(id uuid PRIMARY KEY,fecha date,folio text,numero_requisicion text,oficio_requisicion text,proveedor text,estatus text,importe numeric,fecha_adjudicacion date,tipo_procedimiento text,proceso text,precomprometido text,comprometido text,created_at timestamptz DEFAULT now());
-    CREATE TABLE sp_siif(id uuid PRIMARY KEY,fecha date,numero_solicitud text,referencia text,descripcion text,estatus text,beneficiario text,importe numeric,tipo_solicitud text,dependencia text,fuente_financiamiento text,poliza_comprometido text,created_at timestamptz DEFAULT now());`);
+    CREATE TABLE sp_siif(id uuid PRIMARY KEY,fecha date,numero_solicitud bigint,referencia text,descripcion text,estatus text,beneficiario text,importe numeric,tipo_solicitud text,dependencia text,fuente_financiamiento text,poliza_comprometido text,created_at timestamptz DEFAULT now());`);
   await db.query('INSERT INTO usuarios VALUES ($1,$2,$3,$4,true,$5,$6)',[uid(100),'Compras','compras','test-only','Compras',JSON.stringify([{modulo:'Seguimiento SIIF',permiso:'editar'}])]);
   await db.query('INSERT INTO usuarios VALUES ($1,$2,$3,$4,true,$5,$6)',[uid(101),'Consulta','consulta','test-only','Consulta',JSON.stringify([{modulo:'Seguimiento SIIF',permiso:'ver'}])]);
   for(const [n,year,folio,oficio] of [[1,2026,'000123','OF123'],[2,2025,'00123','OF123'],[3,2026,'789','AMB'],[4,2026,'789','AMB']]) {
@@ -104,6 +104,8 @@ async function main() {
   await db.query("UPDATE sp_siif SET estatus='Emitido' WHERE id=$1",[uid(31)]);
   await db.exec(fs.readFileSync('supabase/migrations/064_sp_emitida_ubicacion_libre.sql','utf8'));
   await db.exec(fs.readFileSync('supabase/migrations/066_optimizar_importaciones_siif.sql','utf8'));
+  await db.exec(fs.readFileSync('supabase/migrations/069_corregir_tipo_numero_solicitud.sql','utf8'));
+  await db.exec(fs.readFileSync('supabase/migrations/069_corregir_tipo_numero_solicitud.sql','utf8'));
   await db.exec(fs.readFileSync('supabase/migrations/066_optimizar_importaciones_siif.sql','utf8'));
   const token=(await db.query('SELECT iniciar_sesion_aplicacion($1,$2) AS s',['compras','test-only'])).rows[0].s.token;
   let row=(await db.query('SELECT * FROM flujo_tramites_siif WHERE requisicion_id=$1',[uid(30)])).rows[0];
@@ -151,6 +153,10 @@ async function main() {
     UPDATE requis_siif SET importe=1500 WHERE oficio LIKE 'CARGA-%';`);
   assert.equal((await db.query("SELECT count(*)::int AS n FROM requis_siif WHERE oficio LIKE 'CARGA-%' AND importe=1500")).rows[0].n,1937);
   console.log('Prueba local: 1,937 altas y actualizaciones sin sincronizaciones globales en '+(Date.now()-inicio)+' ms.');
+  await db.exec(fs.readFileSync('supabase/migrations/070_roles_acciones_cancelaciones.sql','utf8'));
+  await db.query("SELECT set_config('request.headers',$1,false)",[JSON.stringify({'x-et-session-token':token})]);
+  await db.query("INSERT INTO sp_siif(id,fecha,numero_solicitud,referencia,estatus) VALUES($1,'2026-02-01',98001,'OF200','EMITIDA')",[uid(98001)]);
+  assert.equal((await db.query('SELECT rbac_creado_por FROM sp_siif WHERE id=$1',[uid(98001)])).rows[0].rbac_creado_por,uid(100));
   await db.close();
 
   let user={id:uid(100),flujo_token:'test-session',sesion_expira_en:Date.now()+3600000},calls=[];

@@ -1,0 +1,74 @@
+const fs = require('node:fs');
+const assert = require('node:assert/strict');
+const { PGlite } = require('@electric-sql/pglite');
+(async () => {
+  const db = new PGlite();
+  try {
+    await db.exec(`CREATE ROLE anon; CREATE ROLE authenticated; CREATE SCHEMA et_privado;
+      CREATE TABLE usuarios(id uuid PRIMARY KEY,usuario text,rol text,activo boolean,password text);
+      CREATE TABLE et_privado.sesiones_aplicacion(token_hash bytea PRIMARY KEY,usuario_id uuid,expira_en timestamptz);
+      CREATE TABLE peticiones(id uuid PRIMARY KEY,creada_por_id uuid,origen_peticion text);
+      CREATE TABLE notificaciones(id int,usuario_id uuid,leida boolean);
+      CREATE TABLE desconocida(id int);
+      CREATE TABLE categorias_inventario(id int,nombre text);
+      CREATE TABLE acuerdos(id uuid PRIMARY KEY,creado_por uuid);
+      CREATE TABLE acuerdos_historial(id int,acuerdo_id uuid,usuario_id uuid);
+      INSERT INTO categorias_inventario VALUES(1,'Refacciones');
+      INSERT INTO acuerdos VALUES('00000000-0000-4000-8000-000000000010','00000000-0000-4000-8000-000000000001');
+      CREATE VIEW vista_desconocida AS SELECT * FROM desconocida;
+      INSERT INTO desconocida VALUES(1);
+      GRANT USAGE ON SCHEMA public TO anon,authenticated;
+      GRANT ALL ON ALL TABLES IN SCHEMA public TO anon,authenticated;
+      ALTER TABLE usuarios ENABLE ROW LEVEL SECURITY;
+      ALTER TABLE peticiones ENABLE ROW LEVEL SECURITY;
+      ALTER TABLE notificaciones ENABLE ROW LEVEL SECURITY;
+      CREATE POLICY abierta ON usuarios USING(true) WITH CHECK(true);
+      CREATE POLICY abierta ON peticiones USING(true) WITH CHECK(true);
+      CREATE POLICY abierta ON notificaciones USING(true) WITH CHECK(true);
+      CREATE POLICY abierta ON desconocida USING(true) WITH CHECK(true);
+      CREATE POLICY abierta ON categorias_inventario USING(true) WITH CHECK(true);
+      CREATE POLICY abierta ON acuerdos USING(true) WITH CHECK(true);
+      CREATE POLICY abierta ON acuerdos_historial USING(true) WITH CHECK(true);
+      INSERT INTO usuarios VALUES('00000000-0000-4000-8000-000000000001','u','SuperAdmin',true,'test');
+      INSERT INTO et_privado.sesiones_aplicacion VALUES(sha256(convert_to('valido','UTF8')),'00000000-0000-4000-8000-000000000001',now()+interval '1 hour');
+      INSERT INTO notificaciones VALUES(1,'00000000-0000-4000-8000-000000000001',false),(2,'00000000-0000-4000-8000-000000000002',false);`);
+    await db.exec(fs.readFileSync('supabase/migrations/070_roles_acciones_cancelaciones.sql','utf8'));
+    const sql = fs.readFileSync('supabase/migrations/071_barrera_sesion_tablas.sql','utf8');
+    await db.exec(sql); await db.exec(sql);
+    const diagnostico = await db.query(fs.readFileSync('supabase/auditar_seguridad_detalle.sql','utf8'));
+    const detalle = JSON.parse(diagnostico.rows[0].detalle_seguridad);
+    assert.ok(detalle.columnas.length > 0);
+    assert.ok(detalle.funciones.some(f => f.nombre === 'seguridad_fila'));
+    const actor = async (role, token) => {
+      await db.exec('RESET ROLE');
+      await db.query("SELECT set_config('request.headers',$1,false)",[JSON.stringify({'x-et-session-token':token,'x-et-usuario-id':'00000000-0000-4000-8000-000000000001'})]);
+      await db.exec('SET ROLE '+role);
+    };
+    for (const role of ['anon','authenticated']) {
+      await actor(role,'falso');
+      assert.equal((await db.query('SELECT * FROM usuarios')).rows.length,0);
+      assert.equal((await db.query('SELECT * FROM notificaciones')).rows.length,0);
+      assert.equal((await db.query('SELECT * FROM categorias_inventario')).rows.length,0);
+      await assert.rejects(db.exec('INSERT INTO desconocida VALUES(2)'),/row-level security/);
+      await assert.rejects(db.exec('TRUNCATE desconocida'),/permission denied/);
+      await actor(role,'valido');
+      assert.equal((await db.query('SELECT * FROM usuarios')).rows.length,1);
+      assert.equal((await db.query('SELECT * FROM categorias_inventario')).rows.length,1);
+      await db.exec("INSERT INTO acuerdos_historial VALUES(1,'00000000-0000-4000-8000-000000000010','00000000-0000-4000-8000-000000000001')");
+      await assert.rejects(db.exec("INSERT INTO acuerdos_historial VALUES(2,'00000000-0000-4000-8000-000000000010','00000000-0000-4000-8000-000000000002')"),/row-level security/);
+      await assert.rejects(db.exec("INSERT INTO acuerdos_historial VALUES(3,'00000000-0000-4000-8000-000000000099','00000000-0000-4000-8000-000000000001')"),/row-level security/);
+      assert.equal((await db.query('DELETE FROM acuerdos_historial RETURNING id')).rows.length,0);
+      assert.equal((await db.query('SELECT * FROM notificaciones')).rows.length,1);
+      assert.equal((await db.query('UPDATE notificaciones SET leida=true WHERE id=2 RETURNING id')).rows.length,0);
+      assert.equal((await db.query('UPDATE notificaciones SET leida=true WHERE id=1 RETURNING id')).rows.length,1);
+      await assert.rejects(db.exec("UPDATE notificaciones SET usuario_id='00000000-0000-4000-8000-000000000002' WHERE id=1"),/row-level security|permission denied/);
+      assert.equal((await db.query('SELECT * FROM desconocida')).rows.length,0);
+      assert.equal((await db.query('SELECT * FROM vista_desconocida')).rows.length,0);
+      await assert.rejects(db.exec('SELECT * FROM et_privado.sesiones_aplicacion'),/permission denied/);
+    }
+    await db.exec("RESET ROLE; UPDATE et_privado.sesiones_aplicacion SET expira_en=now()-interval '1 second'");
+    await actor('anon','valido');
+    assert.equal((await db.query('SELECT * FROM usuarios')).rows.length,0);
+    console.log('Seguridad: anonimato, suplantación, expiración, destinatarios, tablas desconocidas, vistas, TRUNCATE e idempotencia aprobados.');
+  } finally { await db.close(); }
+})().catch(e => { console.error(e); process.exitCode=1; });

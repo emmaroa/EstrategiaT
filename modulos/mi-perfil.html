@@ -1,6 +1,7 @@
 ﻿<!DOCTYPE html>
 <html lang="es">
 <head>
+  <meta name="robots" content="noindex, nofollow">
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
   <title>EstrategiaT | Mi perfil</title>
@@ -11,11 +12,12 @@
   <script src="../js/vendor/-supabase-supabase-js.js"></script>
   <script src="../js/core/supabase.js"></script>
   <script src="../js/core/permissions.js?v=2.0.125"></script>
+  <script src="../js/core/rbac.js"></script>
   <script src="../js/core/theme.js"></script>
   <script src="../js/core/table-columns.js?v=2.0.112"></script>
   <script src="../js/core/calendar-notifications.js?v=2.0.114"></script>
   <script src="../js/core/notifications-feed.js"></script>
-<script src="../js/core/layout.js?v=2.0.125"></script>
+<script src="../js/core/layout.js?v=2.0.163"></script>
   <script src="../js/core/auth.js?v=2.0.120"></script>
   <link rel="stylesheet" href="../css/reference-theme.css?v=20260927-1" media="screen">
 <meta name="referrer" content="strict-origin-when-cross-origin"><link rel="stylesheet" href="../css/privacy-accessibility.css?v=20260927-1"><script src="../js/core/privacy.js?v=20260928-1" defer></script><script src="../js/core/accessibility.js?v=20260927-1" defer></script>
@@ -36,20 +38,6 @@
       </header>
 
       <div class="profile-grid">
-        <section class="panel profile-card profile-card-wide" id="notificaciones">
-          <h2>Notificaciones</h2>
-          <p>Elige los avisos que quieres ver en la campana. Solo recibirás información que corresponda a tus permisos y asignaciones. Estas preferencias se guardan para tu cuenta en este dispositivo.</p>
-          <form id="preferenciasNotificaciones">
-            <label class="profile-kpi-option"><input type="checkbox" id="recibirNotificaciones"><span><strong>Recibir notificaciones</strong><small>Desactiva esta opción para silenciar todos los avisos.</small></span></label>
-            <label class="profile-kpi-option"><input type="checkbox" id="avisosEmergentes"><span><strong>Mostrar avisos emergentes</strong><small>Puedes desactivarlos y seguir consultando la campana.</small></span></label>
-            <fieldset id="categoriasNotificaciones"><legend>Qué notificaciones recibir</legend><div id="listaNotificaciones" class="profile-kpis"></div></fieldset>
-            <div class="profile-actions">
-              <button type="button" class="btn-secondary" id="restablecerNotificaciones">Activar todas</button>
-              <button type="submit" class="btn-small">Guardar notificaciones</button>
-            </div>
-            <p id="estadoNotificaciones" role="status" aria-live="polite"></p>
-          </form>
-        </section>
         <section class="panel profile-card">
           <h2>Seguridad</h2>
           <p>Cambia tu contraseña sin intervención del administrador.</p>
@@ -73,6 +61,6 @@
     </div>
   <footer class="et-legal-footer"><nav aria-label="Información legal"><a href="../privacidad.html">Privacidad</a><a href="../terminos.html">Términos y condiciones</a><a href="../cookies.html">Cookies y almacenamiento</a><button type="button" data-privacy-settings>Configurar privacidad</button></nav><p>© <span data-copyright-year>2026</span> Ing. Emma Lizbeth Figueroa Cruz. Contenidos propios de EstrategiaT; los materiales de terceros conservan sus derechos y licencias.</p></footer>
 </main>
-  <script src="../js/modules/mi-perfil.js?v=20260819-4"></script>
+  <script src="../js/modules/mi-perfil.js?v=2.0.162"></script>
 </body>
 </html>

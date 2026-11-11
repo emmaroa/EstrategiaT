@@ -5,7 +5,7 @@ function enlazarTaller(){iniciarSalidaTaller();iniciarReporteTaller();document.g
 function usuarioTaller(){try{return JSON.parse(localStorage.getItem("usuarioActivo")||"null")}catch(_){return null}}
 function obtenerAreasControl(usuario){let valor=usuario?.areas_permitidas;if(typeof valor==="string"){try{valor=JSON.parse(valor)}catch(_){valor=valor.split(",")}}return Array.isArray(valor)?valor.map(v=>String(v||"").trim()).filter(Boolean):[]}
 function rolGlobalControl(usuario){return ["superadmin","super admin","super_admin","admin","administrador del sistema","jefe","director"].includes(normalizarTaller(usuario?.rol))}
-function accesoTodasAreasTaller(usuario){return rolGlobalControl(usuario)||(usuario?.id === "827cb6d4-5879-4a85-9fdf-b325f37250e6" && usuario.activo !== false)}
+function accesoTodasAreasTaller(usuario){if(Number(usuario?.permisos_version)===2)return ETRbac.puede(usuario,'Control de Taller','ver');return rolGlobalControl(usuario)||(usuario?.id === "827cb6d4-5879-4a85-9fdf-b325f37250e6" && usuario.activo !== false)}
 function areaDeUnidad(u){const combustible=normalizarTaller(u.combustible),grupo=normalizarTaller(u.grupo),texto=normalizarTaller([u.grupo,u.descripcion,u.unidad_patrulla,u.modelo].join(" "));if(/colector/.test(texto))return"Colectores";if(/barredora/.test(texto))return"Barredoras";if(combustible==="electrico"||combustible==="hibrido")return"Electricas";if(/motocicleta|moto\b/.test(texto))return"Motocicletas";if(grupo.includes("maquinaria pesada"))return"Maquinaria Pesada";if(combustible==="gasolina")return"Gasolina";if(combustible==="diesel")return"Diesel";return"Sin área"}
 function configurarIdentidadArea(){const usuario=usuarioTaller();areasControl=obtenerAreasControl(usuario);accesoGlobalControl=accesoTodasAreasTaller(usuario);const etiqueta=accesoGlobalControl?"Áreas":areasControl.length===1?"Área "+areasControl[0]:"Áreas "+areasControl.join(" / ");document.getElementById("tituloControlArea").textContent="Control "+etiqueta;document.getElementById("etModuleName").textContent="Control "+etiqueta;document.getElementById("subtituloControlArea").textContent=accesoGlobalControl?"Vista general de entradas, salidas y seguimiento por área.":"Datos exclusivos de "+(areasControl.join(", ")||"las áreas asignadas")+".";document.getElementById("btnReporteDirector").style.display=accesoGlobalControl?"":"none"}
 function normalizarTaller(v){return String(v||"").normalize("NFD").replace(/[\u0300-\u036f]/g,"").toLowerCase().trim()}
@@ -204,6 +204,7 @@ function abrirPendienteTaller(i){if(!puedeEditarIngresoTaller(i))return;pendient
 
 function puedeEditarIngresoTaller(ingreso) {
   const usuario = usuarioTaller();
+  if(Number(usuario?.permisos_version)===2)return ETRbac.puede(usuario,'Control de Taller',ingreso?'editar':'crear',ingreso);
   if (!usuario?.id || usuario.activo === false || (typeof esSoloLectura === 'function' && esSoloLectura())) return false;
   return true;
 }
@@ -212,6 +213,7 @@ function consultaEdicionIngresoTaller(consulta) {
 }
 function puedeEliminarIngresoTaller(ingreso) {
   const usuario = usuarioTaller();
+  if(Number(usuario?.permisos_version)===2)return ETRbac.puede(usuario,'Control de Taller','eliminar',ingreso);
   return Boolean(usuario?.id && ingreso?.creado_por &&
     String(usuario.id) === String(ingreso.creado_por) &&
     !(typeof esSoloLectura === "function" && esSoloLectura()));
@@ -238,7 +240,7 @@ async function eliminarIngresoTaller(ingreso) {
     if (password === null) return;
     if (!password.trim()) { alert("Escribe tu contraseña para confirmar."); return; }
     if (!puedeEliminarIngresoTaller(ingreso) || usuarioTaller()?.id !== usuario.id) return;
-    const resultado = await tallerDb.rpc("eliminar_ingreso_taller", {
+    const resultado = Number(usuario.permisos_version)===2 ? await tallerDb.from('ingresos_taller').delete().eq('id',ingreso.id) : await tallerDb.rpc("eliminar_ingreso_taller", {
       p_ingreso_id: ingreso.id, p_usuario_id: usuario.id, p_password: password.trim()
     });
     if (resultado.error) {

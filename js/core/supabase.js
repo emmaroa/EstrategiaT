@@ -30,6 +30,24 @@
               /^[0-9a-f-]{36}$/i.test(usuario.id || '')) headers.set('x-et-usuario-id', usuario.id);
           } catch (_) {}
           config.headers = headers;
+          if(global.ETRbac){
+            const usuario=JSON.parse(localStorage.getItem('usuarioActivo')||'null');
+            const method=String(config.method || url?.method || 'GET').toUpperCase();
+            const tabla=new URL(destino,SUPABASE_URL).pathname.match(/^\/rest\/v1\/([^/]+)$/)?.[1];
+            let modulo=global.ETRbac.tablas[tabla];
+            let datos;try{datos=JSON.parse(config.body||'null');}catch(_){}
+            const fila=Array.isArray(datos)?datos[0]:datos;
+            if(tabla==='peticiones'&&fila?.origen_peticion==='coordinador')modulo='Peticiones de Coordinadores';
+            if(global.ETRbac.normal(usuario?.rol)==='proveedor'){
+              if(tabla==='peticiones')modulo='Peticiones de almacén';
+              if(tabla==='cotizaciones_almacen')modulo='Cotizaciones Proveedor';
+            }
+            if(Number(usuario?.permisos_version)===2 && modulo && ['POST','PATCH','DELETE'].includes(method)){
+              const accion=tabla==='importaciones_siif'?'importar':method==='POST'?'crear':method==='DELETE'?'eliminar':'editar';
+              const permitido=global.ETRbac.puede(usuario,modulo,accion)||(tabla==='peticiones'&&method==='PATCH'&&global.ETRbac.puede(usuario,'Peticiones de Coordinadores',accion));
+              if(!permitido)return Promise.resolve(new Response(JSON.stringify({code:'42501',message:'No tienes permiso para '+accion+' en '+modulo+'. Puedes solicitar una cancelación desde el módulo Cancelaciones.'}),{status:403,headers:{'Content-Type':'application/json'}}));
+            }
+          }
           return global.fetch(url, config).then(function (response) {
             const method = String(config.method || url?.method || 'GET').toUpperCase();
             if (response.ok && !['GET', 'HEAD', 'OPTIONS'].includes(method) &&
@@ -48,7 +66,7 @@
     SUPABASE_URL,
     SUPABASE_KEY,
     APP_NAME: "Administración de Talleres",
-    APP_VERSION: "2.0.157",
+    APP_VERSION: "2.0.164",
     PALETTE: {
       primary: "#FC712B",
       secondary: "#FD9319",
