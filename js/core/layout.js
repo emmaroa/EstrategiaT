@@ -34,6 +34,7 @@
   }
 
   const MODULOS_IMPLEMENTADOS = [
+    "Roles",
     "Cancelaciones",
     "Buscador Seccional",
     "Reporte MIR",
@@ -78,7 +79,7 @@
       nombre: "Administración",
       modulos: ["Reporte MIR", "Requisiciones", "Seguimiento SIIF", "Requisiciones SIIF", "Órdenes de Compra SIIF", "Solicitudes de Pago SIIF", "Importar SIIF", "Tiempo Extra", "Tramites Administrativos", "Generar Textos"]
     },
-    { nombre: "Sistema", modulos: ["Usuarios", "Cancelaciones", "Licencias", "Auditoría"] }
+    { nombre: "Sistema", modulos: ["Usuarios", "Roles", "Cancelaciones", "Licencias", "Auditoría"] }
   ];
 
   const ICONOS_MODULOS = {

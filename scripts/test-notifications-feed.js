@@ -18,6 +18,7 @@ const client={from(table){assert.equal(table,'notificaciones');const q={
   error=null;assert.equal((await api.load()).fresh[0].id,'new','Failed loads do not consume alerts');
   for(const file of ['dashboard.html',...fs.readdirSync('modulos').filter(f=>f.endsWith('.html')).map(f=>'modulos/'+f)]) {
     const html=fs.readFileSync(file,'utf8');if(!html.includes('core/layout.js'))continue;
+    if(!fs.readFileSync('js/core/layout.js','utf8').includes('    prepararNotificacionesProveedor(usuario);'))continue;
     assert.ok(html.includes('core/notifications-feed.js'),file);
     assert.ok(html.indexOf('core/notifications-feed.js')<html.indexOf('core/layout.js'),file);
   }

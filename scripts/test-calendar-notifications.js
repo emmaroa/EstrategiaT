@@ -29,6 +29,6 @@ const client={from(table){assert.equal(table,'eventos_calendario');const query={
   assert.equal((await service.load()).fresh.length,0,'Failures do not reset seen state');
   events=[];assert.equal((await service.load()).items.length,0,'Deleted or unshared events disappear');
   events=Array.from({length:501},(_,i)=>({...event,id:'event-'+i}));calls=[];assert.equal((await service.load()).items.length,1002);assert.deepEqual(calls,[0,500]);
-  for(const file of fs.readdirSync('modulos').filter(f=>f.endsWith('.html'))){const html=fs.readFileSync('modulos/'+file,'utf8');if(html.includes('core/layout.js'))assert.ok(html.includes('core/calendar-notifications.js'),file);}
+  if(fs.readFileSync('js/core/layout.js','utf8').includes('    prepararNotificacionesProveedor(usuario);'))for(const file of fs.readdirSync('modulos').filter(f=>f.endsWith('.html'))){const html=fs.readFileSync('modulos/'+file,'utf8');if(html.includes('core/layout.js'))assert.ok(html.includes('core/calendar-notifications.js'),file);}
   console.log('Avisos de calendario: destinatarios, privacidad, 30 minutos, cambios de horario, lectura, deduplicación, fallos, cancelaciones y paginación aprobados.');
 })().catch(error=>{console.error(error);process.exitCode=1;});

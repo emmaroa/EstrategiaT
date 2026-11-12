@@ -9,17 +9,19 @@
   <link rel="stylesheet" href="../css/design-system.css?v=20260819-14"/>
   <script src="../js/vendor/-supabase-supabase-js.js"></script>
   <script src="../js/core/supabase.js"></script>
-  <script src="../js/core/permissions.js?v=2.0.125"></script>
-  <script src="../js/core/rbac.js"></script>
+  <script src="../js/core/permissions.js?v=2.0.167"></script>
+  <script src="../js/core/roles-admin.js?v=2.0.168"></script>
+  <script src="../js/core/rbac.js?v=2.0.168"></script>
   <script src="../js/core/theme.js"></script>
   <script src="../js/core/table-columns.js?v=2.0.112"></script>
   <script src="../js/core/calendar-notifications.js?v=2.0.114"></script>
   <script src="../js/core/notifications-feed.js"></script>
-<script src="../js/core/layout.js?v=2.0.163"></script>
+<script src="../js/core/layout.js?v=2.0.168"></script>
   <script src="../js/services/proveedores.service.js?v=20260728-1"></script>
-  <script src="../js/core/auth.js?v=2.0.120"></script>
+  <script src="../js/core/auth.js?v=2.0.168"></script>
   <link rel="stylesheet" href="../css/reference-theme.css?v=20260927-1" media="screen">
 <meta name="referrer" content="strict-origin-when-cross-origin"><link rel="stylesheet" href="../css/privacy-accessibility.css?v=20260927-1"><script src="../js/core/privacy.js?v=20260928-1" defer></script><script src="../js/core/accessibility.js?v=20260927-1" defer></script>
+<link rel="stylesheet" href="../css/permisos.css?v=2.0.168">
 </head>
 
 <body class="dashboard-body">
@@ -167,7 +169,7 @@
         </div>
 
         <div class="input-group">
-          <label>Rol</label>
+          <label>Rol</label><a href="roles.html">Administrar roles</a>
           <select id="rolUsuarioForm">
             <option value="">Selecciona rol</option>
             <option value="Administrador del Sistema">Administrador del Sistema</option>
@@ -331,7 +333,7 @@
           (u.usuario || "").toLowerCase().includes(texto) ||
           (u.rol || "").toLowerCase().includes(texto);
 
-        const coincideRol = rol === "" || u.rol === rol;
+        const coincideRol = rol === "" || ETRbac.normal(u.rol) === ETRbac.normal(rol);
         const coincideActivo = activo === "" || String(u.activo) === activo;
 
         return coincideTexto && coincideRol && coincideActivo;
@@ -434,84 +436,11 @@
     }
 
     function renderPermisosModulos(usuario) {
-      if (Number(JSON.parse(localStorage.getItem('usuarioActivo') || '{}').permisos_version) === 2) {
-        permisosModulosContainer.replaceChildren();
-        const aviso=document.createElement('p');aviso.textContent='Cada acción hereda del rol. Las excepciones permiten o deniegan una acción. La autoría, eliminación y administración mantienen las restricciones acordadas.';
-        permisosModulosContainer.appendChild(aviso);
-        for(const modulo of ETRbac.modulos){
-          const bloque=document.createElement('fieldset');const titulo=document.createElement('legend');titulo.textContent=modulo;bloque.appendChild(titulo);
-          for(const accion of ETRbac.acciones){
-            const etiqueta=document.createElement('label');etiqueta.style.margin='8px';etiqueta.textContent=accion.replaceAll('_',' ')+' ';
-            const selector=document.createElement('select');selector.dataset.rbacModulo=modulo;selector.dataset.rbacAccion=accion;
-            for(const [valor,texto] of [['','Heredar del rol'],['true','Permitir'],['false','Denegar']]){const opcion=document.createElement('option');opcion.value=valor;opcion.textContent=texto;selector.appendChild(opcion);}
-            const valor=usuario?.permisos_excepciones?.[modulo]?.[accion];selector.value=typeof valor==='boolean'?String(valor):'';
-            etiqueta.appendChild(selector);bloque.appendChild(etiqueta);
-          }
-          permisosModulosContainer.appendChild(bloque);
-        }
-        return;
-      }
-      if (!permisosModulosContainer) return;
-
-      permisosModulosContainer.innerHTML = "";
-
-      const permisosActuales = parsearPermisosModulos(usuario && (usuario.modulos_permitidos || usuario.modulos || usuario.permisos_modulos || usuario.permisos || usuario.accesos));
-
-      modulosDisponibles.forEach(function (modulo) {
-        const permisoActual = permisosActuales.find(function (item) {
-          return (item.modulo || item.nombre || item.module || "") === modulo;
-        });
-
-        const valorActual = permisoActual
-          ? String(permisoActual.permiso || permisoActual.acceso || permisoActual.nivel || "editar").toLowerCase()
-          : "none";
-        const tieneAcceso = valorActual === "ver" || valorActual === "editar" || valorActual === "moderar";
-
-        const fila = document.createElement("div");
-        fila.style.display = "flex";
-        fila.style.justifyContent = "space-between";
-        fila.style.alignItems = "center";
-        fila.style.gap = "10px";
-        fila.style.padding = "8px 10px";
-        fila.style.border = "1px solid #e5e7eb";
-        fila.style.borderRadius = "10px";
-
-        fila.innerHTML = `
-          <label style="display:flex;align-items:center;gap:9px;font-weight:600;cursor:pointer;">
-            <input type="checkbox" data-modulo-activo="${modulo}"${tieneAcceso ? " checked" : ""}> ${modulo}
-          </label>
-          <select data-modulo="${modulo}" style="min-width:180px;"${tieneAcceso ? "" : " disabled"}>
-            <option value="ver">Solo vista</option>
-            ${modulo === "Acuerdos" ? '<option value="moderar">Moderar acuerdos</option>' : ""}
-            <option value="editar">Editar</option>
-          </select>
-        `;
-
-        const select = fila.querySelector("select");
-        const checkbox = fila.querySelector("input[data-modulo-activo]");
-        select.value = tieneAcceso ? valorActual : "editar";
-        checkbox.addEventListener("change", function () {
-          select.disabled = !checkbox.checked;
-          fila.style.background = checkbox.checked ? "rgba(37,99,235,.06)" : "";
-        });
-        fila.style.background = tieneAcceso ? "rgba(37,99,235,.06)" : "";
-        permisosModulosContainer.appendChild(fila);
-      });
+      ETRolesAdmin.permisosUsuario(permisosModulosContainer,usuario,()=>rolUsuarioForm.value);
     }
 
     function obtenerPermisosModulosDesdeFormulario() {
-      if (!permisosModulosContainer) return [];
-
-      return Array.from(permisosModulosContainer.querySelectorAll("select[data-modulo]"))
-        .map(function (select) {
-          const modulo = select.getAttribute("data-modulo");
-          const checkbox = permisosModulosContainer.querySelector('input[data-modulo-activo="' + modulo + '"]');
-          const permiso = checkbox && checkbox.checked ? select.value : "none";
-          return { modulo, permiso };
-        })
-        .filter(function (item) {
-          return item.modulo && item.permiso;
-        });
+      return Array.from(permisosModulosContainer.querySelectorAll('select[data-rbac-access]')).filter(s=>s.value!=='none').map(s=>({modulo:s.dataset.rbacAccess,permiso:s.value}));
     }
 
     function abrirModalUsuario() {
@@ -546,14 +475,14 @@
         areas_permitidas: obtenerAreasPermitidasDesdeFormulario(),
         modulos_permitidos: obtenerPermisosModulosDesdeFormulario()
       };
-      const usaRbac=Number(JSON.parse(localStorage.getItem('usuarioActivo') || '{}').permisos_version)===2;
+      const usaRbac=true;
       if(usaRbac){
         nuevo.permisos_version=2;nuevo.permisos_excepciones={};
         for(const selector of permisosModulosContainer.querySelectorAll('select[data-rbac-modulo]')){
           if(selector.value==='')continue;
           (nuevo.permisos_excepciones[selector.dataset.rbacModulo] ||= {})[selector.dataset.rbacAccion]=selector.value==='true';
         }
-        delete nuevo.modulos_permitidos;
+        nuevo.modulos_permitidos=Array.from(permisosModulosContainer.querySelectorAll('select[data-rbac-access]')).filter(s=>s.value!=='none').map(s=>({modulo:s.dataset.rbacAccess,permiso:s.value}));
       }
 
       if (!nuevo.nombre || !nuevo.usuario || !nuevo.rol || (nuevo.rol === "Proveedor" && !nuevo.proveedor)) {
@@ -601,7 +530,7 @@
         };
 
         if (nuevo.password) datosActualizados.password = nuevo.password;
-        if(usaRbac){delete datosActualizados.modulos_permitidos;datosActualizados.permisos_version=2;datosActualizados.permisos_excepciones=nuevo.permisos_excepciones;}
+        if(usaRbac){datosActualizados.permisos_version=2;datosActualizados.permisos_excepciones=nuevo.permisos_excepciones;}
 
         const { error } = await supabaseClient
           .from("usuarios")
@@ -635,7 +564,8 @@
       document.getElementById("nombreUsuario").value = u.nombre || "";
       document.getElementById("usuarioUsuario").value = u.usuario || "";
       document.getElementById("passwordUsuario").value = "";
-      document.getElementById("rolUsuarioForm").value = u.rol || "";
+      rolUsuarioForm.value = Array.from(rolUsuarioForm.options).find(o=>ETRbac.normal(o.value)===ETRbac.normal(u.rol))?.value || '';
+      if(!rolUsuarioForm.value && u.rol){rolUsuarioForm.add(new Option(u.rol,u.rol));rolUsuarioForm.value=u.rol;}
       verProveedoresPeticionesUsuario.checked = u.ver_proveedores_peticiones === true;
       actualizarVisibilidadPermisoProveedores();
       ETProveedores.seleccionar(
@@ -724,6 +654,13 @@
     }
 
     rolUsuarioForm.addEventListener("change", actualizarVisibilidadPermisoProveedores);
+    ETRolesAdmin.poblar(rolUsuarioForm).then(()=>{
+      const actual=filtroRolUsuario.value;filtroRolUsuario.replaceChildren(new Option('Todos los roles',''));
+      Array.from(rolUsuarioForm.options).filter(o=>o.value).forEach(o=>filtroRolUsuario.add(new Option(o.textContent,o.value)));
+      filtroRolUsuario.value=actual;
+    }).catch(error=>{
+      const aviso=document.createElement('p');aviso.setAttribute('role','status');aviso.textContent=error.message;rolUsuarioForm.after(aviso);
+    });
 
     function registrarMovimientoUsuarios(accion, detalle) {
       if (typeof registrarAuditoria === "function") {

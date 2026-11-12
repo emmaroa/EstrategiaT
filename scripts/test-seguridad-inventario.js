@@ -37,7 +37,11 @@ const uid='00000000-0000-4000-8000-000000000001';
  await db.query("INSERT INTO usuarios(id,usuario,nombre,rol,activo,password) VALUES($1,'prueba','Prueba','SuperAdmin',true,'passwordprueba')",[uid]);
  await db.query("INSERT INTO et_privado.sesiones_aplicacion(token_hash,usuario_id,expira_en) VALUES(sha256(convert_to('test-token','UTF8')),$1,now()+interval '1 hour')",[uid]);
  await db.query("INSERT INTO inventario(id,nombre,stock_actual,costo_unitario) VALUES($1,'Prueba',10,5)",[uid]);
+ await db.query("INSERT INTO proveedores(id,razon_social,activo) VALUES($1,'Proveedor prueba',true)",[uid]);
+ await db.query("INSERT INTO peticiones(id,origen_peticion,proveedor) VALUES($1,'normal',NULL)",[uid]);
+ await db.query("INSERT INTO vales(id,proveedor) VALUES($1,NULL)",[uid]);
  await db.query("INSERT INTO notificaciones(id,usuario_id,leida,created_at) SELECT gen_random_uuid(),$1,false,now()-n*interval '1 second' FROM generate_series(1,6000) n",[uid]);
+ await db.exec("UPDATE usuarios SET modulos_permitidos=(SELECT jsonb_agg(DISTINCT modulo) FROM et_privado.rbac_base)");
  await db.exec('SET session_replication_role=origin');
  const session=async(role,token)=>{
   await db.exec('RESET ROLE');await db.query("SELECT set_config('request.headers',$1,false)",[JSON.stringify({'x-et-session-token':token})]);await db.exec('SET ROLE '+role);
@@ -67,7 +71,7 @@ const uid='00000000-0000-4000-8000-000000000001';
   await assert.rejects(db.query("SELECT registrar_movimiento_inventario($1,'entrada',1,NULL,NULL,$2)",[uid,'00000000-0000-4000-8000-000000000002']),/Sesión o permiso/);
  }
  await db.exec('RESET ROLE; SET session_replication_role=replica');
- for(const rol of ['SuperAdmin','Consulta','Proveedor','Coordinador']){
+ for(const rol of ['SuperAdmin','Consulta','Proveedor','Coordinador','Jefe de Almacen']){
   await db.query('UPDATE usuarios SET rol=$1 WHERE id=$2',[rol,uid]);
   const comparacion=await db.query(`SELECT t.tabla,
     et_privado.rbac_lectura(t.tabla,r.dato) anterior,
@@ -78,6 +82,17 @@ const uid='00000000-0000-4000-8000-000000000001';
     ) r(dato)`,[uid]);
   for(const fila of comparacion.rows)assert.equal(fila.nueva,fila.anterior,rol+'/'+fila.tabla);
  }
+ await db.query("UPDATE usuarios SET rol='Jefe de Almacen',usuario='jair' WHERE id=$1",[uid]);
+ await db.exec('SET session_replication_role=origin');
+ await session('anon','test-token');
+ assert.equal((await db.query('SELECT razon_social FROM proveedores')).rows.length,1);
+ for(const tabla of ['vales','peticiones']){
+  const result=await db.query(`UPDATE ${tabla} SET proveedor='Proveedor prueba' WHERE id=$1 RETURNING proveedor`,[uid]);
+  assert.equal(result.rows[0].proveedor,'Proveedor prueba');
+ }
+ assert.equal((await db.query("UPDATE proveedores SET razon_social='No autorizado' WHERE id=$1 RETURNING id",[uid])).rows.length,0);
+ assert.equal((await db.query('SELECT razon_social FROM proveedores WHERE id=$1',[uid])).rows[0].razon_social,'Proveedor prueba');
+ await db.exec('RESET ROLE; SET session_replication_role=replica');
  await db.query("UPDATE usuarios SET rol='Consulta' WHERE id=$1",[uid]);
  await db.exec('SET session_replication_role=origin');
  await session('anon','test-token');

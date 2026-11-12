@@ -32,6 +32,7 @@ const { PGlite } = require('@electric-sql/pglite');
       INSERT INTO usuarios VALUES('00000000-0000-4000-8000-000000000001','u','SuperAdmin',true,'test');
       INSERT INTO et_privado.sesiones_aplicacion VALUES(sha256(convert_to('valido','UTF8')),'00000000-0000-4000-8000-000000000001',now()+interval '1 hour');
       INSERT INTO notificaciones VALUES(1,'00000000-0000-4000-8000-000000000001',false),(2,'00000000-0000-4000-8000-000000000002',false);`);
+    await db.exec(`ALTER TABLE usuarios ADD COLUMN modulos_permitidos jsonb DEFAULT '["Usuarios","Acuerdos","Inventario","Peticiones"]'::jsonb`);
     await db.exec(fs.readFileSync('supabase/migrations/070_roles_acciones_cancelaciones.sql','utf8'));
     const sql = fs.readFileSync('supabase/migrations/071_barrera_sesion_tablas.sql','utf8');
     await db.exec(sql); await db.exec(sql);

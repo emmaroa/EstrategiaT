@@ -1,0 +1,15 @@
+#modulosRol { display:grid; gap:12px; margin:18px 0; }
+#modulosRol fieldset,#permisosModulosContainer fieldset { min-width:0; border:1px solid #cbd5e1; border-radius:10px; padding:12px 16px; }
+#modulosRol legend,#permisosModulosContainer legend { font-weight:650; padding:0 6px; }
+#modulosRol select,#permisosModulosContainer select { max-width:100%; min-height:40px; }
+#modulosRol details,#permisosModulosContainer details { margin-top:10px; }
+#modulosRol summary,#permisosModulosContainer summary { cursor:pointer; color:var(--text-secondary,#475569); }
+#modulosRol details[open],#permisosModulosContainer details[open] { display:flex; flex-wrap:wrap; gap:8px; }
+#modulosRol details summary,#permisosModulosContainer details summary { width:100%; }
+#modulosRol details label,#permisosModulosContainer details label { display:inline-flex; gap:6px; align-items:center; flex-wrap:wrap; }
+#modulosRol [hidden],#permisosModulosContainer [hidden] { display:none!important; }
+#formRol input { max-width:100%; }
+#formRol>.form-grid>label,#formRol>label { display:flex; flex-direction:column; gap:6px; margin:10px 0; }
+#formRol input:not([type=checkbox]),#formRol select,#rolEditar { padding:10px 12px; border:1px solid #64748b; border-radius:8px; background:var(--bg-secondary,#1e293b); color:inherit; font:inherit; }
+#rolEditar { margin:8px; }
+@media(max-width:600px) { #permisosModulosContainer .filters { display:flex; flex-direction:column; } #modulosRol details label,#permisosModulosContainer details label { margin:4px 0!important; width:100%; } }

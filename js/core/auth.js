@@ -263,6 +263,8 @@
       rol: rolNormalizado,
       rol_original: data.rol,
       modulos_permitidos: data.modulos_permitidos || [],
+      permisos_version: data.permisos_version,
+      permisos_excepciones: data.permisos_excepciones || {},
       areas_permitidas: data.areas_permitidas || [],
       proveedor: data.proveedor || "",
       proveedores_permitidos: Array.isArray(data.proveedores_permitidos)
@@ -280,6 +282,13 @@
     }
 
     localStorage.setItem("usuarioActivo", JSON.stringify(usuarioActivo));
+    if (usuarioActivo.flujo_token) {
+      const perfil = await loginSupabaseClient.rpc('obtener_perfil_acceso');
+      if (!perfil.error && perfil.data) {
+        Object.assign(usuarioActivo, perfil.data);
+        localStorage.setItem('usuarioActivo', JSON.stringify(usuarioActivo));
+      }
+    }
     programarExpiracionSesion(usuarioActivo);
 
     if (typeof registrarAuditoria === "function") {
@@ -287,9 +296,12 @@
     }
 
 
-    window.location.href = rolNormalizado === "Proveedor"
-      ? "modulos/portal-proveedor.html?v=20260728-1"
-      : "dashboard.html";
+    const destino = primerModuloPermitido(usuarioActivo, false);
+    if (destino === 'index.html') {
+      mostrarError('Tu cuenta no tiene módulos permitidos. Contacta al administrador.');
+      return;
+    }
+    window.location.href = destino;
   }
 
   function ejecutarInicioSesion() {
@@ -461,6 +473,13 @@
     }
   };
 
+  function primerModuloPermitido(usuario, desdeModulo) {
+    const p = window.ETPermissions;
+    const lista = p?.obtenerModulosUsuario(usuario) || [];
+    const modulo = lista.find(m => m !== 'Inventario' && p.RUTAS[m] && p.RUTAS[m] !== '#');
+    return modulo ? p.obtenerRutaModulo(modulo, desdeModulo) : (desdeModulo ? '../index.html' : 'index.html');
+  }
+
   window.validarPermiso = function (modulo) {
     const usuarioActivo = obtenerUsuarioActivo();
 
@@ -474,7 +493,7 @@
 
     const rolNormalizado = normalizarRolLogin(usuarioActivo.rol);
     if (modulo === "Licencias" && (rolNormalizado !== "SuperAdmin" || String(usuarioActivo.usuario || "").trim().toLowerCase() !== "emma")) {
-      window.location.href = esRutaDeModulo(window.location.pathname) ? "../dashboard.html" : "dashboard.html";
+      window.location.href = primerModuloPermitido(usuarioActivo, esRutaDeModulo(window.location.pathname));
       return false;
     }
     const modulosPermitidos = window.ETPermissions && typeof window.ETPermissions.obtenerModulosUsuario === "function"
@@ -483,9 +502,7 @@
 
     if (!modulosPermitidos.includes(modulo)) {
       alert("No tienes permiso para acceder a este módulo.");
-      window.location.href = esRutaDeModulo(window.location.pathname)
-        ? "../dashboard.html"
-        : "dashboard.html";
+      window.location.href = primerModuloPermitido(usuarioActivo, esRutaDeModulo(window.location.pathname));
       return false;
     }
 

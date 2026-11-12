@@ -153,6 +153,8 @@ async function main() {
     UPDATE requis_siif SET importe=1500 WHERE oficio LIKE 'CARGA-%';`);
   assert.equal((await db.query("SELECT count(*)::int AS n FROM requis_siif WHERE oficio LIKE 'CARGA-%' AND importe=1500")).rows[0].n,1937);
   console.log('Prueba local: 1,937 altas y actualizaciones sin sincronizaciones globales en '+(Date.now()-inicio)+' ms.');
+  // El caso de alta requiere el módulo explícito bajo la política vigente.
+  await db.query("UPDATE usuarios SET modulos_permitidos=coalesce(modulos_permitidos,'[]'::jsonb)||$1::jsonb WHERE id=$2",[JSON.stringify([{modulo:'Solicitudes de Pago SIIF',permiso:'editar'}]),uid(100)]);
   await db.exec(fs.readFileSync('supabase/migrations/070_roles_acciones_cancelaciones.sql','utf8'));
   await db.query("SELECT set_config('request.headers',$1,false)",[JSON.stringify({'x-et-session-token':token})]);
   await db.query("INSERT INTO sp_siif(id,fecha,numero_solicitud,referencia,estatus) VALUES($1,'2026-02-01',98001,'OF200','EMITIDA')",[uid(98001)]);
