@@ -35,7 +35,6 @@
 
   const MODULOS_IMPLEMENTADOS = [
     "Roles",
-    "Cancelaciones",
     "Buscador Seccional",
     "Reporte MIR",
     "Dashboard",
@@ -79,7 +78,7 @@
       nombre: "Administración",
       modulos: ["Reporte MIR", "Requisiciones", "Seguimiento SIIF", "Requisiciones SIIF", "Órdenes de Compra SIIF", "Solicitudes de Pago SIIF", "Importar SIIF", "Tiempo Extra", "Tramites Administrativos", "Generar Textos"]
     },
-    { nombre: "Sistema", modulos: ["Usuarios", "Roles", "Cancelaciones", "Licencias", "Auditoría"] }
+    { nombre: "Sistema", modulos: ["Usuarios", "Roles", "Licencias", "Auditoría"] }
   ];
 
   const ICONOS_MODULOS = {
@@ -1503,6 +1502,11 @@
             "Página " + paginaActual + " de " + totalPaginas;
           paginacion.querySelector('[data-et-page="previous"]').disabled = paginaActual === 1;
           paginacion.querySelector('[data-et-page="next"]').disabled = paginaActual === totalPaginas;
+          actualizarSaltoPagina(paginacion, paginaActual, totalPaginas, function (destino) {
+            paginaActual = destino;
+            actualizar();
+            contenedor.scrollTo({ top: 0, behavior: "smooth" });
+          });
         } else {
           resumenTexto.textContent = filas.length + (filas.length === 1 ? " registro visible" : " registros visibles");
           if (paginacion) paginacion.hidden = true;
@@ -2488,6 +2492,42 @@
     return abrirDialogoFeedback(configuracion || {});
   }
 
+  // Reutilizado por las tablas automáticas y los paginadores de cada módulo.
+  function actualizarSaltoPagina(host, pagina, total, cambiar) {
+    if (!host) return;
+    let control = host.querySelector('.et-page-jump');
+    if (!control) {
+      control = document.createElement('div');
+      control.className = 'et-page-jump';
+      control.innerHTML = '<label>Ir a página <input type="number" min="1" step="1" inputmode="numeric" aria-label="Ir a página"></label><button type="button" class="btn-secondary">Ir</button>';
+      host.appendChild(control);
+      const input = control.querySelector('input');
+      function ir() {
+        const destino = Number(input.value);
+        const estado = control.etPageState;
+        input.setCustomValidity('');
+        if (!input.value.trim() || !Number.isInteger(destino) || destino < 1 || destino > estado.total) {
+          input.setCustomValidity('Escribe una página entre 1 y ' + estado.total + '.');
+          input.reportValidity();
+          return;
+        }
+        if (destino !== estado.pagina) estado.cambiar(destino);
+      }
+      control.querySelector('button').addEventListener('click', ir);
+      input.addEventListener('input', function () { input.setCustomValidity(''); });
+      input.addEventListener('keydown', function (event) {
+        if (event.key === 'Enter') { event.preventDefault(); event.stopPropagation(); ir(); }
+      });
+    }
+    control.etPageState = { pagina: pagina, total: Math.max(1, total), cambiar: cambiar };
+    const input = control.querySelector('input');
+    input.max = String(control.etPageState.total);
+    input.value = String(pagina);
+    input.setCustomValidity('');
+    input.disabled = total <= 1;
+    control.querySelector('button').disabled = total <= 1;
+  }
+
   function inicializar(moduloActivo) {
     const usuario = JSON.parse(localStorage.getItem("usuarioActivo") || "null");
     if (!usuario || !global.ETPermissions) return;
@@ -2524,6 +2564,7 @@ permitidos = permitidos.filter(function (m) {
     prepararEstructuraModulo(moduloActivo);
     prepararEstadoConexion();
     prepararBusquedaGlobal(usuario);
+    globalThis.ETCancelacionModulo?.inicializar(moduloActivo);
     // Centro de notificaciones desactivado: sin consultas ni temporizadores de avisos.
     prepararFiltros();
     prepararTablas();
@@ -2541,6 +2582,7 @@ permitidos = permitidos.filter(function (m) {
   }
 
   global.ETLayout = {
+    actualizarSaltoPagina,
     MODULOS_IMPLEMENTADOS,
     inicializar,
     htmlBotonTema,

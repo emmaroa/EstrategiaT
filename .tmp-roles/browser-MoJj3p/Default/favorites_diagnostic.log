@@ -1,0 +1,56 @@
+2026-11-13 20:16:32.591: [INFO] CurrentProfilePath: C:\Users\Emma Lizbeth\OneDrive\Desktop\code\EstrategiaT\.tmp-roles\browser-MoJj3p\Default
+2026-11-13 20:16:32.591: [INFO] Profiles total count: 1
+2026-11-13 20:16:32.591: [INFO] Profile: name=Perfil 1 path=C:\Users\Emma Lizbeth\OneDrive\Desktop\code\EstrategiaT\.tmp-roles\browser-MoJj3p\Default lastActive=null
+2026-11-13 20:16:32.591: [INFO] LastUsedProfileDir: C:\Users\Emma Lizbeth\OneDrive\Desktop\code\EstrategiaT\.tmp-roles\browser-MoJj3p\Default
+2026-11-13 20:16:32.591: [INFO] VisibilityChanged: 0
+2026-11-13 20:16:32.659: [INFO] BookmarkNodeAdded, ABU: 0
+2026-11-13 20:16:32.659: [INFO] OnDoneLoading sync enabled: 0
+2026-11-13 20:16:32.659: [INFO] BookmarkModelLoaded, ids_reassigned: 0
+2026-11-13 20:16:32.659: [INFO] BookmarksLoadDropped droppedNodes=0
+2026-11-13 20:16:32.659: [INFO] BookmarksSnapshot Startup total=1 bar=1 other=0 mobile=0 showBar=0 showBarNTP=1
+2026-11-13 20:16:32.768: [INFO] RecordSyncInitDuration has_sync_been_enabled: 0 state: 0
+2026-11-13 20:16:35.734: [INFO] RecordSyncInitDuration has_sync_been_enabled: 0 state: 0
+2026-11-13 20:16:35.747: [INFO] RecordSyncInitDuration has_sync_been_enabled: 0 state: 3
+2026-11-13 20:16:35.757: [INFO] Primary account changed.
+2026-11-13 20:16:35.758: [INFO] OnPrimaryAccountChanged PrimaryAccountChangeEvent::Type::kSet
+2026-11-13 20:16:35.788: [INFO] RecordSyncInitDuration has_sync_been_enabled: 0 state: 3
+2026-11-13 20:16:40.726: [INFO] BookmarkNodeAdded, ABU: 0
+2026-11-13 20:16:40.727: [INFO] BookmarkNodeAdded, ABU: 0
+2026-11-13 20:16:40.728: [INFO] BookmarkNodeAdded, ABU: 0
+2026-11-13 20:16:40.729: [INFO] BookmarkNodeAdded, ABU: 0
+2026-11-13 20:16:40.729: [INFO] BookmarkNodeAdded, ABU: 0
+2026-11-13 20:16:40.730: [INFO] BookmarkNodeAdded, ABU: 0
+2026-11-13 20:16:40.731: [INFO] BookmarkNodeAdded, ABU: 0
+2026-11-13 20:16:40.731: [INFO] BookmarkNodeAdded, ABU: 0
+2026-11-13 20:16:40.732: [INFO] BookmarkNodeAdded, ABU: 0
+2026-11-13 20:16:40.733: [INFO] BookmarkNodeAdded, ABU: 0
+2026-11-13 20:16:40.734: [INFO] BookmarkNodeAdded, ABU: 0
+2026-11-13 20:16:40.735: [INFO] BookmarkNodeAdded, ABU: 0
+2026-11-13 20:16:40.735: [INFO] BookmarkNodeAdded, ABU: 0
+2026-11-13 20:16:40.736: [INFO] BookmarkNodeAdded, ABU: 0
+2026-11-13 20:16:40.736: [INFO] BookmarkNodeAdded, ABU: 0
+2026-11-13 20:16:40.737: [INFO] BookmarkNodeAdded, ABU: 0
+2026-11-13 20:16:40.738: [INFO] BookmarkNodeAdded, ABU: 0
+2026-11-13 20:16:40.738: [INFO] BookmarkNodeAdded, ABU: 0
+2026-11-13 20:16:40.739: [INFO] BookmarkNodeAdded, ABU: 0
+2026-11-13 20:16:40.740: [INFO] BookmarkNodeAdded, ABU: 0
+2026-11-13 20:16:40.740: [INFO] BookmarkNodeAdded, ABU: 0
+2026-11-13 20:16:40.741: [INFO] BookmarkNodeAdded, ABU: 0
+2026-11-13 20:16:40.742: [INFO] BookmarkNodeAdded, ABU: 0
+2026-11-13 20:16:40.743: [INFO] BookmarkNodeAdded, ABU: 0
+2026-11-13 20:16:40.743: [INFO] BookmarkNodeAdded, ABU: 0
+2026-11-13 20:16:40.744: [INFO] BookmarkNodeAdded, ABU: 0
+2026-11-13 20:16:40.744: [INFO] BookmarkNodeAdded, ABU: 0
+2026-11-13 20:16:40.745: [INFO] BookmarkNodeAdded, ABU: 0
+2026-11-13 20:16:40.746: [INFO] BookmarkNodeAdded, ABU: 0
+2026-11-13 20:16:40.746: [INFO] BookmarkNodeAdded, ABU: 0
+2026-11-13 20:16:40.747: [INFO] BookmarkNodeAdded, ABU: 0
+2026-11-13 20:16:40.747: [INFO] BookmarkNodeAdded, ABU: 0
+2026-11-13 20:16:40.748: [INFO] BookmarkNodeAdded, ABU: 0
+2026-11-13 20:16:40.749: [INFO] BookmarkNodeAdded, ABU: 0
+2026-11-13 20:16:40.749: [INFO] BookmarkNodeAdded, ABU: 0
+2026-11-13 20:16:40.750: [INFO] BookmarkNodeAdded, ABU: 0
+2026-11-13 20:16:40.750: [INFO] BookmarkNodeAdded, ABU: 0
+2026-11-13 20:16:40.751: [INFO] BookmarkNodeAdded, ABU: 0
+2026-11-13 20:16:40.784: [INFO] BookmarkBarPrefChanged showBar=0 showBarNTP=0
+2026-11-13 20:16:41.089: [INFO] Sync initialization duration: 5028ms

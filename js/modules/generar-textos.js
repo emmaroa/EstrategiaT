@@ -28,6 +28,7 @@
     const pages=Math.max(1,Math.ceil(total/pageSize));host.replaceChildren();
     const prev=button('Anterior',()=>change(page-1)),next=button('Siguiente',()=>change(page+1));prev.disabled=page<=1;next.disabled=page>=pages;
     host.append(prev,element('span','Página '+page+' de '+pages+' · '+total+' filas'),next);
+    global.ETLayout.actualizarSaltoPagina(host,page,pages,change);
   }
   function renderTable(){
     tablePage=Math.max(1,Math.min(tablePage,Math.ceil(rows.length/pageSize)||1));

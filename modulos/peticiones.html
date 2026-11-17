@@ -93,14 +93,15 @@
     @media(max-width:700px) { .cotizaciones-provider-row { grid-template-columns:1fr auto; } .cotizaciones-provider-track { grid-column:1 / -1; grid-row:2; } }
   </style>
   <script src="../js/vendor/-supabase-supabase-js.js"></script>
-  <script src="../js/core/supabase.js"></script>
+  <script src="../js/core/supabase.js?v=2.0.170"></script>
   <script src="../js/core/permissions.js?v=2.0.167"></script>
-  <script src="../js/core/rbac.js?v=2.0.168"></script>
+  <script src="../js/core/rbac.js?v=2.0.170"></script>
   <script src="../js/core/theme.js"></script>
   <script src="../js/core/table-columns.js?v=2.0.112"></script>
   <script src="../js/core/calendar-notifications.js?v=2.0.114"></script>
   <script src="../js/core/notifications-feed.js"></script>
-<script src="../js/core/layout.js?v=2.0.168"></script>
+<script src="../js/core/cancelacion-modulo.js?v=2.0.170"></script>
+<script src="../js/core/layout.js?v=2.0.170"></script>
   <script src="../js/services/peticiones.service.js?v=2.0.116"></script>
   <script src="../js/services/cotizaciones-almacen.service.js?v=20260810-1"></script>
   <script src="../js/services/dependencias-cotizaciones.js"></script>
@@ -1900,6 +1901,7 @@
       }
       if (btnPetAnterior) btnPetAnterior.disabled = paginaPeticiones <= 1;
       if (btnPetSiguiente) btnPetSiguiente.disabled = paginaPeticiones >= totalPaginas;
+      ETLayout.actualizarSaltoPagina(paginaPetActual?.parentElement, paginaPeticiones, totalPaginas, destino => { paginaPeticiones = destino; renderizarPeticiones(); });
     }
 
     function resetearPaginaPeticiones() {

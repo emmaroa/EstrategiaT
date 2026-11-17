@@ -1623,6 +1623,24 @@ tbody tr:hover {
   display: none !important;
 }
 
+.et-page-jump,
+.et-page-jump label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.et-page-jump { flex-wrap: wrap; }
+.pagination-bar > div { flex-wrap: wrap; }
+.et-page-jump label { margin: 0; white-space: nowrap; }
+.et-page-jump input[type="number"] {
+  width: 84px;
+  min-width: 64px;
+  min-height: 36px;
+  margin: 0;
+  padding: 6px 8px;
+}
+
 .et-auto-pagination {
   justify-content: flex-end !important;
 }

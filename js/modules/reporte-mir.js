@@ -360,6 +360,7 @@ document.addEventListener('DOMContentLoaded', () => {
             document.getElementById('paginationInfo').innerText = `Página ${currentPage} de ${totalPages}`;
             document.getElementById('prevPageBtn').disabled = (currentPage === 1);
             document.getElementById('nextPageBtn').disabled = (currentPage === totalPages);
+            window.ETLayout.actualizarSaltoPagina(document.getElementById('paginationInfo').parentElement, currentPage, totalPages, page => { currentPage = page; renderTable(); });
         }
 
         document.getElementById('prevPageBtn').addEventListener('click', () => {

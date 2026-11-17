@@ -1,0 +1,5 @@
+2026/11/13-13:16:35.879 c48 Creating DB C:\Users\Emma Lizbeth\OneDrive\Desktop\code\EstrategiaT\.tmp-roles\browser-MoJj3p\Default\EdgeCoupons/coupons_data.db since it was missing.
+2026/11/13-13:16:35.965 c48 Reusing MANIFEST C:\Users\Emma Lizbeth\OneDrive\Desktop\code\EstrategiaT\.tmp-roles\browser-MoJj3p\Default\EdgeCoupons/coupons_data.db/MANIFEST-000001
+2026/11/13-13:16:37.417 738c Level-0 table #5: started
+2026/11/13-13:16:37.422 738c Level-0 table #5: 683273 bytes OK
+2026/11/13-13:16:37.429 738c Delete type=0 #3

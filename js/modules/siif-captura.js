@@ -432,6 +432,7 @@
     document.getElementById("paginaCapturaSiif").textContent = "Página " + pagina + " de " + totalPaginas;
     document.getElementById("btnCapturaAnterior").disabled = pagina <= 1;
     document.getElementById("btnCapturaSiguiente").disabled = pagina >= totalPaginas;
+    window.ETLayout.actualizarSaltoPagina(document.getElementById("paginaCapturaSiif").parentElement, pagina, totalPaginas, destino => { pagina = destino; renderizar(); });
   }
 
   function verDetalle(id) {

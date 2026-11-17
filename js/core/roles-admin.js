@@ -1,7 +1,7 @@
 (function(global){
   'use strict';
   let catalogo=[];
-  const modulos=()=>global.ETRbac.modulos.filter(m=>m!=='Inventario');
+  const modulos=()=>global.ETRbac.modulos.filter(m=>!['Inventario','Cancelaciones'].includes(m));
   async function rpc(nombre,args){
     const r=await global.supabaseClient.rpc(nombre,args||{});
     if(r.error)throw new Error(r.error.code==='PGRST202'?'Instala la actualización de Roles en Supabase.':r.error.message);
@@ -30,8 +30,8 @@
       for(const [v,t] of [['none','Sin acceso'],['ver','Solo lectura'],['editar','Lectura y edición']])acceso.add(new Option(t,v));
       acceso.value=ETRbac.limiteAnterior(usuario,modulo,'editar')?'editar':ETRbac.limiteAnterior(usuario,modulo,'ver')?'ver':'none';
       const avanzado=document.createElement('details');const resumen=document.createElement('summary');resumen.textContent='Excepciones por acción';avanzado.append(resumen);
-      for(const accion of ETRbac.acciones){
-        const label=document.createElement('label');label.style.margin='8px';label.textContent=accion.replaceAll('_',' ')+' ';
+      for(const accion of ETRbac.acciones.filter(a=>a!=='aprobar_cancelacion')){
+        const label=document.createElement('label');label.style.margin='8px';label.textContent=(accion==='solicitar_cancelacion'?'Cancelar registros':accion.replaceAll('_',' '))+' ';
         const select=document.createElement('select');select.dataset.rbacModulo=modulo;select.dataset.rbacAccion=accion;
         for(const [v,t] of [['','Según el rol'],['true','Permitir'],['false','Denegar']])select.add(new Option(t,v));
         const valor=usuario?.permisos_excepciones?.[modulo]?.[accion];select.value=typeof valor==='boolean'?String(valor):'';

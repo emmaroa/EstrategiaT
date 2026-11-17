@@ -74,29 +74,49 @@
   }
   root.ETRbac={acciones,modulos,matriz,tablas,normal,base,puede,limiteAnterior};
   root.ETRbac.tablaUsuarios=function(){try{return Number(JSON.parse(root.localStorage.getItem('usuarioActivo')||'{}').permisos_version)===2?'directorio_usuarios':'usuarios';}catch(_){return 'usuarios';}};
+  let consultandoPerfil=false;
+  function volverAlLogin(){
+    root.localStorage.removeItem('usuarioActivo');
+    const ruta=root.location?.pathname||'';
+    if(!ruta.endsWith('/index.html')&&ruta!=='/')root.location?.replace(ruta.includes('/modulos/')?'../index.html':'index.html');
+  }
   async function refrescarPerfil(){
     if(!root.supabaseClient||!root.localStorage)return;
+    if(consultandoPerfil)return;
+    consultandoPerfil=true;
     try{
-      const previo=JSON.parse(root.localStorage.getItem('usuarioActivo')||'null');if(!previo?.flujo_token)return;
-      const r=await root.supabaseClient.rpc('obtener_perfil_acceso');if(r.error||!r.data)return;
+      const previo=JSON.parse(root.localStorage.getItem('usuarioActivo')||'null');if(!previo)return;
+      if(!previo.flujo_token){volverAlLogin();return;}
+      const r=await root.supabaseClient.rpc('obtener_perfil_acceso');if(r.error)return;
+      // Una respuesta de la sesión anterior no debe cerrar una sesión recién iniciada.
+      const actual=JSON.parse(root.localStorage.getItem('usuarioActivo')||'null');
+      if(actual?.flujo_token!==previo.flujo_token)return;
+      if(!r.data){volverAlLogin();return;}
       const clave=u=>JSON.stringify([u.rol,u.activo,u.permisos_version,u.permisos_excepciones,u.modulos_permitidos,u.permisos_rol]);
       if(clave(previo)!==clave(r.data)){
         root.localStorage.setItem('usuarioActivo',JSON.stringify({...previo,...r.data}));
         root.location?.reload();
       }
-    }catch(_){/* La validación de servidor sigue vigente si no hay conexión. */}
+    }catch(_){/* Un fallo de red no equivale a una revocación. */}
+    finally{consultandoPerfil=false;}
   }
-  if(root.addEventListener){root.addEventListener('focus',refrescarPerfil);refrescarPerfil();}
+  if(root.addEventListener){
+    root.addEventListener('focus',refrescarPerfil);
+    root.addEventListener('pageshow',refrescarPerfil);
+    root.addEventListener('online',refrescarPerfil);
+    root.setInterval?.(()=>{if(!root.document?.hidden)refrescarPerfil();},30000);
+    refrescarPerfil();
+  }
   const p=root.ETPermissions;
   if(!p)return;
-  p.MODULOS.CANCELACIONES='Cancelaciones';p.RUTAS.Cancelaciones='modulos/cancelaciones.html';
+  delete p.MODULOS.CANCELACIONES;delete p.RUTAS.Cancelaciones;
   p.MODULOS.ROLES='Roles';p.RUTAS.Roles='modulos/roles.html';p.DESCRIPCIONES.Roles='Administración de roles y módulos permitidos.';
   const v2=u=>Number(u?.permisos_version)===2;
   for(const nombre of ['obtenerModulosUsuario','obtenerPermisoModuloUsuario','puedeVerModulo','puedeEditarModulo','puedeAccion','puedeAcceder']){
     const anterior=p[nombre];
     p[nombre]=function(u,m,a,registro){
       if(!u || typeof u!=='object')return nombre==='obtenerModulosUsuario'?[]:false;
-      if(nombre==='obtenerModulosUsuario')return modulos.filter(mod=>puede(u,mod,'ver'));
+      if(nombre==='obtenerModulosUsuario')return modulos.filter(mod=>mod!=='Cancelaciones'&&puede(u,mod,'ver'));
       if(nombre==='obtenerPermisoModuloUsuario')return puede(u,m,'editar')?'editar':puede(u,m,'ver')?'ver':'none';
       if(nombre==='puedeEditarModulo')return puede(u,m,'editar',a);
       if(nombre==='puedeAccion')return puede(u,m,a==='consultar'?'ver':a,registro);

@@ -45,7 +45,7 @@
             if(Number(usuario?.permisos_version)===2 && modulo && ['POST','PATCH','DELETE'].includes(method)){
               const accion=tabla==='importaciones_siif'?'importar':method==='POST'?'crear':method==='DELETE'?'eliminar':'editar';
               const permitido=global.ETRbac.puede(usuario,modulo,accion)||(tabla==='peticiones'&&method==='PATCH'&&global.ETRbac.puede(usuario,'Peticiones de Coordinadores',accion));
-              if(!permitido)return Promise.resolve(new Response(JSON.stringify({code:'42501',message:'No tienes permiso para '+accion+' en '+modulo+'. Puedes solicitar una cancelación desde el módulo Cancelaciones.'}),{status:403,headers:{'Content-Type':'application/json'}}));
+              if(!permitido)return Promise.resolve(new Response(JSON.stringify({code:'42501',message:'No tienes permiso para '+accion+' en '+modulo+'. Usa Cancelar registro dentro del módulo si tienes permiso.'}),{status:403,headers:{'Content-Type':'application/json'}}));
             }
           }
           return global.fetch(url, config).then(function (response) {
@@ -66,7 +66,7 @@
     SUPABASE_URL,
     SUPABASE_KEY,
     APP_NAME: "Administración de Talleres",
-    APP_VERSION: "2.0.168",
+    APP_VERSION: "2.0.172",
     PALETTE: {
       primary: "#FC712B",
       secondary: "#FD9319",

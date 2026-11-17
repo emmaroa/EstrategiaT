@@ -93,6 +93,28 @@ const uid='00000000-0000-4000-8000-000000000001';
  assert.equal((await db.query("UPDATE proveedores SET razon_social='No autorizado' WHERE id=$1 RETURNING id",[uid])).rows.length,0);
  assert.equal((await db.query('SELECT razon_social FROM proveedores WHERE id=$1',[uid])).rows[0].razon_social,'Proveedor prueba');
  await db.exec('RESET ROLE; SET session_replication_role=replica');
+ for(const rol of ['Técnico','Técnico Vales']){
+  await db.query("UPDATE usuarios SET rol=$1,modulos_permitidos='[\"Vales\"]'::jsonb WHERE id=$2",[rol,uid]);
+  await db.query('UPDATE vales SET rbac_creado_por=$1,proveedor=NULL WHERE id=$1',[uid]);
+  await db.exec('SET session_replication_role=origin');
+  for(const cliente of ['anon','authenticated']){
+   await session(cliente,'test-token');
+   assert.equal((await db.query('SELECT razon_social FROM proveedores')).rows.length,1,rol+' puede consultar proveedores');
+   assert.equal((await db.query("UPDATE vales SET proveedor='Proveedor prueba' WHERE id=$1 RETURNING proveedor",[uid])).rows[0].proveedor,'Proveedor prueba');
+   assert.equal((await db.query("UPDATE proveedores SET razon_social='Prohibido' WHERE id=$1 RETURNING id",[uid])).rows.length,0);
+  }
+  await db.exec('RESET ROLE; SET session_replication_role=replica');
+  await db.query("UPDATE usuarios SET modulos_permitidos='[]'::jsonb WHERE id=$1",[uid]);
+  await db.exec('SET session_replication_role=origin');await session('anon','test-token');
+  assert.equal((await db.query('SELECT id FROM proveedores')).rows.length,0,rol+' sin acceso a Vales');
+  await db.exec('RESET ROLE; SET session_replication_role=replica');
+ }
+ await db.query("UPDATE usuarios SET rol='Técnico',modulos_permitidos='[\"Vales\"]'::jsonb WHERE id=$1",[uid]);
+ await db.exec("UPDATE vales SET rbac_creado_por='00000000-0000-4000-8000-000000000002'");
+ await db.exec('SET session_replication_role=origin');await session('anon','test-token');
+ assert.equal((await db.query("UPDATE vales SET proveedor='Ajeno' WHERE id=$1 RETURNING id",[uid])).rows.length,0);
+ assert.equal((await db.query('SELECT proveedor FROM vales WHERE id=$1',[uid])).rows[0].proveedor,'Proveedor prueba');
+ await db.exec('RESET ROLE; SET session_replication_role=replica');
  await db.query("UPDATE usuarios SET rol='Consulta' WHERE id=$1",[uid]);
  await db.exec('SET session_replication_role=origin');
  await session('anon','test-token');

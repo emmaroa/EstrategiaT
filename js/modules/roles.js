@@ -15,9 +15,9 @@
    const reservado=['Usuarios','Roles','Licencias'].includes(m)&&rol?.clave!=='superadmin';
    if(reservado){nivel.disabled=true;nivel.value='none';}
    const detalles=document.createElement('details');const summary=document.createElement('summary');summary.textContent='Acciones detalladas';detalles.append(summary);
-   for(const a of ETRbac.acciones){const label=document.createElement('label');label.style.margin='8px';const check=document.createElement('input');check.type='checkbox';check.dataset.accion=a;
+   for(const a of ETRbac.acciones.filter(a=>a!=='aprobar_cancelacion')){const label=document.createElement('label');label.style.margin='8px';const check=document.createElement('input');check.type='checkbox';check.dataset.accion=a;
     check.disabled=reservado||(a==='eliminar'&&!['superadmin','administradordelsistema'].includes(rol?.clave))||(a==='aprobar_cancelacion'&&!['superadmin','administradordelsistema','jefedealmacen'].includes(rol?.clave));
-    check.checked=!check.disabled&&acciones.includes(a);label.append(check,document.createTextNode(' '+a.replaceAll('_',' ')));detalles.append(label);}
+    check.checked=!check.disabled&&acciones.includes(a);label.append(check,document.createTextNode(' '+(a==='solicitar_cancelacion'?'Cancelar registros':a.replaceAll('_',' '))));detalles.append(label);}
    nivel.onchange=()=>{const defaults=nivel.value==='editar'?['ver','crear','editar','cambiar_estatus','exportar','imprimir','solicitar_cancelacion']:nivel.value==='ver'?['ver','exportar','imprimir']:[];bloque.querySelectorAll('[data-accion]').forEach(c=>c.checked=defaults.includes(c.dataset.accion));};
    detalles.onchange=()=>{const a=Array.from(detalles.querySelectorAll('input:checked')).map(c=>c.dataset.accion);nivel.value=a.includes('editar')?'editar':a.includes('ver')?'ver':'none';};
    bloque.append(title,nivel,detalles);el('modulosRol').append(bloque);
