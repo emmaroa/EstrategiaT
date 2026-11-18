@@ -39,7 +39,7 @@ assert.equal(r.puede({rol:'Jefe de Almacen',activo:true,modulos_permitidos:r.mod
   }
  }
  const comparacion=await db.query(`SELECT b.rol,b.modulo,a.accion,et_privado.rbac_puede(jsonb_build_object('rol',b.rol,'activo',true,'usuario','emma','modulos_permitidos',jsonb_build_array(b.modulo)),b.modulo,a.accion) permitido FROM et_privado.rbac_base b CROSS JOIN jsonb_array_elements_text($1::jsonb) a(accion)`,[JSON.stringify(r.acciones)]);
- for(const fila of comparacion.rows)assert.equal(fila.permitido,r.puede({rol:fila.rol,activo:true,usuario:'emma',modulos_permitidos:[fila.modulo]},fila.modulo,fila.accion),fila.rol+'/'+fila.modulo+'/'+fila.accion);
+ for(const fila of comparacion.rows.filter(f=>!(f.modulo==='Peticiones'&&f.accion==='solicitar_cancelacion'&&!['superadmin','jefedealmacen'].includes(f.rol))))assert.equal(fila.permitido,r.puede({rol:fila.rol,activo:true,usuario:'emma',modulos_permitidos:[fila.modulo]},fila.modulo,fila.accion),fila.rol+'/'+fila.modulo+'/'+fila.accion);
  for(const lista of [['Vales'],JSON.stringify(['Vales']),'Vales', [{modulo:'Vales',permiso:'ver'}]]){
   const cuenta={rol:'Jefe de Almacen',activo:true,modulos_permitidos:lista};
   for(const [modulo,accion,esperado] of [['Vales','ver',true],['Peticiones','ver',false],['Vales','editar',typeof lista[0]==='object'?false:true]]){
@@ -88,5 +88,26 @@ assert.equal(r.puede({rol:'Jefe de Almacen',activo:true,modulos_permitidos:r.mod
  await assert.rejects(db.query("SELECT cancelar_registro_modulo('peticiones',$1,'Duplicado otra vez')",[uid(300)]),/ya est/);
  await assert.rejects(db.query("UPDATE peticiones SET peticion='Cambio prohibido' WHERE id=$1",[uid(300)]),/cancelado/);
  await actor(999);await assert.rejects(db.query("SELECT cancelar_registro_modulo('peticiones',$1,'Sin sesion')",[uid(200)]),/inv.lida/);
+ await db.exec('RESET ROLE');
+ const restriccion=fs.readFileSync('supabase/migrations/080_cancelacion_peticiones_roles.sql','utf8');
+ await db.exec(restriccion);await db.exec(restriccion);
+ for(const rol of Object.keys(r.matriz)){
+  const cuenta={rol,activo:true,modulos_permitidos:r.modulos,permisos_excepciones:{Peticiones:{solicitar_cancelacion:true}}};
+  const esperado=['superadmin','jefedealmacen'].includes(rol);
+  assert.equal(r.puede(cuenta,'Peticiones','solicitar_cancelacion'),esperado,rol);
+  assert.equal((await db.query("SELECT et_privado.rbac_puede($1::jsonb,'Peticiones','solicitar_cancelacion') ok",[JSON.stringify(cuenta)])).rows[0].ok,esperado,rol);
+ }
+ for(const n of [1,4,5,6]){
+  await actor(n);
+  await assert.rejects(db.query("SELECT cancelar_registro_modulo('peticiones',$1,'Cancelacion prohibida')",[uid(200)]),/Sin permiso/);
+ }
+ await actor(1);
+ await db.query("INSERT INTO peticiones(id,creada_por_id,origen_peticion,estatus) VALUES($1,$2,'normal','Pendiente')",[uid(400),uid(1)]);
+ await assert.rejects(db.query("UPDATE peticiones SET estatus='CANCELADO' WHERE id=$1",[uid(400)]),/Sin permiso/);
+ await actor(3);await db.query("SELECT cancelar_registro_modulo('peticiones',$1,'Duplicado confirmado')",[uid(400)]);
+ const final=(await db.query('SELECT * FROM peticiones WHERE id=$1',[uid(400)])).rows[0];
+ assert.equal(final.estatus,'CANCELADO');assert.equal(final.rbac_cancelado,true);assert.equal(final.rbac_cancelado_por,uid(3));
+ await actor(2);await db.query("SELECT cancelar_registro_modulo('peticiones',$1,'Duplicado confirmado')",[uid(200)]);
+ await assert.rejects(db.query("UPDATE peticiones SET estatus='Pendiente' WHERE id=$1",[uid(400)]),/cancelado/);
  await db.close();console.log('RBAC: matriz, excepciones, autoría, borrado, sesión, cancelaciones e idempotencia aprobados.');
 })().catch(e=>{console.error(e);process.exitCode=1;});

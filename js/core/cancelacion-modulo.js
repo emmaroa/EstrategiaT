@@ -11,11 +11,13 @@
  const usuario=()=>JSON.parse(localStorage.getItem('usuarioActivo')||'null');
  function texto(f){return [f.folio||f.numero_solicitud||f.numero_economico||f.nombre||f.titulo||f.id,f.peticion||f.descripcion||f.concepto||f.fecha||''].filter(Boolean).join(' · ');}
  async function cancelar(tabla,fila,motivo){
+  if(tabla==='peticiones' && fila.origen_peticion!=='coordinador' && !global.ETRbac?.puede(usuario(),'Peticiones','solicitar_cancelacion',fila))throw new Error('Solo SuperAdmin y Jefe de Almacén pueden cancelar peticiones.');
   const result=await global.supabaseClient.rpc('cancelar_registro_modulo',{p_tabla:tabla,p_registro:fila.id,p_motivo:motivo});
   if(result.error)throw new Error(result.error.code==='PGRST202'?'Instala la actualización de cancelación por módulo.':result.error.message);
   global.dispatchEvent(new Event('et-data-changed'));
  }
  function inicializar(modulo){
+  if(modulo==='Peticiones' && !global.ETRbac?.puede(usuario(),modulo,'solicitar_cancelacion'))return;
   const fuentes=tablas[modulo];if(!fuentes||!global.ETRbac?.puede(usuario(),modulo,'ver')||document.getElementById('cancelacionEnModulo'))return;
   const header=document.querySelector('.et-header-actions,.topbar,.et-module-header');if(!header)return;
   const boton=document.createElement('button');boton.type='button';boton.className='btn-secondary';boton.id='cancelacionEnModulo';boton.textContent='Cancelación de registros';header.append(boton);

@@ -58,6 +58,7 @@
     if(m==='Roles')return normal(u.rol)==='superadmin';
     if(!limiteAnterior(u,m,'ver') || !limiteAnterior(u,m,a))return false;
     const rol=normal(u.rol);
+    if(m==='Peticiones' && a==='solicitar_cancelacion' && !['superadmin','jefedealmacen'].includes(rol))return false;
     if(m==='Usuarios' && rol!=='superadmin')return false;
     if(m==='Licencias' && !(rol==='superadmin'&&String(u.usuario).toLowerCase()==='emma'))return false;
     if(a==='eliminar'&&!['superadmin','administradordelsistema'].includes(rol))return false;
