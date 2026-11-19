@@ -45,7 +45,7 @@
   <script src="../js/core/supabase.js?v=2.0.170"></script>
   <script src="../js/services/vales.service.js"></script>
   <script src="../js/core/permissions.js?v=2.0.167"></script>
-  <script src="../js/core/rbac.js?v=2.0.170"></script>
+  <script src="../js/core/rbac.js?v=2.0.175"></script>
   <script src="../js/core/theme.js"></script>
   <script src="../js/core/table-columns.js?v=2.0.112"></script>
   <script src="../js/core/calendar-notifications.js?v=2.0.114"></script>
@@ -511,9 +511,7 @@
 
 
     function puedeSolventarVale() {
-      const rol = String(obtenerUsuarioVale()?.rol || "").trim().toLowerCase();
-      return puedeAccionVale("editar") ||
-        ["técnico vales", "tecnico vales", "superadmin", "jefe de almacen", "jefe de almacén"].includes(rol);
+      return puedeAccionVale("cambiar_estatus");
     }
 
     function puedeAccionVale(accion, registro) {
@@ -1043,12 +1041,12 @@ unidadVale?.addEventListener("blur", async function () {
 
       const acciones = [];
       if (puedeVerHistorialVale()) acciones.push({ label: 'Historial del vale', onClick: () => verHistorialVale(id) });
-      if (puedeAccionVale("editar")) acciones.push({
+      if (puedeAccionVale("editar", v)) acciones.push({
         label: "Editar vale",
         variant: "primary",
         onClick: function () { editarVale(id); }
       });
-      if (puedeAccionVale("cambiar_estatus")) acciones.push({
+      if (puedeAccionVale("cambiar_estatus", v)) acciones.push({
         label: "Cambiar estatus",
         onClick: function () { cambiarEstatusVale(id); }
       });

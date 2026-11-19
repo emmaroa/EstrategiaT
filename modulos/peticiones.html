@@ -108,8 +108,10 @@
   <script src="../js/core/auth.js?v=2.0.168"></script>
   <link rel="stylesheet" href="../css/reference-theme.css?v=20260927-1" media="screen">
 <meta name="referrer" content="strict-origin-when-cross-origin"><link rel="stylesheet" href="../css/privacy-accessibility.css?v=20260927-1"><script src="../js/core/privacy.js?v=20260928-1" defer></script><script src="../js/core/accessibility.js?v=20260927-1" defer></script>
+  <link rel="stylesheet" href="../css/peticiones.css?v=2.0.174" media="screen">
+  <script src="../js/modules/peticiones-presentacion.js?v=2.0.174" defer></script>
 </head>
-<body class="dashboard-body">
+<body class="dashboard-body peticiones-page">
 
   <aside class="sidebar">
     <div class="sidebar-logo">
@@ -197,17 +199,20 @@
         <button type="button" class="btn-secondary" id="btnExportarPeticiones" onclick="exportarPeticiones()" title="Descargar todas las peticiones filtradas en CSV">Exportar datos</button>
       </div>
 
-      <div class="filters" style="display:flex;flex-wrap:nowrap;align-items:center;gap:8px;overflow-x:auto;">
-        <input type="text" id="buscarPeticion" placeholder="Buscar petición..." aria-label="Buscar petición" style="min-width:220px;flex:1 1 220px;">
-        <input type="search" id="filtroUnidadPeticion" placeholder="Número de unidad exacto..." aria-label="Filtrar por número de unidad exacto" style="min-width:190px;flex:1 1 190px;">
+      <div class="filters peticiones-filters" data-et-enhanced="1" role="search" aria-label="Filtros de peticiones">
+        <input type="text" id="buscarPeticion" placeholder="Buscar petición, solicitante…" aria-label="Buscar petición">
+        <input type="search" id="filtroUnidadPeticion" placeholder="Número de unidad exacto" aria-label="Filtrar por número de unidad exacto">
 
-        <div style="display:flex;flex-wrap:nowrap;gap:6px;align-items:center;">
-          <button type="button" class="btn-small" id="btnFiltroPendientes" style="padding:6px 10px;font-size:12px;line-height:1;">Pend.</button>
-          <button type="button" class="btn-small" id="btnFiltroRevisado" style="padding:6px 10px;font-size:12px;line-height:1;">Revisado</button>
-          <button type="button" class="btn-small" id="btnFiltroCotizacion" style="padding:6px 10px;font-size:12px;line-height:1;">Cotización</button>
+        <div class="peticiones-quick-filters" role="group" aria-label="Estados frecuentes">
+          <button type="button" class="btn-small" id="btnFiltroPendientes" aria-pressed="false">Pendientes</button>
+          <button type="button" class="btn-small" id="btnFiltroRevisado" aria-pressed="false">Revisado</button>
+          <button type="button" class="btn-small" id="btnFiltroCotizacion" aria-pressed="false">Cotización</button>
         </div>
 
-        <select id="filtroEstatus" aria-label="Filtrar por estatus" style="min-width:150px;">
+        <button type="button" class="btn-secondary" id="btnMasFiltrosPeticiones" aria-expanded="false" aria-controls="filtrosAdicionalesPeticiones">Más filtros<span id="contadorFiltrosPeticiones"></span></button>
+        <button type="button" class="btn-secondary" id="btnLimpiarFiltrosPeticiones" disabled>Limpiar</button>
+        <div id="filtrosAdicionalesPeticiones" class="peticiones-extra-filters" hidden>
+        <label>Estado<select id="filtroEstatus" aria-label="Filtrar por estatus">
           <option value="">Todos los estatus</option>
           <option value="Pendiente">Pendiente</option>
           <option value="Revisado por almacen">Revisado por almacen</option>
@@ -218,13 +223,14 @@
           <option value="CANCELADO">CANCELADO</option>
         </select>
 
-        <select id="filtroProveedor" aria-label="Filtrar por proveedor">
+        </label><label>Proveedor<select id="filtroProveedor" aria-label="Filtrar por proveedor">
           <option value="">Todos los proveedores</option>
         </select>
 
-        <select id="filtroArea" aria-label="Filtrar por área">
+        </label><label>Área<select id="filtroArea" aria-label="Filtrar por área">
           <option value="">Todas las áreas</option>
-        </select>
+        </select></label>
+        </div>
       </div>
 
       <div class="table-container">
@@ -1084,7 +1090,7 @@
               botonVerPeticionConNota(p) +
               (puedeVerHistorialPeticiones() ? ETLayout.iconButton("historial", "Ver historial", "verHistorialPeticion('" + p.id + "')") : "") +
               (puedeEditar ? ETLayout.iconButton("editar", "Editar peticion", "editarPeticion('" + p.id + "')", "edit") : "") +
-              (puedeCancelarPeticion(p) ? '<button type="button" class="btn-secondary" onclick="cancelarPeticion(\'' + p.id + '\')">Cancelar petición</button>' : '') +
+              (puedeCancelarPeticion(p) ? ETLayout.iconButton("cancelar", "Cancelar petición", "cancelarPeticion('" + p.id + "')", "red-btn") : "") +
               (puedeEliminar ? ETLayout.iconButton("eliminar", "Eliminar peticion", "eliminarPeticion('" + p.id + "')", "red-btn") : "") +
               (puedeRevisarAlmacen ? ETLayout.iconButton("estatus", "Marcar como Revisado por almacen", "revisarPeticionAlmacen('" + p.id + "')", "orange") : "") +
               (puedeEnviarCotizacion && !cotizacion ? ETLayout.iconButton("cotizacion", "Enviar a cotizaciones", "enviarPeticionACotizaciones('" + p.id + "')", "orange") : "") +

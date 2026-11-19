@@ -253,7 +253,7 @@
       <div class="panel-header">
         <div>
           <h2>Gestión privada de cotizaciones</h2>
-          <p>Completa la partida y el número de requisición cuando la cotización tenga trámite.</p>
+          <p>Cotizaciones de materiales entregados a almacen.</p>
         </div>
         <a class="btn-secondary" href="reportes-cotizaciones.html">Reportes Cotizaciones</a>
         <button type="button" class="btn-secondary" id="btnExportarGestionCotizaciones">Exportar tabla</button>

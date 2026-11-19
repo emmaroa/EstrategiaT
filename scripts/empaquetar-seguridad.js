@@ -1,5 +1,5 @@
 const fs=require('node:fs');
-const names=['070_roles_acciones_cancelaciones','071_barrera_sesion_tablas','072_cerrar_accesos_rpc','073_optimizar_lecturas_rls','074_catalogo_proveedores_jefe_almacen','075_respetar_modulos_personalizados','076_modulos_permitidos_obligatorios','077_administracion_roles','078_cancelacion_desde_modulos','079_proveedores_tecnicos_vales','080_cancelacion_peticiones_roles'];
+const names=['070_roles_acciones_cancelaciones','071_barrera_sesion_tablas','072_cerrar_accesos_rpc','073_optimizar_lecturas_rls','074_catalogo_proveedores_jefe_almacen','075_respetar_modulos_personalizados','076_modulos_permitidos_obligatorios','077_administracion_roles','078_cancelacion_desde_modulos','079_proveedores_tecnicos_vales','080_cancelacion_peticiones_roles','081_estatus_vales_tecnicos'];
 const parts=names.map(n=>{
  const s=fs.readFileSync('supabase/migrations/'+n+'.sql','utf8');
  if(!/^BEGIN;$/m.test(s)||!/^COMMIT;$/m.test(s))throw Error('Transacción no reconocida: '+n);

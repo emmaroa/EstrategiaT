@@ -67,6 +67,7 @@
     function permiso(accion){const valor=excepciones[m]?.[accion];return typeof valor==='boolean'?valor:base(u,m,accion)&&limiteAnterior(u,m,accion);}
     if(!permiso('ver') || !permiso(a))return false;
     if(registro?.rbac_cancelado && ['editar','cambiar_estatus','autorizar'].includes(a))return false;
+    if(m==='Vales' && a==='cambiar_estatus' && ['tecnico','tecnicovales'].includes(rol))return true;
     if(registro && ['editar','cambiar_estatus','autorizar','solicitar_cancelacion'].includes(a) && ['coordinador','coordinadorinfraestructura','tecnico'].includes(rol)){
       const autor=registro.rbac_creado_por || registro.creado_por || registro.creada_por_id || registro.usuario_id || registro.solicitante_id;
       if(!autor || String(autor)!==String(u.id))return false;
