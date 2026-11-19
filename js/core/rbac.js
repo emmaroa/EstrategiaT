@@ -61,6 +61,7 @@
     if(m==='Peticiones' && a==='solicitar_cancelacion' && !['superadmin','jefedealmacen'].includes(rol))return false;
     if(m==='Usuarios' && rol!=='superadmin')return false;
     if(m==='Licencias' && !(rol==='superadmin'&&String(u.usuario).toLowerCase()==='emma'))return false;
+    if(m==='Control de Taller' && a==='eliminar' && rol==='coordinador')return Boolean(registro)&&puede(u,m,'editar',registro);
     if(a==='eliminar'&&!['superadmin','administradordelsistema'].includes(rol))return false;
     if(a==='aprobar_cancelacion'&&!['superadmin','administradordelsistema','jefedealmacen'].includes(rol))return false;
     const excepciones=u.permisos_excepciones||{};

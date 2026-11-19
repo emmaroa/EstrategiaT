@@ -3,12 +3,16 @@ const {PGlite}=require('@electric-sql/pglite');
 const ctx={};vm.runInNewContext(fs.readFileSync('js/core/rbac.js','utf8'),ctx);
 const r=ctx.ETRbac,uid=n=>'00000000-0000-4000-8000-'+String(n).padStart(12,'0');
 const tecnico={id:uid(1),rol:'Técnico',activo:true,permisos_version:2,modulos_permitidos:r.modulos};
+const coordinador={id:uid(4),rol:'Coordinador',activo:true,permisos_version:2,modulos_permitidos:r.modulos};
 assert.equal(r.puede(tecnico,'Seguimiento SIIF','ver'),true);
 assert.equal(r.puede(tecnico,'Usuarios','ver'),false);
 assert.equal(r.puede(tecnico,'Peticiones','editar',{creada_por_id:uid(1)}),true);
 assert.equal(r.puede(tecnico,'Peticiones','editar',{creada_por_id:uid(2)}),false);
 assert.equal(r.puede({...tecnico,permisos_excepciones:{Peticiones:{eliminar:true}}},'Peticiones','eliminar'),false);
 assert.equal(r.puede({...tecnico,permisos_excepciones:{Peticiones:{ver:false,editar:true}}},'Peticiones','editar'),false);
+assert.equal(r.puede(coordinador,'Control de Taller','eliminar',{creado_por:uid(4)}),true);
+assert.equal(r.puede(coordinador,'Control de Taller','eliminar',{creado_por:uid(1)}),false);
+assert.equal(r.puede(coordinador,'Control de Taller','eliminar'),false);
 assert.equal(r.puede({rol:'Jefe de Almacen',activo:true,modulos_permitidos:r.modulos},'Cancelaciones','aprobar_cancelacion'),true);
 (async()=>{
  const db=new PGlite();
@@ -91,6 +95,11 @@ assert.equal(r.puede({rol:'Jefe de Almacen',activo:true,modulos_permitidos:r.mod
  await db.exec('RESET ROLE');
  const restriccion=fs.readFileSync('supabase/migrations/080_cancelacion_peticiones_roles.sql','utf8');
  await db.exec(restriccion);await db.exec(restriccion);
+ const borradoTaller=fs.readFileSync('supabase/migrations/083_eliminar_control_taller_coordinador.sql','utf8');
+ await db.exec(borradoTaller);await db.exec(borradoTaller);
+ const coordinadorSql={id:uid(4),rol:'Coordinador',activo:true,modulos_permitidos:r.modulos};
+ assert.equal((await db.query("SELECT et_privado.rbac_puede($1::jsonb,'Control de Taller','eliminar',$2::jsonb) ok",[JSON.stringify(coordinadorSql),JSON.stringify({creado_por:uid(4)})])).rows[0].ok,true);
+ assert.equal((await db.query("SELECT et_privado.rbac_puede($1::jsonb,'Control de Taller','eliminar',$2::jsonb) ok",[JSON.stringify(coordinadorSql),JSON.stringify({creado_por:uid(1)})])).rows[0].ok,false);
  for(const rol of Object.keys(r.matriz)){
   const cuenta={rol,activo:true,modulos_permitidos:r.modulos,permisos_excepciones:{Peticiones:{solicitar_cancelacion:true}}};
   const esperado=['superadmin','jefedealmacen'].includes(rol);

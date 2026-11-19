@@ -38,7 +38,7 @@ function loadService(validationRows) {
   assert.equal(bloqueada.error.code, 'PETICION_ABIERTA_UNIDAD');
   assert.deepEqual(bloqueada.error.peticionesAbiertas, [abierta]);
   assert.equal(conflicto.inserts, 0, 'no debe insertar cuando existe una petición abierta');
-  assert.deepEqual(Array.from(conflicto.calls.find(call => call[0] === 'in')[2]), ['Pendiente', 'Revisado por almacen', 'Pedido a proveedor']);
+  assert.deepEqual(Array.from(conflicto.calls.find(call => call[0] === 'in')[2]), ['Pendiente', 'Revisado por almacen']);
   assert.match(conflicto.calls.find(call => call[0] === 'or')[1], /rbac_cancelado\.eq\.false/);
   assert.match(conflicto.service.mensajePeticionAbierta('2761', [abierta]), /Balatas delanteras/);
   assert.match(conflicto.service.mensajePeticionAbierta('2761', [abierta]), /agrega los nuevos elementos/i);

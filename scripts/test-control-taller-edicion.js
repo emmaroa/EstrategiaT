@@ -1,5 +1,9 @@
 const fs = require('fs'), vm = require('vm'), assert = require('assert');
 const service = fs.readFileSync('js/services/control-taller.js', 'utf8');
+assert.match(service, /red-btn delete[^>]+data-eliminar-taller[^>]+Borrar registro/,
+  'Control de Taller debe mostrar el botón rojo para borrar registros permitidos');
+assert.match(service, /data-eliminar-taller[^\n]+ETLayout\.icono\('eliminar'\)/,
+  'El botón de borrado debe usar el icono de papelera');
 async function main() {
   let usuario = {id:'autor'}, solo = false, respuesta = 'clave', solicitudes = [], recargas = 0;
   const elementos = new Map();
@@ -14,6 +18,8 @@ async function main() {
     localStorage: {getItem: () => JSON.stringify(usuario)},
     esSoloLectura: () => solo, alert(){},
     ETLayout: {seleccionar: async () => respuesta},
+    ETRbac: {puede: (u, modulo, accion, fila) => accion !== 'eliminar' ||
+      Boolean(fila && String(fila.rbac_creado_por || fila.creado_por) === String(u.id))},
     seleccionarProveedorTaller(){}
   });
   vm.runInContext(service, ctx);
@@ -34,6 +40,12 @@ async function main() {
   assert.equal(solicitudes[0].nombre, 'eliminar_ingreso_taller');
   assert.equal(solicitudes[0].datos.p_usuario_id, 'autor');
   assert.equal(recargas, 1);
+  usuario = {id:'autor',rol:'Coordinador',activo:true,permisos_version:2};
+  assert.equal(ctx.puedeEliminarIngresoTaller(registro), true);
+  assert.equal(ctx.puedeEliminarIngresoTaller({...registro,creado_por:'otro'}), false);
+  await ctx.eliminarIngresoTaller(registro);
+  assert.equal(solicitudes[1].nombre, 'eliminar_ingreso_taller', 'RBAC v2 conserva la validación en servidor');
+  assert.equal(recargas, 2);
   ctx.abrirIngreso(registro);
   assert.equal(elementos.get('unidadTaller').disabled, false);
   vm.runInContext('unidadesTaller=[{id:"nueva",numero_economico:"E-2",unidad_patrulla:"P-2"}]',ctx);

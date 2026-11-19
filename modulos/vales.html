@@ -966,14 +966,16 @@ unidadVale?.addEventListener("blur", async function () {
         return;
       }
 
-      const { error } = await supabaseClient
+      const { data: valeActualizado, error } = await supabaseClient
         .from("vales")
         .update({ estatus: nuevoEstatus })
-        .eq("id", v.id);
+        .eq("id", v.id)
+        .select("id,estatus")
+        .maybeSingle();
 
-      if (error) {
+      if (error || !valeActualizado || valeActualizado.estatus !== nuevoEstatus) {
         console.error(error);
-        alert("No se pudo cambiar el estatus.");
+        alert(error?.message || "No se pudo cambiar el estatus. El vale no fue actualizado.");
         return;
       }
 

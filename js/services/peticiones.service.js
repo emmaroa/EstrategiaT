@@ -139,7 +139,7 @@
       .from("peticiones")
       .select("id,fecha,unidad,peticion,estatus,observaciones,estado_autorizacion,created_at,rbac_cancelado")
       .ilike("unidad", unidadLimpia)
-      .in("estatus", ["Pendiente", "Revisado por almacen", "Pedido a proveedor"])
+      .in("estatus", ["Pendiente", "Revisado por almacen"])
       .or("rbac_cancelado.eq.false,rbac_cancelado.is.null")
       .order("created_at", { ascending: false })
       .limit(10);

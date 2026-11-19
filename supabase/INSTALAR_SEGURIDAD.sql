@@ -1508,5 +1508,44 @@ DO $$ DECLARE definicion text; ancla text; BEGIN
 END $$;
 NOTIFY pgrst,'reload schema';
 
+-- 082_estatus_vales_tecnicos_rls
+-- La política UPDATE debe dejar que el trigger evalúe cambios exclusivos de estatus.
+DO $$ DECLARE definicion text; ancla text; BEGIN
+ definicion:=pg_get_functiondef('et_privado.seguridad_fila(text,jsonb,text)'::regprocedure);
+ IF position('estatus_vales_tecnicos_rls' IN definicion)=0 THEN
+  ancla:='IF EXISTS(SELECT 1 FROM et_privado.rbac_tablas WHERE tabla=t) THEN';
+  IF position(ancla IN definicion)=0 THEN RAISE EXCEPTION 'No se encontró la política central de escritura RLS'; END IF;
+  definicion:=replace(definicion,ancla,$regla$
+  -- estatus_vales_tecnicos_rls: la validación de columnas permanece en rbac_escritura.
+  IF t='vales' AND a='editar'
+     AND et_privado.rbac_rol(u->>'rol') IN ('tecnico','tecnicovales')
+     AND et_privado.rbac_puede(u,'Vales','cambiar_estatus',r) THEN
+    RETURN true;
+  END IF;
+  IF EXISTS(SELECT 1 FROM et_privado.rbac_tablas WHERE tabla=t) THEN$regla$);
+  EXECUTE definicion;
+ END IF;
+END $$;
+NOTIFY pgrst,'reload schema';
+
+-- 083_eliminar_control_taller_coordinador
+-- Un Coordinador puede eliminar solamente ingresos de taller cuya autoría ya
+-- puede editar. La llamada recursiva conserva módulos, excepciones y autoría.
+DO $$ DECLARE definicion text; ancla text; BEGIN
+ definicion:=pg_get_functiondef('et_privado.rbac_puede(jsonb,text,text,jsonb)'::regprocedure);
+ IF position('eliminar_control_taller_coordinador' IN definicion)=0 THEN
+  ancla:='IF a=''eliminar'' AND rol NOT IN';
+  IF position(ancla IN definicion)=0 THEN RAISE EXCEPTION 'No se encontró la restricción central de eliminación RBAC'; END IF;
+  definicion:=replace(definicion,ancla,$regla$
+   -- eliminar_control_taller_coordinador: solo registros propios con permiso de edición.
+   IF m='Control de Taller' AND a='eliminar' AND rol='coordinador' AND r IS NOT NULL THEN
+    RETURN et_privado.rbac_puede(u,m,'editar',r);
+   END IF;
+   IF a='eliminar' AND rol NOT IN$regla$);
+  EXECUTE definicion;
+ END IF;
+END $$;
+NOTIFY pgrst,'reload schema';
+
 COMMIT;
 SELECT 'Protección instalada. Cierre sesión y vuelva a entrar.' AS resultado;

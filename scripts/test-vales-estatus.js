@@ -27,13 +27,20 @@ assert.equal(ctx.ETRbac.puede(cuenta('Técnico'),'Vales','editar',{rbac_creado_p
     }
     await db.query("INSERT INTO vales VALUES($1,'Pendiente','Original',null)",[id(10)]);
     await db.exec(fs.readFileSync('supabase/migrations/070_roles_acciones_cancelaciones.sql','utf8'));
+    await db.exec(fs.readFileSync('supabase/migrations/071_barrera_sesion_tablas.sql','utf8'));
     await db.exec(fs.readFileSync('supabase/migrations/077_administracion_roles.sql','utf8'));
     const sql = fs.readFileSync('supabase/migrations/081_estatus_vales_tecnicos.sql','utf8');
+    const rls = fs.readFileSync('supabase/migrations/082_estatus_vales_tecnicos_rls.sql','utf8');
     await db.exec(sql); await db.exec(sql);
+    await db.exec(rls); await db.exec(rls);
     const actor = async n => {
       await db.exec('RESET ROLE');
       await db.query("SELECT set_config('request.headers',$1,false)",[JSON.stringify({'x-et-session-token':'token'+n})]);
       await db.exec('SET ROLE anon');
+    };
+    const denegado = async consulta => {
+      try { assert.equal((await consulta).rows.length,0); }
+      catch (error) { assert.match(String(error.message || error),/Sin permiso|cancelado/); }
     };
     for (const n of [1,2]) {
       await actor(n);
@@ -42,17 +49,17 @@ assert.equal(ctx.ETRbac.puede(cuenta('Técnico'),'Vales','editar',{rbac_creado_p
         assert.equal((await db.query('SELECT estatus FROM vales WHERE id=$1',[id(10)])).rows[0].estatus,estatus);
       }
       await assert.rejects(db.query("UPDATE vales SET estatus='Cancelado' WHERE id=$1",[id(10)]),/cancelaci/);
-      await assert.rejects(db.query('DELETE FROM vales WHERE id=$1',[id(10)]),/Sin permiso/);
+      await denegado(db.query('DELETE FROM vales WHERE id=$1 RETURNING id',[id(10)]));
     }
     await actor(1);
     await assert.rejects(db.query("UPDATE vales SET estatus='Entregado',descripcion='Ajeno' WHERE id=$1",[id(10)]),/Sin permiso/);
-    await actor(3); await assert.rejects(db.query("UPDATE vales SET estatus='Entregado' WHERE id=$1",[id(10)]),/Sin permiso/);
+    await actor(3); await denegado(db.query("UPDATE vales SET estatus='Entregado' WHERE id=$1 RETURNING id",[id(10)]));
     await db.exec('RESET ROLE; ALTER TABLE usuarios DISABLE TRIGGER rbac_escritura;');
     await db.query("UPDATE usuarios SET permisos_excepciones='{\"Vales\":{\"cambiar_estatus\":false}}' WHERE id=$1",[id(1)]);
     await db.exec('ALTER TABLE usuarios ENABLE TRIGGER rbac_escritura;');
-    await actor(1); await assert.rejects(db.query("UPDATE vales SET estatus='Entregado' WHERE id=$1",[id(10)]),/Sin permiso/);
+    await actor(1); await denegado(db.query("UPDATE vales SET estatus='Entregado' WHERE id=$1 RETURNING id",[id(10)]));
     await db.exec('RESET ROLE; ALTER TABLE vales DISABLE TRIGGER rbac_escritura; UPDATE vales SET rbac_cancelado=true; ALTER TABLE vales ENABLE TRIGGER rbac_escritura;');
-    await actor(2); await assert.rejects(db.query("UPDATE vales SET estatus='Entregado' WHERE id=$1",[id(10)]),/Sin permiso|cancelado/);
+    await actor(2); await denegado(db.query("UPDATE vales SET estatus='Entregado' WHERE id=$1 RETURNING id",[id(10)]));
     await actor(999);
     assert.equal((await db.query("UPDATE vales SET estatus='Entregado' WHERE id=$1 RETURNING id",[id(10)])).rows.length,0);
     console.log('Vales: estatus para ambos técnicos, autoría, edición ajena, permisos revocados, cancelación, sesión e idempotencia verificados.');
