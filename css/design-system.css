@@ -3098,6 +3098,8 @@ tbody tr:hover {
   display: grid;
   grid-template-columns: 44px minmax(0, 1fr);
   width: min(470px, 100%);
+  max-height: calc(100dvh - 32px);
+  overflow-y: auto;
   gap: 14px;
   padding: 22px;
   border: 1px solid var(--border-color, rgba(148, 163, 184, 0.22));
@@ -3135,6 +3137,8 @@ tbody tr:hover {
   color: var(--text-secondary, #cbd5e1);
   font-size: 14px;
   line-height: 1.55;
+  white-space: pre-line;
+  overflow-wrap: anywhere;
 }
 
 .et-feedback-control,

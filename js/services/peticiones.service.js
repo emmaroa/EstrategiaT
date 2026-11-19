@@ -118,9 +118,68 @@
     });
   }
 
+  function normalizarUnidadValidacion(valor) {
+    return String(valor || "").trim().normalize("NFD")
+      .replace(/[\u0300-\u036f]/g, "").toLowerCase().replace(/[^a-z0-9]/g, "");
+  }
+
+  function esUnidadStock(valor) {
+    const unidad = normalizarUnidadValidacion(valor);
+    return unidad === "0" || unidad === "stk" || unidad.includes("stock") ||
+      unidad.includes("stoc") || unidad.includes("stok");
+  }
+
+  async function buscarAbiertasPorUnidad(unidad) {
+    const client = getClient();
+    const unidadLimpia = String(unidad || "").trim();
+    if (!client) return { data: [], error: { message: "Sin conexión" } };
+    if (!unidadLimpia || esUnidadStock(unidadLimpia)) return { data: [], error: null };
+
+    const resultado = await client
+      .from("peticiones")
+      .select("id,fecha,unidad,peticion,estatus,observaciones,estado_autorizacion,created_at,rbac_cancelado")
+      .ilike("unidad", unidadLimpia)
+      .in("estatus", ["Pendiente", "Revisado por almacen", "Pedido a proveedor"])
+      .or("rbac_cancelado.eq.false,rbac_cancelado.is.null")
+      .order("created_at", { ascending: false })
+      .limit(10);
+    if (resultado.error) return resultado;
+    return {
+      data: (resultado.data || []).filter(function (peticion) {
+        return normalizarUnidadValidacion(peticion.estado_autorizacion) !== "rechazada";
+      }),
+      error: null
+    };
+  }
+
+  function mensajePeticionAbierta(unidad, peticionesAbiertas) {
+    const abiertas = Array.isArray(peticionesAbiertas) ? peticionesAbiertas : [];
+    const detalle = abiertas.slice(0, 5).map(function (peticion, indice) {
+      const pedido = String(peticion.peticion || "Sin descripción").trim();
+      return (indice + 1) + ". Estado: " + (peticion.estatus || "Pendiente") + "\n" + pedido;
+    }).join("\n\n");
+    const adicionales = abiertas.length > 5 ? "\n\nHay " + (abiertas.length - 5) + " petición(es) abierta(s) adicional(es)." : "";
+    return "Ya hay " + (abiertas.length === 1 ? "una petición abierta" : abiertas.length + " peticiones abiertas") +
+      " para la unidad " + String(unidad || "").trim() + ".\n\nQué está pedido:\n" + detalle + adicionales +
+      "\n\nSugerencia: agrega los nuevos elementos a la petición ya abierta en lugar de crear otra.";
+  }
+
   async function crear(payload) {
     const client = getClient();
     if (!client) return { data: null, error: { message: "Sin conexión" } };
+
+    const abiertas = await buscarAbiertasPorUnidad(payload?.unidad);
+    if (abiertas.error) return { data: null, error: abiertas.error };
+    if (abiertas.data?.length) {
+      return {
+        data: null,
+        error: {
+          code: "PETICION_ABIERTA_UNIDAD",
+          message: "Ya hay una petición abierta para esta unidad.",
+          peticionesAbiertas: abiertas.data
+        }
+      };
+    }
 
     return client
       .from("peticiones")
@@ -272,6 +331,8 @@
     listar,
     listarPeticionesCoordinadores,
     listarPorAreas,
+    buscarAbiertasPorUnidad,
+    mensajePeticionAbierta,
     crear,
     actualizar,
     eliminar,

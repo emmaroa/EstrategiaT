@@ -11,6 +11,7 @@
   <link rel="stylesheet" href="css/mobile-app.css">
   <link rel="stylesheet" href="css/reference-theme.css?v=20260927-1" media="screen">
 <meta name="referrer" content="strict-origin-when-cross-origin"><link rel="stylesheet" href="css/privacy-accessibility.css?v=20260927-1"><script src="js/core/privacy.js?v=20260928-1" defer></script><script src="js/core/accessibility.js?v=20260927-1" defer></script>
+  <link rel="stylesheet" href="css/interfaz-sobria.css?v=2.0.177" media="screen">
 </head>
 <body class="login-body">
 
@@ -44,12 +45,12 @@
 
         <div class="input-group">
           <label for="usuario">Usuario o correo</label>
-          <input type="text" id="usuario" placeholder="Ingresa tu usuario o correo" autocomplete="username" aria-label="Usuario o correo">
+          <input type="text" id="usuario" placeholder="Ingresa tu usuario o correo" autocomplete="username" autocapitalize="none" autocorrect="off" spellcheck="false" enterkeyhint="next" aria-label="Usuario o correo">
         </div>
 
         <div class="input-group">
           <label for="password">Contraseña</label>
-          <input type="password" id="password" placeholder="••••••••" autocomplete="current-password" aria-label="Contraseña">
+          <input type="password" id="password" placeholder="••••••••" autocomplete="current-password" enterkeyhint="go" aria-label="Contraseña">
         </div>
 
         <button data-privacy-submit class="btn" id="btnLogin" type="button">Ingresar</button>

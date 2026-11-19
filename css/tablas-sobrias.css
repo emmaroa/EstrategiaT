@@ -1,0 +1,114 @@
+/* Estilo compartido de los visores. Solo pantalla; conserva anchos y modos móviles. */
+@media screen {
+  body.dashboard-body {
+    --table-accent: #356959;
+    --table-accent-soft: #edf3f0;
+  }
+  [data-theme="dark"] body.dashboard-body {
+    --table-accent: #9bcab7;
+    --table-accent-soft: #283b33;
+  }
+  body.dashboard-body :is(.panel,.card,.chart-card):has(table) {
+    border: 1px solid var(--border-subtle);
+    border-radius: 8px;
+    box-shadow: none;
+  }
+  body.dashboard-body :is(.panel,.card,.chart-card):has(table) > .panel-header h2 {
+    font-family: var(--font-sans);
+    font-size: 17px;
+    font-weight: 650;
+    letter-spacing: -.015em;
+  }
+  body.dashboard-body :is(.panel,.card,.chart-card):has(table) > .panel-header p {
+    font-size: 12px;
+    color: var(--text-secondary);
+  }
+  body.dashboard-body :is(.table-container,.table-wrapper,.table-wrap,.table-responsive) {
+    border-color: var(--border-subtle);
+    border-radius: 6px;
+    box-shadow: none;
+  }
+  body.dashboard-body table th {
+    background: var(--bg-card-hover);
+    color: var(--text-secondary);
+    border-color: var(--border-subtle);
+    padding: 12px 14px;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0;
+    text-transform: none;
+    line-height: 1.45;
+  }
+  body.dashboard-body table td {
+    border-color: var(--border-subtle);
+    padding: 12px 14px;
+    font-size: 13px;
+    line-height: 1.5;
+    font-variant-numeric: tabular-nums;
+  }
+  body.dashboard-body table tfoot :is(th,td) { font-weight: 650; }
+  body.dashboard-body table :is(.badge,.status-badge,.et-status-chip) {
+    border-radius: 5px;
+    font-size: 11px;
+    font-weight: 600;
+    padding: 4px 7px;
+    box-shadow: none;
+  }
+  body.dashboard-body table :is(.status-badge,.et-status-chip)::before {
+    width: 5px;
+    height: 5px;
+    flex-basis: 5px;
+    box-shadow: none;
+  }
+  body.dashboard-body :is(table,.panel-header,.filters,.et-table-toolbar,.pagination-bar,.mir-pagination,.gt-pagination,.et-table-summary)
+    :is(.btn-small,.btn-secondary,.action-btn,.et-density-toggle,.et-filter-toggle,.et-filter-reset) {
+    border-radius: 6px;
+    box-shadow: none;
+    font-weight: 600;
+  }
+  body.dashboard-body .filters {
+    gap: 10px;
+    background: var(--bg-card);
+    border-color: var(--border-subtle);
+    border-radius: 6px;
+    box-shadow: none;
+  }
+  body.dashboard-body .filters :is(input,select) { border-radius: 6px; }
+  body.dashboard-body .filters label { font-size: 12px; font-weight: 500; }
+  body.dashboard-body .filters .btn-small {
+    background: var(--table-accent-soft);
+    border: 1px solid var(--border-subtle);
+    color: var(--table-accent);
+  }
+  body.dashboard-body .filters .btn-small:hover { border-color: var(--table-accent); }
+  body.dashboard-body :is(.pagination-bar,.mir-pagination,.gt-pagination,.et-table-summary) {
+    gap: 10px;
+    font-size: 12px;
+    color: var(--text-secondary);
+    box-shadow: none;
+  }
+  body.dashboard-body :is(.pagination-bar,.mir-pagination,.gt-pagination) { flex-wrap: wrap; }
+  body.dashboard-body :is(.pagination-bar,.mir-pagination,.gt-pagination) > div { flex-wrap: wrap; }
+  body.dashboard-body :is(.pagination-bar,.mir-pagination,.gt-pagination) span { font-weight: 500; }
+  body.dashboard-body .et-page-jump input { border-radius: 6px; font-variant-numeric: tabular-nums; }
+  body.dashboard-body table .et-action-menu-list { border-radius: 8px; }
+  body.dashboard-body table .action-btn:not(.red-btn) {
+    background: transparent;
+    color: var(--text-secondary);
+    border-color: var(--border-subtle);
+  }
+  body.dashboard-body table .action-btn:not(.red-btn):hover {
+    background: var(--table-accent-soft);
+    color: var(--table-accent);
+    border-color: var(--table-accent);
+  }
+  body.dashboard-body table .et-action-menu-list .red-btn { border-top: 1px solid var(--border-subtle); border-radius: 0; margin-top: 4px; }
+  /* La preferencia de densidad sigue teniendo precedencia sobre el estilo normal. */
+  body.dashboard-body .et-data-table.is-compact th { padding: 8px 10px; }
+  body.dashboard-body .et-data-table.is-compact td { padding: 7px 10px; font-size: 12px; }
+  @media (max-width: 768px) {
+    body.dashboard-body .et-mobile-cards td { padding: 9px 12px; }
+    body.dashboard-body .et-mobile-cards tr { border-radius: 6px; box-shadow: none; }
+    body.dashboard-body .et-mobile-cards td::before { font-size: 11px; font-weight: 600; letter-spacing: 0; }
+  }
+}

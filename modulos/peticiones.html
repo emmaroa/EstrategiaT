@@ -6,7 +6,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Administración de Talleres | Peticiones</title>
   <link rel="stylesheet" href="../css/style.css">
-  <link rel="stylesheet" href="../css/design-system.css?v=20260824-2">
+  <link rel="stylesheet" href="../css/design-system.css?v=2.0.181">
   <style>
     #tablaPeticiones .peticion-copiar-directo { display:block; width:fit-content; min-width:0; margin-top:4px; min-height:28px; padding:3px 8px; font-size:11px; line-height:1.2; border-radius:6px; box-shadow:none; }
     .peticion-texto-copia { width:min(560px, calc(100% - 32px)); padding:20px; border:1px solid var(--border-color, #888); border-radius:12px; background:var(--bg-card, white); color:var(--text-primary, #17212b); }
@@ -101,13 +101,15 @@
   <script src="../js/core/calendar-notifications.js?v=2.0.114"></script>
   <script src="../js/core/notifications-feed.js"></script>
 <script src="../js/core/cancelacion-modulo.js?v=2.0.173"></script>
-<script src="../js/core/layout.js?v=2.0.170"></script>
-  <script src="../js/services/peticiones.service.js?v=2.0.116"></script>
+<script src="../js/core/layout.js?v=2.0.177"></script>
+  <script src="../js/services/peticiones.service.js?v=2.0.181"></script>
   <script src="../js/services/cotizaciones-almacen.service.js?v=20260810-1"></script>
   <script src="../js/services/dependencias-cotizaciones.js"></script>
   <script src="../js/core/auth.js?v=2.0.168"></script>
   <link rel="stylesheet" href="../css/reference-theme.css?v=20260927-1" media="screen">
 <meta name="referrer" content="strict-origin-when-cross-origin"><link rel="stylesheet" href="../css/privacy-accessibility.css?v=20260927-1"><script src="../js/core/privacy.js?v=20260928-1" defer></script><script src="../js/core/accessibility.js?v=20260927-1" defer></script>
+  <link rel="stylesheet" href="../css/interfaz-sobria.css?v=2.0.177" media="screen">
+  <link rel="stylesheet" href="../css/tablas-sobrias.css?v=2.0.176" media="screen">
   <link rel="stylesheet" href="../css/peticiones.css?v=2.0.174" media="screen">
   <script src="../js/modules/peticiones-presentacion.js?v=2.0.174" defer></script>
 </head>
@@ -1271,6 +1273,17 @@
       return esPeticionStock(valor) ? "STOCK" : String(valor || "").trim();
     }
 
+    async function mostrarPeticionAbierta(unidad, error) {
+      const abiertas = error?.peticionesAbiertas || [];
+      await ETFeedback.seleccionar({
+        title: "Ya existe una petición abierta",
+        message: ETPeticiones.mensajePeticionAbierta(unidad, abiertas),
+        confirmLabel: "Entendido",
+        cancelLabel: "Cerrar"
+      });
+      peticionInput?.focus();
+    }
+
     async function guardarPeticion() {
       if (!idEditando && !puedeAccionPeticion("crear")) return;
       if (idEditando && !puedeAccionPeticion("editar")) return;
@@ -1364,6 +1377,10 @@
       }
 
       if (resultado.error) {
+        if (resultado.error.code === "PETICION_ABIERTA_UNIDAD") {
+          await mostrarPeticionAbierta(nuevaPeticion.unidad, resultado.error);
+          return;
+        }
         alert("Error al guardar: " + resultado.error.message);
         return;
       }

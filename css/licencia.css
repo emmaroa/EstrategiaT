@@ -13,3 +13,11 @@
 .et-licencia-dialogo button:disabled { opacity: .55; cursor: wait; }
 .et-licencia [data-licencia-respaldo][hidden] { display: none !important; }
 @media print { .et-licencia, .et-licencia-dialogo { display: none; } }
+.et-licencia { padding: 0; border: 0; border-top: 1px solid var(--border-subtle,#77889944); border-radius: 0; color: var(--text-secondary,inherit); }
+.et-licencia-detalles > summary { padding: 12px 0; cursor: pointer; font-size: 12px; font-weight: 500; }
+.et-licencia-detalles > summary:focus-visible { outline: 2px solid var(--color-teal,#356959); outline-offset: 3px; }
+.et-licencia [data-licencia-resumen] { margin-left: 12px; font-size: 11px; color: var(--text-secondary,inherit); }
+.et-licencia-contenido { padding: 8px 0 16px; }
+.et-licencia [data-licencia-copyright] { font-size: 11px; }
+.et-licencia[data-estado="vencida"], .et-licencia[data-estado="error"] { border-color: var(--border-subtle,#77889944); border-left-width: 0; }
+.et-licencia[data-estado="vencida"] [data-licencia-resumen] { color: var(--color-warning,#b45309); font-weight: 600; }

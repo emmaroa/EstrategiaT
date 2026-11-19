@@ -10,104 +10,39 @@ html.et-native-app {
 .et-native-app .sidebar { padding-top: calc(var(--et-safe-top) + 16px); padding-bottom: calc(var(--et-safe-bottom) + 16px); padding-left: var(--et-safe-left); }
 .et-native-app button, .et-native-app a, .et-native-app input, .et-native-app select, .et-native-app textarea { touch-action: manipulation; }
 
+
 @media (max-width: 768px) {
-  .et-native-app input, .et-native-app select, .et-native-app textarea { font-size: 16px; }
-  .et-native-app .nav-item { min-height: 44px; }
-
-  /* Densidad móvil: más información visible sin perder objetivos táctiles. */
-  .et-native-app .main-content {
-    padding-left: max(var(--et-safe-left), 8px) !important;
-    padding-right: max(var(--et-safe-right), 8px) !important;
-    gap: 10px;
-  }
-
-  .et-native-app .topbar,
-  .et-native-app .panel,
-  .et-native-app .card,
-  .et-native-app .chart-card,
-  .et-native-app .recent-card {
-    padding-left: 12px !important;
-    padding-right: 12px !important;
-  }
-
-  .et-native-app .topbar h1,
-  .et-native-app .dashboard-hero h1 { font-size: 1.35rem !important; line-height: 1.15; }
-  .et-native-app .topbar p,
-  .et-native-app .dashboard-hero p { font-size: .78rem; }
-
-  .et-native-app .kpi-grid,
-  .et-native-app .dashboard-kpi-grid,
-  .et-native-app [class*="kpi-grid"] {
-    display: grid !important;
-    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
-    gap: 8px !important;
-  }
-
-  .et-native-app .kpi-card,
-  .et-native-app .dashboard-kpi-card,
-  .et-native-app [class*="kpi-card"] {
-    min-width: 0 !important;
-    min-height: 100px !important;
-    padding: 10px !important;
-    border-radius: 12px !important;
-  }
-
-  .et-native-app .kpi-card > span:not(.dashboard-kpi-icon),
-  .et-native-app .dashboard-kpi-card > span:not(.dashboard-kpi-icon) {
-    font-size: .7rem !important;
-    line-height: 1.2;
-  }
-
-  .et-native-app .kpi-card h2,
-  .et-native-app .kpi-card .kpi-value,
-  .et-native-app .dashboard-kpi-card h2 {
-    margin: 4px 0 !important;
-    font-size: 1.2rem !important;
-    line-height: 1.1;
-    overflow-wrap: anywhere;
-  }
-
-  .et-native-app .kpi-card p,
-  .et-native-app .dashboard-kpi-card p { font-size: .64rem !important; line-height: 1.2; }
-  .et-native-app .dashboard-kpi-icon { width: 24px !important; height: 24px !important; font-size: .62rem !important; }
-
-  .et-native-app .table-container,
-  .et-native-app .table-responsive,
-  .et-native-app [class*="table-wrapper"] {
-    overflow-x: auto;
-    -webkit-overflow-scrolling: touch;
-    border-radius: 10px;
-  }
-
-  .et-native-app table {
-    font-size: .68rem !important;
-    line-height: 1.2;
-  }
-
-  .et-native-app table th,
-  .et-native-app table td {
-    padding: 6px 7px !important;
-    height: auto !important;
-    white-space: nowrap;
-  }
-
-  .et-native-app table th { font-size: .62rem !important; }
-  .et-native-app table button,
-  .et-native-app table .btn,
-  .et-native-app table .btn-small {
-    min-height: 30px !important;
-    padding: 4px 7px !important;
-    font-size: .65rem !important;
-  }
-
-  .et-native-app .btn,
-  .et-native-app .btn-small,
-  .et-native-app button { padding-top: 7px; padding-bottom: 7px; }
-}
-
-@media (max-width: 380px) {
-  .et-native-app .kpi-card,
-  .et-native-app .dashboard-kpi-card { min-height: 92px !important; padding: 8px !important; }
-  .et-native-app table { font-size: .64rem !important; }
-  .et-native-app table th, .et-native-app table td { padding: 5px 6px !important; }
+  html.et-native-app { scroll-padding-top: 72px; }
+  .et-native-app body { min-height: 100dvh; }
+  .et-native-app body :is(input,select,textarea) { font-size: 16px !important; }
+  .et-native-app body :is(button,.btn,.btn-small,.btn-secondary,.action-btn,.nav-item,summary) { min-height: 44px; }
+  .et-native-app body .action-btn { min-width: 44px; }
+  .et-native-app body .main-content { min-width: 0; padding-inline: max(var(--et-safe-left),12px) max(var(--et-safe-right),12px); }
+  .et-native-app body :is(.topbar,.panel,.card,.chart-card) { padding-inline: 14px; }
+  .et-native-app body .topbar { padding-top: calc(var(--et-safe-top) + 12px); }
+  .et-native-app body .topbar h1 { font-size: 24px; line-height: 1.25; }
+  .et-native-app body .topbar p { font-size: 13px; }
+  .et-native-app body .kpi-grid { grid-template-columns: repeat(2,minmax(0,1fr)); gap: 8px; }
+  .et-native-app body .kpi-card { min-width: 0; padding: 12px; border-radius: 8px; }
+  .et-native-app body .kpi-card h2 { font-size: 24px; overflow-wrap: anywhere; }
+  .et-native-app body .kpi-card p { font-size: 12px; }
+  .et-native-app body :is(.table-container,.table-responsive,.table-wrapper,.table-wrap) { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+  .et-native-app body table td { font-size: 13px; padding: 10px; }
+  .et-native-app body table th { font-size: 12px; padding: 10px; }
+  .et-native-app body table :is(button,.btn,.btn-small,.action-btn) { min-height: 44px; font-size: 12px; }
+  .et-native-app body .et-mobile-cards td { white-space: normal; overflow-wrap: anywhere; }
+  .et-native-app body .filters { flex-wrap: wrap !important; overflow-x: visible !important; }
+  .et-native-app body .filters > :is(input,select) { min-width: 0 !important; max-width: 100%; }
+  .et-native-app body :is(.modal-card,.et-feedback-dialog) { max-height: calc(100dvh - var(--et-safe-top) - var(--et-safe-bottom) - 24px); overflow-y: auto; }
+  .et-native-app body .modal { padding: max(var(--et-safe-top),12px) 12px max(var(--et-safe-bottom),12px); }
+  .et-native-app body .modal-actions { flex-wrap: wrap; padding-bottom: max(var(--et-safe-bottom),12px); }
+  .et-native-app .login-container { min-height: 0; }
+  .et-native-app .login-body .left-panel { padding: calc(var(--et-safe-top) + 20px) 22px 16px; min-height: 0; }
+  .et-native-app .login-body .brand-box h1 { font-size: 28px; margin: 8px 0; }
+  .et-native-app .login-body .brand-box p { font-size: 13px; margin: 0; }
+  .et-native-app .login-body .tags { display: none; }
+  .et-native-app .login-body .right-panel { padding: 22px 18px; align-items: flex-start; }
+  .et-native-app .login-body .login-card { width: 100%; padding: 0; }
+  .et-native-app .login-body .et-legal-footer { padding: 12px 18px max(var(--et-safe-bottom),12px); }
+  .et-native-app .login-body #mensajeError { scroll-margin-block: 24px; }
 }

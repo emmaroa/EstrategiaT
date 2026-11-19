@@ -64,6 +64,10 @@
     input.addEventListener("keydown", function (event) {
       if (event.key === "Enter") {
         event.preventDefault();
+        if (input === usuarioInput && passwordInput && !passwordInput.value) {
+          passwordInput.focus();
+          return;
+        }
         ejecutarInicioSesion();
       }
     });
@@ -223,9 +227,14 @@
     let data, error, sesionAplicacion;
     try {
       if (typeof loginSupabaseClient.rpc === 'function') {
-        const resultado = await loginSupabaseClient.rpc('iniciar_sesion_aplicacion', {
+        let solicitud = loginSupabaseClient.rpc('iniciar_sesion_aplicacion', {
           p_usuario: usuario, p_password: password
         });
+        const controlador = typeof AbortController !== 'undefined' ? new AbortController() : null;
+        const limite = controlador ? setTimeout(() => controlador.abort(), 20000) : null;
+        if (controlador && typeof solicitud.abortSignal === 'function') solicitud = solicitud.abortSignal(controlador.signal);
+        let resultado;
+        try { resultado = await solicitud; } finally { if (limite) clearTimeout(limite); }
         error = resultado.error;
         if (!error) { sesionAplicacion = resultado.data; data = sesionAplicacion?.usuario; }
       }
@@ -245,7 +254,14 @@
     }
 
     if (error || !data) {
-      mostrarError("Usuario o contraseña incorrectos.");
+      const mensaje = String(error?.message || '');
+      if (error && (/fetch|network|abort|timeout|conexi/i.test(mensaje) || error.code === '57014')) {
+        mostrarError("No se pudo conectar al servidor. Revisa tu conexión e intenta nuevamente.");
+      } else if (error && !['42501', 'PGRST116'].includes(error.code)) {
+        mostrarError("El servicio de acceso no está disponible. Intenta nuevamente en unos momentos.");
+      } else {
+        mostrarError("Usuario o contraseña incorrectos.");
+      }
       return;
     }
 

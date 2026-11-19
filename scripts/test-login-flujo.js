@@ -32,6 +32,11 @@ async function main() {
   assert.ok(calls.some(c=>c.name==='cerrar_sesion_aplicacion'&&c.args.p_token==='test-session-token'));
   response={data:null,error:{code:'42501'}};await login();
   assert.equal(storage.has('usuarioActivo'),false);assert.equal(legacy,0,'No fallback after bad credentials');
+  assert.match(elements.mensajeError.textContent,/incorrectos/);
+  response={data:null,error:{message:'TypeError: Failed to fetch'}};await login();
+  assert.match(elements.mensajeError.textContent,/conectar al servidor/);
+  response={data:null,error:{code:'503',message:'Service unavailable'}};await login();
+  assert.match(elements.mensajeError.textContent,/servicio de acceso/);
   response={data:null,error:{code:'PGRST202'}};await login();
   stored=JSON.parse(storage.get('usuarioActivo'));assert.equal(legacy,1);assert.equal(stored.flujo_token,undefined);
   console.log('Login normal: token sin contraseña persistida, expiración de servidor, cierre/revocación, denegación y compatibilidad sin migración verificados.');

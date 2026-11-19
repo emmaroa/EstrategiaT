@@ -1,0 +1,95 @@
+/* Superficies tranquilas y acentos semánticos. Respeta la paleta elegida. */
+@media screen {
+  :root:not([data-palette]), :root[data-palette="original"] {
+    --color-teal: #356959;
+    --color-teal-dark: #285344;
+    --color-accent: #356959;
+    --color-brand-violet: #356959;
+    --brand-soft: #edf3f0;
+    --brand-text: #356959;
+  }
+  :root[data-theme="dark"]:not([data-palette]), :root[data-theme="dark"][data-palette="original"] {
+    --color-teal: #9bcab7;
+    --color-teal-dark: #79b39c;
+    --brand-soft: #283b33;
+    --brand-text: #b5d8c9;
+  }
+  body.dashboard-body {
+    --ui-accent: var(--color-teal);
+    --ui-soft: color-mix(in srgb,var(--ui-accent) 9%,var(--bg-card));
+    --ui-blue: #426b99;
+    --ui-amber: #996324;
+    --ui-green: #356959;
+    background: color-mix(in srgb,var(--bg-card) 96%,var(--text-secondary));
+  }
+  [data-theme="dark"] body.dashboard-body { --ui-blue: #9cbde2; --ui-amber: #dfba7b; --ui-green: #9bcab7; }
+  body.dashboard-body :is(h1,h2,h3,h4) { font-family: var(--font-sans,system-ui,sans-serif); }
+  body.dashboard-body h1 { font-size: clamp(24px,2.4vw,32px); font-weight: 700; letter-spacing: -.025em; }
+  body.dashboard-body :is(.topbar,.et-module-header,.dashboard-hero) {
+    background: transparent; border: 0; border-radius: 0; box-shadow: none;
+    padding: 8px 0 22px; transform: none;
+  }
+  body.dashboard-body :is(.topbar,.et-module-header,.dashboard-hero)::before,
+  body.dashboard-body :is(.topbar,.et-module-header,.dashboard-hero)::after { display: none; }
+  body.dashboard-body :is(.topbar,.dashboard-hero):hover { box-shadow: none; transform: none; }
+  body.dashboard-body .et-module-icon { border-radius: 7px; background: var(--ui-soft); color: var(--ui-accent); box-shadow: none; }
+  body.dashboard-body :is(.et-module-eyebrow,.dashboard-eyebrow) { color: var(--text-secondary); font-size: 10px; letter-spacing: .07em; font-weight: 600; }
+  body.dashboard-body :is(.btn,.btn-small,.btn-primary,.btn-secondary,.btn-danger,.btn-light,.action-btn,.collapse-toggle,.dashboard-clear-filters) {
+    border-radius: 6px; box-shadow: none; font-weight: 600;
+  }
+  body.dashboard-body :is(.btn,.btn-small,.btn-primary):not(.red-btn):not(.orange) {
+    background: var(--ui-accent); border-color: var(--ui-accent); color: var(--bg-card);
+  }
+  body.dashboard-body :is(.btn,.btn-small,.btn-primary):not(.red-btn):not(.orange):hover {
+    background: var(--color-teal-dark); border-color: var(--color-teal-dark); box-shadow: none;
+  }
+  body.dashboard-body :is(.panel,.chart-card,.module-card,.kpi-card,.card,.dashboard-kpi-group,.dashboard-command-bar) {
+    border-radius: 8px; box-shadow: none; background: var(--bg-card); border-color: var(--border-subtle);
+  }
+  body.dashboard-body :is(.panel,.chart-card,.module-card,.kpi-card):hover { box-shadow: none; }
+  body.dashboard-body .kpi-card { padding: 18px; min-height: 0; border-top: 1px solid var(--border-subtle); }
+  body.dashboard-body .kpi-card::before, body.dashboard-body .kpi-card::after { display: none; }
+  body.dashboard-body .kpi-card h2 { font-size: clamp(24px,2.1vw,32px); font-weight: 650; letter-spacing: -.025em; font-variant-numeric: tabular-nums; }
+  body.dashboard-body .kpi-card > span:not(.dashboard-kpi-icon) { font-size: 12px; font-weight: 500; line-height: 1.5; }
+  body.dashboard-body .kpi-card p { font-size: 11px; color: var(--text-secondary); }
+  body.dashboard-body :is(.modal-card,dialog,.et-feedback-dialog) { border-radius: 10px; }
+  body.dashboard-body :is(.modal-header,.historial-modal-header) { background: var(--bg-card); }
+  body.dashboard-body :is(.input-group,.form-group,.filters) :is(input,select,textarea) { border-radius: 6px; }
+  body.dashboard-body :is(.input-group,.form-group) label { font-weight: 600; font-size: 12px; }
+  body.dashboard-body .sidebar { box-shadow: none; border-right: 1px solid var(--border-subtle); }
+  body.dashboard-body .sidebar :is(.mini-logo,.et-nav-icon) { border-radius: 7px; }
+  body.dashboard-body .sidebar :is(a.active,a.is-active) { background: var(--ui-soft); color: var(--ui-accent); box-shadow: inset 3px 0 var(--ui-accent); }
+  body.dashboard-body .sidebar a:hover { background: var(--ui-soft); }
+  body.dashboard-body .dashboard-hero-meta span { background: transparent; border: 0; border-radius: 0; font-size: 11px; color: var(--text-secondary); }
+  body.dashboard-body .dashboard-command-bar { padding: 14px 18px; }
+  body.dashboard-body .dashboard-command-copy span { font-size: 12px; }
+  body.dashboard-body .dashboard-section-heading h2 { font-size: 18px; font-weight: 650; }
+  body.dashboard-body .dashboard-kpi-group { padding: 14px; border-top: 2px solid var(--ui-blue); }
+  body.dashboard-body .dashboard-kpi-group-financial { border-top-color: var(--ui-green); }
+  body.dashboard-body .dashboard-kpi-group:has(.priority) { border-top-color: var(--ui-amber); }
+  body.dashboard-body .dashboard-kpi-group-heading span { font-weight: 600; font-size: 12px; }
+  body.dashboard-body .dashboard-kpi-group-grid { gap: 0; }
+  body.dashboard-body .dashboard-kpi-card {
+    --kpi-accent: var(--ui-blue);
+    border: 0; border-radius: 0; border-right: 1px solid var(--border-subtle);
+    background: transparent; padding: 12px 14px; min-height: 120px; transform: none;
+  }
+  body.dashboard-body .dashboard-kpi-card:last-child { border-right: 0; }
+  body.dashboard-body .dashboard-kpi-card.financial,
+  body.dashboard-body .dashboard-kpi-card.positive { --kpi-accent: var(--ui-green); }
+  body.dashboard-body .dashboard-kpi-card.priority { --kpi-accent: var(--ui-amber); }
+  body.dashboard-body .dashboard-kpi-card .dashboard-kpi-icon {
+    width: 28px; height: 28px; border-radius: 6px; font-size: 12px;
+    color: var(--kpi-accent) !important;
+    background: color-mix(in srgb,var(--kpi-accent) 10%,var(--bg-card)); box-shadow: none;
+  }
+  body.dashboard-body .dashboard-link-card:hover { background: var(--ui-soft); transform: none; }
+  body.dashboard-body .dashboard-action-card { border-radius: 8px; box-shadow: none; background: var(--bg-card); }
+  body.dashboard-body .dashboard-attention { border-radius: 6px; font-size: 12px; box-shadow: none; }
+  body.dashboard-body .et-legal-footer { font-size: 11px; color: var(--text-secondary); }
+  @media (max-width: 600px) {
+    body.dashboard-body .dashboard-kpi-card { padding: 12px 10px; min-height: 0; }
+    body.dashboard-body .dashboard-kpi-group-heading { flex-wrap: wrap; gap: 4px; }
+    body.dashboard-body .dashboard-command-bar { padding: 12px; }
+  }
+}

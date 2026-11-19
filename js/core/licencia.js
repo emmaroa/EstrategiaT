@@ -4,7 +4,7 @@
   const titularSoftware = 'Brote Labs';
   const contactoRenovacion = 'https://wa.me/526629379505?text=Hola%2C%20quiero%20renovar%20la%20licencia%20de%20Administracion%20de%20Talleres.';
   const estilos = document.createElement('link');
-  estilos.rel = 'stylesheet'; estilos.href = new URL('../../css/licencia.css', base).href;
+  estilos.rel = 'stylesheet'; estilos.href = new URL('../../css/licencia.css?v=2.0.177', base).href;
   document.head.appendChild(estilos);
   const backupListo = new Promise((resolve, reject) => {
     const script = document.createElement('script');
@@ -27,14 +27,14 @@
     const panel = document.createElement('section');
     panel.id = 'etLicencia'; panel.className = 'et-licencia';
     panel.setAttribute('aria-label', 'Licencia de uso');
-    panel.innerHTML = '<div class="et-licencia-datos"><strong>Licencia de uso</strong>' +
+    panel.innerHTML = '<details class="et-licencia-detalles"><summary>Licencia y respaldo <span data-licencia-resumen role="status">Consultar</span></summary><div class="et-licencia-contenido"><div class="et-licencia-datos"><strong>Licencia de uso</strong>' +
       '<span data-licencia-cliente></span>' +
       '<span data-licencia-estado role="status">Consultando vigencia…</span>' +
       '<span data-licencia-fecha></span></div><div class="et-licencia-acciones">' +
       '<button type="button" data-licencia-renovar>Renovar licencia / Renew license</button>' +
       '<button type="button" data-licencia-respaldo hidden>Respaldo completo / Full backup</button>' +
       '<button type="button" data-licencia-actualizar aria-label="Actualizar estado de licencia">Actualizar</button></div>' +
-      '<p data-licencia-copyright></p>';
+      '<p data-licencia-copyright></p></div></details>';
     document.querySelector('main').appendChild(panel);
     const estado = panel.querySelector('[data-licencia-estado]');
     const fecha = panel.querySelector('[data-licencia-fecha]');
@@ -59,6 +59,7 @@
         licencia = data;
         cliente.textContent = data.cliente ? 'Cliente: ' + data.cliente : 'Cliente pendiente de configurar';
         panel.dataset.estado = data.vencida ? 'vencida' : 'vigente';
+        panel.querySelector('[data-licencia-resumen]').textContent = !data.valida_hasta ? 'Sin configurar' : data.vencida ? 'Vencida' : Number(data.dias_restantes) <= 15 ? 'Por vencer' : 'Vigente';
         estado.textContent = data.valida_hasta
           ? (data.vencida ? 'Licencia vencida · 0 días restantes. Puedes seguir operando. El respaldo está disponible para SuperAdmin, Director y Admin.' : data.dias_restantes + ' días restantes / days remaining')
           : 'Vigencia pendiente de configurar';
@@ -69,6 +70,7 @@
       } catch (_) {
         licencia = null;
         panel.dataset.estado = 'error';
+        panel.querySelector('[data-licencia-resumen]').textContent = 'Sin verificar';
         estado.textContent = 'No se pudo verificar la licencia. Puedes seguir operando. Reintenta con Actualizar.';
         fecha.textContent = '';
         cliente.textContent = '';

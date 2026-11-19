@@ -66,7 +66,7 @@
     SUPABASE_URL,
     SUPABASE_KEY,
     APP_NAME: "Administración de Talleres",
-    APP_VERSION: "2.0.175",
+    APP_VERSION: "2.0.181",
     PALETTE: {
       primary: "#FC712B",
       secondary: "#FD9319",

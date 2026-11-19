@@ -6,7 +6,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Administracion de Talleres | Peticiones de Coordinadores</title>
   <link rel="stylesheet" href="../css/style.css">
-  <link rel="stylesheet" href="../css/design-system.css">
+  <link rel="stylesheet" href="../css/design-system.css?v=2.0.181">
   <script src="../js/vendor/-supabase-supabase-js.js"></script>
   <script src="../js/core/supabase.js?v=2.0.170"></script>
   <script src="../js/core/permissions.js?v=2.0.167"></script>
@@ -15,8 +15,8 @@
   <script src="../js/core/calendar-notifications.js"></script>
 <script src="../js/core/notifications-feed.js"></script>
 <script src="../js/core/cancelacion-modulo.js?v=2.0.170"></script>
-<script src="../js/core/layout.js?v=2.0.170"></script>
-  <script src="../js/services/peticiones.service.js"></script>
+<script src="../js/core/layout.js?v=2.0.177"></script>
+  <script src="../js/services/peticiones.service.js?v=2.0.181"></script>
   <script src="../js/core/auth.js?v=2.0.168"></script>
   <style>
     .coordinadores-form { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:14px; }
@@ -30,6 +30,8 @@
     .estado-autorizacion.rechazada { background:rgba(239,68,68,.15); color:#b91c1c; }
     @media(max-width:700px) { .coordinadores-form { grid-template-columns:1fr; } .coordinadores-form .full { grid-column:auto; } }
   </style>
+  <link rel="stylesheet" href="../css/interfaz-sobria.css?v=2.0.177" media="screen">
+  <link rel="stylesheet" href="../css/tablas-sobrias.css?v=2.0.176" media="screen">
 </head>
 <body class="dashboard-body">
   <aside class="sidebar">
@@ -186,6 +188,16 @@
       }).join("");
     }
 
+    async function mostrarPeticionAbierta(unidad, error) {
+      await ETFeedback.seleccionar({
+        title: "Ya existe una petición abierta",
+        message: ETPeticiones.mensajePeticionAbierta(unidad, error?.peticionesAbiertas || []),
+        confirmLabel: "Entendido",
+        cancelLabel: "Cerrar"
+      });
+      document.getElementById("peticion")?.focus();
+    }
+
     async function guardar() {
       if (guardando) return;
       if (idEditando) {
@@ -212,6 +224,10 @@
       const payload = { fecha: new Date().toISOString().slice(0, 10), unidad: document.getElementById("unidad").value.trim(), peticion: document.getElementById("peticion").value.trim(), solicitante: document.getElementById("solicitante").value.trim(), area: document.getElementById("area").value.trim(), dependencia: document.getElementById("dependencia").value.trim() || null, proveedor: null, estatus: "Pendiente", observaciones: document.getElementById("observaciones").value.trim() || null, origen_peticion: "coordinador", estado_autorizacion: "pendiente", creada_por_id: usuario?.id || null, creada_por_nombre: usuario?.nombre || usuario?.usuario || null };
       if (!payload.unidad || !payload.peticion || !payload.solicitante || !payload.area) { alert("Completa unidad, peticion, solicitante y area."); return; }
       const resultado = await ETPeticiones.crear(payload);
+      if (resultado.error?.code === "PETICION_ABIERTA_UNIDAD") {
+        await mostrarPeticionAbierta(payload.unidad, resultado.error);
+        return;
+      }
       if (resultado.error) { alert("No se pudo enviar: " + resultado.error.message); return; }
       ["unidad", "dependencia", "peticion", "observaciones"].forEach(id => { document.getElementById(id).value = ""; });
       prepararAreasCoordinador();

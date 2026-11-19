@@ -28,7 +28,7 @@
 
   if (!document.querySelector('script[data-et-license]') && document.currentScript) {
     const licencia = document.createElement("script");
-    licencia.src = new URL("licencia.js", document.currentScript.src).href;
+    licencia.src = new URL("licencia.js?v=2.0.177", document.currentScript.src).href;
     licencia.dataset.etLicense = "true";
     document.head.appendChild(licencia);
   }

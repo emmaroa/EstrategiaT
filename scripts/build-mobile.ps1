@@ -13,7 +13,7 @@ if (Test-Path -LiteralPath $resolvedOutputDirectory) {
 }
 New-Item -ItemType Directory -Path $resolvedOutputDirectory | Out-Null
 
-$rootFiles = @("index.html", "dashboard.html", "buscador-unidades.html", "privacidad.html", "terminos.html", "cookies.html", "CNAME")
+$rootFiles = @("index.html", "dashboard.html", "buscador-unidades.html", "privacidad.html", "terminos.html", "cookies.html", "CNAME", "VERSION.json")
 foreach ($file in $rootFiles) {
   $source = Join-Path $resolvedProjectRoot $file
   if (Test-Path -LiteralPath $source) { Copy-Item -LiteralPath $source -Destination $resolvedOutputDirectory }
@@ -25,4 +25,9 @@ foreach ($directory in $assetDirectories) {
   if (Test-Path -LiteralPath $source) { Copy-Item -LiteralPath $source -Destination $resolvedOutputDirectory -Recurse }
 }
 
-Write-Host "Aplicación web preparada en $resolvedOutputDirectory"
+$version = (Get-Content -LiteralPath (Join-Path $resolvedOutputDirectory "VERSION.json") -Raw | ConvertFrom-Json).version
+$config = Get-Content -LiteralPath (Join-Path $resolvedOutputDirectory "js/core/supabase.js") -Raw
+if (-not $config.Contains('APP_VERSION: "' + $version + '"')) { throw "La versión web no coincide con VERSION.json." }
+$login = Get-Content -LiteralPath (Join-Path $resolvedOutputDirectory "js/core/auth.js") -Raw
+if (-not $login.Contains("iniciar_sesion_aplicacion")) { throw "El paquete no incluye el acceso por sesión del servidor." }
+Write-Host "Aplicación web $version preparada en $resolvedOutputDirectory"
