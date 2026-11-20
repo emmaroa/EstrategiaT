@@ -26,9 +26,10 @@
 
   prepararEntornoMovil();
 
-  if (!document.querySelector('script[data-et-license]') && document.currentScript) {
+  const licenciaEnPerfil = /\/mi-perfil\.html$/i.test(global.location?.pathname || "");
+  if (licenciaEnPerfil && !document.querySelector('script[data-et-license]') && document.currentScript) {
     const licencia = document.createElement("script");
-    licencia.src = new URL("licencia.js?v=2.0.177", document.currentScript.src).href;
+    licencia.src = new URL("licencia.js?v=2.0.187", document.currentScript.src).href;
     licencia.dataset.etLicense = "true";
     document.head.appendChild(licencia);
   }
@@ -69,16 +70,20 @@
 
   const GRUPOS_NAVEGACION = [
     { nombre: "Portal proveedor", modulos: ["Portal Proveedor", "Peticiones de almacén", "Cotizaciones Proveedor", "Seguimiento de trámites SIIF"] },
-    { nombre: "General", modulos: ["Dashboard", "Buscador Seccional"] },
+    { nombre: "Inicio", modulos: ["Dashboard", "Buscador Seccional"] },
     {
       nombre: "Operación",
-      modulos: ["Parque Vehicular", "Peticiones", "Peticiones de Coordinadores", "Gestión de Cotizaciones", "Crear cotización", "Seguimiento Peticiones", "Acuerdos", "Calendario", "Control de Taller", "Vales"]
+      modulos: ["Parque Vehicular", "Control de Taller", "Peticiones", "Peticiones de Coordinadores", "Seguimiento Peticiones", "Vales"]
     },
     {
-      nombre: "Administración",
-      modulos: ["Reporte MIR", "Requisiciones", "Seguimiento SIIF", "Requisiciones SIIF", "Órdenes de Compra SIIF", "Solicitudes de Pago SIIF", "Importar SIIF", "Tiempo Extra", "Tramites Administrativos", "Generar Textos"]
+      nombre: "Compras y SIIF",
+      modulos: ["Gestión de Cotizaciones", "Crear cotización", "Requisiciones", "Seguimiento SIIF", "Requisiciones SIIF", "Órdenes de Compra SIIF", "Solicitudes de Pago SIIF", "Importar SIIF"]
     },
-    { nombre: "Sistema", modulos: ["Usuarios", "Roles", "Licencias", "Auditoría"] }
+    {
+      nombre: "Colaboración",
+      modulos: ["Acuerdos", "Calendario", "Tiempo Extra", "Tramites Administrativos", "Generar Textos", "Reporte MIR"]
+    },
+    { nombre: "Sistema", modulos: ["Usuarios", "Roles", "Auditoría"] }
   ];
 
   const ICONOS_MODULOS = {
@@ -468,6 +473,7 @@
     }
 
     const menuMovil = crearBotonMenu("et-mobile-menu", "Abrir menú");
+    menuMovil.insertAdjacentHTML("beforeend", "<span>Menú</span>");
     menuMovil.setAttribute("aria-controls", sidebar.id);
     menuMovil.setAttribute("aria-expanded", "false");
     main.insertBefore(menuMovil, main.firstChild);
@@ -503,7 +509,8 @@
       '<a class="et-home-button" href="' + (esRutaDeModulo(global.location.pathname) ? "../dashboard.html" : "dashboard.html") + '">' +
         '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 11.5 12 4l9 7.5v8a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1v-8Z"/></svg>' +
         "<span>Inicio</span>" +
-      "</a>";
+      '</a><span class="et-breadcrumb-separator" aria-hidden="true">/</span>' +
+      '<span class="et-breadcrumb-current" aria-current="page">' + moduloActivo + "</span>";
     primerBloque.insertBefore(breadcrumb, primerBloque.firstChild);
 
     if (!header.querySelector(".dashboard-unit-search-button")) {

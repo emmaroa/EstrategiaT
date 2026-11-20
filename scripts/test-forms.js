@@ -2,6 +2,7 @@ const fs = require("fs");
 
 const layout = fs.readFileSync("js/core/layout.js", "utf8");
 const styles = fs.readFileSync("css/design-system.css", "utf8");
+const soberStyles = fs.readFileSync("css/interfaz-sobria.css", "utf8");
 const usuarios = fs.readFileSync("modulos/usuarios.html", "utf8");
 const permisos = fs.readFileSync("js/core/roles-admin.js", "utf8");
 
@@ -18,6 +19,9 @@ const checks = [
   ,[permisos.includes("acceso.dataset.rbacAccess=modulo"), "Cada módulo debe tener selector de acceso"]
   ,[permisos.includes("?'ver':'none'"), "Los usuarios nuevos deben comenzar sin permisos"]
   ,[usuarios.includes("filter(s=>s.value!=='none')"), "Los módulos sin acceso no deben incluirse en la lista permitida"]
+  ,[soberStyles.includes("Paso 3 — formularios y ventanas"), "Falta la capa sobria de formularios"]
+  ,[soberStyles.includes(".et-feedback-dialog"), "Falta uniformar las ventanas de confirmación"]
+  ,[soberStyles.includes(".modal-actions"), "Falta uniformar las acciones de los formularios"]
 ];
 
 const failed = checks.filter(([ok]) => !ok);

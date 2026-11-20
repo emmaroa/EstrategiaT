@@ -2,6 +2,7 @@ const fs = require("fs");
 
 const layout = fs.readFileSync("js/core/layout.js", "utf8");
 const styles = fs.readFileSync("css/design-system.css", "utf8");
+const soberStyles = fs.readFileSync("css/interfaz-sobria.css", "utf8");
 
 const checks = [
   [layout.includes("prepararAyudasIconos"), "Faltan ayudas automáticas en iconos"],
@@ -11,7 +12,11 @@ const checks = [
   [layout.includes("et-action-success"), "Falta confirmar acciones exitosas"],
   [styles.includes("[data-et-tooltip]"), "Faltan estilos de ayudas"],
   [styles.includes(".et-record-updated"), "Faltan estilos de actualización"],
-  [styles.includes("prefers-reduced-motion"), "Falta respetar movimiento reducido"]
+  [styles.includes("prefers-reduced-motion"), "Falta respetar movimiento reducido"],
+  [soberStyles.includes("Paso 5"), "Falta la capa final de consistencia visual"],
+  [soberStyles.includes("--toast-accent"), "Los avisos deben conservar color semantico"],
+  [soberStyles.includes(".et-content-state"), "Falta unificar los estados de contenido"],
+  [soberStyles.includes("env(safe-area-inset-bottom)"), "Falta respetar el area segura movil"]
 ];
 
 const failed = checks.filter(([ok]) => !ok);

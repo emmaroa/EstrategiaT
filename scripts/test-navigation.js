@@ -7,6 +7,21 @@ const layout = fs.readFileSync(path.resolve(__dirname, "../js/core/layout.js"), 
 
 assert.match(layout, /prepararBuscadorNavegacion/, "Debe existir el buscador de modulos");
 assert.match(layout, /permitidos\.includes\(modulo\)/, "El menu debe respetar permisos");
+assert.match(layout, /nombre: "Compras y SIIF"/, "Compras y SIIF deben tener un grupo propio");
+assert.match(layout, /nombre: "Colaboración"/, "Las herramientas colaborativas deben estar agrupadas");
+assert.match(layout, /nombre: "Sistema", modulos: \["Usuarios", "Roles", "Auditoría"\]/,
+  "Licencias no debe permanecer expuesta en la navegación principal");
+assert.match(layout, /et-breadcrumb-current/, "El encabezado debe mostrar el módulo actual");
+assert.match(layout, /insertAdjacentHTML\("beforeend", "<span>Menú<\/span>"\)/,
+  "El botón móvil debe tener una etiqueta visible");
+assert.match(layout, /licenciaEnPerfil[\s\S]*mi-perfil/, "El panel de licencia debe cargarse únicamente desde Mi perfil");
+
+const perfilHtml = fs.readFileSync(path.resolve(__dirname, "../modulos/mi-perfil.html"), "utf8");
+const perfilJs = fs.readFileSync(path.resolve(__dirname, "../js/modules/mi-perfil.js"), "utf8");
+const sobrio = fs.readFileSync(path.resolve(__dirname, "../css/interfaz-sobria.css"), "utf8");
+assert.match(perfilHtml, /id="herramientasAdministracion" hidden/, "Las herramientas sensibles deben vivir en Mi perfil");
+assert.match(perfilJs, /puedeAcceder\(usuario, "Licencias"\)/, "Licencias debe mostrarse sólo con permiso");
+assert.match(sobrio, /Paso 2 — navegación y encabezados/, "Falta la capa visual de navegación");
 
 const permissionsSource = fs.readFileSync(path.resolve(__dirname, "../js/core/permissions.js"), "utf8");
 const context = { window: {} };

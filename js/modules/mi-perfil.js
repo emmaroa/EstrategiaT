@@ -31,6 +31,14 @@
     }).join("");
   }
 
+  function renderHerramientasAdministracion() {
+    const seccion = document.getElementById("herramientasAdministracion");
+    const licencias = document.getElementById("accesoLicencias");
+    const puedeLicencias = Boolean(window.ETPermissions?.puedeAcceder(usuario, "Licencias"));
+    if (licencias) licencias.hidden = !puedeLicencias;
+    if (seccion) seccion.hidden = !puedeLicencias;
+  }
+
   function guardarPreferencias() {
     const kpis = Array.from(document.querySelectorAll('#listaKpis input:checked')).map(function (input) { return input.value; });
     if (!kpis.length) return ETLayout.toast("Selecciona por lo menos un indicador.", "warning");
@@ -54,8 +62,9 @@
 
   usuario = leerUsuario();
   if (!usuario) { location.replace("../index.html"); return; }
-  ETLayout.inicializar("Dashboard");
+  ETLayout.inicializar("Mi perfil");
   renderKpis();
+  renderHerramientasAdministracion();
   document.getElementById("seleccionarTodosKpis").addEventListener("click", function () {
     document.querySelectorAll('#listaKpis input[type="checkbox"]').forEach(function (input) { input.checked = true; });
   });

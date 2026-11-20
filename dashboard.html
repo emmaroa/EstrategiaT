@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="es">
 <head>
   <meta name="robots" content="noindex, nofollow">
@@ -8,7 +8,7 @@
 
   <link rel="stylesheet" href="css/style.css?v=20260730-1">
   <link rel="stylesheet" href="css/design-system.css?v=20260819-14">
-  <link rel="stylesheet" href="css/dashboard.css?v=2.0.150">
+  <link rel="stylesheet" href="css/dashboard.css?v=2.0.191">
   <link rel="stylesheet" href="css/mobile-app.css">
   <script src="js/vendor/-supabase-supabase-js.js"></script>
   <script src="js/vendor/chart.js.js"></script>
@@ -21,16 +21,17 @@
   <script src="js/core/calendar-notifications.js?v=2.0.114"></script>
   <script src="js/core/notifications-feed.js"></script>
 <script src="js/core/cancelacion-modulo.js?v=2.0.170"></script>
-<script src="js/core/layout.js?v=2.0.177"></script>
+<script src="js/core/layout.js?v=2.0.187"></script>
   <script src="js/core/mobile-app.js"></script>
   <script src="js/services/export.service.js"></script>
   <script src="js/services/peticiones.service.js?v=20260727-1"></script>
+  <script src="js/services/cotizaciones-almacen.service.js?v=2.0.192"></script>
   <script src="js/services/dashboard.service.js?v=20260909-6"></script>
   <script src="js/core/auth.js?v=2.0.168"></script>
   <link rel="stylesheet" href="css/reference-theme.css?v=20260927-1" media="screen">
 <meta name="referrer" content="strict-origin-when-cross-origin"><link rel="stylesheet" href="css/privacy-accessibility.css?v=20260927-1"><script src="js/core/privacy.js?v=20260928-1" defer></script><script src="js/core/accessibility.js?v=20260927-1" defer></script>
-  <link rel="stylesheet" href="css/interfaz-sobria.css?v=2.0.177" media="screen">
-  <link rel="stylesheet" href="css/tablas-sobrias.css?v=2.0.176" media="screen">
+  <link rel="stylesheet" href="css/interfaz-sobria.css?v=2.0.190" media="screen">
+  <link rel="stylesheet" href="css/tablas-sobrias.css?v=2.0.188" media="screen">
 </head>
 
 <body class="dashboard-body">
@@ -231,7 +232,7 @@
       </div>
         </div>
       </article>
-      <article class="dashboard-kpi-group">
+      <article class="dashboard-kpi-group dashboard-kpi-group-personal">
         <div class="dashboard-kpi-group-heading"><span>Personal</span><small>Disponibilidad del equipo</small></div>
         <div class="dashboard-kpi-group-grid">
       <div class="kpi-card highlight-teal dashboard-kpi-card dashboard-link-card kpi-cumpleanos" data-module="Tramites Administrativos" data-indicador-personal="true" data-href="modulos/empleados.html" role="link" tabindex="0">
@@ -810,7 +811,7 @@ let fechaHastaDashboard = "";
             ? dashboardClient.from("tramites_administrativos").select("id,num_empleado,empleado_nombre,tipo_tramite,subtipo_incapacidad,motivo,fecha_inicio,fecha_fin")
             : Promise.resolve({ data: [], error: null }),
           puedeVerKpisCotizaciones(usuarioActivo)
-            ? dashboardClient.from("cotizaciones_almacen").select("id,requisicion,total,fecha_cotizacion,estatus")
+            ? ETCotizacionesAlmacen.listarResumen()
             : Promise.resolve({ data: [], error: null })
         ]);
 
@@ -1224,16 +1225,9 @@ function renderizarDashboard() {
   document.getElementById("kpiRequisicionesAutorizar").textContent = kpis.requisicionesPorAutorizar;
   document.getElementById("kpiRequisicionesXml").textContent = kpis.requisicionesConXml;
   document.getElementById("kpiValesEmitidos").textContent = puedeVerFinanciero ? kpis.valesEmitidos : kpis.valesActivos;
-  const cotizacionesSinRequisicion = cotizaciones.filter(function (cotizacion) {
-    const estatus = String(cotizacion.estatus || "").normalize("NFD")
-      .replace(/[\u0300-\u036f]/g, "").trim().toLowerCase();
-    return !String(cotizacion.requisicion || "").trim() &&
-      estatus !== "requisicion generada" && estatus !== "rechazada";
-  });
-  document.getElementById("kpiDashboardCotizacionesSinRequisicion").textContent = cotizacionesSinRequisicion.length;
-  document.getElementById("kpiDashboardMontoSinRequisicion").textContent = moneda(cotizacionesSinRequisicion.reduce(function (total, cotizacion) {
-    return total + Number(cotizacion.total || 0);
-  }, 0));
+  const resumenCotizacionesSinRequisicion = ETCotizacionesAlmacen.resumirPendientesVincular(cotizaciones);
+  document.getElementById("kpiDashboardCotizacionesSinRequisicion").textContent = resumenCotizacionesSinRequisicion.cantidad;
+  document.getElementById("kpiDashboardMontoSinRequisicion").textContent = moneda(resumenCotizacionesSinRequisicion.total);
 
   const ahoraOperativo = new Date();
   const hoyOperativo = [

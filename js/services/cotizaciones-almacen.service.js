@@ -10,14 +10,71 @@
     return { data: null, error: { message: "Sin conexión" } };
   }
 
-  async function listar() {
+  function normalizarEstatus(valor) {
+    return String(valor || "").normalize("NFD")
+      .replace(/[\u0300-\u036f]/g, "").trim().toLowerCase();
+  }
+
+  function tieneRequisicion(cotizacion) {
+    return Boolean(String(cotizacion && cotizacion.requisicion || "").trim()) ||
+      normalizarEstatus(cotizacion && cotizacion.estatus).includes("requisicion generada");
+  }
+
+  function estaPendienteVincular(cotizacion) {
+    return normalizarEstatus(cotizacion && cotizacion.estatus) !== "rechazada" &&
+      !tieneRequisicion(cotizacion);
+  }
+
+  function resumirPendientesVincular(cotizaciones) {
+    const pendientes = (Array.isArray(cotizaciones) ? cotizaciones : []).filter(estaPendienteVincular);
+    let totalCentavos = 0;
+    let importesOmitidos = 0;
+    pendientes.forEach(function (cotizacion) {
+      const monto = Number(cotizacion && cotizacion.total);
+      if (cotizacion?.total == null || cotizacion.total === "" || !Number.isFinite(monto) || monto < 0) {
+        importesOmitidos += 1;
+        return;
+      }
+      totalCentavos += Math.round(monto * 100);
+    });
+    return {
+      cantidad: pendientes.length,
+      total: totalCentavos / 100,
+      totalCentavos: totalCentavos,
+      importesOmitidos: importesOmitidos,
+      cotizaciones: pendientes
+    };
+  }
+
+  async function listarPaginado(columnas, configurarConsulta) {
     const client = getClient();
     if (!client) return { data: [], error: { message: "Sin conexión" } };
+    const registros = [];
+    for (let desde = 0; ; desde += 1000) {
+      let consulta = client.from("cotizaciones_almacen").select(columnas);
+      consulta = typeof configurarConsulta === "function"
+        ? configurarConsulta(consulta)
+        : consulta.order("id", { ascending: false });
+      const resultado = await consulta.range(desde, desde + 999);
+      if (resultado.error) return { data: [], error: resultado.error };
+      const bloque = resultado.data || [];
+      registros.push.apply(registros, bloque);
+      if (bloque.length < 1000) break;
+    }
+    return { data: registros, error: null };
+  }
 
-    return client
-      .from("cotizaciones_almacen")
-      .select("*")
-      .order("created_at", { ascending: false });
+  async function listar() {
+    return listarPaginado("*", function (consulta) {
+      return consulta.order("created_at", { ascending: false })
+        .order("id", { ascending: false });
+    });
+  }
+
+  async function listarResumen() {
+    return listarPaginado("id,requisicion,total,fecha_cotizacion,estatus", function (consulta) {
+      return consulta.order("id", { ascending: true });
+    });
   }
 
   async function listarPorProveedor(proveedor) {
@@ -180,6 +237,7 @@
 
   global.ETCotizacionesAlmacen = {
     listar,
+    listarResumen,
     listarPorProveedor,
     listarPorPeticiones,
     crear,
@@ -187,6 +245,9 @@
     crearDesdePeticion,
     buscarUnidadesParque,
     buscarUnidadParque,
+    tieneRequisicion,
+    estaPendienteVincular,
+    resumirPendientesVincular,
     actualizarDatosInternos,
     actualizarInterna
   };

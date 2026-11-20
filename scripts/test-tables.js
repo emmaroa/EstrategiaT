@@ -2,6 +2,7 @@ const fs = require("fs");
 
 const layout = fs.readFileSync("js/core/layout.js", "utf8");
 const styles = fs.readFileSync("css/design-system.css", "utf8");
+const soberStyles = fs.readFileSync("css/tablas-sobrias.css", "utf8");
 
 const checks = [
   [layout.includes("prepararEstadosFila"), "Falta la mejora automática de estados"],
@@ -13,6 +14,10 @@ const checks = [
   [styles.includes(".status-badge.et-state-success"), "Falta el color uniforme de estados satisfactorios"],
   [styles.includes(".status-badge.et-state-neutral"), "Falta el color uniforme de estados neutrales"],
   [styles.includes(".et-data-table.is-compact"), "Faltan los estilos compactos"]
+  ,[soberStyles.includes("Paso 3 — consulta de datos, filtros y acciones"), "Falta la capa sobria de tablas"]
+  ,[soberStyles.includes("position: sticky"), "Los encabezados de tabla deben permanecer visibles"]
+  ,[soberStyles.includes(".et-page-jump input"), "Falta uniformar el salto directo de página"]
+  ,[soberStyles.includes(".action-btn.delete"), "Falta distinguir visualmente las acciones destructivas"]
 ];
 
 const failed = checks.filter(([ok]) => !ok);

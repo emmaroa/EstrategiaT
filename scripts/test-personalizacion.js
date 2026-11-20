@@ -2,7 +2,27 @@ const fs = require("fs");
 const path = require("path");
 const assert = require("assert");
 
+const sobrio = fs.readFileSync(path.resolve(__dirname, "../css/interfaz-sobria.css"), "utf8");
+assert.match(sobrio, /--color-primary:\s*#315f50/i, "Falta el color institucional principal");
+assert.match(sobrio, /--bg-body:\s*#f3f5f4/i, "Falta la superficie clara institucional");
+assert.match(sobrio, /--bg-body:\s*#111714/i, "Falta la superficie oscura institucional");
+assert.match(sobrio, /min-height:\s*44px[\s\S]*border-radius:\s*8px/, "Los campos deben compartir altura y radio");
+assert.match(sobrio, /border-radius:\s*7px[\s\S]*font-weight:\s*600/, "Los botones deben usar la geometría sobria");
+
 const dashboard = fs.readFileSync(path.resolve(__dirname, "../dashboard.html"), "utf8");
+const login = fs.readFileSync(path.resolve(__dirname, "../index.html"), "utf8");
+const dashboardStyles = fs.readFileSync(path.resolve(__dirname, "../css/dashboard.css"), "utf8");
+assert.match(dashboard, /interfaz-sobria\.css\?v=2\.0\.190/, "El dashboard debe cargar la base visual actual");
+assert.match(login, /interfaz-sobria\.css\?v=2\.0\.190/, "El acceso debe cargar la base visual actual");
+assert.match(dashboard, /dashboard\.css\?v=2\.0\.191/, "El dashboard debe cargar su capa visual actual");
+assert.match(sobrio, /Paso 4[^\n]*acceso claro/i, "Falta la capa sobria del acceso");
+assert.match(sobrio, /login-security-note[\s\S]*Sesión protegida|login-security-note/, "Falta el indicador visual de acceso protegido");
+assert.match(dashboardStyles, /Paso 4[^\n]*dashboard ejecutivo/i, "Falta la capa ejecutiva del dashboard");
+assert.match(dashboardStyles, /--dashboard-blue:[\s\S]*--dashboard-green:[\s\S]*--dashboard-amber:/, "Falta color contextual en el dashboard");
+assert.match(dashboardStyles, /@media \(max-width: 520px\)[\s\S]*dashboard-kpi-card/, "Falta la adaptación compacta del dashboard");
+assert.match(dashboard, /dashboard-kpi-group dashboard-kpi-group-personal/, "El grupo de personal debe permitir el detalle de ausencias");
+assert.match(dashboardStyles, /dashboard-kpi-group-personal\s*\{[\s\S]*?overflow:\s*visible/, "El detalle de ausencias no debe quedar recortado");
+assert.match(dashboardStyles, /dashboard-kpi-group-personal:has\(\.kpi-ausentes-card:hover\)[\s\S]*?z-index:\s*60/, "El detalle de ausencias debe mostrarse sobre los demás paneles");
 const inicio = dashboard.indexOf("function aplicarPreferenciasKpisDashboard()");
 const fin = dashboard.indexOf("\nfunction obtenerAnio", inicio);
 const cuerpo = dashboard.slice(inicio, fin);

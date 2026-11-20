@@ -4,7 +4,7 @@
   const titularSoftware = 'Brote Labs';
   const contactoRenovacion = 'https://wa.me/526629379505?text=Hola%2C%20quiero%20renovar%20la%20licencia%20de%20Administracion%20de%20Talleres.';
   const estilos = document.createElement('link');
-  estilos.rel = 'stylesheet'; estilos.href = new URL('../../css/licencia.css?v=2.0.177', base).href;
+  estilos.rel = 'stylesheet'; estilos.href = new URL('../../css/licencia.css?v=2.0.187', base).href;
   document.head.appendChild(estilos);
   const backupListo = new Promise((resolve, reject) => {
     const script = document.createElement('script');
@@ -25,7 +25,7 @@
   function iniciar() {
     if (!document.querySelector('main') || document.getElementById('etLicencia')) return;
     const panel = document.createElement('section');
-    panel.id = 'etLicencia'; panel.className = 'et-licencia';
+    panel.id = 'etLicencia'; panel.className = 'et-licencia profile-card-wide';
     panel.setAttribute('aria-label', 'Licencia de uso');
     panel.innerHTML = '<details class="et-licencia-detalles"><summary>Licencia y respaldo <span data-licencia-resumen role="status">Consultar</span></summary><div class="et-licencia-contenido"><div class="et-licencia-datos"><strong>Licencia de uso</strong>' +
       '<span data-licencia-cliente></span>' +
@@ -35,7 +35,7 @@
       '<button type="button" data-licencia-respaldo hidden>Respaldo completo / Full backup</button>' +
       '<button type="button" data-licencia-actualizar aria-label="Actualizar estado de licencia">Actualizar</button></div>' +
       '<p data-licencia-copyright></p></div></details>';
-    document.querySelector('main').appendChild(panel);
+    (document.querySelector('.profile-grid') || document.querySelector('main')).appendChild(panel);
     const estado = panel.querySelector('[data-licencia-estado]');
     const fecha = panel.querySelector('[data-licencia-fecha]');
     const cliente = panel.querySelector('[data-licencia-cliente]');

@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="es">
 <head>
   <meta name="robots" content="noindex, nofollow">
@@ -11,7 +11,7 @@
   <link rel="stylesheet" href="css/mobile-app.css">
   <link rel="stylesheet" href="css/reference-theme.css?v=20260927-1" media="screen">
 <meta name="referrer" content="strict-origin-when-cross-origin"><link rel="stylesheet" href="css/privacy-accessibility.css?v=20260927-1"><script src="js/core/privacy.js?v=20260928-1" defer></script><script src="js/core/accessibility.js?v=20260927-1" defer></script>
-  <link rel="stylesheet" href="css/interfaz-sobria.css?v=2.0.177" media="screen">
+  <link rel="stylesheet" href="css/interfaz-sobria.css?v=2.0.190" media="screen">
 </head>
 <body class="login-body">
 
@@ -19,6 +19,7 @@
 
     <div class="left-panel">
       <div class="brand-box">
+        <span class="login-brand-eyebrow">Gestión operativa</span>
         <div class="logo">E</div>
 
         <h1>EstrategiaT</h1>
@@ -40,8 +41,11 @@
     <div class="right-panel">
 
       <div class="login-card" data-privacy-login>
-        <h2>Bienvenido</h2>
-        <p>Inicia sesión para acceder al sistema.</p>
+        <div class="login-card-header">
+          <span class="login-card-eyebrow">Acceso al sistema</span>
+          <h2>Bienvenido</h2>
+          <p>Ingresa tus datos para continuar.</p>
+        </div>
 
         <div class="input-group">
           <label for="usuario">Usuario o correo</label>
@@ -57,8 +61,13 @@
 
         <p id="mensajeError" class="error" role="alert" aria-live="assertive"></p>
 
+        <div class="login-security-note">
+          <span aria-hidden="true"></span>
+          Sesión protegida para personal autorizado
+        </div>
+
         <div class="extra">
-          <span>v2.0.0</span>
+          <span>EstrategiaT</span>
           <span class="status">● Sistema operativo</span>
         </div>
       </div>
